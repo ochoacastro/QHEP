@@ -539,8 +539,8 @@ const tabs=()=>{const ct=curTab(),im=MORE.includes(ct),tb=([v,t])=>`<button data
 const subHTML=()=>cat==='Venta de vehículos'?`<div class="sub"><label for="s-vt">Tipo</label><select id="s-vt" data-sel="vt"><option value="">Todos</option>${VT.map(x=>`<option${vt===x?' selected':''}>${x}</option>`).join('')}</select><label for="s-fu">Combustible</label><select id="s-fu" data-sel="fu"><option value="">Todos</option>${FU.map(x=>`<option${fu===x?' selected':''}>${x}</option>`).join('')}</select></div>`:'';
 const waOpen=(n,t)=>window.open('https://wa.me/'+(n.length===10?'57'+n:n)+'?text='+encodeURIComponent(t),'_blank');
 function gridHTML(){const l=filtered();return l.length?pageOf(l).map(shopCard).join('')+moreHTML(l.length):`<div class="empty">Aún no hay tiendas en esta categoría. Abre la primera.</div>`}
-function homeView(){return `${menuBar()}<section class="hero"><h1><img src="${LOGO}" alt="Qué Hay en Pradera – Lo nuestro, en un solo lugar"></h1><p>Compra, arrienda y contrata directamente con vecinos de Pradera. Abre tu tienda o publica tu servicio.</p><div class="hbt"><button class="btn pink" data-act="newShop">Abrir mi tienda</button><button class="btn pink" data-act="pubMenu">+ Publicar</button></div></section>
-${bannersHTML()}${mlHTML()}
+function homeView(){return `${menuBar()}<section class="hero">${(()=>{const b=bannersHTML();return b?b+'<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Qué Hay en Pradera</h1>':`<h1><img src="${LOGO}" alt="Qué Hay en Pradera – Lo nuestro, en un solo lugar"></h1>`})()}<p>Compra, arrienda y contrata directamente con vecinos de Pradera. Abre tu tienda o publica tu servicio.</p><div class="hbt"><button class="btn pink" data-act="newShop">Abrir mi tienda</button><button class="btn pink" data-act="pubMenu">+ Publicar</button></div></section>
+${mlHTML()}
 ${toolsHTML('store')}${subHTML()}<div class="grid" id="grid">${gridHTML()}</div>`}
 let sc1='',sc2='',scFor='';
 const shown=s=>s.products.filter(p=>(!sc1||p.c1===sc1)&&(!sc2||p.c2===sc2));
