@@ -315,6 +315,13 @@ body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-
 @media(min-width:600px){.hubfi{flex-direction:row;text-align:left;gap:12px;padding:0 14px;font-size:15px}.hubfi i{width:46px;height:46px}}
 .hub .bn{max-width:420px}.hub .hbt{display:flex;gap:10px;justify-content:center;margin:6px 0 4px}.hub .hbt .btn{flex:1 1 150px;max-width:230px;padding:12px 10px}
 .hubbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 8px}.hubbar h2{font-size:22px}
+/* inicio: grupos de 4 productos destacados + publicidad intermedia */
+.hubp{margin:22px 0 6px}.hubp h2{font-size:20px;font-weight:800;margin:0 0 10px}
+.hubpg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}@media(min-width:720px){.hubpg{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.hpc{display:flex;flex-direction:column;align-items:stretch;gap:4px;background:#fff;border:1px solid #dbe3f3;border-radius:16px;padding:10px;text-align:left;color:var(--ink);font-weight:400;min-width:0;cursor:pointer}
+.hpc .hpi{aspect-ratio:1/1;border-radius:12px;background:var(--bg);display:grid;place-items:center;overflow:hidden;font-size:34px;font-weight:700}.hpc .hpi img{width:100%;height:100%;object-fit:cover;display:block}
+.hpc .hpp{font-size:18px;font-weight:800;margin-top:4px}.hpc .hpn{font-size:14px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.hpc .hps{font-size:12px}
+.hpmid{margin:18px 0}.hpmid .tb{margin:0}
 </style>
 </head>
 <body>
@@ -587,7 +594,12 @@ const HUBF=[['Tiendas y comercios locales','#1F6FD6',hubIc.store],['Variedad de 
 const hubTile=t=>`<button class="hubt" data-act="${t[3]}" data-v="${t[4]}" aria-label="${esc(t[1])}" style="--c:${t[2]}"><span class="hubi">${hubSvg(t[5])}</span><span>${esc(t[0])}</span></button>`;
 const hubOn=()=>{if(cat||query.trim()||favOnly)shopsOpen=true;return!shopsOpen};
 const hubBar=()=>`<div class="hubbar"><button class="btn ghost" data-act="hubHome">← Inicio</button><h2>${cat==='@super'?'Tiendas y abarrotes':cat&&cat!=='@tiendas'?esc(cat):'Comercio local'}</h2></div>`;
-function hubView(){return `${menuBar()}<section class="hub"><h1 class="sr1">Qué Hay en Pradera</h1><div class="hubhero"><h2>Tu mercado, en un solo lugar</h2><p>Compra, arrienda y contrata directamente con vecinos de Pradera.</p><div class="hubg" role="group" aria-label="Categorías principales">${HUB.map(hubTile).join('')}</div></div><div class="hubf" role="list">${HUBF.map(f=>`<div class="hubfi" role="listitem" style="--c:${f[1]}"><i>${hubSvg(f[2])}</i><span>${esc(f[0])}</span></div>`).join('')}</div>${bannersHTML()}<div class="hbt"><button class="btn pink" data-act="newShop">Abrir mi tienda</button><button class="btn pink" data-act="pubMenu">+ Publicar</button></div></section>`}
+/* inicio: productos destacados = mejor calificados (del producto o, si no tiene, de su tienda); sin calificaciones, los más recientes */
+const featProds=()=>{const o=[];S.stores.forEach(s=>{if(!vis(s)||LISTING.includes(s.cat))return;(s.products||[]).forEach(p=>{if(p.out)return;const r=(p.rates&&p.rates.length)?p.rates:(s.rates||[]);o.push({s,p,a:avg(r),n:r.length})})});return o.sort((x,y)=>y.a-x.a||y.n-x.n||(y.p._o||0)-(x.p._o||0))};
+const hubProd=({s,p})=>{const im=pimgs(p);return `<button class="hpc" data-act="prod" data-sid="${s.id}" data-id="${p.id}" aria-label="Ver ${esc(p.name)} en ${esc(s.name)}"><span class="hpi">${im.length?`<img src="${im[0]}" alt="" loading="lazy">`:esc(p.emoji||p.name.charAt(0).toUpperCase())}</span><span class="hpp">${money(p.price)}</span><span class="hpn">${esc(p.name)}</span><span class="hps muted">${esc(s.name)}</span></button>`};
+const hubGroup=(t,l)=>l.length?`<section class="hubp" aria-label="${esc(t)}"><h2>${esc(t)}</h2><div class="hubpg">${l.map(hubProd).join('')}</div></section>`:'';
+const midAd=()=>{const l=tbList('mid');if(!l.length)return'';return `<div class="hpmid"><section class="tb" aria-roledescription="carrusel" aria-label="Publicidad"><div class="tbt">${l.map((b,i)=>{const im=`<img src="${b.img}" alt="${esc(b.alt||'Publicidad '+(i+1))}" loading="lazy">`;return bnUrl(b.url)?`<a class="tbs" href="${esc(bnUrl(b.url))}" target="_blank" rel="noopener noreferrer">${im}</a>`:`<div class="tbs">${im}</div>`}).join('')}</div></section></div>`};
+function hubView(){const F=featProds();return `${menuBar()}<section class="hub"><h1 class="sr1">Qué Hay en Pradera</h1><div class="hubhero"><h2>Tu mercado, en un solo lugar</h2><p>Compra, arrienda y contrata directamente con vecinos de Pradera.</p><div class="hubg" role="group" aria-label="Categorías principales">${HUB.map(hubTile).join('')}</div></div><div class="hubf" role="list">${HUBF.map(f=>`<div class="hubfi" role="listitem" style="--c:${f[1]}"><i>${hubSvg(f[2])}</i><span>${esc(f[0])}</span></div>`).join('')}</div>${bannersHTML()}<div class="hbt"><button class="btn pink" data-act="newShop">Abrir mi tienda</button><button class="btn pink" data-act="pubMenu">+ Publicar</button></div>${hubGroup('Productos destacados',F.slice(0,4))}${midAd()}${hubGroup('Recomendados para ti',F.slice(4,8))}</section>`}
 function homeView(){if(hubOn())return hubView();return `${menuBar()}${hubBar()}<section class="hero"><h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Qué Hay en Pradera</h1>${topBannerHTML(cat==='@super'?'super':'tiendas')}</section>
 ${mlHTML()}
 ${toolsHTML('store')}${subHTML()}<div class="grid" id="grid">${gridHTML()}</div>`}
