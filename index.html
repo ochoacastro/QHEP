@@ -287,6 +287,21 @@ body.instore #app{display:flex;flex-direction:column}body.instore #app>.rvt,body
 .pxd{border:1px solid #dbe3f3;border-radius:8px;padding:8px 10px;margin:8px 0}.pxd summary{font-weight:700;cursor:pointer}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-admin #cartBtn,body.m-admin #userBtn,body.m-admin #q,body.m-admin #sr{display:none!important}
+/* v7: inicio con cuadros de colores (Supermercados, Tiendas, Vehículos, Inmuebles, Servicios) */
+.hub{margin:6px 0 4px}.sr1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.hubhero{background:linear-gradient(180deg,#BFE0FF 0%,#EAF3FF 100%);border-radius:24px;padding:20px 12px 18px;text-align:center;border:1px solid #dbe3f3}
+.hubhero h2{font-size:clamp(22px,6vw,32px);line-height:1.1;font-weight:800}
+.hubhero p{font-size:15px;margin:6px auto 18px;max-width:420px;opacity:.85}
+.hubg{display:flex;flex-wrap:wrap;justify-content:center;gap:16px 10px}
+.hubt{flex:0 0 calc(33.333% - 10px);display:flex;flex-direction:column;align-items:center;gap:8px;background:none;padding:0;font-weight:700;font-size:13px;line-height:1.15;color:var(--ink);text-align:center}
+@media(min-width:480px){.hubt{flex:1 1 0;min-width:0}}
+.hubi{width:100%;max-width:104px;aspect-ratio:1;border-radius:22%;background:var(--c);display:grid;place-items:center;box-shadow:0 6px 14px color-mix(in srgb,var(--c) 45%,transparent),inset 0 -4px 0 #0002;transition:transform .15s}
+.hubt:active .hubi{transform:scale(.94)}
+.hubi svg,.hubfi svg{width:54%;height:54%;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hubf{display:flex;overflow-x:auto;scrollbar-width:none;background:#fff;border:1px solid #dbe3f3;border-radius:20px;margin:14px 0 18px;padding:12px 4px;-webkit-overflow-scrolling:touch}.hubf::-webkit-scrollbar{display:none}
+.hubfi{flex:1 0 auto;min-width:210px;display:flex;align-items:center;gap:12px;padding:0 14px;border-right:2px solid #c9d3ea;font-weight:700;font-size:15px;line-height:1.2}.hubfi:last-child{border-right:0}
+.hubfi i{flex:none;width:48px;height:48px;border-radius:50%;background:var(--c);display:grid;place-items:center}
+.hubbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 8px}.hubbar h2{font-size:22px}
 </style>
 </head>
 <body>
@@ -532,14 +547,30 @@ $('#home').innerHTML=`<img src="${LOGO}" alt="Qué Hay en Pradera">`;
 document.head.insertAdjacentHTML('beforeend',`<link rel="icon" href="${LOGO}">`);
 
 function shopCard(s){const c=catOf(s.cat),li=LISTING.includes(s.cat);return `<section class="shop sg" style="--c:${c[2]}" aria-label="${esc(s.name)}"><button class="sh" data-act="open" data-id="${s.id}" aria-label="Abrir ${esc(s.name)}"><span class="lg">${avatar(s)}</span><span class="si"><h3>${esc(s.name)}</h3><span class="sm">${rateLine(s)}<span>${esc(s.cat)}</span>${s.zone?`<span>· ${esc(s.zone)}</span>`:''}${badge(s)}${isFav('store',s.id)?'<span class="fav">♥</span>':''}</span>${(s.tags||[]).length?`<span class="tg">${s.tags.map(t=>'#'+esc(t)).join(' ')}</span>`:''}</span><span class="chev" aria-hidden="true">›</span></button><div class="prow">${s.products.length?s.products.map(p=>{const im=pimgs(p);return `<div class="pc"><button class="po" data-act="prod" data-sid="${s.id}" data-id="${p.id}" aria-label="Ver ${esc(p.name)} en ${esc(s.name)}"><span class="pi">${im.length?`<img src="${im[0]}" alt="" loading="lazy">`:esc(p.emoji||p.name.charAt(0).toUpperCase())}</span><span class="pn">${esc(p.name)}</span><span class="pp">${money(p.price)}${s.cat==='Arriendos'?' <small>/ mes</small>':''}</span></button>${li?'':`<button class="plus" data-act="add" data-sid="${s.id}" data-id="${p.id}" aria-label="Agregar ${esc(p.name)} al carrito"${p.out?' disabled':''}>+</button>`}</div>`}).join(''):`<span class="muted">Esta tienda aún no tiene ${li?'publicaciones':'productos'}.</span>`}</div></section>`}
-function filtered(){const q=query.trim().toLowerCase();return sortL(S.stores.filter(s=>vis(s)&&(!zoneF||s.zone===zoneF)&&(!favOnly||isFav('store',s.id))&&(!cat||(cat==='@tiendas'?!MAIN_X.includes(s.cat):s.cat===cat))&&(cat!=='Venta de vehículos'||(!vt&&!fu)||s.products.some(p=>(!vt||p.vtype===vt)&&(!fu||p.fuel===fu)))&&(!q||s.name.toLowerCase().includes(q)||(s.tags||[]).some(t=>q.replace(/#/g,'')&&t.includes(q.replace(/#/g,'')))||s.products.some(p=>p.name.toLowerCase().includes(q)))))}
+function filtered(){const q=query.trim().toLowerCase();return sortL(S.stores.filter(s=>vis(s)&&(!zoneF||s.zone===zoneF)&&(!favOnly||isFav('store',s.id))&&(!cat||(cat==='@tiendas'?!MAIN_X.includes(s.cat):cat==='@super'?SUPER_RE.test(s.cat):s.cat===cat))&&(cat!=='Venta de vehículos'||(!vt&&!fu)||s.products.some(p=>(!vt||p.vtype===vt)&&(!fu||p.fuel===fu)))&&(!q||s.name.toLowerCase().includes(q)||(s.tags||[]).some(t=>q.replace(/#/g,'')&&t.includes(q.replace(/#/g,'')))||s.products.some(p=>p.name.toLowerCase().includes(q)))))}
 const curTab=()=>{const t=ADT[view]?view:view==='ad'?((S.ads.find(x=>x.id===curAd)||{}).type||'home'):view==='serv'||view==='sug'||view==='map'?view:'home';return t==='casa'?'arr':t};
 let moreOpen=false,adFOpen=false;const MORE=['arr','veh'];
 const tabs=()=>{const ct=curTab(),im=MORE.includes(ct),tb=([v,t])=>`<button data-act="tab" data-v="${v}" aria-current="${ct===v}">${t}</button>`;return `<nav class="tabs" aria-label="Secciones">${[['home','Tiendas'],['map','Mapa'],['serv','Servicios']].map(tb).join('')}<button data-act="moretabs" aria-expanded="${moreOpen||im}" aria-current="${im}">${im?ADT[ct].tab:'Más'} ▾</button>${tb(['sug','Sugerencias'])}</nav>${moreOpen||im?`<div class="subtabs" role="group" aria-label="Más secciones">${MORE.map(v=>tb([v,ADT[v].tab])).join('')}</div>`:''}`};
 const subHTML=()=>cat==='Venta de vehículos'?`<div class="sub"><label for="s-vt">Tipo</label><select id="s-vt" data-sel="vt"><option value="">Todos</option>${VT.map(x=>`<option${vt===x?' selected':''}>${x}</option>`).join('')}</select><label for="s-fu">Combustible</label><select id="s-fu" data-sel="fu"><option value="">Todos</option>${FU.map(x=>`<option${fu===x?' selected':''}>${x}</option>`).join('')}</select></div>`:'';
 const waOpen=(n,t)=>window.open('https://wa.me/'+(n.length===10?'57'+n:n)+'?text='+encodeURIComponent(t),'_blank');
 function gridHTML(){const l=filtered();return l.length?pageOf(l).map(shopCard).join('')+moreHTML(l.length):`<div class="empty">Aún no hay tiendas en esta categoría. Abre la primera.</div>`}
-function homeView(){return `${menuBar()}<section class="hero">${(()=>{const b=bannersHTML();return b?b+'<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Qué Hay en Pradera</h1>':`<h1><img src="${LOGO}" alt="Qué Hay en Pradera – Lo nuestro, en un solo lugar"></h1>`})()}<p>Compra, arrienda y contrata directamente con vecinos de Pradera. Abre tu tienda o publica tu servicio.</p><div class="hbt"><button class="btn pink" data-act="newShop">Abrir mi tienda</button><button class="btn pink" data-act="pubMenu">+ Publicar</button></div></section>
+/* v7: inicio con cuadros de colores. Al tocar Supermercados/Tiendas se abre la lista de tiendas por grupos (como antes) */
+let shopsOpen=false;const SUPER_RE=/supermercad|abarrot/i;
+const hubIc={cart:'<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+store:'<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2 2.7 2.7 0 0 1-2-.9 2.7 2.7 0 0 1-4 0 2.7 2.7 0 0 1-4 0 2.7 2.7 0 0 1-4 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>',
+car:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
+home:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+tools:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'};
+const hubSvg=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+/* [rótulo, descripción, color, acción, valor, icono] */
+const HUB=[['Supermercados','Supermercados y tiendas de abarrotes','#1F6FD6','hubStores','@super',hubIc.cart],['Tiendas','Tiendas y comercios locales','#3DB52E','hubStores','',hubIc.store],['Vehículos','Vehículos','#E5233C','miniTab','veh',hubIc.car],['Inmuebles','Inmuebles','#F5921E','miniTab','arr',hubIc.home],['Servicios','Servicios','#7B4FD6','serv','',hubIc.tools]];
+const HUBF=[['Tiendas y comercios locales','#1F6FD6',hubIc.store],['Variedad de productos y servicios','#3DB52E',hubIc.cart],['Directo con vecinos de Pradera','#F5921E',hubIc.users]];
+const hubTile=t=>`<button class="hubt" data-act="${t[3]}" data-v="${t[4]}" aria-label="${esc(t[1])}" style="--c:${t[2]}"><span class="hubi">${hubSvg(t[5])}</span><span>${esc(t[0])}</span></button>`;
+const hubOn=()=>{if(cat||query.trim()||favOnly)shopsOpen=true;return!shopsOpen};
+const hubBar=()=>`<div class="hubbar"><button class="btn ghost" data-act="hubHome">← Inicio</button><h2>${cat==='@super'?'Supermercados y abarrotes':cat&&cat!=='@tiendas'?esc(cat):'Tiendas'}</h2></div>`;
+function hubView(){return `${menuBar()}<section class="hub"><h1 class="sr1">Qué Hay en Pradera</h1><div class="hubhero"><h2>Tu mercado, en un solo lugar</h2><p>Compra, arrienda y contrata directamente con vecinos de Pradera.</p><div class="hubg" role="group" aria-label="Categorías principales">${HUB.map(hubTile).join('')}</div></div><div class="hubf" role="list">${HUBF.map(f=>`<div class="hubfi" role="listitem" style="--c:${f[1]}"><i>${hubSvg(f[2])}</i><span>${esc(f[0])}</span></div>`).join('')}</div>${bannersHTML()}<div class="hbt"><button class="btn pink" data-act="newShop">Abrir mi tienda</button><button class="btn pink" data-act="pubMenu">+ Publicar</button></div></section>`}
+function homeView(){if(hubOn())return hubView();return `${menuBar()}${hubBar()}<section class="hero">${(()=>{const b=bannersHTML();return b?b+'<h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Qué Hay en Pradera</h1>':`<h1><img src="${LOGO}" alt="Qué Hay en Pradera – Lo nuestro, en un solo lugar"></h1>`})()}<p>Compra, arrienda y contrata directamente con vecinos de Pradera. Abre tu tienda o publica tu servicio.</p><div class="hbt"><button class="btn pink" data-act="newShop">Abrir mi tienda</button><button class="btn pink" data-act="pubMenu">+ Publicar</button></div></section>
 ${mlHTML()}
 ${toolsHTML('store')}${subHTML()}<div class="grid" id="grid">${gridHTML()}</div>`}
 let sc1='',sc2='',scFor='';
@@ -914,6 +945,8 @@ const refreshCart=()=>{$('#cc').textContent=Object.values(S.cart).reduce((a,b)=>
 
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,id=b.dataset.id,v=b.dataset.v;
 if(a==='home'){view='home';render()}
+else if(a==='hubStores'){cat=v;vt='';fu='';sortBy='';zoneF='';favOnly=false;shopsOpen=true;view='home';render()}
+else if(a==='hubHome'){cat='';vt='';fu='';query='';$('#q').value='';shopsOpen=false;view='home';render()}
 else if(a==='open'){view='store';cur=id;render()}
 else if(a==='prod'){cur=b.dataset.sid||cur;curP=id;pI=0;pQ=1;view='prod';render()}
 else if(a==='pimg'){pI=+b.dataset.i||0;render(true)}
@@ -974,9 +1007,9 @@ else if(a==='saveSug'){const t=$('#g-txt').value.trim(),err=$('#err');if(t.lengt
 else if(a==='delSug'){S.ideas=S.ideas.filter(x=>x.id!==id);S.myIdeas=S.myIdeas.filter(x=>x!==id);save();render()}
 else if(a==='rate'){const k=b.dataset.k;if(k==='prod'?S.mine.includes(cur):(k==='store'?S.mine:S.myServ).includes(id))return toast('No puedes calificar lo tuyo');need(()=>rateForm(k,id))}
 else if(a==='reviews')reviewsModal(b.dataset.k,id);
-else if(a==='tab'){sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render()}
-else if(a==='menu'){modal(`<h2>Menú</h2>${[['home','Tiendas'],['map','Mapa'],['serv','Servicios'],...MORE.map(k=>[k,ADT[k].tab]),['sug','Sugerencias']].map(([k,t])=>`<button class="mrow" data-act="mnuGo" data-v="${k}"${curTab()===k?' aria-current="true"':''}><span>${t}</span><b aria-hidden="true">›</b></button>`).join('')}<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>`)}
-else if(a==='mnuGo'){closeModal(1);sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render()}
+else if(a==='tab'){if(v==='home')shopsOpen=true;sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render()}
+else if(a==='menu'){modal(`<h2>Menú</h2>${[['hub','Inicio'],['home','Tiendas'],['map','Mapa'],['serv','Servicios'],...MORE.map(k=>[k,ADT[k].tab]),['sug','Sugerencias']].map(([k,t])=>`<button class="mrow" data-act="mnuGo" data-v="${k}"${curTab()===k?' aria-current="true"':''}><span>${t}</span><b aria-hidden="true">›</b></button>`).join('')}<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>`)}
+else if(a==='mnuGo'){closeModal(1);if(v==='hub'){cat='';shopsOpen=false;view='home';render();return}if(v==='home')shopsOpen=true;sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render()}
 else if(a==='moretabs'){moreOpen=!moreOpen;render(true)}
 else if(a==='near'){const st=$('#near-st');if(myLL){myLL=null;render(true)}else if(!navigator.geolocation)st.textContent='Tu navegador no permite obtener la ubicación.';else{b.disabled=true;st.textContent='Buscando tu ubicación…';navigator.geolocation.getCurrentPosition(p=>{myLL=[p.coords.latitude,p.coords.longitude];if(view==='map')render(true)},()=>{if(view!=='map')return;b.disabled=false;st.textContent='No pude obtener tu ubicación. Activa el permiso de ubicación del navegador e intenta de nuevo.'},{enableHighAccuracy:true,timeout:10000})}}
 else if(a==='pub'){QH.go(()=>v==='shop'?shopForm():v==='serv'?servForm():v==='inm'?inmMenu():adForm(v))}
@@ -1071,7 +1104,7 @@ else if(a==='order'){const s=S.stores.find(x=>x.id===id);if(!s.wa)return toast('
  const num=s.wa.length===10?'57'+s.wa:s.wa;window.open(`https://wa.me/${num}?text=${encodeURIComponent(`Hola ${s.name}, vi su tienda en Qué Hay en Pradera y quiero pedir:\n${l.join('\n')}\nTotal: ${money(t)}`)}`,'_blank');
  Object.keys(S.cart).forEach(k=>k.startsWith(id+'|')&&delete S.cart[k]);refreshCart()}
 });
-$('#cartBtn').onclick=openCart;$('#userBtn').onclick=()=>{if(S.user)profileModal();else{after=null;loginForm()}};$('#home').onclick=()=>{if(MODE!=='index'){location.href='index.html';return}view='home';cat='';render()};
+$('#cartBtn').onclick=openCart;$('#userBtn').onclick=()=>{if(S.user)profileModal();else{after=null;loginForm()}};$('#home').onclick=()=>{if(MODE!=='index'){location.href='index.html';return}view='home';cat='';shopsOpen=false;render()};
 const norm=t=>String(t??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const srHide=()=>{const b=$('#sr');b&&(b.hidden=true)};
 function srFind(q){const w=norm(q).replace(/#/g,' ').split(/\s+/).filter(Boolean);if(!w.length)return null;const m=t=>{const h=norm(t);return w.every(x=>h.includes(x))},rk=t=>norm(t).startsWith(w[0])?0:1,st=[],pr=[],sv=[],ad=[];
