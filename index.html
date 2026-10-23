@@ -125,6 +125,8 @@ input[type=password]{width:100%;padding:10px 12px;border-radius:8px;border:1px s
 footer .back{opacity:1;font-weight:600;font-size:14px;text-decoration:underline}
 .tabs{overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}.tabs button{flex:none;padding:10px 13px}
 .subtabs{display:flex;gap:6px;margin:0 0 8px;padding:6px 0}.subtabs button{background:#fff;border:1px solid #c9d3ea;border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px;opacity:.85}.subtabs button[aria-current=true]{border-color:var(--mango);opacity:1}
+/* v14: pantalla de precarga */
+#splash{position:fixed;inset:0;z-index:99999;background:#fff;display:grid;place-items:center;transition:opacity .35s ease,visibility .35s}#splash.off{opacity:0;visibility:hidden;pointer-events:none}.spl{display:grid;justify-items:center;gap:22px;padding:24px;text-align:center}.spl-logo{width:min(220px,60vw);min-height:90px;display:grid;place-items:center;animation:splp 1.6s ease-in-out infinite}.spl-logo img{width:100%;height:auto;animation:none!important;background:none!important}.spl-logo b{font-size:22px;color:var(--ink)}.spl-bar{width:min(220px,60vw);height:5px;border-radius:9px;background:#e3e9f7;overflow:hidden}.spl-bar i{display:block;height:100%;width:40%;border-radius:9px;background:var(--mango);animation:splb 1.1s ease-in-out infinite}#splash p{color:var(--ink);opacity:.7;font-weight:600;font-size:14px}@keyframes splb{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}@keyframes splp{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 /* v13: imagen de precarga (shimmer) hasta que cada imagen carga */
 @keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
 img:not(.ld){background:linear-gradient(90deg,#e3e9f7 25%,#f3f6fd 50%,#e3e9f7 75%);background-size:200% 100%;animation:shim 1.2s linear infinite}
@@ -313,6 +315,7 @@ body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-
 </style>
 </head>
 <body>
+<div id="splash" role="status" aria-label="Cargando"><div class="spl"><div class="spl-logo"><b>Qué Hay en Pradera</b></div><div class="spl-bar"><i></i></div><p>Cargando tu mercado…</p></div></div>
 <header>
   <button class="logo" id="home" aria-label="Ir al inicio"></button>
   <input id="q" type="search" placeholder="Busca tiendas, productos…" aria-label="Buscar tiendas, productos, servicios y anuncios" autocomplete="off" aria-controls="sr" enterkeyhint="search">
@@ -325,7 +328,7 @@ body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-
 <footer>Qué Hay en Pradera · Lo nuestro, en un solo lugar. Cada tienda y cada servicio es responsabilidad de quien lo publica.<br><button class="back" data-act="legal" data-v="terms">Términos de uso</button> · <button class="back" data-act="legal" data-v="priv">Política de privacidad</button></footer>
 <aside class="drawer" id="drawer" aria-label="Carrito"></aside>
 <div id="toast" role="status"></div>
-<script>(function(){const m=e=>{const t=e.target;if(t&&t.tagName==='IMG')t.classList.add('ld')};document.addEventListener('load',m,true);document.addEventListener('error',m,true)})()</script>
+<script>window.hideSplash=function(){var x=document.getElementById('splash');if(x){x.classList.add('off');setTimeout(function(){x.remove()},500)}};setTimeout(function(){window.hideSplash()},20000);(function(){const m=e=>{const t=e.target;if(t&&t.tagName==='IMG')t.classList.add('ld')};document.addEventListener('load',m,true);document.addEventListener('error',m,true)})()</script>
 <script>
 const CATS=[['Farmacia','','#1E6FBF'],['Electrodomésticos','','#2B3A55'],['Restaurantes','','#B23A2E'],['Ropa','','#4A4A6A'],['Celulares','','#C0392B'],['Computación','','#1F6F8B'],['Hogar','','#2E7D5B'],['Alquiler de artículos','🎪','#0E7490'],['Ferretería','🔧','#B45309'],['Muebles y decoración','🛋️','#9A3412'],['Moda y accesorios','👗','#BE185D'],['Accesorios vehículos','🚗','#1E4FBF'],['Deporte y fitness','🏋️','#15803D'],['Tecnología','💻','#1F6F8B'],['Oficina y papelería','📎','#6D28D9'],['Videojuegos','🎮','#4338CA'],['Juegos y juguetes','🧸','#C2410C'],['Abarrotes','🛒','#2E7D5B'],['Bebés','🍼','#DB2777'],['Mascotas','🐶','#A0551A'],['Instrumentos musicales','🎸','#7C2D12'],['Joyas y relojes','💍','#A16207'],['Cacharrerías','🧰','#475569'],['Belleza y salud','💄','#BE123C'],['Licores','🍷','#8A4B1A'],['Calzado','👟','#4D7C0F'],['Libros y revistas','📚','#6D28D9'],['Floristería y regalos','💐','#BE185D'],['Panadería y pastelería','🥐','#B45309'],['Jardinería y agro','🌱','#15803D'],['Fiestas y eventos','🎉','#9F1239']];
 const OFICIOS=['Niñera','Cuidador de ancianos','Aseadora','Carpintero','Plomero o fontanero','Electricista','Pintor','Jardinero','Mecánico','Servicios especializados','Otro'];
@@ -420,11 +423,11 @@ const QH=(function(){
    if(first){first=false;done();return}
    if(ready&&!same(c)){rebuild();sched()}
   },e=>{if(!ready)fail(e);else if(c==='reports'){repL=false}else wfail(e)})}
- function fail(e){failed=true;const c=(e&&e.code)||'';
+ function fail(e){failed=true;hideSplash();const c=(e&&e.code)||'';
   $('#app').innerHTML=`<div class="cg"><h2>No pudimos conectar con la base de datos</h2><p class="muted">${esc(c==='permission-denied'?'Faltan publicar las reglas de seguridad de Firestore (ver LEEME).':c==='timeout'||c==='unavailable'?'Revisa tu conexión a internet e inténtalo de nuevo.':'Ocurrió un error ('+(c||e)+').')}</p><button class="btn pink" onclick="location.reload()">Reintentar</button></div>`}
  function repListen(){if(MODE!=='admin'||repL||!adm||!ready)return;repL=true;listen('reports',()=>{rebuild();render(true)})}
  function start(cb){
-  document.body.classList.add('m-'+MODE);$('#app').innerHTML='<div class="empty">Cargando…</div>';
+  document.body.classList.add('m-'+MODE);{const sl=$('#splash .spl-logo');if(sl)sl.innerHTML='<img src="'+LOGO+'" alt="Qué Hay en Pradera">'}$('#app').innerHTML='<div class="empty">Cargando…</div>';
   try{firebase.initializeApp(CFG);db=firebase.firestore();auth=firebase.auth()}catch(e){return fail(e)}
   if(MODE==='panel'&&!S.user){const d=LEG();if(d&&d.user&&d.user.name){S.user=d.user;save()}}
   authP=new Promise(ok=>{auth.onAuthStateChanged(u=>{
@@ -432,7 +435,7 @@ const QH=(function(){
    if(MODE==='admin'){const a=!u.isAnonymous&&!!u.email;if(a!==adm){adm=a;if(ready){closeModal();view='admin';render()}}if(a)repListen()}
    ok()})});
   let n=COLS.length;
-  COLS.forEach(c=>listen(c,()=>{if(--n===0){ready=true;rebuild();cb()}}));
+  COLS.forEach(c=>listen(c,()=>{if(--n===0){ready=true;rebuild();cb();hideSplash()}}));
   setTimeout(()=>{if(!ready&&!failed)fail({code:'timeout'})},15000)}
  /* ---- entradas de cada archivo ---- */
  function after(){if(MODE==='admin'){view='admin';render();if(!adm)admForm();else repListen()}else if(MODE==='panel'){render();if(!S.user)loginForm()}}
