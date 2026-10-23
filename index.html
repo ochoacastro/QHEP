@@ -333,7 +333,8 @@ body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-
 <script>window.hideSplash=function(){var x=document.getElementById('splash');if(x){x.classList.add('off');setTimeout(function(){x.remove()},500)}};setTimeout(function(){window.hideSplash()},20000);(function(){const m=e=>{const t=e.target;if(t&&t.tagName==='IMG')t.classList.add('ld')};document.addEventListener('load',m,true);document.addEventListener('error',m,true)})()</script>
 <script>
 const CATS=[['Farmacia','','#1E6FBF'],['Electrodomésticos','','#2B3A55'],['Restaurantes','','#B23A2E'],['Ropa','','#4A4A6A'],['Celulares','','#C0392B'],['Computación','','#1F6F8B'],['Hogar','','#2E7D5B'],['Alquiler de artículos','🎪','#0E7490'],['Ferretería','🔧','#B45309'],['Muebles y decoración','🛋️','#9A3412'],['Moda y accesorios','👗','#BE185D'],['Accesorios vehículos','🚗','#1E4FBF'],['Deporte y fitness','🏋️','#15803D'],['Tecnología','💻','#1F6F8B'],['Oficina y papelería','📎','#6D28D9'],['Videojuegos','🎮','#4338CA'],['Juegos y juguetes','🧸','#C2410C'],['Abarrotes','🛒','#2E7D5B'],['Bebés','🍼','#DB2777'],['Mascotas','🐶','#A0551A'],['Instrumentos musicales','🎸','#7C2D12'],['Joyas y relojes','💍','#A16207'],['Cacharrerías','🧰','#475569'],['Belleza y salud','💄','#BE123C'],['Licores','🍷','#8A4B1A'],['Calzado','👟','#4D7C0F'],['Libros y revistas','📚','#6D28D9'],['Floristería y regalos','💐','#BE185D'],['Panadería y pastelería','🥐','#B45309'],['Jardinería y agro','🌱','#15803D'],['Fiestas y eventos','🎉','#9F1239']];
-const OFICIOS=['Niñera','Cuidador de ancianos','Aseadora','Carpintero','Plomero o fontanero','Electricista','Pintor','Jardinero','Mecánico','Servicios especializados','Otro'];
+const OFICIOS=['Niñera','Cuidador de ancianos','Aseadora','Carpintero','Plomero o fontanero','Electricista','Pintor','Jardinero','Mecánico','Servicios especializados','Otro'];const DEFJOBS=OFICIOS.filter(o=>o!=='Otro');let newCatImg='';
+function applyJobs(){const j=(typeof S!=='undefined'&&S&&S.site&&Array.isArray(S.site.jobs))?S.site.jobs:DEFJOBS;OFICIOS.length=0;j.filter(x=>x&&x!=='Otro').slice().sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'})).forEach(x=>OFICIOS.push(x));OFICIOS.push('Otro')}
 const VT=['Carro','Moto','Bicicleta','Otro'],FU=['Eléctrico','Gasolina','Diésel','Otro'];
 const LISTING=['Arriendos','Venta de casas','Venta de vehículos'];
 const catOf=n=>CATS.find(c=>c[0]===n)||CATS[CATS.length-1];
@@ -346,7 +347,7 @@ const SEED=[
 ];
 let S={stores:[],cart:{},mine:[],services:[],myServ:[]},view='home',cur=null,cat='',query='',vt='',fu='',sj='',sortBy='',zoneF='',favOnly=false,adm=false,at='rep',after=null,adF={},curAd='',sm='dom',curP='',pI=0,pQ=1;
 try{const d=JSON.parse(localStorage.getItem(LKEY));if(d){S.cart=d.cart||{};S.favs=d.favs||[];S.user=d.user||null;S.myIdeas=d.myIdeas||[]}}catch(e){}
-S.services=S.services||[];S.myServ=S.myServ||[];S.ideas=S.ideas||[];S.myIdeas=S.myIdeas||[];S.reports=S.reports||[];S.favs=S.favs||[];S.user=S.user||null;S.pin=S.pin||'';S.ads=S.ads||[];S.myAds=S.myAds||[];S.site=S.site||{name:'',wa:'',mail:''};if(Array.isArray(S.cats)&&S.cats.length&&S.catsV===62){CATS.length=0;S.cats.forEach(c=>CATS.push(c))}else{S.cats=CATS.map(c=>c.slice());S.catsV=62}(S.stores||[]).forEach(s=>{if(s.cat==='Moda')s.cat='Ropa'});
+S.services=S.services||[];S.myServ=S.myServ||[];S.ideas=S.ideas||[];S.myIdeas=S.myIdeas||[];S.reports=S.reports||[];S.favs=S.favs||[];S.user=S.user||null;S.pin=S.pin||'';S.ads=S.ads||[];S.myAds=S.myAds||[];S.site=S.site||{name:'',wa:'',mail:''};applyJobs();if(Array.isArray(S.cats)&&S.cats.length&&S.catsV===62){CATS.length=0;S.cats.forEach(c=>CATS.push(c))}else{S.cats=CATS.map(c=>c.slice());S.catsV=62}(S.stores||[]).forEach(s=>{if(s.cat==='Moda')s.cat='Ropa'});
 const save=()=>{try{localStorage.setItem(LKEY,JSON.stringify({cart:S.cart,favs:S.favs,user:S.user,myIdeas:S.myIdeas}))}catch(e){toast('No se pudo guardar en este dispositivo')}QH.push()};
 /* ===== v74: base de datos compartida (Firestore) — la usan index.html, panel.html y admin.html ===== */
 const sha256=(()=>{const K=[],H0=[];let n=2,c=0;const fr=x=>(x-Math.floor(x))*4294967296|0;
@@ -415,7 +416,7 @@ const QH=(function(){
   if(MODE==='admin')S.reports=g('reports',1);
   S.banners=g('banners',1);S.topAds=g('topAds',1);
   const cs=g('cats',1);if(cs.length){const o=cs.filter(x=>x.a[0]==='Otros'),r=cs.filter(x=>x.a[0]!=='Otros');CATS.length=0;r.concat(o).forEach(x=>{CATS.push(x.a.slice())});S.cats=CATS.map(c=>c.slice())}
-  const m=(RAW.meta||{}).site;if(m)S.site=clean(m);
+  const m=(RAW.meta||{}).site;if(m){S.site=clean(m);applyJobs()}
   derive()}
  function derive(){if(MODE!=='panel')return;const k=key(),m=l=>k?l.filter(o=>o.ownerKey===k).map(o=>o.id):[];S.mine=m(S.stores);S.myServ=m(S.services);S.myAds=m(S.ads)}
  function same(c){const D=want()[c]||{},R=RAW[c]||{},a=Object.keys(D),b=Object.keys(R);if(a.length!==b.length)return false;return a.every(id=>R[id]&&sj(D[id])===sj(R[id]))}
