@@ -1104,7 +1104,19 @@ document.addEventListener('change',async e=>{if(!adm||e.target.id!=='bn-f')retur
 const add=(await Promise.all(fs.map(f=>resize(f,1000,.72)))).filter(Boolean);e.target.value='';if(!add.length)return toast('No se pudo leer la imagen');S.banners=l.concat(add.map(img=>({id:uid(),img,url:''})));save();render(true);toast(add.length+' imagen(es) agregada(s)')});
 document.addEventListener('change',e=>{const m=/^ct-f-(\d+)$/.exec(e.target.id||'');if(!adm||!m)return;const i=+m[1],f=e.target.files[0];if(!f||!CATS[i])return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,160/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);CATS[i]=[CATS[i][0],c.toDataURL('image/png'),CATS[i][2]];saveCats();render(true);toast('Ícono actualizado')};im.onerror=()=>toast('No se pudo leer la imagen');im.src=r.result};r.readAsDataURL(f)});
 (function(){let x0=null;document.addEventListener('touchstart',e=>{x0=e.target.closest&&e.target.closest('.pvg')?e.touches[0].clientX:null},{passive:true});document.addEventListener('touchend',e=>{if(x0==null)return;const d=e.changedTouches[0].clientX-x0,n=document.querySelectorAll('.pvd button').length;x0=null;if(Math.abs(d)<50||n<2)return;pI=(pI+(d<0?1:-1)+n)%n;render(true)})})();
-window.addEventListener('hashchange',route);QH.start(()=>{route();QH.after()});
+/* v5: pop-up de publicidad al entrar a la página principal (una vez por sesión) */
+let popDone=false;
+function popAd(){if(popDone||MODE!=='index'||view!=='home'||adm||$('#adpop'))return;const l=bnList().filter(b=>b&&b.img);if(!l.length)return;
+try{if(sessionStorage.getItem('qh_pop'))return}catch(e){}
+popDone=true;try{sessionStorage.setItem('qh_pop','1')}catch(e){}
+const b=l[Math.floor(Math.random()*l.length)],u=bnUrl(b.url),im=`<img src="${b.img}" alt="${esc(b.alt||'Publicidad')}">`;
+const o=document.createElement('div');o.id='adpop';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label','Publicidad');
+o.innerHTML=`<div class="apb"><button class="apx" aria-label="Cerrar publicidad">✕</button>${u?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${im}</a>`:im}</div>`;
+const close=()=>{o.remove();document.removeEventListener('keydown',esc_)},esc_=e=>{if(e.key==='Escape')close()};
+o.addEventListener('click',e=>{if(e.target===o||e.target.closest('.apx'))close()});document.addEventListener('keydown',esc_);
+document.body.appendChild(o);const x=o.querySelector('.apx');x&&x.focus()}
+document.head.insertAdjacentHTML('beforeend','<style>#adpop{position:fixed;inset:0;z-index:9999;background:#0b1a3acc;display:grid;place-items:center;padding:16px;animation:apin .25s both}#adpop .apb{position:relative;width:min(92vw,460px);max-height:88vh;border-radius:22px;background:#fff;box-shadow:0 12px 40px #0006;animation:appop .3s both}#adpop .apb img{display:block;width:100%;max-height:88vh;object-fit:contain;border-radius:22px}#adpop .apx{position:absolute;top:-14px;right:-6px;width:40px;height:40px;border-radius:50%;background:#fff;color:#0B2F7A;font-size:20px;font-weight:700;box-shadow:0 2px 10px #0006;z-index:1;display:grid;place-items:center;padding:0}@keyframes apin{from{opacity:0}}@keyframes appop{from{opacity:0;transform:scale(.9)}}</style>');
+window.addEventListener('hashchange',route);QH.start(()=>{route();QH.after();popAd()});
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
