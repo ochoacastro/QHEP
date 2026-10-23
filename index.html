@@ -28,7 +28,7 @@ header{position:relative;z-index:20;background:#fff;color:var(--ink);display:fle
 .hero img{width:min(340px,80%)}
 #q{flex:1 1 320px;max-width:620px;margin:0 auto;min-width:150px;padding:14px 22px;border-radius:999px;border:2px solid var(--mango);font:inherit;font-size:17px;background:#fff;color:var(--ink);box-shadow:0 2px 8px #0b2f7a1f}
 #q:focus{outline:none;border-color:#1E4FBF;box-shadow:0 0 0 3px #1E4FBF33}
-@media(max-width:700px){#q{order:10;flex:1 1 100%;max-width:none;margin:0}header{gap:6px;padding:6px 10px}.logo img{height:60px}header .btn{flex:1 1 auto;padding:9px 6px;font-size:13px;white-space:nowrap;text-align:center}}
+@media(max-width:700px){#q{order:10;flex:1 1 100%;max-width:none;margin:0}header{gap:6px;padding:6px 10px}.logo{margin-right:auto}.logo img{height:50px}header .btn{flex:0 0 auto;padding:9px 16px;font-size:14px;white-space:nowrap;text-align:center}}
 input[type=time]{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #c9d3ea;font:inherit;background:#fff;color:var(--ink)}
 .dayrow{display:flex;gap:6px;flex-wrap:wrap}.dchip{position:relative;display:inline-block;margin:0;font-weight:600}.dchip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}.dchip span{display:block;padding:8px 11px;border-radius:8px;border:1px solid #c9d3ea;background:#fff;min-width:46px;text-align:center}.dchip input:checked+span{background:var(--ink);color:#fff;border-color:var(--ink)}.dchip input:focus-visible+span{outline:3px solid var(--rio);outline-offset:2px}
 .dchip.pay span{display:flex;align-items:center;gap:6px;min-height:42px;padding:6px 11px}
@@ -232,7 +232,7 @@ body.instore #app{display:flex;flex-direction:column}body.instore #app>.rvt,body
 /* v70: el banner vive en la cabecera: en móvil queda entre los botones y el buscador; se pliega al bajar para no ocupar la cabecera fija */
 #hbn{order:20;flex:1 1 100%;min-width:0}#hbn:empty,body.hbc #hbn{display:none}
 #hbn .tb{margin:0 -16px}#hbn .tb.ph{margin:0 4%}
-@media(max-width:700px){#hbn{order:5}}
+@media(max-width:700px){#hbn{order:20;margin-top:2px}}
 .bn.ph{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;text-align:center;aspect-ratio:1/1;border:2px dashed #9aa8c9;border-radius:22px;background:#fff;padding:12px}
 .catg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px;margin:8px 0 22px}@media(min-width:720px){.catg{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
 .cgt{display:flex;flex-direction:column;align-items:center;gap:8px;background:none;padding:4px 2px;text-align:center;font-weight:600;font-size:14px;line-height:1.2;word-break:break-word}
@@ -289,18 +289,20 @@ body.instore #app{display:flex;flex-direction:column}body.instore #app>.rvt,body
 body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-admin #cartBtn,body.m-admin #userBtn,body.m-admin #q,body.m-admin #sr{display:none!important}
 /* v7: inicio con cuadros de colores (Supermercados, Tiendas, Vehículos, Inmuebles, Servicios) */
 .hub{margin:6px 0 4px}.sr1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-.hubhero{background:linear-gradient(180deg,#BFE0FF 0%,#EAF3FF 100%);border-radius:24px;padding:20px 12px 18px;text-align:center;border:1px solid #dbe3f3}
-.hubhero h2{font-size:clamp(22px,6vw,32px);line-height:1.1;font-weight:800}
-.hubhero p{font-size:15px;margin:6px auto 18px;max-width:420px;opacity:.85}
-.hubg{display:flex;flex-wrap:wrap;justify-content:center;gap:16px 10px}
-.hubt{flex:0 0 calc(33.333% - 10px);display:flex;flex-direction:column;align-items:center;gap:8px;background:none;padding:0;font-weight:700;font-size:13px;line-height:1.15;color:var(--ink);text-align:center}
-@media(min-width:480px){.hubt{flex:1 1 0;min-width:0}}
-.hubi{width:100%;max-width:104px;aspect-ratio:1;border-radius:22%;background:var(--c);display:grid;place-items:center;box-shadow:0 6px 14px color-mix(in srgb,var(--c) 45%,transparent),inset 0 -4px 0 #0002;transition:transform .15s}
+.hubhero{background:linear-gradient(180deg,#BFE0FF 0%,#EAF3FF 100%);border-radius:24px;padding:18px 10px 16px;text-align:center;border:1px solid #dbe3f3;box-shadow:0 4px 14px #0b2f7a14}
+.hubhero h2{font-size:clamp(20px,5.6vw,30px);line-height:1.15;font-weight:800}
+.hubhero p{font-size:14px;margin:4px auto 16px;max-width:420px;opacity:.8}
+.hubg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;align-items:start}
+.hubt{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;padding:0;font-weight:700;font-size:11px;line-height:1.15;color:var(--ink);text-align:center;min-width:0}
+@media(min-width:480px){.hubg{gap:14px}.hubt{font-size:13px}}
+.hubi{width:100%;max-width:104px;aspect-ratio:1;border-radius:24%;background:linear-gradient(160deg,color-mix(in srgb,var(--c) 80%,#fff),var(--c));display:grid;place-items:center;box-shadow:0 5px 12px color-mix(in srgb,var(--c) 40%,transparent),inset 0 -3px 0 #0002;transition:transform .15s}
 .hubt:active .hubi{transform:scale(.94)}
 .hubi svg,.hubfi svg{width:54%;height:54%;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.hubf{display:flex;overflow-x:auto;scrollbar-width:none;background:#fff;border:1px solid #dbe3f3;border-radius:20px;margin:14px 0 18px;padding:12px 4px;-webkit-overflow-scrolling:touch}.hubf::-webkit-scrollbar{display:none}
-.hubfi{flex:1 0 auto;min-width:210px;display:flex;align-items:center;gap:12px;padding:0 14px;border-right:2px solid #c9d3ea;font-weight:700;font-size:15px;line-height:1.2}.hubfi:last-child{border-right:0}
-.hubfi i{flex:none;width:48px;height:48px;border-radius:50%;background:var(--c);display:grid;place-items:center}
+.hubf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:#fff;border:1px solid #dbe3f3;border-radius:20px;margin:12px 0 16px;padding:12px 4px;box-shadow:0 2px 8px #0b2f7a0f}
+.hubfi{min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;padding:0 6px;border-right:1px solid #dbe3f3;font-weight:700;font-size:12px;line-height:1.2}.hubfi:last-child{border-right:0}
+.hubfi i{flex:none;width:40px;height:40px;border-radius:50%;background:var(--c);display:grid;place-items:center}
+@media(min-width:600px){.hubfi{flex-direction:row;text-align:left;gap:12px;padding:0 14px;font-size:15px}.hubfi i{width:46px;height:46px}}
+.hub .bn{max-width:420px}.hub .hbt{display:flex;gap:10px;justify-content:center;margin:6px 0 4px}.hub .hbt .btn{flex:1 1 150px;max-width:230px;padding:12px 10px}
 .hubbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 8px}.hubbar h2{font-size:22px}
 </style>
 </head>
@@ -564,7 +566,7 @@ tools:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 
 users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'};
 const hubSvg=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
 /* [rótulo, descripción, color, acción, valor, icono] */
-const HUB=[['Supermercados','Supermercados y tiendas de abarrotes','#1F6FD6','hubStores','@super',hubIc.cart],['Tiendas','Tiendas y comercios locales','#3DB52E','hubStores','',hubIc.store],['Vehículos','Vehículos','#E5233C','miniTab','veh',hubIc.car],['Inmuebles','Inmuebles','#F5921E','miniTab','arr',hubIc.home],['Servicios','Servicios','#7B4FD6','serv','',hubIc.tools]];
+const HUB=[['Súper y abarrotes','Supermercados y tiendas de abarrotes','#1F6FD6','hubStores','@super',hubIc.cart],['Tiendas','Tiendas y comercios locales','#3DB52E','hubStores','',hubIc.store],['Vehículos','Vehículos','#E5233C','miniTab','veh',hubIc.car],['Inmuebles','Inmuebles','#F5921E','miniTab','arr',hubIc.home],['Servicios','Servicios','#7B4FD6','serv','',hubIc.tools]];
 const HUBF=[['Tiendas y comercios locales','#1F6FD6',hubIc.store],['Variedad de productos y servicios','#3DB52E',hubIc.cart],['Directo con vecinos de Pradera','#F5921E',hubIc.users]];
 const hubTile=t=>`<button class="hubt" data-act="${t[3]}" data-v="${t[4]}" aria-label="${esc(t[1])}" style="--c:${t[2]}"><span class="hubi">${hubSvg(t[5])}</span><span>${esc(t[0])}</span></button>`;
 const hubOn=()=>{if(cat||query.trim()||favOnly)shopsOpen=true;return!shopsOpen};
