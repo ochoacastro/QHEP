@@ -226,8 +226,8 @@ body.instore #app{display:flex;flex-direction:column}body.instore #app>.rvt,body
 .tbd{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:flex;gap:6px;background:#0b2f7a99;border-radius:999px;padding:4px 9px;pointer-events:none}
 .tbd i{width:7px;height:7px;border-radius:50%;background:#ffffff88;display:block}.tbd i.on{background:#fff}
 .tbt{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:0 4%}.tbt::-webkit-scrollbar{display:none}
-.tbs{flex:0 0 100%;scroll-snap-align:center;aspect-ratio:3/1;border-radius:14px;overflow:hidden;background:var(--bg);display:block;padding:0}
-.tbs img{width:100%;height:100%;object-fit:cover;display:block}
+.tbs{flex:0 0 100%;scroll-snap-align:center;aspect-ratio:2/1;border-radius:14px;overflow:hidden;background:var(--bg);display:block;padding:0}
+.tbs img{width:100%;height:100%;object-fit:contain;display:block}
 .tb.ph{display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:center;text-align:center;aspect-ratio:3/1;margin:8px 6%;border:2px dashed #9aa8c9;border-radius:14px;background:#fff;padding:8px}
 /* v70: el banner vive en la cabecera: en móvil queda entre los botones y el buscador; se pliega al bajar para no ocupar la cabecera fija */
 #hbn{order:20;flex:1 1 100%;min-width:0}#hbn:empty,body.hbc #hbn{display:none}
@@ -1067,7 +1067,7 @@ else if(a==='order'){const s=S.stores.find(x=>x.id===id);if(!s.wa)return toast('
  const num=s.wa.length===10?'57'+s.wa:s.wa;window.open(`https://wa.me/${num}?text=${encodeURIComponent(`Hola ${s.name}, vi su tienda en Qué Hay en Pradera y quiero pedir:\n${l.join('\n')}\nTotal: ${money(t)}`)}`,'_blank');
  Object.keys(S.cart).forEach(k=>k.startsWith(id+'|')&&delete S.cart[k]);refreshCart()}
 });
-$('#cartBtn').onclick=openCart;$('#userBtn').onclick=()=>{if(S.user)profileModal();else{after=null;loginForm()}};$('#home').onclick=()=>{view=MODE==='admin'&&adm?'admin':'home';cat='';render()};
+$('#cartBtn').onclick=openCart;$('#userBtn').onclick=()=>{if(S.user)profileModal();else{after=null;loginForm()}};$('#home').onclick=()=>{if(MODE!=='index'){location.href='index.html';return}view='home';cat='';render()};
 const norm=t=>String(t??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const srHide=()=>{const b=$('#sr');b&&(b.hidden=true)};
 function srFind(q){const w=norm(q).replace(/#/g,' ').split(/\s+/).filter(Boolean);if(!w.length)return null;const m=t=>{const h=norm(t);return w.every(x=>h.includes(x))},rk=t=>norm(t).startsWith(w[0])?0:1,st=[],pr=[],sv=[],ad=[];
