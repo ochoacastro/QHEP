@@ -17,6 +17,7 @@
 window.RC_SITE='6Lfm9v4tAAAAAJAZrw8Nm7bbNzBanGbPgkXu5z4a';
 window.rcRender=function(){};window.rcReset=function(){};
 window.rcToken=function(id){var action=String(id||'login').replace(/[^A-Za-z0-9_\/]/g,'_');return new Promise(function(ok,no){var t=setTimeout(function(){no(new Error('rc-timeout'))},8000);try{if(!window.grecaptcha||!grecaptcha.ready)throw new Error('rc-missing');grecaptcha.ready(function(){grecaptcha.execute(window.RC_SITE,{action:action}).then(function(k){clearTimeout(t);ok(k)},function(e){clearTimeout(t);no(e)})})}catch(e){clearTimeout(t);no(e)}})};</script>
+<script>(function(){try{var t=localStorage.getItem("qh_theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})()</script>
 <title>Qué Hay en Pradera – Lo nuestro, en un solo lugar</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -344,6 +345,11 @@ body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-
 .hpc .hpp{font-size:18px;font-weight:800;margin-top:4px}.hpc .hpn{font-size:14px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.hpc .hps{font-size:12px}
 .hpmid{margin:18px 0}.hpmid .tb{margin:0}
 .hubph{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px}.hubph h2{margin:0}.hubph .btn{flex:none;padding:6px 12px;font-size:14px}
+/* v53: modo oscuro — se invierte la página y se vuelven a invertir imágenes, mapa y elementos de color para que conserven su aspecto */
+html.dark{filter:invert(1) hue-rotate(180deg);background:#fff}
+html.dark :is(img,video,iframe,canvas,.leaflet-container .leaflet-tile),html.dark :is(.dchip input:checked+span,.btn.pink,.bedq button[aria-pressed=true],.cav,.cci,.chip[aria-pressed=true],.shop .em,.tag,.banner,#toast,.zoom .cnt,.vf,.play,.sg .lg,.lg2,.pvo,.pvs .lg,.hubi,.hubfi i,.onl,.btn:not(.ghost),#lb){filter:hue-rotate(180deg) invert(1)}
+html.dark :is(.dchip input:checked+span,.btn.pink,.bedq button[aria-pressed=true],.cav,.cci,.chip[aria-pressed=true],.shop .em,.tag,.banner,#toast,.zoom .cnt,.vf,.play,.sg .lg,.lg2,.pvo,.pvs .lg,.hubi,.hubfi i,.onl,.btn:not(.ghost),#lb) :is(img,video,iframe,canvas,.onl){filter:none}
+#themeBtn{flex:0 0 auto;padding:9px 12px;font-size:16px;line-height:1}
 </style>
 </head>
 <body>
@@ -354,6 +360,7 @@ body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-
   <div id="sr" role="region" aria-label="Resultados de búsqueda" hidden></div>
   <button class="btn ghost" id="userBtn">Entrar</button>
   <button class="btn pink" id="regBtn">Crear cuenta</button>
+  <button class="btn ghost" id="themeBtn" aria-label="Cambiar a modo oscuro" title="Modo oscuro">🌙</button>
   <button class="btn" id="cartBtn">Carrito (<span id="cc">0</span>)</button>
   <div id="hbn"></div>
 </header>
@@ -1423,5 +1430,6 @@ document.head.insertAdjacentHTML('beforeend','<style>#adpop{position:fixed;inset
 window.addEventListener('hashchange',route);QH.start(()=>{route();QH.after();popAd()});
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
+<script>(function(){var b=document.getElementById('themeBtn'),h=document.documentElement;function ui(){var d=h.classList.contains('dark');b.textContent=d?'☀️':'🌙';b.title=d?'Modo claro':'Modo oscuro';b.setAttribute('aria-label',d?'Cambiar a modo claro':'Cambiar a modo oscuro')}b.onclick=function(){var d=h.classList.toggle('dark');try{localStorage.setItem('qh_theme',d?'dark':'light')}catch(e){}ui()};ui()})()</script>
 </body>
 </html>
