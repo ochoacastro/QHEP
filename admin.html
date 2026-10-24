@@ -12,6 +12,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.google.com/recaptcha/api.js?render=6LcLvP4tAAAAAHbCVCP31JONLJF2R7nJgRmygSno" async defer></script>
+<script>/* reCAPTCHA v3 (clave de sitio; la clave secreta NO va aquí, solo en el servidor) */
+window.RC_SITE='6LcLvP4tAAAAAHbCVCP31JONLJF2R7nJgRmygSno';
+window.rcToken=function(action){return new Promise(function(ok,no){var t=setTimeout(function(){no(new Error('rc-timeout'))},8000);try{if(!window.grecaptcha||!grecaptcha.ready)throw new Error('rc-missing');grecaptcha.ready(function(){grecaptcha.execute(window.RC_SITE,{action:action}).then(function(k){clearTimeout(t);ok(k)},function(e){clearTimeout(t);no(e)})})}catch(e){clearTimeout(t);no(e)}})};</script>
 <title>Administrador – Qué Hay en Pradera</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -443,6 +447,7 @@ const QH=(function(){
  const go=f=>{if(MODE==='index'){location.href='panel.html';return}if(MODE==='admin')return toast('Las publicaciones se crean desde el panel de vendedores');need(f)};
  function admForm(){modal(`<h2>Administrador</h2><p class="muted">Entra con el correo y la clave de administrador.</p><label for="a-em">Correo</label><input id="a-em" type="email" autocomplete="username"><label for="a-pw">Clave</label><input id="a-pw" type="password" autocomplete="current-password"><div class="err" id="err"></div><div class="row" style="margin-top:8px"><button class="btn pink" data-act="admIn">Entrar</button><button class="btn ghost" data-act="close">Cancelar</button></div>`)}
  async function admIn(){const em=$('#a-em').value.trim(),pw=$('#a-pw').value,err=$('#err');if(!em||!pw)return err.textContent='Escribe tu correo y tu clave.';
+  try{await rcToken('admin_login')}catch(e){return err.textContent='No se pudo verificar reCAPTCHA. Recarga la página e inténtalo de nuevo.'}
   try{await auth.signInWithEmailAndPassword(em,pw);adm=true;closeModal();view='admin';render();repListen();toast('Bienvenido')}catch(e){err.textContent='Correo o clave incorrectos.'}}
  async function admOut(){try{await auth.signOut()}catch(e){}adm=false;repL=false;S.reports=[];view='admin';render();admForm()}
  /* ---- datos de la versión anterior (guardados solo en este dispositivo) ---- */
@@ -714,7 +719,8 @@ async function deliverCode(){const p=PEND,msg=`Tu código de Qué Hay en Pradera
  const r=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_id:EMAILJS.service,template_id:EMAILJS.template,user_id:EMAILJS.key,template_params:{to_email:p.to,to_name:p.name,code:p.code,minutes:CODE_MIN}})});
  if(!r.ok){const t=await r.text().catch(()=>'');const er=new Error('send');er.det=r.status+' '+String(t).slice(0,70);throw er}}
 const newCode=()=>String(crypto.getRandomValues(new Uint32Array(1))[0]%1000000).padStart(6,'0');
-async function issueCode(name,ch,to){PEND={code:newCode(),exp:Date.now()+CODE_MIN*60000,tries:0,last:Date.now(),ch,to,name};try{await deliverCode();verifyForm();return true}catch(e){PEND=null;const m=$('#err');if(m)m.textContent=e.sms?e.sms:e.message==='cfg'?'El envío por correo aún no está configurado. Usa SMS o Google.':'No se pudo enviar el código. Revisa el dato e intenta de nuevo.'+(e.det?' ('+e.det+')':e instanceof TypeError?' (sin conexión con el servicio de correo)':'');return false}}
+async function issueCode(name,ch,to){let rc;try{rc=await rcToken('send_code')}catch(e){const m=$('#err');if(m)m.textContent='No se pudo verificar reCAPTCHA. Recarga la página e inténtalo de nuevo.';return false}
+PEND={code:newCode(),exp:Date.now()+CODE_MIN*60000,tries:0,last:Date.now(),ch,to,name,rc};try{await deliverCode();verifyForm();return true}catch(e){PEND=null;const m=$('#err');if(m)m.textContent=e.sms?e.sms:e.message==='cfg'?'El envío por correo aún no está configurado. Usa SMS o Google.':'No se pudo enviar el código. Revisa el dato e intenta de nuevo.'+(e.det?' ('+e.det+')':e instanceof TypeError?' (sin conexión con el servicio de correo)':'');return false}}
 function sendCode(){const n=$('#u-name').value.trim(),c=$('#u-ct').value.trim(),err=$('#err');if(n.length<2)return err.textContent='Escribe tu nombre.';if(!$('#u-ok').checked)return err.textContent='Debes aceptar los términos y la política de privacidad.';
  if(lch==='wa'||lch==='sms'){const w=c.replace(/\D/g,'');if(w.length<10)return err.textContent=lch==='sms'?'Escribe un celular válido de 10 dígitos.':'Escribe un WhatsApp válido de 10 dígitos.';return issueCode(n,lch,w)}
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c))return err.textContent='Escribe un correo válido.';return issueCode(n,'mail',c)}
