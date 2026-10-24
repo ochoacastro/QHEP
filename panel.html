@@ -88,7 +88,7 @@ main{max-width:1100px;margin:0 auto;padding:16px}
 .modal{background:#fff;border-radius:12px;padding:20px;width:100%;max-width:460px;max-height:92vh;overflow:auto}
 .modal h2{margin-bottom:10px}
 label{display:block;font-weight:600;margin:10px 0 4px}
-input[type=text],input[type=number],input[type=tel],select,textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #c9d3ea;font:inherit;background:#fff;color:var(--ink)}
+input[type=text],input[type=number],input[type=tel],input[type=email],select,textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #c9d3ea;font:inherit;background:#fff;color:var(--ink)}
 .row{display:flex;gap:8px;flex-wrap:wrap}
 .err{color:#c0123c;font-weight:800;margin-top:8px;min-height:20px}
 .drawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,100%);background:#fff;z-index:50;padding:18px;overflow:auto;box-shadow:-8px 0 30px #0004;transform:translateX(105%);transition:transform .25s}
@@ -720,7 +720,7 @@ async function smsSend(p){const bad=m=>{const e=new Error('sms');e.sms=m;return 
  const old=document.getElementById('sms-rc');if(old)old.remove();
  const box=document.createElement('div');box.id='sms-rc';document.body.appendChild(box);
  try{smsRc=new firebase.auth.RecaptchaVerifier(box,{size:'invisible'},smsApp);p.conf=await a.signInWithPhoneNumber(p.to.length===10?'+57'+p.to:'+'+p.to,smsRc)}
- catch(e){try{smsRc&&smsRc.clear()}catch(x){}smsRc=null;const c=e&&e.code||'',M={'auth/invalid-phone-number':'El número de celular no es válido.','auth/missing-phone-number':'Escribe tu número de celular.','auth/too-many-requests':'Demasiados intentos. Espera unos minutos e intenta de nuevo.','auth/quota-exceeded':'Se agotó el cupo de SMS por hoy. Usa el correo o Google.'};throw bad(M[c]||'El envío por SMS aún no está activado. Usa el correo o Google.')}}
+ catch(e){try{smsRc&&smsRc.clear()}catch(x){}smsRc=null;const c=e&&e.code||'',M={'auth/invalid-phone-number':'El número de celular no es válido.','auth/missing-phone-number':'Escribe tu número de celular.','auth/too-many-requests':'Demasiados intentos. Espera unos minutos e intenta de nuevo.','auth/quota-exceeded':'Se agotó el cupo de SMS por hoy. Usa el correo o Google.'};throw bad(M[c]||'El SMS no está disponible ahora ('+(c||'error')+'). Usa el correo o Google.')}}
 /* Google / Apple: ventana emergente de Firebase en la app secundaria 'sms' (no toca la sesión anónima principal) */
 function oauthIn(k){const err=$('#err'),n=($('#u-name')||{}).value||'';
  if(!$('#u-ok').checked)return err.textContent='Debes aceptar los términos y la política de privacidad.';
@@ -732,7 +732,7 @@ function oauthIn(k){const err=$('#err'),n=($('#u-name')||{}).value||'';
  a.signInWithPopup(pr).then(r=>{const u=r.user,em=String(u.email||(u.providerData[0]||{}).email||'').toLowerCase();try{a.signOut()}catch(e){}
   if(!em){err.textContent='No recibimos tu correo de '+(k==='apple'?'Apple':'Google')+'. Usa otro método.';return}
   S.user={id:DEV,name:(n.trim()||u.displayName||em.split('@')[0]).slice(0,30),wa:'',email:em,consent:Date.now()};PEND=null;QH.derive();save();closeModal();syncUI();const f=after;after=null;f&&f();if(MODE==='panel')render()
- }).catch(e=>{const c=e&&e.code||'';err.textContent=c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request'?'Cancelaste el ingreso.':c==='auth/popup-blocked'?'Tu navegador bloqueó la ventana. Permite ventanas emergentes e intenta de nuevo.':c==='auth/operation-not-allowed'||c==='auth/unauthorized-domain'?'Este ingreso aún no está activado.':'No se pudo ingresar. Intenta de nuevo.'})}
+ }).catch(e=>{const c=e&&e.code||'';err.textContent=c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request'?'Cancelaste el ingreso.':c==='auth/popup-blocked'?'Tu navegador bloqueó la ventana. Permite ventanas emergentes e intenta de nuevo.':c==='auth/operation-not-allowed'||c==='auth/unauthorized-domain'?'Este ingreso aún no está activado.':'No se pudo ingresar ('+(c||'error')+'). Intenta de nuevo.'})}
 async function deliverCode(){const p=PEND,msg=`Tu código de Qué Hay en Pradera es ${p.code}. Vence en ${CODE_MIN} minutos. No lo compartas con nadie.`;
  if(p.ch==='sms'){await smsSend(p);return}
  if(!EMAILJS.service||!EMAILJS.template||!EMAILJS.key)throw new Error('cfg');
