@@ -464,7 +464,8 @@ const QH=(function(){
    localStorage.setItem(IMP,'1');toast(n?'Se importaron '+n+' elementos':'No había nada nuevo para importar');
   }catch(e){toast('No se pudo importar ('+((e&&e.code)||'error')+'). Se importó lo que alcanzó a subir.')}
   rebuild();render(true)}
- return{start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key};
+ const token=async()=>{try{await authP;const u=auth&&auth.currentUser;return u?await u.getIdToken():''}catch(e){return ''}};
+ return{start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token};
 })();
 
 const $=s=>document.querySelector(s);
@@ -932,7 +933,9 @@ function servForm(){modal(`<h2>Ofrece tu servicio</h2><label for="v-name">Tu nom
 <label for="v-ad">Imagen de tu anuncio (opcional)</label><input id="v-ad" type="file" accept="image/*"><p class="muted" style="margin:4px 0 0">Sube tu anuncio ya diseñado (con lo que ofreces y tu contacto) para que se vea en tu publicación.</p>
 <label for="v-wa">WhatsApp de contacto</label><input id="v-wa" type="tel" placeholder="3001234567">
 <div class="err" id="err"></div><div class="row" style="margin-top:8px"><button class="btn pink" data-act="saveServ">Publicar servicio</button><button class="btn ghost" data-act="close">Cancelar</button></div>`)}
-function resize(file,max=360,q=.7){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const k=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',q))};i.onerror=()=>res('');i.src=r.result};r.onerror=()=>res('');r.readAsDataURL(file)})}
+const R2_WORKER='https://flat-lab-b020subir-imagenes.ronaldochoacastro.workers.dev';
+async function r2up(du){try{const t=await QH.token();if(!t)return du;const b=await(await fetch(du)).blob();const r=await fetch(R2_WORKER,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':b.type==='image/webp'?'image/webp':'image/jpeg'},body:b});if(!r.ok)return du;const j=await r.json();return j.url||du}catch(e){return du}}
+function resize(file,max=360,q=.7){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const k=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);r2up((w=>w.slice(0,15)==='data:image/webp'?w:c.toDataURL('image/jpeg',q))(c.toDataURL('image/webp',q))).then(res)};i.onerror=()=>res('');i.src=r.result};r.onerror=()=>res('');r.readAsDataURL(file)})}
 
 function cartHTML(){const groups={};Object.entries(S.cart).forEach(([k,q])=>{const[sid,pid]=k.split('|'),s=S.stores.find(x=>x.id===sid),p=s&&s.products.find(x=>x.id===pid);if(p)(groups[sid]=groups[sid]||{s,items:[]}).items.push({p,q,k})});
 const gs=Object.values(groups);let h=`<div class="row" style="justify-content:space-between;align-items:center"><h2>Tu carrito</h2><button class="btn ghost" data-act="closeCart">Cerrar</button></div>`;
