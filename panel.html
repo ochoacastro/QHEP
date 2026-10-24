@@ -313,7 +313,7 @@ body.instore #app{display:flex;flex-direction:column}body.instore #app>.rvt,body
 .plink{background:none;padding:0;font:inherit;text-align:left;color:inherit}
 .pxd{border:1px solid #dbe3f3;border-radius:8px;padding:8px 10px;margin:8px 0}.pxd summary{font-weight:700;cursor:pointer}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-admin #cartBtn,body.m-admin #userBtn,body.m-admin #q,body.m-admin #sr{display:none!important}
+body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-admin #cartBtn,body.m-admin #userBtn,body.m-admin #regBtn,body.m-admin #q,body.m-admin #sr{display:none!important}
 </style>
 </head>
 <body>
@@ -323,6 +323,7 @@ body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-
   <input id="q" type="search" placeholder="Busca tiendas, productos…" aria-label="Buscar tiendas, productos, servicios y anuncios" autocomplete="off" aria-controls="sr" enterkeyhint="search">
   <div id="sr" role="region" aria-label="Resultados de búsqueda" hidden></div>
   <button class="btn ghost" id="userBtn">Entrar</button>
+  <button class="btn pink" id="regBtn">Crear cuenta</button>
   <button class="btn" id="cartBtn">Carrito (<span id="cc">0</span>)</button>
   <div id="hbn"></div>
 </header>
@@ -747,11 +748,11 @@ async function deliverCode(){const p=PEND,msg=`Tu código de Qué Hay en Pradera
  if(!r.ok){const t=await r.text().catch(()=>'');const er=new Error('send');er.det=r.status+' '+String(t).slice(0,70);throw er}}
 const newCode=()=>String(crypto.getRandomValues(new Uint32Array(1))[0]%1000000).padStart(6,'0');
 /* ===== Cuentas con correo/celular + clave (Firebase Authentication guarda la clave cifrada) ===== */
-let REG=null;
+let REG=null,rch='mail';
 const normPhone=v=>{let d=String(v||'').replace(/\D/g,'');if(d.length===12&&d.startsWith('57'))d=d.slice(2);return d};
 const acctEmail=id=>{id=String(id||'').trim().toLowerCase();if(id.includes('@'))return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(id)?id:'';const d=normPhone(id);return d.length===10?d+'@cel.qhep.app':''};
 async function authB(){if(typeof firebase==='undefined'||!firebase.auth)throw new Error('nofb');if(!smsApp){try{smsApp=firebase.app('sms')}catch(e){smsApp=firebase.initializeApp(firebase.app().options,'sms')}}const a=smsApp.auth();a.languageCode='es';return a}
-function regForm(){modal(`<h2>Crear cuenta</h2><p class="muted">Te enviaremos un código a tu correo para confirmarlo. Después podrás entrar con tu correo o tu celular y tu clave.</p><label for="r-name">Tu nombre</label><input id="r-name" type="text" maxlength="30" autocomplete="name"><label for="r-em">Correo</label><input id="r-em" type="email" autocomplete="email" autocapitalize="none"><label for="r-wa">Celular (10 dígitos)</label><input id="r-wa" type="tel" autocomplete="tel"><label for="r-pw">Crea una clave (mínimo 8 caracteres)</label><input id="r-pw" type="password" autocomplete="new-password"><label for="r-pw2">Repite la clave</label><input id="r-pw2" type="password" autocomplete="new-password"><label class="chk" for="u-ok"><input type="checkbox" id="u-ok"><span>Acepto los Términos de uso y autorizo el tratamiento de mis datos personales según la Política de privacidad (Ley 1581 de 2012).</span></label><details class="legal" style="margin-top:6px"><summary>Leer Términos y Política</summary><p><b>Términos de uso</b></p>${legalHTML('terms')}<p><b>Política de privacidad</b></p>${legalHTML('priv')}</details><div id="rc-login" style="margin:10px 0 4px;min-height:78px"></div><div class="err" id="err"></div><button class="btn pink" style="width:100%;padding:13px;margin-top:4px" data-act="doReg">Enviar código a mi correo</button><button class="btn ghost" style="width:100%;margin-top:8px" data-act="loginForm">Ya tengo cuenta</button><button class="btn ghost" style="width:100%;margin-top:4px;border:0;opacity:.75" data-act="close">Cancelar</button>`);rcRender('rc-login')}
+function regForm(){rch='mail';modal(`<h2>Crear cuenta</h2><p class="muted">Te enviaremos un código para confirmar tu cuenta. Después podrás entrar con tu correo o tu celular y tu clave.</p><label for="r-name">Tu nombre</label><input id="r-name" type="text" maxlength="30" autocomplete="name"><label for="r-em">Correo</label><input id="r-em" type="email" autocomplete="email" autocapitalize="none"><label for="r-wa">Celular (10 dígitos)</label><input id="r-wa" type="tel" autocomplete="tel"><label for="r-pw">Crea una clave (mínimo 8 caracteres)</label><input id="r-pw" type="password" autocomplete="new-password"><label for="r-pw2">Repite la clave</label><input id="r-pw2" type="password" autocomplete="new-password"><p class="muted" style="margin:12px 0 4px">¿Cómo quieres recibir tu código?</p><div class="row" style="margin:0 0 8px;flex-wrap:nowrap"><button class="chip" style="flex:1;padding:10px 4px" data-act="rchan" data-v="sms" aria-pressed="false">SMS al celular</button><button class="chip" style="flex:1;padding:10px 4px" data-act="rchan" data-v="mail" aria-pressed="true">Correo</button></div><label class="chk" for="u-ok"><input type="checkbox" id="u-ok"><span>Acepto los Términos de uso y autorizo el tratamiento de mis datos personales según la Política de privacidad (Ley 1581 de 2012).</span></label><details class="legal" style="margin-top:6px"><summary>Leer Términos y Política</summary><p><b>Términos de uso</b></p>${legalHTML('terms')}<p><b>Política de privacidad</b></p>${legalHTML('priv')}</details><div id="rc-login" style="margin:10px 0 4px;min-height:78px"></div><div class="err" id="err"></div><button class="btn pink" style="width:100%;padding:13px;margin-top:4px" id="reg-go" data-act="doReg">Enviar código a mi correo</button><button class="btn ghost" style="width:100%;margin-top:8px" data-act="loginForm">Ya tengo cuenta</button><button class="btn ghost" style="width:100%;margin-top:4px;border:0;opacity:.75" data-act="close">Cancelar</button>`);rcRender('rc-login')}
 function regSend(){const n=$('#r-name').value.trim(),em=$('#r-em').value.trim().toLowerCase(),w=normPhone($('#r-wa').value),p1=$('#r-pw').value,p2=$('#r-pw2').value,err=$('#err');
  if(n.length<2)return err.textContent='Escribe tu nombre.';
  if(!acctEmail(em)||!em.includes('@'))return err.textContent='Escribe un correo válido.';
@@ -759,7 +760,7 @@ function regSend(){const n=$('#r-name').value.trim(),em=$('#r-em').value.trim().
  if(p1.length<8)return err.textContent='La clave debe tener mínimo 8 caracteres.';
  if(p1!==p2)return err.textContent='Las claves no coinciden.';
  if(!$('#u-ok').checked)return err.textContent='Debes aceptar los términos y la política de privacidad.';
- REG={name:n,email:em,phone:w,pw:p1};return issueCode(n,'mail',em)}
+ REG={name:n,email:em,phone:w,pw:p1};return issueCode(n,rch,rch==='sms'?w:em)}
 async function regAccounts(d){const a=await authB(),dn=JSON.stringify({n:d.name,e:d.email,w:d.phone});let c1=null;
  try{c1=await a.createUserWithEmailAndPassword(d.email,d.pw);await c1.user.updateProfile({displayName:dn});const c2=await a.createUserWithEmailAndPassword(d.phone+'@cel.qhep.app',d.pw);await c2.user.updateProfile({displayName:dn})}
  catch(e){if(c1){try{await c1.user.delete()}catch(x){}if(e&&e.code==='auth/email-already-in-use')e.phoneTaken=true}throw e}
@@ -829,7 +830,7 @@ else{const vr=(k,o)=>`<div class="ci adm${o.hidden?' out':''}"><span>${esc(o.nam
 const grp=(t,k,l)=>l.length?`<div class="cg"><h3>${t} (${l.length})</h3>${l.map(o=>vr(k,o)).join('')}</div>`:'';
 const rows=grp('Tiendas','store',S.stores)+grp('Servicios','serv',S.services)+grp('Anuncios','ad',S.ads);body=rows||'<div class="empty">Todavía no hay tiendas, servicios ni anuncios.</div>'}
 return `<div class="shead"><h2>Panel de administrador</h2><button class="btn ghost" data-act="admOut">Salir del modo administrador</button></div><nav class="tabs">${T('rep','Reportes ('+pend+')')}${T('sug','Sugerencias ('+S.ideas.length+')')}${T('ver','Publicaciones ('+(S.stores.length+S.services.length+S.ads.length)+')')}${T('cfg','Mis datos')}${T('cat','Categorías')}${T('pub','Publicidad')}</nav>${QH.legacyCard()}${body}`}
-function syncUI(){const u=$('#userBtn');if(u)u.textContent=S.user?S.user.name.split(' ')[0]:'Entrar';
+function syncUI(){const u=$('#userBtn');if(u)u.textContent=S.user?S.user.name.split(' ')[0]:'Entrar';const rb=$('#regBtn');if(rb)rb.style.display=S.user?'none':'';
 const s=(view==='store'||view==='prod')&&S.stores.find(x=>x.id===cur),pr=view==='prod'&&s&&s.products.find(x=>x.id===curP),ad=view==='ad'&&S.ads.find(x=>x.id===curAd),h=view==='prod'?'#/p/'+encodeURIComponent(cur)+'/'+encodeURIComponent(curP):view==='store'?'#/t/'+encodeURIComponent(cur):view==='ad'?'#/a/'+encodeURIComponent(curAd):ADT[view]?'#/'+ADT[view].slug:view==='serv'?'#/servicios':view==='map'?'#/mapa':view==='cats'?'#/categorias':view==='sug'?'#/sugerencias':view==='admin'?'#/admin':'#/';
 if(location.hash!==h){try{history.replaceState(null,'',h)}catch(e){}}
 document.title=MODE!=='index'?TITLE:pr?pr.name+' – '+s.name+' – Qué Hay en Pradera':s?s.name+' – Qué Hay en Pradera':ad?ad.title+' – Qué Hay en Pradera':'Qué Hay en Pradera – Lo nuestro, en un solo lugar';
@@ -1168,7 +1169,7 @@ else if(a==='saveAd'){const T=ADT[af.type],err=$('#err'),vty=$('#af-vtype')?$('#
  if(old)Object.assign(old,o);else{const pm=planMsg('ad');if(pm)return err.textContent=pm;const n=Object.assign({id:'a'+uid(),type:af.type,ts:Date.now(),closed:false},o);S.ads.unshift(n);S.myAds.push(n.id);af.id=n.id}
  save();closeModal();curAd=af.id;view='ad';render();toast(old?'Cambios guardados':'Anuncio publicado')}
 else if(a==='chan'){setChan(v)}
-else if(a==='sendCode'){sendCode()}else if(a==='doLogin'){passLogin()}else if(a==='regForm'){regForm()}else if(a==='loginForm'){loginForm()}else if(a==='doReg'){regSend()}else if(a==='passForm'){passForm()}else if(a==='savePass'){savePass()}
+else if(a==='sendCode'){sendCode()}else if(a==='doLogin'){passLogin()}else if(a==='regForm'){regForm()}else if(a==='loginForm'){loginForm()}else if(a==='doReg'){regSend()}else if(a==='rchan'){rch=v;document.querySelectorAll('[data-act="rchan"]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===v)));const g=document.getElementById('reg-go');if(g)g.textContent=v==='sms'?'Enviar código por SMS':'Enviar código a mi correo'}else if(a==='passForm'){passForm()}else if(a==='savePass'){savePass()}
 else if(a==='oauth'){oauthIn(v)}
 else if(a==='verifyCode'){verifyCode()}
 else if(a==='resendCode'){if(PEND)issueCode(PEND.name,PEND.ch,PEND.to,true)}
@@ -1233,7 +1234,7 @@ else if(a==='order'){const s=S.stores.find(x=>x.id===id);if(!s.wa)return toast('
  const num=s.wa.length===10?'57'+s.wa:s.wa;window.open(`https://wa.me/${num}?text=${encodeURIComponent(`Hola ${s.name}, vi su tienda en Qué Hay en Pradera y quiero pedir:\n${l.join('\n')}\nTotal: ${money(t)}`)}`,'_blank');
  Object.keys(S.cart).forEach(k=>k.startsWith(id+'|')&&delete S.cart[k]);refreshCart()}
 });
-$('#cartBtn').onclick=openCart;$('#userBtn').onclick=()=>{if(S.user)profileModal();else{after=null;loginForm()}};$('#home').onclick=()=>{if(MODE!=='index'){location.href='index.html';return}view='home';cat='';render()};
+$('#cartBtn').onclick=openCart;$('#userBtn').onclick=()=>{if(S.user)profileModal();else{after=null;loginForm()}};$('#regBtn').onclick=()=>{after=null;regForm()};$('#home').onclick=()=>{if(MODE!=='index'){location.href='index.html';return}view='home';cat='';render()};
 const norm=t=>String(t??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const srHide=()=>{const b=$('#sr');b&&(b.hidden=true)};
 function srFind(q){const w=norm(q).replace(/#/g,' ').split(/\s+/).filter(Boolean);if(!w.length)return null;const m=t=>{const h=norm(t);return w.every(x=>h.includes(x))},rk=t=>norm(t).startsWith(w[0])?0:1,st=[],pr=[],sv=[],ad=[];
