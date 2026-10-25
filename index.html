@@ -559,8 +559,8 @@ const QH=(function(){
  function planListen(){if(MODE==='admin'||!ready)return;const k=key();
   if(!k){if(planUn)planUn();planUn=null;planK='';S.plan=null;return}
   if(planK===k)return;planK=k;if(planUn)planUn();
-  planUn=ref('plans',k).onSnapshot(s=>{if(!s.exists){S.plan=null;if(MODE==='panel'||planAsk){planAsk=false;choosePlan()}return}
-   S.plan=s.data();planAsk=false;S.planErr='';if($('#plchoose'))closeModal();if(Date.now()-(S.plan.start||0)<20000)toast('¡Listo! Tu plan '+planDef(S.plan).n+' está activo');
+  planUn=ref('plans',k).onSnapshot(s=>{if(!s.exists){S.plan=null;if(S.user&&S.user.pl&&!s.metadata.fromCache){planAsk=false;S.user=null;derive();save();closeModal();syncUI();toast('Tu cuenta fue eliminada por el administrador. Se cerró tu sesión.');if(MODE==='panel')render();return}if(MODE==='panel'||planAsk){planAsk=false;choosePlan()}return}
+   S.plan=s.data();if(S.user&&!S.user.pl){S.user.pl=1;save()}planAsk=false;S.planErr='';if($('#plchoose'))closeModal();if(Date.now()-(S.plan.start||0)<20000)toast('¡Listo! Tu plan '+planDef(S.plan).n+' está activo');
    const w=planWait;planWait=null;if(w)w();else if(!$('#ov'))render(true)},e=>planErr(e))}
  const token=async()=>{try{await authP;const u=auth&&auth.currentUser;return u?await u.getIdToken():''}catch(e){return ''}};
  return{start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,planPick,online};
@@ -1459,7 +1459,7 @@ else if(a==='plCfg'){if(!adm)return;const k=b.dataset.k;if(!PLANS[k])return;cons
 else if(a==='plRst'){if(!adm)return;const k=b.dataset.k,c={...(S.site.plans||{})};delete c[k];S.site={...S.site,plans:c};applyPlanCfg();save();render(true);toast('Plan restaurado')}
 else if(a==='planPay'){planPay(b.dataset.v)}else if(a==='planPick'){QH.planPick(b.dataset.v)}
 else if(a==='at'){at=v;render();if(v==='alm'&&!ST.d)stLoad()}else if(a==='usrCsv'){usrCsv()}
-else if(a==='usrDel'){if(!adm)return;const p=QH.plans().find(x=>x.k===id);if(p&&confirm('¿Eliminar a '+(p.name||'esta persona')+' de las personas registradas? Se borra su registro y su plan. Sus tiendas, servicios y anuncios no se borran.')){QH.planDel(id);toast('Persona eliminada')}}
+else if(a==='usrDel'){if(!adm)return;const p=QH.plans().find(x=>x.k===id);if(p&&confirm('¿Eliminar a '+(p.name||'esta persona')+' de las personas registradas? Se borra su registro, su plan y TODO lo que publicó: tiendas con sus productos, servicios y anuncios. Además se cierra su sesión. No se puede deshacer.')){S.stores=S.stores.filter(s=>s.ownerKey!==id);S.services=S.services.filter(s=>s.ownerKey!==id);S.ads=S.ads.filter(s=>s.ownerKey!==id);Object.keys(S.cart).forEach(c=>{const sid=c.split('|')[0];if(!S.stores.some(s=>s.id===sid))delete S.cart[c]});save();QH.planDel(id);render();toast('Persona y su contenido eliminados')}}
 else if(a==='stRef'){stLoad()}
 else if(a==='admIn'){QH.admIn()}
 else if(a==='admLogin'){QH.admForm()}
