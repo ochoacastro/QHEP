@@ -559,8 +559,8 @@ const QH=(function(){
  function planListen(){if(MODE==='admin'||!ready)return;const k=key();
   if(!k){if(planUn)planUn();planUn=null;planK='';S.plan=null;return}
   if(planK===k)return;planK=k;if(planUn)planUn();
-  planUn=ref('plans',k).onSnapshot(s=>{if(!s.exists){S.plan=null;choosePlan();return}
-   S.plan=s.data();S.planErr='';if($('#plchoose'))closeModal();if(Date.now()-(S.plan.start||0)<20000)toast('¡Listo! Tu plan '+planDef(S.plan).n+' está activo');
+  planUn=ref('plans',k).onSnapshot(s=>{if(!s.exists){S.plan=null;if(MODE==='panel'||planAsk){planAsk=false;choosePlan()}return}
+   S.plan=s.data();planAsk=false;S.planErr='';if($('#plchoose'))closeModal();if(Date.now()-(S.plan.start||0)<20000)toast('¡Listo! Tu plan '+planDef(S.plan).n+' está activo');
    const w=planWait;planWait=null;if(w)w();else if(!$('#ov'))render(true)},e=>planErr(e))}
  const token=async()=>{try{await authP;const u=auth&&auth.currentUser;return u?await u.getIdToken():''}catch(e){return ''}};
  return{start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,planPick,online};
@@ -626,7 +626,7 @@ function applyPlanCfg(){try{const c=(S&&S.site&&S.site.plans)||{},nv=x=>x<0?INF:
   if(num(o.on))t.on=o.on?1:0})}catch(e){}}
 applyPlanCfg();
 const planTag=p=>p.plan==='free'?'gratis':p.paid?'pagado':'prueba gratis';
-let planWait=null;
+let planWait=null,planAsk=false;
 const planDef=p=>PLANS[(p.use&&p.use!=='all'?p.use+'_':'')+p.plan]||PLANS[p.plan]||PLANS.basic;
 const planInfo=()=>{const p=S.plan;if(!p)return null;const end=p.end||0;return{p,d:planDef(p),end,left:Math.ceil((end-Date.now())/DAY),on:end>Date.now()}};
 const useOf=()=>({stores:S.mine.length,ads:S.ads.filter(a=>S.myAds.includes(a.id)&&!a.closed).length,servs:S.myServ.length,fk:{store:S.stores.filter(o=>o.feat&&S.mine.includes(o.id)).length,serv:S.services.filter(o=>o.feat&&S.myServ.includes(o.id)).length,ad:S.ads.filter(o=>o.feat&&S.myAds.includes(o.id)).length},feat:[...S.stores,...S.services,...S.ads].filter(o=>o.feat&&(S.mine.includes(o.id)||S.myServ.includes(o.id)||S.myAds.includes(o.id))).length});
@@ -1492,7 +1492,7 @@ else if(a==='order'){const s=S.stores.find(x=>x.id===id);if(!s.wa)return toast('
  const num=s.wa.length===10?'57'+s.wa:s.wa;window.open(`https://wa.me/${num}?text=${encodeURIComponent(`Hola ${s.name}, vi su tienda en Qué Hay en Pradera y quiero pedir:\n${l.join('\n')}\nTotal: ${money(t)}`)}`,'_blank');
  Object.keys(S.cart).forEach(k=>k.startsWith(id+'|')&&delete S.cart[k]);refreshCart()}
 });
-$('#cartBtn').onclick=openCart;$('#userBtn').onclick=()=>{if(S.user)profileModal();else{after=null;loginForm()}};$('#home').onclick=()=>{if(MODE!=='index'){location.href=BASE_URL;return}view='home';cat='';shopsOpen=false;render()};
+$('#cartBtn').onclick=openCart;$('#userBtn').onclick=()=>{if(S.user)profileModal();else{after=null;planAsk=true;loginForm()}};$('#home').onclick=()=>{if(MODE!=='index'){location.href=BASE_URL;return}view='home';cat='';shopsOpen=false;render()};
 const norm=t=>String(t??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const srHide=()=>{const b=$('#sr');b&&(b.hidden=true)};
 function srFind(q){const w=norm(q).replace(/#/g,' ').split(/\s+/).filter(Boolean);if(!w.length)return null;const m=t=>{const h=norm(t);return w.every(x=>h.includes(x))},rk=t=>norm(t).startsWith(w[0])?0:1,st=[],pr=[],sv=[],ad=[];
