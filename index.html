@@ -552,10 +552,10 @@ const QH=(function(){
  let planK='',planUn=null;
  async function ensurePlan(){const k=key(),u=S.user;if(!k||!u)return;await authP;const r=ref('plans',k),now=Date.now();
   try{await db.runTransaction(async t=>{const s=await t.get(r);if(s.exists)return;t.set(r,{k,name:u.name||'',wa:u.wa||'',email:u.email||'',plan:'basic',trial:true,paid:false,start:now,end:now+TRIAL_DAYS*DAY,featSlots:0,ts:now})})}catch(e){planErr(e)}}
- async function planPick(v){const k=key(),u=S.user,d=PLANS[v];if(!k||!u||!d||d.use==='all')return;const use=d.use,tier=v.slice(use.length+1);if(tier!=='free')planWait=null;await authP;const r=ref('plans',k),now=Date.now();
+ async function planPick(v){const k=key(),u=S.user,d=PLANS[v];if(!k||!u){toast('Tu sesión no está activa. Entra de nuevo e inténtalo otra vez.');return}if(!d||d.use==='all')return;const use=d.use,tier=v.slice(use.length+1);if(tier!=='free')planWait=null;await authP;const r=ref('plans',k),now=Date.now();
   try{await db.runTransaction(async t=>{const s=await t.get(r);if(s.exists)return;t.set(r,{k,name:u.name||'',wa:u.wa||'',email:u.email||'',plan:'free',use,trial:false,paid:false,start:now,end:now+3650*DAY,featSlots:0,want:tier==='free'?'':v,ts:now})});
-   if(tier!=='free')planPaid(v)}catch(e){planErr(e)}}
- function planErr(e){S.planErr=(e&&e.code)||'error';if(!$('#ov'))render(true)}
+   if(tier!=='free')planPaid(v);else if(!S.plan){const g=await r.get();if(!S.plan&&g.exists){S.plan=g.data();S.planErr='';closeModal();const w=planWait;planWait=null;if(w)w();else render(true)}}}catch(e){planErr(e)}}
+ function planErr(e){S.planErr=(e&&e.code)||'error';if(!$('#ov'))render(true);else toast(S.planErr==='permission-denied'?'No se pudo crear tu plan: faltan publicar las reglas de Firestore para "plans". Avisa al administrador.':'No se pudo continuar ('+S.planErr+'). Revisa tu internet e inténtalo de nuevo.')}
  function planListen(){if(MODE==='admin'||!ready)return;const k=key();
   if(!k){if(planUn)planUn();planUn=null;planK='';S.plan=null;return}
   if(planK===k)return;planK=k;if(planUn)planUn();
