@@ -319,6 +319,22 @@ body.instore #app{display:flex;flex-direction:column}body.instore #app>.rvt,body
 .plink{background:none;padding:0;font:inherit;text-align:left;color:inherit}
 .pxd{border:1px solid #dbe3f3;border-radius:8px;padding:8px 10px;margin:8px 0}.pxd summary{font-weight:700;cursor:pointer}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.plx{background:#0e141b;color:#fff;border-radius:14px;padding:16px 14px 18px}
+.plx h2.plh{color:#fff;text-align:center;font-size:24px;letter-spacing:.2px;margin:18px 0 12px;text-transform:uppercase}
+.plst{display:flex;align-items:center;gap:6px;margin:2px 4px 0}.plst i{width:14px;height:14px;border-radius:50%;background:#777;flex:none}.plst i.on{background:#0b57d0}.plst span{flex:1;height:4px;border-radius:2px;background:#777}
+.plmut{color:#b8c0cc;text-align:center;margin:0 0 14px;font-size:14px}
+.plo{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 12px;padding:16px 14px;background:transparent;border:1px solid #8a919b;border-radius:0;color:#fff;text-align:left;font:inherit;cursor:pointer}
+.plo.on{background:#272d36;border-color:#272d36}.plo.dis{opacity:.45;cursor:not-allowed}
+.plr{flex:none;width:26px;height:26px;border:2px solid #8a919b;border-radius:50%;position:relative}.plo.on .plr{border-color:#fff}.plo.on .plr:after{content:"";position:absolute;inset:4px;border-radius:50%;background:#fff}
+.plb{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}.plb b{font-size:20px;font-weight:600;color:#fff}.plb small{color:#e6e9ee;font-size:14px;line-height:1.35}
+.plbadge{align-self:flex-start;background:#0b57d0;color:#fff;font-style:normal;font-size:14px;padding:4px 10px;text-transform:uppercase}
+.plp{flex:none;text-align:right;font-size:19px;font-weight:600;display:flex;flex-direction:column;color:#fff}.plp small{font-size:16px;font-weight:400;color:#fff}
+.plic{font-size:30px;flex:none}.plch{font-size:28px;color:#8a919b}
+.plsum{display:flex;justify-content:space-between;align-items:baseline;margin:16px 2px 4px;font-size:19px;color:#fff}.plsum b{font-weight:600}
+.plnote{color:#c8cfd9;font-size:13.5px;margin:0 2px 18px}
+.plgo{display:block;width:100%;padding:16px;border:0;border-radius:6px;background:#1a56db;color:#fff;font:inherit;font-size:22px;font-weight:700;letter-spacing:.3px;cursor:pointer}.plgo[disabled]{background:#9a9a9a;color:#fff;cursor:not-allowed}
+.plbk{display:block;margin:12px auto 0;background:none;border:0;color:#9db7ff;font:inherit;cursor:pointer;text-decoration:underline}
+.pled{border:1px solid #d9dfec;border-radius:10px;padding:8px 12px;margin:8px 0}.pled summary{cursor:pointer}.plcfg{border-top:1px solid #e3e9f7;margin-top:10px;padding-top:6px}.plcfg h4{margin:6px 0}
 body.m-panel #cartBtn,body.m-panel #q,body.m-panel #sr,body.m-panel #hbn,body.m-admin #cartBtn,body.m-admin #userBtn,body.m-admin #regBtn,body.m-admin #q,body.m-admin #sr{display:none!important}
 /* v7: inicio con cuadros de colores (Supermercados, Tiendas, Vehículos, Inmuebles, Servicios) */
 .hub{margin:6px 0 4px}.sr1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -400,7 +416,7 @@ const SEED=[
 ];
 let S={stores:[],cart:{},mine:[],services:[],myServ:[]},view='home',cur=null,cat='',query='',vt='',fu='',sj='',sortBy='',zoneF='',favOnly=false,adm=false,at='rep',after=null,adF={},curAd='',sm='dom',curP='',pI=0,pQ=1;
 try{const d=JSON.parse(localStorage.getItem(LKEY));if(d){S.cart=d.cart||{};S.favs=d.favs||[];S.user=d.user||null;S.myIdeas=d.myIdeas||[]}}catch(e){}
-S.services=S.services||[];S.myServ=S.myServ||[];S.ideas=S.ideas||[];S.myIdeas=S.myIdeas||[];S.reports=S.reports||[];S.favs=S.favs||[];S.user=S.user||null;S.pin=S.pin||'';S.ads=S.ads||[];S.myAds=S.myAds||[];S.site=S.site||{name:'',wa:'',mail:''};applyJobs();if(Array.isArray(S.cats)&&S.cats.length&&S.catsV===62){CATS.length=0;S.cats.forEach(c=>CATS.push(c))}else{S.cats=CATS.map(c=>c.slice());S.catsV=62}(S.stores||[]).forEach(s=>{if(s.cat==='Moda')s.cat='Ropa'});
+S.services=S.services||[];S.myServ=S.myServ||[];S.ideas=S.ideas||[];S.myIdeas=S.myIdeas||[];S.reports=S.reports||[];S.favs=S.favs||[];S.user=S.user||null;S.pin=S.pin||'';S.ads=S.ads||[];S.myAds=S.myAds||[];S.site=S.site||{name:'',wa:'',mail:''};applyJobs();applyPlanCfg();if(Array.isArray(S.cats)&&S.cats.length&&S.catsV===62){CATS.length=0;S.cats.forEach(c=>CATS.push(c))}else{S.cats=CATS.map(c=>c.slice());S.catsV=62}(S.stores||[]).forEach(s=>{if(s.cat==='Moda')s.cat='Ropa'});
 const save=()=>{try{localStorage.setItem(LKEY,JSON.stringify({cart:S.cart,favs:S.favs,user:S.user,myIdeas:S.myIdeas}))}catch(e){toast('No se pudo guardar en este dispositivo')}QH.push()};
 /* ===== v74: base de datos compartida (Firestore) — la usan los 3 modos (público, panel y admin) ===== */
 const QH=(function(){
@@ -463,7 +479,7 @@ const QH=(function(){
   if(MODE==='admin')S.reports=g('reports',1);
   S.banners=g('banners',1);S.topAds=g('topAds',1);
   const cs=g('cats',1);if(cs.length){const o=cs.filter(x=>x.a[0]==='Otros'),r=cs.filter(x=>x.a[0]!=='Otros');CATS.length=0;r.concat(o).forEach(x=>{CATS.push(x.a.slice())});S.cats=CATS.map(c=>c.slice())}
-  const m=(RAW.meta||{}).site;if(m){S.site=clean(m);applyJobs()}
+  const m=(RAW.meta||{}).site;if(m){S.site=clean(m);applyJobs();applyPlanCfg()}
   derive();presBeat()}
  function derive(){if(MODE==='index'){planListen();return}if(MODE!=='panel')return;const k=key(),m=l=>k?l.filter(o=>o.ownerKey===k).map(o=>o.id):[];S.mine=m(S.stores);S.myServ=m(S.services);S.myAds=m(S.ads);planListen()}
  function same(c){const D=want()[c]||{},R=RAW[c]||{},a=Object.keys(D),b=Object.keys(R);if(a.length!==b.length)return false;return a.every(id=>R[id]&&sj(D[id])===sj(R[id]))}
@@ -533,15 +549,15 @@ const QH=(function(){
  let planK='',planUn=null;
  async function ensurePlan(){const k=key(),u=S.user;if(!k||!u)return;await authP;const r=ref('plans',k),now=Date.now();
   try{await db.runTransaction(async t=>{const s=await t.get(r);if(s.exists)return;t.set(r,{k,name:u.name||'',wa:u.wa||'',email:u.email||'',plan:'basic',trial:true,paid:false,start:now,end:now+TRIAL_DAYS*DAY,featSlots:0,ts:now})})}catch(e){planErr(e)}}
- async function planPick(v){const k=key(),u=S.user;if(!k||!u||!PLANS[v])return;if(v!=='free')planWait=null;await authP;const r=ref('plans',k),now=Date.now();
-  try{await db.runTransaction(async t=>{const s=await t.get(r);if(s.exists)return;t.set(r,{k,name:u.name||'',wa:u.wa||'',email:u.email||'',plan:'free',trial:false,paid:false,start:now,end:now+3650*DAY,featSlots:0,want:v==='free'?'':v,ts:now})});
-   if(v!=='free')planPaid(v)}catch(e){planErr(e)}}
+ async function planPick(v){const k=key(),u=S.user,d=PLANS[v];if(!k||!u||!d||d.use==='all')return;const use=d.use,tier=v.slice(use.length+1);if(tier!=='free')planWait=null;await authP;const r=ref('plans',k),now=Date.now();
+  try{await db.runTransaction(async t=>{const s=await t.get(r);if(s.exists)return;t.set(r,{k,name:u.name||'',wa:u.wa||'',email:u.email||'',plan:'free',use,trial:false,paid:false,start:now,end:now+3650*DAY,featSlots:0,want:tier==='free'?'':v,ts:now})});
+   if(tier!=='free')planPaid(v)}catch(e){planErr(e)}}
  function planErr(e){S.planErr=(e&&e.code)||'error';if(!$('#ov'))render(true)}
  function planListen(){if(MODE==='admin'||!ready)return;const k=key();
   if(!k){if(planUn)planUn();planUn=null;planK='';S.plan=null;return}
   if(planK===k)return;planK=k;if(planUn)planUn();
   planUn=ref('plans',k).onSnapshot(s=>{if(!s.exists){S.plan=null;choosePlan();return}
-   S.plan=s.data();S.planErr='';if($('#plchoose'))closeModal();if(Date.now()-(S.plan.start||0)<20000)toast('¡Listo! Tu plan '+(PLANS[S.plan.plan]||PLANS.basic).n+' está activo');
+   S.plan=s.data();S.planErr='';if($('#plchoose'))closeModal();if(Date.now()-(S.plan.start||0)<20000)toast('¡Listo! Tu plan '+planDef(S.plan).n+' está activo');
    const w=planWait;planWait=null;if(w)w();else if(!$('#ov'))render(true)},e=>planErr(e))}
  const token=async()=>{try{await authP;const u=auth&&auth.currentUser;return u?await u.getIdToken():''}catch(e){return ''}};
  return{start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planPick,online};
@@ -564,45 +580,121 @@ const badge=o=>(o.feat?'<span class="vf" style="background:#B45309">★ Destacad
 const featFirst=l=>l.filter(o=>o.feat).concat(l.filter(o=>!o.feat));
 /* ===== v75: planes — 3 meses gratis del plan Básico al registrarse; después se paga y el admin activa ===== */
 const TRIAL_DAYS=90,DAY=864e5,FEAT_PRICE=5000,PLAN_DAYS=30,AD_TOP=15000,AD_BOT=10000,INF=Infinity;
-const PLANS={free:{n:'Gratis',stores:1,prods:0,ads:1,servs:1,price:0,feat:{store:0,serv:0,ad:0}},basic:{n:'Básico',stores:2,prods:30,ads:6,servs:2,price:30000,feat:{store:1,serv:1,ad:1}},plus:{n:'Plus',stores:3,prods:100,ads:15,servs:5,price:50000,feat:{store:5,serv:5,ad:5}},pro:{n:'Pro',stores:INF,prods:INF,ads:INF,servs:INF,price:100000,feat:{store:INF,serv:INF,ad:INF},home:true}};
+/* v76: planes por tipo de uso — cada persona elige UNA cosa al entrar y solo ve los planes de esa opción */
+const USES={store:{ico:'🛍️',n:'Crear tienda con productos',d:'Tu propia tienda con catálogo'},car:{ico:'🚗',n:'Vender automóvil',d:'Carro, moto, bicicleta u otro vehículo'},home:{ico:'🏠',n:'Vender o arrendar casa',d:'Casa, apartamento, habitación, local o lote'},serv:{ico:'🛠️',n:'Ofrecer servicios',d:'Tu oficio: niñera, plomero, aseo…'},ad:{ico:'📢',n:'Poner publicidad en la página principal',d:'Tu imagen arriba o abajo del inicio'}};
+const fz=(s,v,a)=>({store:s,serv:v,ad:a});
+const mkP=(use,n,price,o)=>Object.assign({use,n,d:'',price,stores:0,prods:0,ads:0,servs:0,feat:fz(0,0,0),on:1},o||{});
+const PLANS={
+ /* planes anteriores: solo para cuentas que ya existían (use 'all' = pueden publicar de todo) */
+ free:mkP('all','Gratis',0,{stores:1,prods:0,ads:1,servs:1}),
+ basic:mkP('all','Básico',30000,{stores:2,prods:30,ads:6,servs:2,feat:fz(1,1,1)}),
+ plus:mkP('all','Plus',50000,{stores:3,prods:100,ads:15,servs:5,feat:fz(5,5,5)}),
+ pro:mkP('all','Pro',100000,{stores:INF,prods:INF,ads:INF,servs:INF,feat:fz(INF,INF,INF),home:true}),
+ /* 🛍️ tienda con productos */
+ store_free:mkP('store','Gratis',0,{stores:1}),
+ store_basic:mkP('store','Básico',30000,{stores:1,prods:30,feat:fz(1,0,0)}),
+ store_plus:mkP('store','Plus',50000,{stores:2,prods:100,feat:fz(2,0,0)}),
+ store_pro:mkP('store','Pro',100000,{stores:INF,prods:INF,feat:fz(INF,0,0),home:true}),
+ /* 🚗 vender automóvil */
+ car_free:mkP('car','Gratis',0,{ads:1}),
+ car_basic:mkP('car','Básico',20000,{ads:3,feat:fz(0,0,1)}),
+ car_plus:mkP('car','Plus',40000,{ads:10,feat:fz(0,0,3)}),
+ /* 🏠 vender o arrendar casa */
+ home_free:mkP('home','Gratis',0,{ads:1}),
+ home_basic:mkP('home','Básico',25000,{ads:4,feat:fz(0,0,1)}),
+ home_plus:mkP('home','Plus',45000,{ads:12,feat:fz(0,0,3)}),
+ /* 🛠️ ofrecer servicios */
+ serv_free:mkP('serv','Gratis',0,{servs:1}),
+ serv_basic:mkP('serv','Básico',15000,{servs:2,feat:fz(0,1,0)}),
+ serv_plus:mkP('serv','Plus',30000,{servs:5,feat:fz(0,3,0)}),
+ /* 📢 publicidad en la página principal (ad_free es la base interna, no se ofrece) */
+ ad_free:mkP('ad','Sin publicidad aún',0,{on:0}),
+ ad_bot:mkP('ad','Parte inferior',AD_BOT,{d:'Tu imagen abajo del inicio por '+PLAN_DAYS+' días'}),
+ ad_top:mkP('ad','Parte superior',AD_TOP,{d:'Tu imagen arriba del inicio por '+PLAN_DAYS+' días'})
+};
+const PLANS0=JSON.parse(JSON.stringify(PLANS,(k,v)=>v===Infinity?'INF':v));
+/* lo que edita el administrador (S.site.plans) se pone encima de los valores de fábrica; en la base -1 = ilimitado */
+function applyPlanCfg(){try{const c=(S&&S.site&&S.site.plans)||{},nv=x=>x<0?INF:x,num=x=>typeof x==='number'&&isFinite(x);
+ Object.keys(PLANS).forEach(k=>{const b=JSON.parse(JSON.stringify(PLANS0[k]),(a,v)=>v==='INF'?INF:v),o=c[k]||{},t=PLANS[k];Object.assign(t,b);
+  if(typeof o.n==='string'&&o.n.trim())t.n=o.n.trim().slice(0,30);
+  if(typeof o.d==='string')t.d=o.d.slice(0,90);
+  ['price','stores','prods','ads','servs'].forEach(f=>{if(num(o[f]))t[f]=f==='price'?Math.max(0,o[f]):nv(o[f])});
+  [['fs','store'],['fv','serv'],['fa','ad']].forEach(([f,g])=>{if(num(o[f]))t.feat[g]=nv(o[f])});
+  if(num(o.on))t.on=o.on?1:0})}catch(e){}}
+applyPlanCfg();
 const planTag=p=>p.plan==='free'?'gratis':p.paid?'pagado':'prueba gratis';
 let planWait=null;
-const planInfo=()=>{const p=S.plan;if(!p)return null;const end=p.end||0;return{p,d:PLANS[p.plan]||PLANS.basic,end,left:Math.ceil((end-Date.now())/DAY),on:end>Date.now()}};
+const planDef=p=>PLANS[(p.use&&p.use!=='all'?p.use+'_':'')+p.plan]||PLANS[p.plan]||PLANS.basic;
+const planInfo=()=>{const p=S.plan;if(!p)return null;const end=p.end||0;return{p,d:planDef(p),end,left:Math.ceil((end-Date.now())/DAY),on:end>Date.now()}};
 const useOf=()=>({stores:S.mine.length,ads:S.ads.filter(a=>S.myAds.includes(a.id)&&!a.closed).length,servs:S.myServ.length,fk:{store:S.stores.filter(o=>o.feat&&S.mine.includes(o.id)).length,serv:S.services.filter(o=>o.feat&&S.myServ.includes(o.id)).length,ad:S.ads.filter(o=>o.feat&&S.myAds.includes(o.id)).length},feat:[...S.stores,...S.services,...S.ads].filter(o=>o.feat&&(S.mine.includes(o.id)||S.myServ.includes(o.id)||S.myAds.includes(o.id))).length});
-function planMsg(k,sid){const i=planInfo();if(!i)return 'Estamos activando tu plan. Inténtalo de nuevo en unos segundos.';if(!i.on)return 'Tu plan venció. Renuévalo para seguir publicando.';const d=i.d,u=useOf();
+function planMsg(k,sid,kind){const i=planInfo();if(!i)return 'Estamos activando tu plan. Inténtalo de nuevo en unos segundos.';if(!i.on)return 'Tu plan venció. Renuévalo para seguir publicando.';const d=i.d,u=useOf();
+ const us=i.p.use||'all',okU={store:['store'],prod:['store'],serv:['serv'],ad:kind==='veh'?['car']:['home']}[k]||[];
+ if(us!=='all'&&!okU.includes(us))return 'Tu cuenta está activa para «'+(USES[us]?USES[us].n:us)+'». Para publicar otra cosa pídele al administrador que cambie tu tipo de plan.';
  if(k==='store'&&u.stores>=d.stores)return 'Tu plan '+d.n+' permite '+d.stores+(d.stores===1?' tienda':' tiendas')+'. Mejora tu plan para crear más.';
  if(k==='prod'){const s=S.stores.find(x=>x.id===sid);if(s&&(s.products||[]).length>=d.prods)return d.prods<1?'Tu plan '+d.n+' permite crear tu tienda, pero sin productos. Mejora tu plan para publicar productos.':'Tu plan '+d.n+' permite '+d.prods+' productos por tienda. Mejora tu plan para publicar más.'}
  if(k==='ad'&&u.ads>=d.ads)return 'Tu plan '+d.n+' permite '+d.ads+(d.ads===1?' anuncio abierto (casa, arriendo o vehículo)':' anuncios abiertos')+'. Cierra alguno o mejora tu plan.';
  if(k==='serv'&&u.servs>=d.servs)return 'Tu plan '+d.n+' permite '+d.servs+(d.servs===1?' servicio':' servicios')+'. Mejora tu plan para ofrecer más.';
  return ''}
-function planGo(k,sid,f){const m=planMsg(k,sid);if(!m)return f();if(!S.plan){if(S.planErr)return toast('No se pudo activar tu plan. Avisa al administrador.');planWait=()=>planGo(k,sid,f);choosePlan();return}
+function planGo(k,sid,f,kind){const m=planMsg(k,sid,kind);if(!m)return f();if(!S.plan){if(S.planErr)return toast('No se pudo activar tu plan. Avisa al administrador.');planWait=()=>planGo(k,sid,f,kind);choosePlan();return}
  modal(`<h2>Límite de tu plan</h2><p>${esc(m)}</p><div class="row" style="margin-top:8px"><button class="btn pink" data-act="plans">Ver planes</button><button class="btn ghost" data-act="close">Cerrar</button></div>`)}
-const planPerks=d=>[d.stores===INF?'Tiendas ilimitadas':d.stores+(d.stores===1?' tienda':' tiendas'),d.prods<1?'Tienda sin productos':d.prods===INF?'Productos ilimitados':d.prods+' productos por tienda',d.ads===INF?'Anuncios ilimitados (casas, arriendos, vehículos)':d.ads===1?'1 anuncio para vender o arrendar: 1 casa o 1 vehículo':d.ads+' anuncios abiertos (casas, arriendos, vehículos)',d.servs===INF?'Anuncios de servicios ilimitados':d.servs+(d.servs===1?' anuncio de servicios':' anuncios de servicios')+' para ofrecer tu oficio',d.feat.ad===INF?'Destacados ilimitados':d.feat.ad>0?d.feat.ad+(d.feat.ad===1?' destacado':' destacados')+' de cada uno (tiendas, servicios y anuncios)':'Sin destacados incluidos',d.home?'Publicidad de tus anuncios en la página principal incluida':''].filter(Boolean).map(t=>`<li>✓ ${t}</li>`).join('');
+const planPerkList=d=>{const u=d.use,a=[],fe=u==='store'?d.feat.store:u==='serv'?d.feat.serv:d.feat.ad;
+ if(u==='ad')return a;
+ if(u==='store'||u==='all'){a.push(d.stores===INF?'Tiendas ilimitadas':d.stores+(d.stores===1?' tienda':' tiendas'));a.push(d.prods<1?'Tienda sin productos':d.prods===INF?'Productos ilimitados':d.prods+' productos por tienda')}
+ if(u==='car')a.push(d.ads===INF?'Vehículos ilimitados':d.ads+(d.ads===1?' vehículo en venta':' vehículos en venta'));
+ if(u==='home')a.push(d.ads===INF?'Inmuebles ilimitados':d.ads+(d.ads===1?' inmueble (venta o arriendo)':' inmuebles (venta o arriendo)'));
+ if(u==='all')a.push(d.ads===INF?'Anuncios ilimitados (casas, arriendos, vehículos)':d.ads+(d.ads===1?' anuncio abierto':' anuncios abiertos'));
+ if(u==='serv'||u==='all')a.push(d.servs===INF?'Servicios ilimitados':d.servs+(d.servs===1?' servicio':' servicios'));
+ a.push(fe===INF?'Destacados ilimitados':fe>0?fe+(fe===1?' destacado':' destacados'):'Sin destacados');
+ if(d.home)a.push('Publicidad en la página principal incluida');
+ return a};
+const planBlurb=d=>d.d||planPerkList(d).join(' · ');
+const planPerks=d=>planPerkList(d).map(t=>`<li>✓ ${t}</li>`).join('');
 const planErrTxt=()=>S.planErr==='permission-denied'?'Faltan publicar las reglas de Firestore para la colección "plans". Avisa al administrador.':'Revisa tu internet e inténtalo de nuevo ('+S.planErr+').';
 function planCard(){const i=planInfo();if(!i&&S.planErr)return `<div class="cg"><h3>No se pudo activar tu plan</h3><p class="muted">${esc(planErrTxt())}</p><button class="btn pink" onclick="location.reload()">Reintentar</button></div>`;if(!i)return '<div class="cg"><p class="muted">Activando tu plan…</p></div>';const u=useOf(),d=i.d,dt=new Date(i.end).toLocaleDateString('es-CO'),fs=i.p.featSlots||0;
- const st='Tu plan: '+d.n+(i.on&&!i.p.paid&&i.p.plan!=='free'?' · prueba gratis':'');
+ const U=i.p.use||'all',st=(USES[U]?USES[U].ico+' '+USES[U].n+' · ':'')+'Tu plan: '+d.n+(i.on&&!i.p.paid&&i.p.plan!=='free'?' · prueba gratis':'');
  const when=i.on&&i.p.plan==='free'?'Plan gratuito, sin vencimiento.':i.on?(i.left<=7?'Vence en '+i.left+(i.left===1?' día':' días')+' ('+dt+')':(i.p.paid?'Activo hasta el ':'Gratis hasta el ')+dt):'Venció el '+dt+'. Renuévalo para seguir publicando.';
- const use=(n,a,b)=>`<li>${n}: <b>${a}</b>${b===INF?' (ilimitado)':' de '+b}</li>`;
- return `<div class="cg"><h3>${esc(st)}</h3><p class="muted">${esc(when)}</p><p style="margin:8px 0 4px"><b>Tus beneficios</b></p><ul class="muted" style="margin:0;padding:0;list-style:none">${use('Tiendas',u.stores,d.stores)}<li>Productos por tienda: <b>${d.prods<1?'sin productos':d.prods===INF?'ilimitados':'hasta '+d.prods}</b></li>${use('Anuncios abiertos',u.ads,d.ads)}${use('Servicios',u.servs,d.servs)}${use('Destacados · tiendas',u.fk.store,d.feat.store)}${use('Destacados · servicios',u.fk.serv,d.feat.serv)}${use('Destacados · anuncios',u.fk.ad,d.feat.ad)}${fs?`<li>Destacados extra pagados: <b>${fs}</b></li>`:''}</ul></div>${plansHTML()}`}
-function plansHTML(sel){const i=planInfo(),cp=i?i.p.plan:'';
- const btn=(k,d)=>sel?`<button class="btn${k==='free'?'':' pink'}" data-act="planPick" data-v="${k}">${k==='free'?'Elegir plan Gratis':'Elegir plan '+d.n+' · '+money(d.price)}</button>`:k==='free'?'':`<button class="btn${k===cp?'':' pink'}" data-act="planPay" data-v="${k}">${k===cp&&i&&i.p.paid?'Renovar':'Pagar'} plan ${d.n}</button>`;
- return `${sel?'':'<h3 style="margin:14px 0 4px">Planes disponibles</h3>'}<p class="muted" style="margin:0 0 8px">Los planes de pago duran ${PLAN_DAYS} días. El plan Gratis no vence.</p>${Object.entries(PLANS).map(([k,d])=>`<div class="cg"${k===cp?' style="border:2px solid #1a56db"':''}><h3>${d.n} · ${k==='free'?'Gratis':money(d.price)+'/mes'}${k===cp?' <small>(tu plan)</small>':''}</h3><ul class="muted" style="margin:0 0 8px;padding:0;list-style:none">${planPerks(d)}</ul>${btn(k,d)}</div>`).join('')}${sel?'':`<div class="cg"><h3>★ Destacado · ${money(FEAT_PRICE)}/mes</h3><p class="muted">Tu tienda, servicio o anuncio sale primero y con insignia. Cada destacado extra se paga aparte.</p><button class="btn" data-act="planPay" data-v="feat">Pedir un destacado</button></div><div class="cg"><h3>📢 Publicidad en la página principal · ${PLAN_DAYS} días</h3><p class="muted">Parte superior: <b>${money(AD_TOP)}</b><br>Parte inferior: <b>${money(AD_BOT)}</b><br>El plan Pro la incluye para tus anuncios.</p><div class="row"><button class="btn" data-act="planPay" data-v="adtop">Publicidad arriba</button><button class="btn" data-act="planPay" data-v="adbot">Publicidad abajo</button></div></div>`}<p class="muted">Pagas por Nequi o transferencia y el administrador activa tu plan.</p>`}
-function choosePlan(){if($('#plchoose'))return;modal(`<div id="plchoose"><h2>Elige tu plan</h2><p class="muted">Para continuar, selecciona uno de los planes disponibles.</p>${plansHTML(true)}</div>`);const o=$('#ov');if(o)o.dataset.lock='1'}
-function planPaid(v){modal(`<h2>Plan Gratis activo</h2><p>Ya puedes usar tu cuenta con el plan Gratis. Para activar el plan ${esc(PLANS[v].n)} (${money(PLANS[v].price)}/mes), paga por Nequi o transferencia y el administrador lo activa.</p><div class="row" style="margin-top:8px"><button class="btn pink" data-act="planPay" data-v="${v}">Pagar por WhatsApp</button><button class="btn ghost" data-act="close">Más tarde</button></div>`)}
+ const use=(n,a,b)=>`<li>${n}: <b>${a}</b>${b===INF?' (ilimitado)':' de '+b}</li>`,rows=[];
+ if(U==='store'||U==='all')rows.push(use('Tiendas',u.stores,d.stores),`<li>Productos por tienda: <b>${d.prods<1?'sin productos':d.prods===INF?'ilimitados':'hasta '+d.prods}</b></li>`,use('Destacados · tiendas',u.fk.store,d.feat.store));
+ if(U==='car'||U==='home'||U==='all')rows.push(use(U==='car'?'Vehículos abiertos':U==='home'?'Inmuebles abiertos':'Anuncios abiertos',u.ads,d.ads),use('Destacados · anuncios',u.fk.ad,d.feat.ad));
+ if(U==='serv'||U==='all')rows.push(use('Servicios',u.servs,d.servs),use('Destacados · servicios',u.fk.serv,d.feat.serv));
+ if(U==='ad')rows.push('<li>Elige arriba o abajo del inicio. Pagas por Nequi o transferencia y el administrador activa tu publicidad.</li>');
+ return `<div class="cg"><h3>${esc(st)}</h3><p class="muted">${esc(when)}</p><p style="margin:8px 0 4px"><b>Tus beneficios</b></p><ul class="muted" style="margin:0;padding:0;list-style:none">${rows.join('')}${fs?`<li>Destacados extra pagados: <b>${fs}</b></li>`:''}</ul></div>${plansHTML()}`}
+let plSel='',plMode='new',plCur='';
+const plKey=(use,tier)=>use==='all'?tier:use+'_'+tier;
+const plSteps=n=>`<div class="plst" aria-hidden="true">${[1,2,3,4].map(x=>(x>1?'<span></span>':'')+`<i class="${x<=n?'on':''}"></i>`).join('')}</div>`;
+function plCards(use,cur){const l=Object.entries(PLANS).filter(([k,d])=>d.use===use&&(d.on||k===cur));
+ return l.map(([k,d])=>{const dis=plMode==='chg'&&!d.price&&k!==cur;
+  return `<button type="button" class="plo${k===plSel?' on':''}${dis?' dis':''}" role="radio" aria-checked="${k===plSel}"${dis?' disabled':''} data-act="plSel" data-v="${k}"><span class="plr"></span><span class="plb"><b>${esc(d.n)}</b>${k===cur?'<em class="plbadge">PLAN ACTUAL</em>':''}<small>${esc(planBlurb(d))}</small></span><span class="plp">${d.price?money(d.price):'Gratis'}${d.price?'<small>/mes</small>':''}</span></button>`}).join('')}
+function plFoot(){const d=PLANS[plSel],en=plMode==='new'||(d&&d.price>0);
+ return `<div class="plsum"><b>${plMode==='new'?'Precio del plan':'Pago por '+PLAN_DAYS+' días'}</b><b id="pl-up">${d&&d.price?money(d.price):money(0)}</b></div><p class="plnote">${plMode==='new'?'Empiezas gratis. Si eliges un plan de pago, pagas por Nequi o transferencia y el administrador lo activa.':'Los planes de pago duran '+PLAN_DAYS+' días y no se renuevan solos. Pagas por Nequi o transferencia y el administrador activa tu plan.'}</p><button type="button" class="plgo" id="pl-go" data-act="plGo"${en?'':' disabled'}>${plMode==='chg'&&plSel===plCur?'RENOVAR':'CONTINUAR'}</button>`}
+function plSelect(v){const d=PLANS[v];if(!d)return;plSel=v;document.querySelectorAll('.plx .plo[data-act="plSel"]').forEach(b=>{const on=b.dataset.v===v;b.classList.toggle('on',on);b.setAttribute('aria-checked',on)});
+ const up=$('#pl-up');if(up)up.textContent=d.price?money(d.price):money(0);const go=$('#pl-go');if(go){go.disabled=!(plMode==='new'||d.price>0);go.textContent=plMode==='chg'&&v===plCur?'RENOVAR':'CONTINUAR'}}
+function plGo(){if(!PLANS[plSel])return;if(plMode==='new')QH.planPick(plSel);else planPay(plSel)}
+const plStep1HTML=()=>`${plSteps(1)}<h2 class="plh">¿QUÉ QUIERES HACER?</h2><p class="plmut">Elige una opción. Cada opción tiene sus propios planes.</p>${Object.entries(USES).map(([k,u])=>`<button type="button" class="plo" data-act="plUse" data-v="${k}"><span class="plic">${u.ico}</span><span class="plb"><b>${esc(u.n)}</b><small>${esc(u.d)}</small></span><span class="plch">›</span></button>`).join('')}`;
+const plStep2HTML=use=>`${plSteps(2)}<h2 class="plh">ELIGE TU PLAN</h2><p class="plmut">${USES[use].ico} ${esc(USES[use].n)}</p><div role="radiogroup" aria-label="Planes">${plCards(use,'')}</div>${plFoot()}<button type="button" class="plbk" data-act="plBack">← Cambiar lo que quiero hacer</button>`;
+function plStep2(use){const l=Object.entries(PLANS).filter(([k,d])=>d.use===use&&d.on);if(!USES[use]||!l.length)return toast('Esa opción todavía no tiene planes disponibles');plMode='new';plCur='';plSel=(l.find(([k,d])=>!d.price)||l[0])[0];const w=$('#plchoose');if(w)w.innerHTML=plStep2HTML(use)}
+function plStep1(){const w=$('#plchoose');if(w)w.innerHTML=plStep1HTML()}
+function plansHTML(){const i=planInfo();if(!i)return '';const use=i.p.use||'all';plMode='chg';plCur=plKey(use,i.p.plan);plSel=PLANS[plCur]?plCur:'';
+ return `<div class="plx" style="margin-top:12px">${plSteps(2)}<h2 class="plh">CAMBIA TU PLAN</h2><div role="radiogroup" aria-label="Planes">${plCards(use,plCur)}</div>${plFoot()}</div>${use==='ad'?'':`<div class="cg"><h3>★ Destacado · ${money(FEAT_PRICE)}/mes</h3><p class="muted">Tu tienda, servicio o anuncio sale primero y con insignia. Cada destacado extra se paga aparte.</p><button class="btn" data-act="planPay" data-v="feat">Pedir un destacado</button></div>`}`}
+function choosePlan(){if($('#plchoose'))return;modal(`<div id="plchoose" class="plx">${plStep1HTML()}</div>`);const o=$('#ov');if(o)o.dataset.lock='1'}
+function planPaid(v){modal(`<h2>Cuenta creada</h2><p>Tu cuenta quedó creada con el plan gratuito. Para activar el plan ${esc(PLANS[v].n)} (${money(PLANS[v].price)}/mes), paga por Nequi o transferencia y el administrador lo activa.</p><div class="row" style="margin-top:8px"><button class="btn pink" data-act="planPay" data-v="${v}">Pagar por WhatsApp</button><button class="btn ghost" data-act="close">Más tarde</button></div>`)}
 function plansModal(){modal(`<h2>Planes</h2>${plansHTML()}<button class="btn ghost" data-act="close">Cerrar</button>`)}
-function planPay(v){const w=(S.site||{}).wa,u=S.user;if(!w)return toast('El administrador aún no configuró su WhatsApp de pagos');const p=PLANS[v],t=v==='feat'?'un destacado ('+money(FEAT_PRICE)+'/mes)':v==='adtop'?'publicidad en la parte superior de la página principal ('+money(AD_TOP)+' por '+PLAN_DAYS+' días)':v==='adbot'?'publicidad en la parte inferior de la página principal ('+money(AD_BOT)+' por '+PLAN_DAYS+' días)':'el plan '+p.n+' ('+money(p.price)+'/mes)';
+function planPay(v){const w=(S.site||{}).wa,u=S.user;if(!w)return toast('El administrador aún no configuró su WhatsApp de pagos');const p=PLANS[v];if(v!=='feat'&&!p)return;const t=v==='feat'?'un destacado ('+money(FEAT_PRICE)+'/mes)':p.use==='ad'?'publicidad en la '+p.n.toLowerCase()+' de la página principal ('+money(p.price)+' por '+PLAN_DAYS+' días)':'el plan '+p.n+(USES[p.use]?' de «'+USES[p.use].n+'»':'')+' ('+money(p.price)+'/mes)';
  waOpen(w,'Hola, soy '+u.name+' ('+(u.wa||u.email)+'). Quiero pagar '+t+' en Qué Hay en Pradera. ¿Por dónde te pago?')}
 function usrRows(){const l=QH.plans().slice().sort((a,b)=>(b.ts||b.start||0)-(a.ts||a.start||0));
  const head=`<div class="cg"><h3>Personas registradas (${l.length})</h3><p class="muted">Aparecen aquí cuando entran por primera vez al panel de vendedores. Van de la más reciente a la más antigua.</p><label for="usr-q">Buscar por nombre, correo o celular</label><input id="usr-q" type="search" autocomplete="off"><div class="row" style="margin-top:8px"><button class="btn" data-act="usrCsv">Descargar lista (CSV)</button></div></div>`;
  if(!l.length)return head+'<div class="empty">Aún no hay personas registradas.</div>';
- return head+l.map((p,i)=>{const on=(p.end||0)>Date.now(),d=PLANS[p.plan]||PLANS.basic,reg=new Date(p.ts||p.start||0).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'}),own=a=>a.filter(o=>o.ownerKey===p.k).length,q=[p.name,p.email,p.wa].join(' ').toLowerCase();
-  return `<div class="cg${on?'':' out'}" data-usr="${esc(q)}"><b>${i+1}. ${esc(p.name||'(sin nombre)')}</b><p class="muted">Correo: ${esc(p.email||'—')}<br>Celular: ${esc(p.wa||'—')}<br>Registro: ${reg}<br>Plan ${d.n} · ${planTag(p)} · ${on?'activo':'vencido'}<br>Tiendas ${own(S.stores)} · Anuncios ${own(S.ads)} · Servicios ${own(S.services)}</p></div>`}).join('')}
+ return head+l.map((p,i)=>{const on=(p.end||0)>Date.now(),d=planDef(p),reg=new Date(p.ts||p.start||0).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'}),own=a=>a.filter(o=>o.ownerKey===p.k).length,q=[p.name,p.email,p.wa].join(' ').toLowerCase();
+  return `<div class="cg${on?'':' out'}" data-usr="${esc(q)}"><b>${i+1}. ${esc(p.name||'(sin nombre)')}</b><p class="muted">Correo: ${esc(p.email||'—')}<br>Celular: ${esc(p.wa||'—')}<br>Registro: ${reg}<br>${USES[p.use]?esc(USES[p.use].n)+' · ':''}Plan ${d.n} · ${planTag(p)} · ${on?'activo':'vencido'}<br>Tiendas ${own(S.stores)} · Anuncios ${own(S.ads)} · Servicios ${own(S.services)}</p></div>`}).join('')}
 function usrCsv(){const l=QH.plans().slice().sort((a,b)=>(b.ts||b.start||0)-(a.ts||a.start||0)),q=v=>'"'+String(v==null?'':v).replace(/"/g,'""').replace(/^([=+\-@])/,"'$1")+'"',fd=t=>new Date(t||0).toLocaleDateString('es-CO'),
-  rows=[['Nombre','Correo','Celular','Fecha de registro','Plan','Pago','Vence']].concat(l.map(p=>[p.name,p.email,p.wa,fd(p.ts||p.start),(PLANS[p.plan]||PLANS.basic).n,planTag(p),fd(p.end)]));
+  rows=[['Nombre','Correo','Celular','Fecha de registro','Tipo','Plan','Pago','Vence']].concat(l.map(p=>[p.name,p.email,p.wa,fd(p.ts||p.start),USES[p.use]?USES[p.use].n:'General',planDef(p).n,planTag(p),fd(p.end)]));
  const b=new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='usuarios_registrados.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function plEditor(){const nv=n=>n===INF?'ilimitado':String(n),f=(k,id,l,v,ph)=>`<label for="pc-${k}-${id}">${l}</label><input id="pc-${k}-${id}" type="text" value="${esc(v)}" placeholder="${ph||''}">`;
+ return `<div class="cg"><h3>Editar planes</h3><p class="muted">Cambia nombre, precio y límites de cada plan. En los límites escribe un número o «ilimitado». Descripción vacía = se arma sola con los límites. Los cambios se aplican a toda la página.</p>${[...Object.keys(USES),'all'].map(g=>{const l=Object.entries(PLANS).filter(([k,d])=>d.use===g);if(!l.length)return '';
+  return `<details class="pled"${g==='store'?' open':''}><summary><b>${g==='all'?'📦 Planes anteriores (cuentas existentes)':USES[g].ico+' '+esc(USES[g].n)}</b></summary>${l.map(([k,d])=>`<div class="plcfg"><h4>${esc(d.n)} <small class="muted">(${k})</small></h4>${f(k,'n','Nombre',d.n)}${f(k,'price','Precio (COP; 0 = gratis)',d.price)}${f(k,'d','Descripción corta',d.d||'','Automática')}${g==='store'||g==='all'?f(k,'stores','Tiendas',nv(d.stores))+f(k,'prods','Productos por tienda',nv(d.prods))+f(k,'fs','Destacados de tiendas',nv(d.feat.store)):''}${g==='car'||g==='home'||g==='all'?f(k,'ads',g==='car'?'Vehículos':g==='home'?'Inmuebles':'Anuncios',nv(d.ads))+f(k,'fa','Destacados de anuncios',nv(d.feat.ad)):''}${g==='serv'||g==='all'?f(k,'servs','Servicios',nv(d.servs))+f(k,'fv','Destacados de servicios',nv(d.feat.serv)):''}<label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="pc-${k}-on"${d.on?' checked':''}> Mostrar este plan a la gente</label><div class="row" style="margin-top:8px"><button class="btn pink" data-act="plCfg" data-k="${k}">Guardar</button><button class="btn ghost" data-act="plRst" data-k="${k}">Restaurar</button></div></div>`).join('')}</details>`}).join('')}</div>`}
 function planRows(){const l=QH.plans().sort((a,b)=>(a.end||0)-(b.end||0));if(!l.length)return '<div class="empty">Aún no hay usuarios con plan.</div>';
- return l.map(p=>{const d=PLANS[p.plan]||PLANS.basic,on=(p.end||0)>Date.now(),left=Math.ceil(((p.end||0)-Date.now())/DAY),own=a=>a.filter(o=>o.ownerKey===p.k),st=own(S.stores).length,ad=own(S.ads).filter(a=>!a.closed).length,sv=own(S.services).length,ft=[...own(S.stores),...own(S.services),...own(S.ads)].filter(o=>o.feat).length,dt=new Date(p.end||0).toLocaleDateString('es-CO');
-  return `<div class="cg${on?'':' out'}"><b>${esc(p.name||'(sin nombre)')}</b> <small>· ${esc(p.wa||p.email||'')}</small><p class="muted">${d.n} · ${planTag(p)} · ${on?(p.plan==='free'?'sin vencimiento':left<=7?'vence en '+left+' d':'hasta el '+dt):'vencido el '+dt}<br>Tiendas ${st}/${d.stores===INF?'∞':d.stores} · Anuncios ${ad}/${d.ads===INF?'∞':d.ads} · Servicios ${sv}/${d.servs===INF?'∞':d.servs} · Destacados ${ft} (incluidos ${d.feat.ad===INF?'∞':d.feat.store+'+'+d.feat.serv+'+'+d.feat.ad} · extra pagados ${p.featSlots||0})</p><div class="row" style="margin-top:8px">${Object.entries(PLANS).map(([k,x])=>`<button class="btn${p.plan===k?'':' ghost'}" data-act="plSet" data-id="${p.k}" data-v="${k}">${x.n}</button>`).join('')}</div><div class="row" style="margin-top:8px"><button class="btn pink" data-act="plMonth" data-id="${p.k}">Registrar pago · +30 días</button><button class="btn ghost" data-act="plFeat" data-id="${p.k}" data-d="-1">− destacado</button><button class="btn ghost" data-act="plFeat" data-id="${p.k}" data-d="1">+ destacado</button></div></div>`}).join('')}
+ return l.map(p=>{const d=planDef(p),U=p.use||'all',on=(p.end||0)>Date.now(),left=Math.ceil(((p.end||0)-Date.now())/DAY),own=a=>a.filter(o=>o.ownerKey===p.k),st=own(S.stores).length,ad=own(S.ads).filter(a=>!a.closed).length,sv=own(S.services).length,ft=[...own(S.stores),...own(S.services),...own(S.ads)].filter(o=>o.feat).length,dt=new Date(p.end||0).toLocaleDateString('es-CO');
+  return `<div class="cg${on?'':' out'}"><b>${esc(p.name||'(sin nombre)')}</b> <small>· ${esc(p.wa||p.email||'')}</small><p class="muted">${d.n} · ${planTag(p)} · ${on?(p.plan==='free'?'sin vencimiento':left<=7?'vence en '+left+' d':'hasta el '+dt):'vencido el '+dt}<br>Tiendas ${st}/${d.stores===INF?'∞':d.stores} · Anuncios ${ad}/${d.ads===INF?'∞':d.ads} · Servicios ${sv}/${d.servs===INF?'∞':d.servs} · Destacados ${ft} (incluidos ${d.feat.ad===INF?'∞':d.feat.store+'+'+d.feat.serv+'+'+d.feat.ad} · extra pagados ${p.featSlots||0})</p><div class="row" style="margin-top:8px">${Object.entries(PLANS).filter(([k,x])=>x.use===U).map(([k,x])=>{const t=U==='all'?k:k.slice(U.length+1);return `<button class="btn${p.plan===t?'':' ghost'}" data-act="plSet" data-id="${p.k}" data-v="${t}">${esc(x.n)}</button>`}).join('')}</div><div class="row" style="margin-top:8px"><small class="muted">Tipo:</small>${Object.entries(USES).map(([k,x])=>`<button class="btn${U===k?'':' ghost'}" data-act="plKind" data-id="${p.k}" data-v="${k}">${x.ico}</button>`).join('')}</div><div class="row" style="margin-top:8px"><button class="btn pink" data-act="plMonth" data-id="${p.k}">Registrar pago · +30 días</button><button class="btn ghost" data-act="plFeat" data-id="${p.k}" data-d="-1">− destacado</button><button class="btn ghost" data-act="plFeat" data-id="${p.k}" data-d="1">+ destacado</button></div></div>`}).join('')}
 const sortL=l=>sortBy==='rate'?l.slice().sort((a,b)=>avg(b.rates)-avg(a.rates)||(b.rates||[]).length-(a.rates||[]).length):sortBy==='az'?l.slice().sort((a,b)=>a.name.localeCompare(b.name,'es')):featFirst(l);
 const isFav=(k,id)=>S.favs.includes(k+':'+id);
 const need=f=>{if(S.user)f();else{after=f;loginForm()}};
@@ -949,7 +1041,7 @@ ${catFields('m',st,p.c1||'',p.c2||'')}${pxFields('m',p)}
 function admView(){if(!adm)return `<div class="shead"><h2>Administrador</h2></div><div class="cg"><p class="muted">Entra con tu correo y tu clave para moderar la página.</p><button class="btn pink" data-act="admLogin">Entrar</button></div>`;
 const pend=S.reports.filter(r=>!r.done).length,T=(v,t)=>`<button data-act="at" data-v="${v}" aria-current="${at===v}">${t}</button>`;let body='';
 if(at==='rep'){const l=S.reports.slice().reverse();body=l.length?l.map(r=>{const o=rateTarget(r.k,r.tid);return `<div class="cg${r.done?' out':''}"><b>${o?esc(o.name):'(ya no existe)'}</b> <small>· ${r.k==='store'?'Tienda':r.k==='ad'?'Anuncio':r.k==='prod'?'Producto':'Servicio'} ·${new Date(r.ts).toLocaleDateString('es-CO')}${r.done?' · atendido':''}</small><p>${esc(r.reason)}${r.txt?': '+esc(r.txt):''}</p><small>Reportó: ${esc(r.by)}</small><div class="row" style="margin-top:8px">${o?`${r.k==='store'?`<button class="btn ghost" data-act="admOpen" data-id="${r.tid}">Ver tienda</button>`:r.k==='ad'?`<button class="btn ghost" data-act="openAd" data-id="${r.tid}">Ver anuncio</button>`:''}${r.k==='prod'?`<button class="btn ghost" data-act="admOpenP" data-id="${r.tid}">Ver producto</button>`:`<button class="btn" data-act="admHide" data-k="${r.k}" data-id="${r.tid}">${o.hidden?'Mostrar':'Ocultar'}</button>`}<button class="btn ghost" data-act="admDel" data-k="${r.k}" data-id="${r.tid}">Eliminar</button>`:''}${r.done?'':`<button class="btn ghost" data-act="admDone" data-id="${r.id}">Descartar reporte</button>`}</div></div>`}).join(''):'<div class="empty">No hay reportes.</div>'}
-else if(at==='plan'){body=`<p class="muted">Cada usuario recibe 3 meses gratis del plan Básico al registrarse. Cuando te paguen por Nequi o transferencia, cambia el plan si hace falta, pulsa «Registrar pago» (suma 30 días) y suma los destacados que pagó.</p>`+planRows()}
+else if(at==='plan'){body=plEditor()+`<p class="muted">Cada persona elige al entrar qué quiere hacer y empieza con el plan Gratis de esa opción. Cuando te pague por Nequi o transferencia, cambia su plan, pulsa «Registrar pago» (suma 30 días) y suma los destacados que pagó. Con los botones «Tipo» puedes cambiar lo que puede hacer.</p>`+planRows()}
 else if(at==='usr'){body=usrRows()}
 else if(at==='sug'){const l=S.ideas.slice().reverse();body=l.length?l.map(x=>`<div class="cg"><b>${esc(x.name)}</b> <small>· ${new Date(x.ts).toLocaleDateString('es-CO')}</small><p>${esc(x.txt)}</p><button class="btn ghost" data-act="delSug" data-id="${x.id}">Eliminar</button></div>`).join(''):'<div class="empty">No hay sugerencias.</div>'}
 else if(at==='srv'){body=`<div class="cg"><h3>Servicios (oficios)</h3><p class="muted">Lista de oficios que se ofrecen en Servicios. Se ordena sola de la A a la Z ("Otro" siempre queda al final). Si renombras un oficio, los servicios ya publicados se actualizan solos.</p>${OFICIOS.filter(o=>o!=='Otro').map((o,i)=>`<div class="catrow"><input type="text" id="jb-n-${i}" maxlength="40" value="${esc(o)}" aria-label="Nombre del oficio ${i+1}"><button class="btn" data-act="jobSave" data-i="${i}">Guardar</button><button class="btn ghost" data-act="jobDel" data-i="${i}">Eliminar</button></div>`).join('')}<h3 style="margin-top:14px">Agregar oficio</h3><div class="catrow"><input type="text" id="jb-new" maxlength="40" placeholder="Nombre del oficio" aria-label="Nombre del nuevo oficio"><button class="btn pink" data-act="jobAdd">Agregar</button></div><div class="err" id="err-j"></div></div>`}
@@ -1275,7 +1367,7 @@ else if(a==='menu'){modal(`<h2>Menú</h2>${[['hub','Inicio'],['home','Comercio l
 else if(a==='mnuGo'){closeModal(1);if(v==='hub'){cat='';shopsOpen=false;view='home';render();return}if(v==='home')shopsOpen=true;sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render()}
 else if(a==='moretabs'){moreOpen=!moreOpen;render(true)}
 else if(a==='near'){const st=$('#near-st');if(myLL){myLL=null;render(true)}else if(!navigator.geolocation)st.textContent='Tu navegador no permite obtener la ubicación.';else{b.disabled=true;st.textContent='Buscando tu ubicación…';navigator.geolocation.getCurrentPosition(p=>{myLL=[p.coords.latitude,p.coords.longitude];if(view==='map')render(true)},()=>{if(view!=='map')return;b.disabled=false;st.textContent='No pude obtener tu ubicación. Activa el permiso de ubicación del navegador e intenta de nuevo.'},{enableHighAccuracy:true,timeout:10000})}}
-else if(a==='pub'){QH.go(()=>planGo(v==='shop'?'store':v==='serv'?'serv':'ad','',()=>v==='shop'?shopForm():v==='serv'?servForm():v==='inm'?inmMenu():adForm(v)))}
+else if(a==='pub'){QH.go(()=>planGo(v==='shop'?'store':v==='serv'?'serv':'ad','',()=>v==='shop'?shopForm():v==='serv'?servForm():v==='inm'?inmMenu():adForm(v),v))}
 else if(a==='openAd'){curAd=id;view='ad';render()}
 else if(a==='goMine'){closeModal(1);sj='';zoneF='';favOnly=false;if(v==='ad'){curAd=id;view='ad';render()}else{view='serv';render();const c=()=>{const k=document.querySelector('[data-act="contact"][data-id="'+id+'"]');return k&&k.closest('.shop')};if(!c()){lim=1e4;render(true)}const t=c();t&&t.scrollIntoView({block:'center'})}}
 else if(a==='zoomAd'){const x=S.ads.find(y=>y.id===curAd);if(x)lbOpen(pimgs(x),+b.dataset.i||0,x.title)}
@@ -1349,6 +1441,16 @@ else if(a==='tbDel'){if(!adm)return;const i=+b.dataset.i,it=tbList(b.dataset.k||
 else if(a==='bnDel'){if(!adm)return;const i=+b.dataset.i;if(confirm('¿Eliminar esta imagen del carrusel?')){bnList().splice(i,1);save();render(true);toast('Imagen eliminada')}}
 else if(a==='saveSite'){if(!adm)return;const n=$('#cfg-name').value.trim(),w=$('#cfg-wa').value.replace(/\D/g,''),m=$('#cfg-mail').value.trim(),err=$('#err');if(w&&w.length<10)return err.textContent='Escribe un WhatsApp válido de 10 dígitos.';if(m&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m))return err.textContent='Escribe un correo válido.';S.site={...S.site,name:n,wa:w,mail:m};save();render(true);toast('Datos guardados')}
 else if(a==='plans'){plansModal()}
+else if(a==='plUse'){plStep2(b.dataset.v)}
+else if(a==='plBack'){plStep1()}
+else if(a==='plSel'){plSelect(b.dataset.v)}
+else if(a==='plGo'){plGo()}
+else if(a==='plKind'){if(!adm)return;QH.planSet(b.dataset.id,{use:b.dataset.v,plan:'free'});toast('Tipo cambiado')}
+else if(a==='plCfg'){if(!adm)return;const k=b.dataset.k;if(!PLANS[k])return;const g=x=>{const e=$('#pc-'+k+'-'+x);return e?e.value:null},lim=s=>/^\s*(ilim|inf|∞|sin)/i.test(s)?-1:Math.max(0,parseInt(String(s).replace(/\D/g,''),10)||0),o={},n=(g('n')||'').trim();
+ if(!n)return toast('Escribe un nombre para el plan');o.n=n.slice(0,30);o.d=(g('d')||'').trim().slice(0,90);o.price=Math.max(0,parseInt(String(g('price')).replace(/\D/g,''),10)||0);
+ ['stores','prods','ads','servs','fs','fa','fv'].forEach(f=>{const s=g(f);if(s!==null)o[f]=lim(s)});const on=$('#pc-'+k+'-on');o.on=on&&on.checked?1:0;
+ S.site={...S.site,plans:{...(S.site.plans||{}),[k]:o}};applyPlanCfg();save();render(true);toast('Plan guardado')}
+else if(a==='plRst'){if(!adm)return;const k=b.dataset.k,c={...(S.site.plans||{})};delete c[k];S.site={...S.site,plans:c};applyPlanCfg();save();render(true);toast('Plan restaurado')}
 else if(a==='planPay'){planPay(b.dataset.v)}else if(a==='planPick'){QH.planPick(b.dataset.v)}
 else if(a==='at'){at=v;render();if(v==='alm'&&!ST.d)stLoad()}else if(a==='usrCsv'){usrCsv()}
 else if(a==='stRef'){stLoad()}
@@ -1365,7 +1467,7 @@ else if(a==='admDone'){const r=S.reports.find(x=>x.id===id);if(r){r.done=true;sa
 else if(a==='plSet'){QH.planSet(id,{plan:b.dataset.v});toast('Plan cambiado')}
 else if(a==='plMonth'){const p=QH.plans().find(x=>x.k===id);if(p){QH.planSet(id,{end:Math.max(Date.now(),p.end||0)+30*DAY,paid:true,trial:false});toast('Pago registrado: +30 días')}}
 else if(a==='plFeat'){const p=QH.plans().find(x=>x.k===id);if(p)QH.planSet(id,{featSlots:Math.max(0,(p.featSlots||0)+Number(b.dataset.d))})}
-else if(a==='admFeat'){const o=rateTarget(b.dataset.k,id);if(o){if(!o.feat){const p=QH.plans().find(x=>x.k===o.ownerKey),K=b.dataset.k,L={store:S.stores,serv:S.services,ad:S.ads},pd=p&&(PLANS[p.plan]||PLANS.basic),over=p?Object.keys(L).reduce((n,c)=>n+Math.max(0,L[c].filter(x=>x.feat&&x.ownerKey===o.ownerKey).length+(c===K?1:0)-pd.feat[c]),0):1;if((!p||over>(p.featSlots||0))&&!confirm('Este usuario no tiene destacados disponibles en su plan. ¿Destacar de todos modos?'))return}o.feat=!o.feat;save();const y=scrollY;render();scrollTo(0,y)}}
+else if(a==='admFeat'){const o=rateTarget(b.dataset.k,id);if(o){if(!o.feat){const p=QH.plans().find(x=>x.k===o.ownerKey),K=b.dataset.k,L={store:S.stores,serv:S.services,ad:S.ads},pd=p&&planDef(p),over=p?Object.keys(L).reduce((n,c)=>n+Math.max(0,L[c].filter(x=>x.feat&&x.ownerKey===o.ownerKey).length+(c===K?1:0)-pd.feat[c]),0):1;if((!p||over>(p.featSlots||0))&&!confirm('Este usuario no tiene destacados disponibles en su plan. ¿Destacar de todos modos?'))return}o.feat=!o.feat;save();const y=scrollY;render();scrollTo(0,y)}}
 else if(a==='admVer'){const o=rateTarget(b.dataset.k,id);if(o){o.verified=!o.verified;save();const y=scrollY;render();scrollTo(0,y)}}
 else if(a==='zoom'){const s=S.stores.find(x=>x.id===cur),p=s&&s.products.find(x=>x.id===id);if(p)lbOpen(gal(p),0,p.name)}
 else if(a==='zin')lbZoom(lb.z+.75);
