@@ -494,6 +494,7 @@ const QH=(function(){
  let plL=false;
  function plansListen(){if(MODE!=='admin'||plL||!adm||!ready)return;plL=true;listen('plans',()=>{if(view==='admin'&&!$('#ov'))render(true)})}
  const planSet=(k,patch)=>ref('plans',k).set(patch,{merge:true}).catch(wfail);
+ const planDel=k=>ref('plans',k).delete().catch(wfail);
  const plans=()=>Object.values(RAW.plans||{});
  function repListen(){plansListen();if(MODE!=='admin'||repL||!adm||!ready)return;repL=true;listen('reports',()=>{rebuild();render(true)})}
  /* ---- v52: dueños en línea (punto verde en el logo). Colección presence/<ownerKey> = {t: última señal}; en línea = señal de hace menos de 3,5 min ---- */
@@ -560,7 +561,7 @@ const QH=(function(){
    S.plan=s.data();S.planErr='';if($('#plchoose'))closeModal();if(Date.now()-(S.plan.start||0)<20000)toast('¡Listo! Tu plan '+planDef(S.plan).n+' está activo');
    const w=planWait;planWait=null;if(w)w();else if(!$('#ov'))render(true)},e=>planErr(e))}
  const token=async()=>{try{await authP;const u=auth&&auth.currentUser;return u?await u.getIdToken():''}catch(e){return ''}};
- return{start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planPick,online};
+ return{start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,planPick,online};
 })();
 
 const $=s=>document.querySelector(s);
@@ -687,7 +688,7 @@ function usrRows(){const l=QH.plans().slice().sort((a,b)=>(b.ts||b.start||0)-(a.
  const head=`<div class="cg"><h3>Personas registradas (${l.length})</h3><p class="muted">Aparecen aquí cuando entran por primera vez al panel de vendedores. Van de la más reciente a la más antigua.</p><label for="usr-q">Buscar por nombre, correo o celular</label><input id="usr-q" type="search" autocomplete="off"><div class="row" style="margin-top:8px"><button class="btn" data-act="usrCsv">Descargar lista (CSV)</button></div></div>`;
  if(!l.length)return head+'<div class="empty">Aún no hay personas registradas.</div>';
  return head+l.map((p,i)=>{const on=(p.end||0)>Date.now(),d=planDef(p),reg=new Date(p.ts||p.start||0).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'}),own=a=>a.filter(o=>o.ownerKey===p.k).length,q=[p.name,p.email,p.wa].join(' ').toLowerCase();
-  return `<div class="cg${on?'':' out'}" data-usr="${esc(q)}"><b>${i+1}. ${esc(p.name||'(sin nombre)')}</b><p class="muted">Correo: ${esc(p.email||'—')}<br>Celular: ${esc(p.wa||'—')}<br>Registro: ${reg}<br>${USES[p.use]?esc(USES[p.use].n)+' · ':''}Plan ${d.n} · ${planTag(p)} · ${on?'activo':'vencido'}<br>Tiendas ${own(S.stores)} · Anuncios ${own(S.ads)} · Servicios ${own(S.services)}</p></div>`}).join('')}
+  return `<div class="cg${on?'':' out'}" data-usr="${esc(q)}"><b>${i+1}. ${esc(p.name||'(sin nombre)')}</b><p class="muted">Correo: ${esc(p.email||'—')}<br>Celular: ${esc(p.wa||'—')}<br>Registro: ${reg}<br>${USES[p.use]?esc(USES[p.use].n)+' · ':''}Plan ${d.n} · ${planTag(p)} · ${on?'activo':'vencido'}<br>Tiendas ${own(S.stores)} · Anuncios ${own(S.ads)} · Servicios ${own(S.services)}</p><div class="row" style="margin-top:8px"><button class="btn ghost" data-act="usrDel" data-id="${esc(p.k)}">Eliminar</button></div></div>`}).join('')}
 function usrCsv(){const l=QH.plans().slice().sort((a,b)=>(b.ts||b.start||0)-(a.ts||a.start||0)),q=v=>'"'+String(v==null?'':v).replace(/"/g,'""').replace(/^([=+\-@])/,"'$1")+'"',fd=t=>new Date(t||0).toLocaleDateString('es-CO'),
   rows=[['Nombre','Correo','Celular','Fecha de registro','Tipo','Plan','Pago','Vence']].concat(l.map(p=>[p.name,p.email,p.wa,fd(p.ts||p.start),USES[p.use]?USES[p.use].n:'General',planDef(p).n,planTag(p),fd(p.end)]));
  const b=new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='usuarios_registrados.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
@@ -1456,6 +1457,7 @@ else if(a==='plCfg'){if(!adm)return;const k=b.dataset.k;if(!PLANS[k])return;cons
 else if(a==='plRst'){if(!adm)return;const k=b.dataset.k,c={...(S.site.plans||{})};delete c[k];S.site={...S.site,plans:c};applyPlanCfg();save();render(true);toast('Plan restaurado')}
 else if(a==='planPay'){planPay(b.dataset.v)}else if(a==='planPick'){QH.planPick(b.dataset.v)}
 else if(a==='at'){at=v;render();if(v==='alm'&&!ST.d)stLoad()}else if(a==='usrCsv'){usrCsv()}
+else if(a==='usrDel'){if(!adm)return;const p=QH.plans().find(x=>x.k===id);if(p&&confirm('¿Eliminar a '+(p.name||'esta persona')+' de las personas registradas? Se borra su registro y su plan. Sus tiendas, servicios y anuncios no se borran.')){QH.planDel(id);toast('Persona eliminada')}}
 else if(a==='stRef'){stLoad()}
 else if(a==='admIn'){QH.admIn()}
 else if(a==='admLogin'){QH.admForm()}
