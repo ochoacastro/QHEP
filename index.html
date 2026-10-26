@@ -423,6 +423,8 @@ header{display:grid;grid-template-columns:44px 1fr 44px;grid-template-areas:"hmb
 body.instore #annc{display:none}
 body.instore #cartBtn{background:var(--mango);width:56px;height:56px;border-radius:50%;padding:8px;box-shadow:0 4px 14px #0b2f7a55}
 body.m-panel .qw,body.m-admin .qw{display:none!important}
+.mhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.mhd h2{margin:0}
+.mx{width:44px;height:44px;margin:-6px -8px -6px 0;background:none;padding:0;display:grid;place-items:center;color:var(--ink)}.mx svg{width:30px;height:30px}
 html.dark :is(#annc,.cbd,.hmb i),html.dark body.instore #cartBtn{filter:hue-rotate(180deg) invert(1)}
 </style>
 </head>
@@ -1477,7 +1479,7 @@ else if(a==='tab'){if(v==='home')shopsOpen=true;sortBy='';zoneF='';favOnly=false
 else if(a==='menu'){modal(`<h2>Menú</h2>${[['hub','Inicio'],['home','Comercio local'],['map','Mapa'],['serv','Servicios'],...MORE.map(k=>[k,ADT[k].tab]),['guias','Guías útiles'],['sug','Sugerencias']].map(([k,t])=>`<button class="mrow" data-act="mnuGo" data-v="${k}"${curTab()===k?' aria-current="true"':''}><span>${t}</span><b aria-hidden="true">›</b></button>`).join('')}<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>`)}
 else if(a==='mnuGo'){closeModal(1);if(v==='hub'){cat='';shopsOpen=false;view='home';render();return}if(v==='home')shopsOpen=true;sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render()}
 else if(a==='moretabs'){moreOpen=!moreOpen;render(true)}
-else if(a==='hmenu'){const all=[['home','Comercio local'],['map','Mapa'],['serv','Servicios'],...MORE.map(x=>[x,ADT[x].tab]),['guias','Guías útiles'],['sug','Sugerencias']];modal(`<h2>Menú</h2>${all.map(([k,t])=>`<button class="mrow" data-act="hmtab" data-v="${k}"><span>${t}</span></button>`).join('')}`)}
+else if(a==='hmenu'){const all=[['home','Comercio local'],['map','Mapa'],['serv','Servicios'],...MORE.map(x=>[x,ADT[x].tab]),['guias','Guías útiles'],['sug','Sugerencias']];modal(`<div class="mhd"><h2>Menú</h2><button class="mx" data-act="close" aria-label="Cerrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20"/></svg></button></div>${all.map(([k,t])=>`<button class="mrow" data-act="hmtab" data-v="${k}"><span>${t}</span></button>`).join('')}`)}
 else if(a==='hmtab'){closeModal(1);if(v==='home')shopsOpen=true;sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render();scrollTo(0,0)}
 else if(a==='near'){const st=$('#near-st');if(myLL){myLL=null;render(true)}else if(!navigator.geolocation)st.textContent='Tu navegador no permite obtener la ubicación.';else{b.disabled=true;st.textContent='Buscando tu ubicación…';navigator.geolocation.getCurrentPosition(p=>{myLL=[p.coords.latitude,p.coords.longitude];if(view==='map')render(true)},()=>{if(view!=='map')return;b.disabled=false;st.textContent='No pude obtener tu ubicación. Activa el permiso de ubicación del navegador e intenta de nuevo.'},{enableHighAccuracy:true,timeout:10000})}}
 else if(a==='pub'){QH.go(()=>planGo(v==='shop'?'store':v==='serv'?'serv':'ad','',()=>v==='shop'?shopForm():v==='serv'?servForm():v==='inm'?inmMenu():adForm(v),v))}
