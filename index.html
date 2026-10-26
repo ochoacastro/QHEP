@@ -251,19 +251,19 @@ body.instore #app{display:flex;flex-direction:column}body.instore #app>.rvt,body
 .prod .plus{position:absolute;top:-6px;right:-6px;z-index:2;width:38px;height:38px;border-radius:50%;background:#fff;border:2px solid var(--lulo);color:var(--lulo);font-size:26px;font-weight:700;line-height:1;display:grid;place-items:center;padding:0;box-shadow:0 2px 6px #0b2f7a33}
 .prod .x{right:auto;left:8px}.prod .x[style]{right:auto!important;left:44px}
 /* v71: tarjeta de moda (Ropa y Calzado): al pasar el mouse o tocar la imagen se muestran tallas, colores y "Comprar ahora" */
-.prod.fx{position:relative;align-self:start;background:#1c1c1e;color:#fff;border-radius:22px;padding:0 0 14px;gap:0;overflow:hidden;isolation:isolate;transition:box-shadow .25s}
-.prod.fx:hover,.prod.fx.open{box-shadow:0 12px 28px #0b2f7a47}
+.prod.fx{position:relative;align-self:start;background:#fff;color:#111;border:1px solid #e6e9f2;border-radius:22px;padding:0 0 14px;gap:0;overflow:hidden;isolation:isolate;box-shadow:0 4px 14px #0b2f7a14;transition:box-shadow .25s}
+.prod.fx:hover,.prod.fx.open{box-shadow:0 12px 28px #0b2f7a2e}
 .hrow .prod.fx{flex-basis:200px}
 .prod.fx .x{color:var(--ink);font-weight:800}
-.prod.fx .fxst{position:relative;z-index:1;display:block;width:calc(100% - 20px);margin:4px 10px 0;padding:0;background:none;text-align:center;font-size:12px;color:#ffffffb3;text-decoration:underline}.prod.fx .fxst b{font-weight:700;color:#fff}
+.prod.fx .fxst{position:relative;z-index:1;display:block;width:calc(100% - 20px);margin:4px 10px 0;padding:0;background:none;text-align:center;font-size:12px;color:#666;text-decoration:underline}.prod.fx .fxst b{font-weight:700;color:#111}
 .prod.fx .fxq{position:relative;z-index:1;display:grid;justify-items:center;margin:10px 8px 0}
 .srg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:10px 12px 14px}@media(min-width:720px){.srg{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.prod.fx .fxw{position:absolute;left:0;right:0;top:44%;z-index:0;text-align:center;font-size:clamp(56px,17vw,90px);font-weight:800;line-height:1;color:var(--c);opacity:.2;white-space:nowrap;overflow:hidden;pointer-events:none;letter-spacing:-.02em}
+.prod.fx .fxw{position:absolute;left:0;right:0;top:44%;z-index:0;text-align:center;font-size:clamp(56px,17vw,90px);font-weight:800;line-height:1;color:#111;opacity:.05;white-space:nowrap;overflow:hidden;pointer-events:none;letter-spacing:-.02em}
 .prod.fx .fxp{position:relative;z-index:1;display:grid;place-items:center;width:100%;aspect-ratio:4/3;padding:0;background:var(--c);border-radius:22px 22px 36% 22px/22px 22px 28% 22px;overflow:hidden;cursor:pointer;font-size:56px;color:#fff}
 .prod.fx .fxp img{width:100%;height:100%;object-fit:contain;display:block}.prod.fx .fxp:has(img){background:#fff}
-.prod.fx h3{order:0;position:relative;z-index:1;margin:12px 10px 0;text-align:center;font-size:16px;font-weight:800;line-height:1.2;color:#fff}
-.prod.fx .plink{width:100%;text-align:center;color:#fff;font-weight:800}
-.prod.fx .price{order:0;position:relative;z-index:1;margin:3px 10px 0;text-align:center;font-size:15px;font-weight:700;color:#fff;opacity:.85}
+.prod.fx h3{order:0;position:relative;z-index:1;margin:12px 10px 0;text-align:center;font-size:16px;font-weight:800;line-height:1.2;color:#111}
+.prod.fx .plink{width:100%;text-align:center;color:#111;font-weight:800}
+.prod.fx .price{order:0;position:relative;z-index:1;margin:3px 10px 0;text-align:center;font-size:15px;font-weight:700;color:#111;opacity:.9}
 .prod.fx .soldout{order:0;align-self:center;position:relative;z-index:1;margin-top:8px;color:var(--ink)}
 .prod.fx .fxr{position:relative;z-index:1;display:grid;gap:10px;justify-items:center;max-height:0;opacity:0;overflow:hidden;margin-top:0;padding:0 10px;transition:max-height .4s ease,opacity .3s ease,margin-top .3s ease}
 .prod.fx.open .fxr{max-height:300px;opacity:1;margin-top:12px}
@@ -274,8 +274,9 @@ body.instore #app{display:flex;flex-direction:column}body.instore #app>.rvt,body
 .fxs[aria-pressed=true]{background:#b9e36a;border-color:#fff}
 .fxc{width:28px;height:28px;border-radius:50%;background:var(--k,#9aa3b2);border:2px solid #ffffff66;padding:0}
 .fxc[aria-pressed=true]{border-color:#fff;box-shadow:0 0 0 2px var(--c,#0B2F7A)}
-.prod.fx .fxb{background:#fff;color:#1c1c1e;font-weight:800;padding:11px 14px;border-radius:8px;width:100%}
-.prod.fx .fxv{background:transparent;padding:10px 14px;font-size:14px;font-weight:700;color:#fff;border:2px solid #ffffffb3;border-radius:8px;width:100%;text-decoration:none}
+.prod.fx .fxb{background:#111;color:#fff;font-weight:800;padding:11px 14px;border-radius:8px;width:100%}
+.prod.fx .fxv{background:transparent;padding:10px 14px;font-size:14px;font-weight:700;color:#111;border:2px solid #111;border-radius:8px;width:100%;text-decoration:none}
+.prod.fx .fxl>span{color:#666}.prod.fx .fxs{background:#fff;color:#111;border-color:#c9d3ea}.prod.fx .fxs[aria-pressed=true]{background:#111;color:#fff;border-color:#111}.prod.fx .fxc{border-color:#d3d8e4}.prod.fx .fxc[aria-pressed=true]{border-color:#fff;box-shadow:0 0 0 2px #111}
 .pvx .fxl{justify-content:flex-start}.pvx .fxl>span{color:var(--ink);opacity:.75}.pvx .fxs{background:#fff;border:2px solid #c9d3ea}.pvx .fxs[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}.pvx .fxc{border-color:#c9d3ea}.pvx .fxc[aria-pressed=true]{border-color:#fff;box-shadow:0 0 0 2px var(--ink)}
 /* v72: foto por color en el formulario de producto */
 .cimr{display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap}.cimr b{min-width:70px}.cimd{width:20px;height:20px;border-radius:50%;background:var(--k,#9aa3b2);border:1px solid #c9d3ea;flex:none}.cimr input[type=file]{flex:1 1 150px;width:auto;min-width:0}.cimt{width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid #c9d3ea}
@@ -399,7 +400,7 @@ html.dark{filter:invert(1) hue-rotate(180deg);background:#fff}
 html.dark :is(img,video,iframe,canvas,.leaflet-container .leaflet-tile),html.dark :is(.dchip input:checked+span,.btn.pink,.bedq button[aria-pressed=true],.cav,.cci,.chip[aria-pressed=true],.shop .em,.tag,.banner,#toast,.zoom .cnt,.vf,.play,.sg .lg,.lg2,.pvo,.pvs .lg,.hubi,.hubfi i,.onl,.lgo,.cimd,.btn:not(.ghost),.sob,#lb){filter:hue-rotate(180deg) invert(1)}
 html.dark :is(.dchip input:checked+span,.btn.pink,.bedq button[aria-pressed=true],.cav,.cci,.chip[aria-pressed=true],.shop .em,.tag,.banner,#toast,.zoom .cnt,.vf,.play,.sg .lg,.lg2,.pvo,.pvs .lg,.hubi,.hubfi i,.onl,.btn:not(.ghost),.sob,#lb) :is(img,video,iframe,canvas,.onl){filter:none}
 /* v75: las tarjetas de moda (.prod.fx) conservan sus colores en modo oscuro: se contrarresta la inversión de html y nada dentro se vuelve a invertir */
-html.dark .prod.fx{filter:hue-rotate(180deg) invert(1);background:#2b3f7e;border:1px solid #6f8be0}
+html.dark .prod.fx{filter:hue-rotate(180deg) invert(1);background:#fff;border:1px solid #d9dfee}
 html.dark .prod.fx *{filter:none!important}
 #themeBtn{flex:0 0 auto;padding:9px 12px;font-size:16px;line-height:1}
 /* v81: cabecera nueva — barra de aviso, menú, logo centrado, buscador con botón, Mi cuenta y carrito con contador */
