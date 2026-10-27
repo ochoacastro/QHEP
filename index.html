@@ -1358,7 +1358,7 @@ function prodView(){const s=S.stores.find(x=>x.id===cur),p=s&&s.products.find(x=
 const c=catOf(s.cat),mine=S.mine.includes(s.id),li=LISTING.includes(s.cat),im=cgl(p,(pSel[p.id]||{}).co).length?cgl(p,(pSel[p.id]||{}).co):pimgs(p),g=galC(p,(pSel[p.id]||{}).co),n=im.length,rr=p.rates||[],out=!!p.out||p.stock===0,mx=p.stock>0?p.stock:99,pi=Math.min(pI,Math.max(0,n-1)),q=pQ=Math.max(1,Math.min(pQ,mx)),
 off=p.old>p.price?Math.round((1-p.price/p.old)*100):0,
 bul=[p.d].concat((p.spec||'').split('\n').map(x=>x.trim())).filter(Boolean),
-feats=[['Marca',p.brand],['Estado',p.cond],['Color',p.color],['Categoría',p.c1?'#'+p.c1.replace(/\s+/g,''):''],['Subcategoría',p.c2?'#'+p.c2.replace(/\s+/g,''):''],['Tipo',p.vtype],['Combustible',p.fuel],['Unidades disponibles',p.stock>0?p.stock:'']].filter(x=>x[1]),
+feats=[['Marca',p.brand],['Estado',p.cond],['Color',p.color],['Tipo',p.vtype],['Combustible',p.fuel],['Unidades disponibles',p.stock>0?p.stock:'']].filter(x=>x[1]),
 dl=[s.delivery?`Domicilios: ${esc(s.delivery)}${delFeeTxt(s)}`:'',s.addr?`Retira en la tienda: ${esc(s.addr)}${s.zone?' · '+esc(s.zone):''}`:'',hoursTxt(s)?`Horario: ${esc(hoursTxt(s))} ${openBadge(s)}`:''].filter(Boolean),
 pays=(s.pays||[]).map(k=>(PAYS.find(y=>y[0]===k)||[])[1]).filter(Boolean),
 more=[];S.stores.forEach(x=>{if(!vis(x))return;(x.products||[]).forEach(y=>{if(y.id!==p.id&&(x.id===s.id||x.cat===s.cat))more.push({p:y,s:x})})});more.sort((u,w)=>(u.s.id===s.id?0:1)-(w.s.id===s.id?0:1));
@@ -1366,6 +1366,7 @@ return `<button class="back" data-act="open" data-id="${s.id}">← Volver a ${es
 <article class="pv" style="--c:${c[2]}"><button class="back" data-act="open" data-id="${s.id}" style="font-weight:600;color:#1a56db;text-align:left">Ver más productos de ${esc(s.name)}</button>
 <div class="pvm"><span class="muted">${esc(p.cond||'')}</span>${rateLine(p)}</div>
 <h2 class="pvt">${esc(p.name)}</h2>
+${p.c1||p.c2?`<div class="tg">${[p.c1,p.c2].filter(Boolean).map(t=>'#'+esc(String(t).replace(/\s+/g,''))).join(' ')}</div>`:''}
 <button class="btn ghost" data-act="fav" data-k="prod" data-id="${s.id}__${p.id}" aria-pressed="${isFav('prod',s.id+'__'+p.id)}">${isFav('prod',s.id+'__'+p.id)?'♥ En mis favoritos':'♡ Guardar en favoritos'}</button>
 <div class="pvg">${n?`<button class="zoom" data-act="zoomP" data-i="${pi}" aria-label="Ampliar fotos de ${esc(p.name)}"><img src="${im[pi]}" alt="${esc(p.name)}"></button><span class="pvc">${pi+1} / ${n}</span>`:`<div class="pvn"><span class="pe" aria-hidden="true">${esc(p.emoji||'🛍️')}</span>Sin foto</div>`}${p.video?`<button class="pvvid" data-act="zoomP" data-i="${g.length-1}">▶ Ver video</button>`:`<button class="pvsh" data-act="shareP" aria-label="Compartir ${esc(p.name)}">Compartir</button>`}</div>
 ${n>1?`<div class="pvd" role="group" aria-label="Fotos del producto">${im.map((m,i)=>`<button data-act="pimg" data-i="${i}" aria-label="Foto ${i+1} de ${n}" aria-current="${i===pi}"></button>`).join('')}</div>`:''}
