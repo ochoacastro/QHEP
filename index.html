@@ -502,11 +502,12 @@ const QH=(function(){
  /* ---- lo que la app tiene ahora, en forma de documentos ---- */
  function want(){const k=key(),D={};['stores','products','services','ads','ideas','reports','banners','topAds','cats','meta'].forEach(c=>D[c]={});
   const ord=o=>{if(!o._o)o._o=Date.now()};
-  const own=(o,mine)=>{if(MODE==='panel'&&k&&!o.ownerKey&&mine.includes(o.id))o.ownerKey=k};
-  S.stores.forEach(s=>{own(s,S.mine);ord(s);const d=clean(s);delete d.products;D.stores[s.id]=d;(s.products||[]).forEach(p=>{ord(p);const q=clean(p);q.sid=s.id;if(s.ownerKey)q.ownerKey=s.ownerKey;D.products[s.id+'__'+p.id]=q})});
+  const uid0=(()=>{const u=auth&&auth.currentUser,e=S.user&&String(S.user.email||'').toLowerCase();return u&&!u.isAnonymous&&e&&String(u.email||'').toLowerCase()===e?u.uid:''})();
+  const own=(o,mine)=>{if(MODE==='panel'&&k&&!o.ownerKey&&mine.includes(o.id))o.ownerKey=k;if(uid0&&k&&!o.ownerUid&&o.ownerKey===k)o.ownerUid=uid0};/* v102: ownerUid solo con sesion real del mismo correo */
+  S.stores.forEach(s=>{own(s,S.mine);ord(s);const d=clean(s);delete d.products;D.stores[s.id]=d;(s.products||[]).forEach(p=>{ord(p);const q=clean(p);q.sid=s.id;if(s.ownerKey)q.ownerKey=s.ownerKey;if(s.ownerUid)q.ownerUid=s.ownerUid;D.products[s.id+'__'+p.id]=q})});
   S.services.forEach(x=>{own(x,S.myServ);ord(x);D.services[x.id]=clean(x)});
   S.ads.forEach(x=>{own(x,S.myAds);ord(x);D.ads[x.id]=clean(x)});
-  S.ideas.forEach(x=>{if(!x.ownerKey)x.ownerKey=DEV;ord(x);D.ideas[x.id]=clean(x)});
+  S.ideas.forEach(x=>{if(!x.ownerKey)x.ownerKey=DEV;if(!x.uid&&x.ownerKey===DEV&&auth&&auth.currentUser)x.uid=auth.currentUser.uid;ord(x);D.ideas[x.id]=clean(x)});
   (S.reports||[]).forEach(x=>{ord(x);D.reports[x.id]=clean(x)});
   (S.banners||[]).forEach((x,i)=>{x._o=i;D.banners[x.id]=clean(x)});
   (S.topAds||[]).forEach((x,i)=>{x._o=i;D.topAds[x.id]=clean(x)});
@@ -579,6 +580,7 @@ const QH=(function(){
   authP=new Promise(ok=>{auth.onAuthStateChanged(u=>{
    if(!u){auth.signInAnonymously().catch(()=>ok());return}
    if(MODE==='admin'){const a=!u.isAnonymous&&!!u.email;if(a!==adm){adm=a;if(ready){closeModal();view='admin';render()}}if(a)repListen()}
+   if(ready&&!u.isAnonymous)setTimeout(()=>{try{push()}catch(e){}},400);
    ok()})});
   let n=COLS.length;
   COLS.forEach(c=>listen(c,()=>{if(--n===0){ready=true;rebuild();cb();hideSplash();presInit()}}));
@@ -1094,7 +1096,7 @@ function oauthIn(k){const err=$('#err'),n=($('#u-name')||$('#r-name')||{}).value
  const a=smsApp.auth(),pr=k==='apple'?new firebase.auth.OAuthProvider('apple.com'):k==='facebook'?new firebase.auth.FacebookAuthProvider():new firebase.auth.GoogleAuthProvider(),nm=k==='apple'?'Apple':k==='facebook'?'Facebook':'Google';
  if(k==='apple'){pr.addScope('email');pr.addScope('name')}else if(k==='facebook')pr.addScope('email');
  a.languageCode='es';err.textContent='Abriendo '+nm+'…';
- a.signInWithPopup(pr).then(r=>{const u=r.user,em=String(u.email||(u.providerData[0]||{}).email||'').toLowerCase();try{a.signOut()}catch(e){}
+ a.signInWithPopup(pr).then(r=>{const u=r.user,em=String(u.email||(u.providerData[0]||{}).email||'').toLowerCase();try{if(r.credential)auth.signInWithCredential(r.credential).catch(function(){})}catch(e){}try{a.signOut()}catch(e){}
   if(!em){err.textContent='No recibimos tu correo de '+nm+'. Usa otro método.';return}
   S.user={id:DEV,name:(n.trim()||u.displayName||em.split('@')[0]).slice(0,30),wa:'',email:em,consent:Date.now()};PEND=null;QH.derive();save();closeModal();syncUI();const f=after;after=null;f&&f();if(MODE==='panel')render()
  }).catch(e=>{const c=e&&e.code||'';err.textContent=c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request'?'Cancelaste el ingreso.':c==='auth/popup-blocked'?'Tu navegador bloqueó la ventana. Permite ventanas emergentes e intenta de nuevo.':c==='auth/operation-not-allowed'||c==='auth/unauthorized-domain'?'Este ingreso aún no está activado.':'No se pudo ingresar ('+(c||'error')+'). Intenta de nuevo.'})}
@@ -1128,6 +1130,7 @@ async function passLogin(){const idv=$('#l-id').value.trim(),pw=$('#l-pw').value
  try{await rcToken('rc-login')}catch(e){return err.textContent='No se pudo verificar reCAPTCHA. Recarga la página e inténtalo de nuevo.'}
  err.textContent='Entrando…';
  try{const a=await authB(),c=await a.signInWithEmailAndPassword(em,pw);let d={};try{d=JSON.parse(c.user.displayName||'{}')}catch(x){}try{await a.signOut()}catch(x){}
+  try{await auth.signInWithEmailAndPassword(em,pw)}catch(x){}/* v102: sesion principal real para ownerUid */
   const isM=idv.includes('@'),mail=d.e||(isM?em:''),wa=d.w||(isM?'':normPhone(idv));
   S.user={id:DEV,name:String(d.n||(mail?mail.split('@')[0]:'Vecino')).slice(0,30),wa,email:mail,pw:1,consent:Date.now()};PEND=null;QH.derive();save();closeModal();syncUI();const f=after;after=null;f&&f();if(MODE==='panel')render()}
  catch(e){rcReset('rc-login');const c=e&&e.code||'';err.textContent=c==='auth/too-many-requests'?'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.':c==='auth/network-request-failed'?'Sin conexión. Revisa tu internet.':c==='auth/operation-not-allowed'?'El ingreso con clave aún no está activado.':'Correo o clave incorrectos. Si recuperaste tu clave, usa la nueva.'}}
@@ -1563,7 +1566,7 @@ else if(a==='sendCode'){sendCode()}else if(a==='doLogin'){passLogin()}else if(a=
 else if(a==='oauth'){oauthIn(v)}
 else if(a==='verifyCode'){verifyCode()}
 else if(a==='resendCode'){if(PEND)issueCode(PEND.name,PEND.ch,PEND.to,true)}
-else if(a==='logout'){S.user=null;QH.derive();save();closeModal();syncUI();toast('Sesión cerrada');if(MODE==='panel')render()}
+else if(a==='logout'){try{if(auth.currentUser&&!auth.currentUser.isAnonymous)auth.signOut()}catch(e){}S.user=null;QH.derive();save();closeModal();syncUI();toast('Sesión cerrada');if(MODE==='panel')render()}
 else if(a==='fav'){const key=b.dataset.k+':'+id;S.favs=S.favs.includes(key)?S.favs.filter(x=>x!==key):S.favs.concat(key);save();const y=scrollY;render();scrollTo(0,y)}
 else if(a==='adFt'){adFOpen=!adFOpen;const y=scrollY;render();scrollTo(0,y)}
 else if(a==='bedq'){adF.beds=adF.beds===v?'':v;const y=scrollY;render();scrollTo(0,y)}
