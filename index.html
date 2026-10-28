@@ -534,6 +534,21 @@ article.cmc .cmown .btn.ghost:hover{opacity:1;background:var(--bg)}
 .plx .plbadge{display:inline-block;margin-right:4px}
 /* v111 — modo oscuro: las tarjetas de planes/accesos conservan su aspecto oscuro (se contrarresta la inversión de la página) */
 html.dark .plx{filter:invert(1) hue-rotate(180deg)}
+/* v116 — ventana Planes: tarjeta clara en modo claro (en modo oscuro conserva el diseño oscuro) */
+html:not(.dark) .cdwin .plx{background:#eaf0fc;color:#0b1f4d}
+html:not(.dark) .cdwin .plx :is(h2.plh,.plb b,.plp,.plp small,.plsum){color:#0b1f4d}
+html:not(.dark) .cdwin .plx :is(.plmut,.plb small,.plnote){color:#3d4f7c}
+html:not(.dark) .cdwin .plx .plo{border-color:#8fa3cf;color:#0b1f4d}
+html:not(.dark) .cdwin .plx .plo.on{background:#d5e1fa;border-color:#1a56db}
+html:not(.dark) .cdwin .plx .plr{border-color:#6f84b3}
+html:not(.dark) .cdwin .plx .plo.on .plr{border-color:#1a56db}
+html:not(.dark) .cdwin .plx .plo.on .plr:after{background:#1a56db}
+html:not(.dark) .cdwin .plx .plsb{border-color:#8fa3cf;color:#0b1f4d}
+html:not(.dark) .cdwin .plx .plsb.on{background:#0b1f4d;color:#fff;border-color:#0b1f4d}
+/* v116 — flechas del submenú de tipos de acceso (color distinto al fondo; aparecen solo si hay más opciones) */
+.plsw{position:relative;margin:0 0 6px}.plsw .plsub{margin:0}
+.plar{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:34px;height:34px;border-radius:50%;border:0;background:#ffb703;color:#0e141b;font-size:24px;font-weight:700;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px #0007;padding:0}
+.plar[hidden]{display:none}.plar.l{left:0}.plar.r{right:0}.plar:active{transform:translateY(-50%) scale(.94)}
 /* v111 — lista "Mis clasificados" */
 .cml{display:grid;gap:10px;margin:8px 0}
 .cmr{display:grid;grid-template-columns:56px minmax(0,1fr);gap:10px 12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:10px}
@@ -898,8 +913,8 @@ function planPaid(v){modal(`<h2>Cuenta creada</h2><p>Tu cuenta quedó creada con
 /* v109: Desbloquear accesos con el mismo diseño oscuro de los planes, con submenús por tipo de acceso */
 let cdU='',cdM=1;
 const CD_SH={store:'Tienda',serv:'Servicios',car:'Automóvil',home:'Casa',com:'Clasificados'};
-function cdBox(){const fd2=t=>new Date(t).toLocaleDateString('es-CO'),tabs=CODE_USES.concat('com');if(!tabs.includes(cdU))cdU=tabs[0];
- const sub=`<div class="plsub" role="tablist" aria-label="Tipo de acceso">${tabs.map(u=>`<button type="button" role="tab" class="plsb${u===cdU?' on':''}" aria-selected="${u===cdU}" data-act="cdTab" data-v="${u}">${CD_SH[u]}</button>`).join('')}</div>`;
+function cdBox(){setTimeout(cdSubInit,0);const fd2=t=>new Date(t).toLocaleDateString('es-CO'),tabs=CODE_USES.concat('com');if(!tabs.includes(cdU))cdU=tabs[0];
+ const sub=`<div class="plsw"><button type="button" class="plar l" data-act="cdScr" data-d="-1" aria-label="Ver tipos anteriores" hidden>‹</button><div class="plsub" role="tablist" aria-label="Tipo de acceso">${tabs.map(u=>`<button type="button" role="tab" class="plsb${u===cdU?' on':''}" aria-selected="${u===cdU}" data-act="cdTab" data-v="${u}">${CD_SH[u]}</button>`).join('')}</div><button type="button" class="plar r" data-act="cdScr" data-d="1" aria-label="Ver más tipos" hidden>›</button></div>`;
  if(cdU==='com'){const cur=comCur(),all=['free'].concat(COM_USES);if(cmSel!=='free'&&!COM_USES.includes(cmSel))cmSel='free';
   const card=u=>`<button type="button" class="plo cm${u===cmSel?' on':''}" role="radio" aria-checked="${u===cmSel}" data-act="cmxSel" data-v="${u}"><span class="plr"></span><span class="plb"><b>${u==='free'?'Gratis':COMU[u].n}</b>${u===cur?'<em class="plbadge">PLAN ACTUAL</em>':''}<small>${u==='free'?'1 anuncio al día · dura 24 horas':'Anuncia '+COM_DAYS[u]+' anuncios al día durante '+COM_DAYS[u]+' días'}</small></span><span class="plp">${u==='free'?'Gratis':money(comPrice(u))}<small>${u==='free'?'/ día':'/ '+COM_DAYS[u]+' días'}</small></span></button>`;
   return `${sub}<h2 class="plh">📢 Clasificados</h2><p class="plmut">Anuncios clasificados de tus vecinos.${comTiers().length?' Plan activo: '+comTiers().map(u=>COMU[u].n+' hasta el '+fd2(accEnd(u))).join(' · ')+'.':''}</p><div role="radiogroup" aria-label="Planes">${all.map(card).join('')}</div><div class="plsum"><b>Pago del plan</b><b id="cm-up">${cmSel==='free'?money(0):money(comPrice(cmSel))}</b></div><p class="plnote">Pago único. No se renueva solo. Pagas por Nequi o transferencia y el administrador te entrega un código.</p><button type="button" class="plgo" id="cm-go" data-act="cmxGo"${cmSel==='free'?' disabled':''}>${cmSel===cur?'RENOVAR':'CONTINUAR'}</button>`}
@@ -907,7 +922,10 @@ function cdBox(){const fd2=t=>new Date(t).toLocaleDateString('es-CO'),tabs=CODE_
  return `${sub}<h2 class="plh">${USES[u].ico} ${esc(USES[u].n)}</h2><p class="plmut">${esc(USES[u].d)}</p><p class="plmut">${on?'<em class="plbadge">Activo</em> hasta el '+fd2(e):'Sin acceso activo'}</p><div role="radiogroup" aria-label="Duración del acceso">${CODE_MS.map(x=>`<button type="button" class="plo${x===m?' on':''}" role="radio" aria-checked="${x===m}" data-act="cdSel" data-m="${x}"><span class="plr"></span><span class="plb"><b>${codeMn(x)}</b><small>Publica sin límite durante ${codeMn(x)}</small></span><span class="plp">${money(codePrice(u,x))}<small>/ ${codeMn(x)}</small></span></button>`).join('')}</div><div class="plsum"><b>Pago del acceso</b><b>${money(codePrice(u,m))}</b></div><p class="plnote">Pago único. No se renueva solo. Pagas por Nequi o transferencia y el administrador te entrega un código.</p><button type="button" class="plgo" data-act="codeBuy" data-u="${u}" data-m="${m}">${on?'RENOVAR':'COMPRAR ACCESO'}</button>`}
 function codesCard(){if(!S.user)return '';const fd2=t=>new Date(t).toLocaleDateString('es-CO');
  return `<h3 style="margin:18px 2px 4px">🔓 Desbloquear accesos</h3><p class="muted" style="margin:0 2px">Cada acceso te deja publicar sin límite en ese tipo durante el tiempo del código.</p><div class="plx" id="cdbox" style="margin-top:12px">${cdBox()}</div><div class="cg"><h4>Tengo un código</h4><label for="cd-in">Código de 12 caracteres</label><input id="cd-in" type="text" maxlength="14" autocapitalize="characters" autocomplete="off" placeholder="XXXX-XXXX-XXXX"><div class="row"><button class="btn pink" data-act="codeUse">Canjear código</button></div></div>`}
-function codesModal(){if(!S.user)return need(codesModal);modal(`<h2>Planes</h2>${codesCard()}<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>`)}
+function cdArrows(){const s=document.querySelector('#cdbox .plsub');if(!s)return;const w=s.parentElement,l=w.querySelector('.plar.l'),r=w.querySelector('.plar.r');if(l)l.hidden=s.scrollLeft<=2;if(r)r.hidden=s.scrollLeft+s.clientWidth>=s.scrollWidth-2}
+function cdSubInit(){const s=document.querySelector('#cdbox .plsub');if(!s)return;const o=s.querySelector('.plsb.on');if(o)s.scrollLeft=o.offsetLeft-(s.clientWidth-o.offsetWidth)/2;cdArrows()}
+document.addEventListener('scroll',e=>{if(e.target&&e.target.classList&&e.target.classList.contains('plsub'))cdArrows()},true);
+function codesModal(){if(!S.user)return need(codesModal);modal(`<div class="cdwin"><h2>Planes</h2>${codesCard()}<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div></div>`)}
 function plansModal(){modal(`<h2>Planes</h2>${plansHTML()}<button class="btn ghost" data-act="close">Cerrar</button>`)}
 function planesView(){if(!S.user)return `<div class="shead"><h2>Planes</h2></div><div class="cg"><p class="muted">Entra con tu código de verificación para ver y cambiar tu plan.</p><button class="btn pink" data-act="pLogin">Entrar</button></div>`;
  return `<div class="shead"><div><h2>Planes</h2><p class="muted">Elige el plan que quieres contratar.</p></div><button class="btn ghost" data-act="home">← Volver a mi panel</button></div>${plansHTML()||'<div class="cg"><p class="muted">Cargando tus planes…</p></div>'}`}
@@ -1724,6 +1742,7 @@ else if(a==='oauth'){oauthIn(v)}
 else if(a==='verifyCode'){verifyCode()}
 else if(a==='resendCode'){if(PEND)issueCode(PEND.name,PEND.ch,PEND.to,true)}
 else if(a==='cdTab'){cdU=b.dataset.v;const x=$('#cdbox');if(x){x.innerHTML=cdBox();const f=x.querySelector('[data-act="cdTab"][data-v="'+cdU+'"]');if(f)f.focus()}}
+else if(a==='cdScr'){const s=b.parentElement.querySelector('.plsub');if(s)s.scrollBy({left:(+b.dataset.d)*150,behavior:'smooth'})}
 else if(a==='cdSel'){cdM=+b.dataset.m;const x=$('#cdbox');if(x){x.innerHTML=cdBox();const f=x.querySelector('[data-act="cdSel"][data-m="'+cdM+'"]');if(f)f.focus()}}
 else if(a==='codeBuy'){const u=b.dataset.u,m=+b.dataset.m,w=(S.site||{}).wa;if(!S.user||!USES[u]||!CODE_DAYS[m])return;if(!w)return toast('El administrador aún no configuró su WhatsApp de pagos');waOpen(w,'Hola, soy '+S.user.name+' ('+(S.user.wa||S.user.email)+'). Quiero comprar el acceso «'+USES[u].n+'» por '+codeMn(m)+' ('+money(codePrice(u,m))+') en Qué Hay en Pradera. ¿Por dónde te pago?')}
 else if(a==='codeUse'){if(!S.user)return toast('Entra primero a tu cuenta');const v=$('#cd-in').value;b.disabled=true;try{const r=await QH.codeRedeem(v);toast('Acceso activado: '+(USES[r.use]||COMU[r.use]).n+' hasta el '+new Date(r.end).toLocaleDateString('es-CO'));render(true);const cb=$('#cdbox');if(cb)cb.innerHTML=cdBox()}catch(e){toast((e&&e.m)||'No se pudo canjear')}b.disabled=false}
