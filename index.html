@@ -19,7 +19,7 @@ window.rcRender=function(){};window.rcReset=function(){};
 window.rcToken=function(id){var action=String(id||'login').replace(/[^A-Za-z0-9_\/]/g,'_');return new Promise(function(ok,no){var t=setTimeout(function(){no(new Error('rc-timeout'))},8000);try{if(!window.grecaptcha||!grecaptcha.ready)throw new Error('rc-missing');grecaptcha.ready(function(){grecaptcha.execute(window.RC_SITE,{action:action}).then(function(k){clearTimeout(t);ok(k)},function(e){clearTimeout(t);no(e)})})}catch(e){clearTimeout(t);no(e)}})};</script>
 <script>(function(){try{var t=localStorage.getItem("qh_theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})()</script>
 <title>Qué Hay en Pradera – Lo nuestro, en un solo lugar</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#0B2F7A;--bg:#EEF3FF;--mango:#FFA800;--guava:#FF4D79;--lulo:#14B88A;--rio:#3A5BFF;--card:#fff}
 *{box-sizing:border-box;margin:0}
@@ -433,6 +433,87 @@ body.m-panel .qw,body.m-admin .qw{display:none!important}
 .mx{width:44px;height:44px;margin:-6px -8px -6px 0;background:none;padding:0;display:grid;place-items:center;color:var(--ink)}.mx svg{width:30px;height:30px}
 html.dark :is(#annc,.cbd,.hmb i),html.dark body.instore #cartBtn{filter:hue-rotate(180deg) invert(1)}
 </style>
+<style id="v106-design">
+/* v106 — refinamiento de diseño (Impeccable · frontend-design · animaciones de interfaz).
+   Solo estilos: no toca lógica ni datos. Compatible con el modo oscuro por inversión (usa solo --ink, blancos y neutros). */
+:root{--line:#dbe3f3;--line2:#c9d3ea;--ease:cubic-bezier(.23,1,.32,1);--sh1:0 1px 2px #0b2f7a14,0 4px 12px -2px #0b2f7a14;--sh2:0 2px 4px #0b2f7a12,0 16px 32px -10px #0b2f7a40}
+/* Tipografía: titulares con carácter (Bricolage Grotesque), cuerpo en Plus Jakarta Sans */
+body{line-height:1.45;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,.logo,.price,.hpp,.pvmp,.stn,.ptitle,.hubhero h2,.sname h2,.pvt{font-family:'Bricolage Grotesque','Plus Jakarta Sans',system-ui,sans-serif;letter-spacing:-.02em}
+h1,h2,h3,.pvt{text-wrap:balance}p,.desc{text-wrap:pretty}
+.price,.hpp,.pvpr b,.pvmp,.pp,.fav,.cbd,.pold,.icard b{font-variant-numeric:tabular-nums lining-nums}
+/* Superficies del navegador: selección, cursor, enlaces, barras de desplazamiento, placeholder */
+::selection{background:color-mix(in srgb,var(--mango) 45%,#fff);color:var(--ink)}
+input,textarea{caret-color:var(--rio)}
+a{text-underline-offset:.18em}
+::placeholder{color:#5f6e97;opacity:1}
+.modal,.drawer,#sr,.stage,.thumbs,.thumbs2{scrollbar-width:thin;scrollbar-color:#b6c3e4 transparent}
+a:focus-visible,summary:focus-visible,select:focus-visible{outline:3px solid var(--rio);outline-offset:2px}
+/* Cabecera: jerarquía más clara (cuenta y carrito ya no compiten con el buscador) */
+header{border-bottom:1px solid var(--line)}
+#annc{font-size:13px;padding:7px 14px;letter-spacing:.01em}
+.hmb{gap:5px}.hmb i{width:28px;height:4px}.hmb i:last-child{width:19px}
+#userBtn{font-size:16px;font-weight:700;gap:10px;min-height:44px}#userBtn svg{width:32px;height:32px}
+#cartBtn svg{width:30px;height:30px}body.instore #cartBtn svg{width:40px;height:40px}
+.qw{border:1px solid var(--line2);border-radius:14px;overflow:hidden;background:#f4f4f4;transition:border-color .2s var(--ease),box-shadow .25s var(--ease)}
+.qw:focus-within{border-color:var(--rio);box-shadow:0 0 0 4px #3A5BFF26}
+.qw #q{order:0;border-radius:0;background:transparent;padding:15px 18px}
+.qw #q:focus{box-shadow:none}
+#qgo{border-radius:0;width:58px;transition:filter .15s}#qgo:active{filter:brightness(1.25)}
+#sr{border-radius:16px;box-shadow:var(--sh2);transform-origin:top center}
+#sr:not([hidden]){animation:v106-pop .2s var(--ease)}
+.srh{text-transform:none;letter-spacing:0;font-size:13px}
+/* Botones y controles: un solo radio, respuesta táctil al presionar */
+.btn{border-radius:12px;transition:transform .16s var(--ease),filter .15s,box-shadow .2s var(--ease)}
+.btn:not(.ghost){box-shadow:0 1px 2px #0b2f7a29}
+.btn.ghost{border-color:var(--line2)}
+:is(.btn,.chip,.hbtn,.pubopt,.sob,.hpc,.shop,.pvchip):active{transform:scale(.97)}
+.btn:disabled:active{transform:none}
+.chip{border-radius:999px;padding:8px 16px;transition:background-color .18s var(--ease),border-color .18s,color .18s,transform .16s var(--ease)}
+.subtabs button,.segb button,.sttab,.tabs button{transition:background-color .2s var(--ease),opacity .2s,border-color .2s,box-shadow .2s}
+input[type=text],input[type=number],input[type=tel],input[type=email],input[type=password],input[type=time],input[type=month],select,textarea{border-radius:12px;padding:11px 14px;border-color:var(--line2);transition:border-color .15s,box-shadow .25s var(--ease)}
+input[type=text]:focus,input[type=number]:focus,input[type=tel]:focus,input[type=email]:focus,input[type=password]:focus,input[type=time]:focus,input[type=month]:focus,select:focus,textarea:focus{outline:none;border-color:var(--rio);box-shadow:0 0 0 4px #3A5BFF26}
+.dchip span,.pvchip,.fxs{border-radius:10px}
+/* Inicio: la tarjeta de colores es el momento memorable; el resto se mantiene quieto */
+.hubhero{border-radius:28px;padding:22px 12px 18px;box-shadow:var(--sh1)}
+.hubhero h2{font-size:clamp(22px,6vw,32px);font-weight:800;line-height:1.1;letter-spacing:-.025em}
+.hubi{border-radius:28%;box-shadow:inset 0 1px 0 #ffffff59,inset 0 -3px 0 #0002,0 10px 18px -8px color-mix(in srgb,var(--c) 60%,transparent);transition:transform .2s var(--ease)}
+.hubt{font-size:12px}@media(min-width:480px){.hubt{font-size:13px}}
+.hubf{border-radius:18px}
+/* Tarjetas: un radio por jerarquía (18 tarjeta · 14 imagen interior), elevación solo al apuntar */
+.shop,.hpc,.rvc,.icard,.pvs{border-radius:18px}
+.hpc .hpi{border-radius:14px}
+.hpc .hpp,.pvmp{letter-spacing:-.01em}
+.shop,.hpc{transition:transform .22s var(--ease),box-shadow .25s var(--ease),border-color .15s}
+@media(hover:hover){.shop:hover,.hpc:hover{box-shadow:var(--sh2);transform:translateY(-2px)}.shop:hover:active,.hpc:hover:active{transform:scale(.985)}}
+.prod:not(.fx) .pic img{transition:transform .5s var(--ease)}
+@media(hover:hover){.prod:not(.fx):hover .pic img{transform:scale(1.04)}}
+.prod .plus,.pc .plus{transition:transform .16s var(--ease),background-color .15s}.prod .plus:active,.pc .plus:active{transform:scale(.9)}
+.banner,.cover{border-radius:20px}.tbs{border-radius:16px}
+/* Indicadores sin barra de color lateral gruesa */
+.subtabs.vmenu button{position:relative;transition:background-color .2s var(--ease)}
+.subtabs.vmenu button[aria-current=true]{box-shadow:none;font-weight:800}
+.subtabs.vmenu button[aria-current=true]::after{content:"";position:absolute;right:14px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--ink)}
+.mlist .mrow{border-left-width:1px}
+/* Etiquetas en minúscula normal (sin mayúsculas forzadas) */
+.fvi .fvk,.plbadge,.plx h2.plh{text-transform:none;letter-spacing:0}
+.plx{border-radius:22px}.plo{border-radius:14px}.plgo{border-radius:14px}.plbadge{border-radius:6px}
+/* Capas: entrada breve con curva de desaceleración; salida no se anima (se retira al instante) */
+.modal{border-radius:22px;padding:22px;box-shadow:0 24px 60px -16px #0b1f4d66;animation:v106-pop .26s var(--ease)}
+.lb{animation:v106-in .2s var(--ease)}
+.drawer{transition:transform .34s cubic-bezier(.32,.72,0,1)}
+#toast{opacity:0;border-radius:12px;box-shadow:0 12px 30px -10px #0b2f7a66;pointer-events:none;transition:transform .3s var(--ease),opacity .2s}#toast.show{opacity:1}
+img.ld{animation:v106-in .35s var(--ease)}
+/* Pie de página: legible y con medida corta */
+footer{opacity:1;color:color-mix(in srgb,var(--ink) 74%,#fff);font-size:13px;line-height:1.65;max-width:62ch;margin:0 auto;padding:36px 16px 48px}
+/* Una sola entrada orquestada: los cinco cuadros de colores al abrir el sitio (≈0,4 s en total) */
+body.v-intro .hubt{animation:v106-rise .55s var(--ease) backwards}
+body.v-intro .hubt:nth-child(2){animation-delay:.05s}body.v-intro .hubt:nth-child(3){animation-delay:.1s}body.v-intro .hubt:nth-child(4){animation-delay:.15s}body.v-intro .hubt:nth-child(5){animation-delay:.2s}
+@keyframes v106-in{from{opacity:0}}
+@keyframes v106-pop{from{opacity:0;transform:translateY(8px) scale(.97)}}
+@keyframes v106-rise{from{opacity:0;transform:translateY(14px) scale(.92)}}
+@media(prefers-reduced-motion:reduce){*,::before,::after{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
 <div id="splash" role="status" aria-label="Cargando"><div class="spl"><div class="spl-logo"><b>Qué Hay en Pradera</b></div><div class="spl-bar"><i></i></div><p>Cargando tu mercado…</p></div></div>
@@ -451,7 +532,7 @@ html.dark :is(#annc,.cbd,.hmb i),html.dark body.instore #cartBtn{filter:hue-rota
 <footer>Qué Hay en Pradera · Lo nuestro, en un solo lugar. Cada tienda y cada servicio es responsabilidad de quien lo publica.<br><button class="back" data-act="legal" data-v="terms">Términos de uso</button> · <button class="back" data-act="legal" data-v="priv">Política de privacidad</button></footer>
 <aside class="drawer" id="drawer" aria-label="Carrito"></aside>
 <div id="toast" role="status"></div>
-<script>window.hideSplash=function(){var x=document.getElementById('splash');if(x){x.classList.add('off');setTimeout(function(){x.remove()},500)}};setTimeout(function(){window.hideSplash()},20000);(function(){const m=e=>{const t=e.target;if(t&&t.tagName==='IMG')t.classList.add('ld')};document.addEventListener('load',m,true);document.addEventListener('error',m,true)})()</script>
+<script>window.hideSplash=function(){var x=document.getElementById('splash');if(x){x.classList.add('off');setTimeout(function(){x.remove()},500)}};setTimeout(function(){window.hideSplash()},20000);(function(){var h=window.hideSplash,d=0;window.hideSplash=function(){if(!d){d=1;document.body.classList.add('v-intro');setTimeout(function(){document.body.classList.remove('v-intro')},1000)}h()}})();(function(){const m=e=>{const t=e.target;if(t&&t.tagName==='IMG')t.classList.add('ld')};document.addEventListener('load',m,true);document.addEventListener('error',m,true)})()</script>
 <script>
 const CATS=[['Farmacia','','#1E6FBF'],['Electrodomésticos','','#2B3A55'],['Restaurantes','','#B23A2E'],['Ropa','','#4A4A6A'],['Celulares','','#C0392B'],['Computación','','#1F6F8B'],['Hogar','','#2E7D5B'],['Alquiler de artículos','🎪','#0E7490'],['Ferretería','🔧','#B45309'],['Muebles y decoración','🛋️','#9A3412'],['Moda y accesorios','👗','#BE185D'],['Accesorios vehículos','🚗','#1E4FBF'],['Deporte y fitness','🏋️','#15803D'],['Tecnología','💻','#1F6F8B'],['Oficina y papelería','📎','#6D28D9'],['Videojuegos','🎮','#4338CA'],['Juegos y juguetes','🧸','#C2410C'],['Abarrotes','🛒','#2E7D5B'],['Bebés','🍼','#DB2777'],['Mascotas','🐶','#A0551A'],['Instrumentos musicales','🎸','#7C2D12'],['Joyas y relojes','💍','#A16207'],['Cacharrerías','🧰','#475569'],['Belleza y salud','💄','#BE123C'],['Licores','🍷','#8A4B1A'],['Calzado','👟','#4D7C0F'],['Libros y revistas','📚','#6D28D9'],['Floristería y regalos','💐','#BE185D'],['Panadería y pastelería','🥐','#B45309'],['Jardinería y agro','🌱','#15803D'],['Fiestas y eventos','🎉','#9F1239']];
 const OFICIOS=['Niñera','Cuidador de ancianos','Aseadora','Carpintero','Plomero o fontanero','Electricista','Pintor','Jardinero','Mecánico','Servicios especializados','Otro'];const DEFJOBS=OFICIOS.filter(o=>o!=='Otro');let newCatImg='';
