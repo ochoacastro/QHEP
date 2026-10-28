@@ -890,7 +890,7 @@ function planCard(){const i=planInfo();if(!i&&S.planErr)return `<div class="cg">
  if(U==='car'||U==='home'||U==='all')rows.push(use(U==='car'?'Vehículos abiertos':U==='home'?'Inmuebles abiertos':'Anuncios abiertos',u.ads,d.ads),use('Destacados · anuncios',u.fk.ad,d.feat.ad));
  if(U==='serv'||U==='all')rows.push(use('Servicios',u.servs,d.servs),use('Destacados · servicios',u.fk.serv,d.feat.serv));
  if(U==='ad')rows.push('<li>Elige arriba o abajo del inicio. Pagas por Nequi o transferencia y el administrador activa tu publicidad.</li>');
- return `<div class="cg"><h3>${esc(st)}</h3><p class="muted">${esc(when)}</p><p style="margin:8px 0 4px"><b>Tus beneficios</b></p><ul class="muted" style="margin:0;padding:0;list-style:none">${rows.join('')}${fs?`<li>Destacados extra pagados: <b>${fs}</b></li>`:''}</ul><button type="button" class="btn pink" style="margin-top:12px" data-act="planPage">Cambia tu plan</button></div>`}
+ return `<div class="cg"><h3>${esc(st)}</h3><p class="muted">${esc(when)}</p><p style="margin:8px 0 4px"><b>Tus beneficios</b></p><ul class="muted" style="margin:0;padding:0;list-style:none">${rows.join('')}${fs?`<li>Destacados extra pagados: <b>${fs}</b></li>`:''}</ul><button type="button" class="btn pink" style="margin-top:12px" data-act="catPlans">Cambia tu plan</button></div>`}
 let plSel='',plMode='new',plCur='';
 const plKey=(use,tier)=>use==='all'?tier:use+'_'+tier;
 const plSteps=n=>`<div class="plst" aria-hidden="true">${[1,2,3,4].map(x=>(x>1?'<span></span>':'')+`<i class="${x<=n?'on':''}"></i>`).join('')}</div>`;
@@ -925,6 +925,8 @@ function codesCard(){if(!S.user)return '';const fd2=t=>new Date(t).toLocaleDateS
 function cdArrows(){const s=document.querySelector('#cdbox .plsub');if(!s)return;const w=s.parentElement,l=w.querySelector('.plar.l'),r=w.querySelector('.plar.r');if(l)l.hidden=s.scrollLeft<=2;if(r)r.hidden=s.scrollLeft+s.clientWidth>=s.scrollWidth-2}
 function cdSubInit(){const s=document.querySelector('#cdbox .plsub');if(!s)return;const o=s.querySelector('.plsb.on');if(o)s.scrollLeft=o.offsetLeft-(s.clientWidth-o.offsetWidth)/2;cdArrows()}
 document.addEventListener('scroll',e=>{if(e.target&&e.target.classList&&e.target.classList.contains('plsub'))cdArrows()},true);
+const CATPL=[['store','🛍️','Tienda','Crea tu tienda con productos'],['serv','🛠️','Servicios','Ofrece tu oficio o servicio'],['car','🚗','Automóvil','Vende carros, motos o bicicletas'],['home','🏠','Casa','Arrienda o vende inmuebles'],['com','📢','Clasificados','Anuncios clasificados de tus vecinos']];
+function catPlansModal(){if(!S.user)return need(catPlansModal);modal(`<h2>Cambia tu plan</h2><p class="muted">Elige la categoría para ver sus planes.</p><div class="pubmenu">${CATPL.map(([u,e,t,d])=>`<button class="pubopt" data-act="cdOpen" data-v="${u}"><b>${e} ${t}</b><span>${d}</span></button>`).join('')}</div><button class="btn ghost" data-act="close">Cerrar</button>`)}
 const PUBASK={arr:'¿Deseas publicar un arriendo?',casa:'¿Deseas vender una propiedad?',veh:'¿Deseas vender un vehículo?'},PUBUSE={arr:'home',casa:'home',veh:'car',shop:'store',serv:'serv',com:'com'},PUBLBL={arr:'un arriendo',casa:'una propiedad en venta',veh:'un vehículo',serv:'tu servicio',com:'un anuncio'};
 const comAvail=()=>{let n=comFreeWait()?0:1;comTiers().forEach(u=>{n+=Math.max(0,COM_DAYS[u]-comUsed(u))});return n};
 function comAvailTxt(){const n=comAvail(),w=comFreeWait();return 'Anuncios disponibles: '+n+(n?'':(w?' · gratis de nuevo en '+w+' h':' · mira los planes'))}
@@ -1748,6 +1750,8 @@ else if(a==='resendCode'){if(PEND)issueCode(PEND.name,PEND.ch,PEND.to,true)}
 else if(a==='cdTab'){cdU=b.dataset.v;const x=$('#cdbox');if(x){x.innerHTML=cdBox();const f=x.querySelector('[data-act="cdTab"][data-v="'+cdU+'"]');if(f)f.focus()}}
 else if(a==='pubAsk'){need(()=>{let ex;if(v==='com')ex=!comAvail();else{const m=planMsg(v==='shop'?'store':v==='serv'?'serv':'ad','',v);ex=!!m&&!/activando/.test(m)}if(ex)codesModal(PUBUSE[v],v,1);else pubMenu()})}
 else if(a==='pubGo'){closeModal(1);pubRun(v)}
+else if(a==='catPlans'){catPlansModal()}
+else if(a==='cdOpen'){closeModal(1);codesModal(v)}
 else if(a==='cdScr'){const s=b.parentElement.querySelector('.plsub');if(s)s.scrollBy({left:(+b.dataset.d)*150,behavior:'smooth'})}
 else if(a==='cdSel'){cdM=+b.dataset.m;const x=$('#cdbox');if(x){x.innerHTML=cdBox();const f=x.querySelector('[data-act="cdSel"][data-m="'+cdM+'"]');if(f)f.focus()}}
 else if(a==='codeBuy'){const u=b.dataset.u,m=+b.dataset.m,w=(S.site||{}).wa;if(!S.user||!USES[u]||!CODE_DAYS[m])return;if(!w)return toast('El administrador aún no configuró su WhatsApp de pagos');waOpen(w,'Hola, soy '+S.user.name+' ('+(S.user.wa||S.user.email)+'). Quiero comprar el acceso «'+USES[u].n+'» por '+codeMn(m)+' ('+money(codePrice(u,m))+') en Qué Hay en Pradera. ¿Por dónde te pago?')}
