@@ -509,6 +509,24 @@ footer{opacity:1;color:color-mix(in srgb,var(--ink) 74%,#fff);font-size:13px;lin
 /* Una sola entrada orquestada: los cinco cuadros de colores al abrir el sitio (≈0,4 s en total) */
 body.v-intro .hubt{animation:v106-rise .55s var(--ease) backwards}
 body.v-intro .hubt:nth-child(2){animation-delay:.05s}body.v-intro .hubt:nth-child(3){animation-delay:.1s}body.v-intro .hubt:nth-child(4){animation-delay:.15s}body.v-intro .hubt:nth-child(5){animation-delay:.2s}
+/* v108 — tarjeta de Clasificados: imagen completa, título claro, WhatsApp como acción principal y Editar/Eliminar discretos
+   (el prefijo article.cmc sube la especificidad: los estilos base de la tarjeta se inyectan más tarde desde JS) */
+article.cmc{border-radius:20px;border-color:var(--line);box-shadow:var(--sh1);margin-bottom:22px}
+article.cmc .cmh{padding:14px 16px 12px;gap:12px}
+article.cmc .cma{width:40px;height:40px;background:color-mix(in srgb,var(--ink) 12%,#fff);color:var(--ink);font-size:17px}
+article.cmc .cmh b{font-size:15px;line-height:1.2}
+article.cmc .cmh small{font-size:13px;opacity:.65;margin-top:2px}
+article.cmc .cmi{aspect-ratio:auto;height:auto;min-height:180px;max-height:72vh;object-fit:contain}
+article.cmc .cmb{padding:16px 16px 4px}
+article.cmc .cmb>b{display:block;font-family:'Bricolage Grotesque','Plus Jakarta Sans',system-ui,sans-serif;font-size:19px;line-height:1.25;letter-spacing:-.015em}
+article.cmc .cmb p{font-size:15px;line-height:1.55;margin-top:8px;opacity:.85;max-width:60ch}
+article.cmc .cmact{padding:14px 16px 16px;gap:8px}
+article.cmc .cmact .btn{min-height:46px;display:flex;align-items:center;justify-content:center;font-size:15px;padding:10px 12px}
+article.cmc .cmact .btn.wa{flex:1 1 100%;font-size:16px}
+article.cmc .cmact .btn.ghost{flex:1 1 0}
+article.cmc .cmown{margin:0 16px;padding:8px 0 10px;border-top:1px solid var(--line);justify-content:flex-end;gap:4px}
+article.cmc .cmown .btn.ghost{flex:0 0 auto;background:none;border:0;box-shadow:none;font-size:14px;padding:8px 12px;opacity:.75}
+article.cmc .cmown .btn.ghost:hover{opacity:1;background:var(--bg)}
 @keyframes v106-in{from{opacity:0}}
 @keyframes v106-pop{from{opacity:0;transform:translateY(8px) scale(.97)}}
 @keyframes v106-rise{from{opacity:0;transform:translateY(14px) scale(.92)}}
