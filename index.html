@@ -679,7 +679,7 @@ const QH=(function(){
   const cs=g('cats',1);if(cs.length){const o=cs.filter(x=>x.a[0]==='Otros'),r=cs.filter(x=>x.a[0]!=='Otros');CATS.length=0;r.concat(o).forEach(x=>{CATS.push(x.a.slice())});S.cats=CATS.map(c=>c.slice())}
   const m=(RAW.meta||{}).site;if(m){S.site=clean(m);applyJobs();applyPlanCfg();applyLook()}
   derive();presBeat()}
- function derive(){if(MODE==='index'){planListen();return}if(MODE!=='panel')return;const k=key(),m=l=>k?l.filter(o=>o.ownerKey===k).map(o=>o.id):[];S.mine=m(S.stores);S.myServ=m(S.services);S.myAds=m(S.ads);planListen()}
+ function derive(){if(MODE==='index'){planListen();return}if(MODE!=='panel')return;const k=key(),m=l=>k?l.filter(o=>o.ownerKey===k).map(o=>o.id):[];S.mine=m(S.stores);S.myServ=m(S.services);S.myAds=m(S.ads);planListen();autoFeat()}
  function same(c){const D=want()[c]||{},R=RAW[c]||{},a=Object.keys(D),b=Object.keys(R);if(a.length!==b.length)return false;return a.every(id=>R[id]&&sj(D[id])===sj(R[id]))}
  function sched(){clearTimeout(rt);rt=setTimeout(()=>{if($('#ov')||$('#lb'))return;const f=document.activeElement;if(f&&/^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName))return;render(true)},400)}
  function listen(c,done){let first=true;return db.collection(c).onSnapshot(snap=>{
@@ -803,8 +803,13 @@ const ageOk=()=>{if(ageMem)return true;try{return sessionStorage.getItem('qh_age
 const ageBlock=s=>!!ageKind(s)&&!ageOk()&&!adm&&!S.mine.includes(s.id);
 const ageGate=s=>{const bet=ageKind(s)==='bet';return `<section class="agegate" id="agegate" role="dialog" aria-modal="true" aria-labelledby="ag-t"><h2 id="ag-t">${bet?'Esta tienda ofrece juegos de azar':'Esta tienda tiene contenido para adultos'}</h2><div class="agb">AVISO A LOS USUARIOS</div><p>${bet?'Los juegos de azar y las apuestas están restringidos a menores de edad. Al entrar, afirmas que tienes por lo menos 18 años de edad o la mayoría de edad en tu jurisdicción. Juega con responsabilidad.':'Esta tienda contiene material restringido a menores de edad, que puede incluir desnudez y contenido para adultos. Al entrar, afirmas que tienes por lo menos 18 años de edad o la mayoría de edad en tu jurisdicción y que consientes en ver este contenido.'}</p><button class="agy" data-act="ageYes">Tengo 18 años o más - Entrar</button><button class="agn" data-act="ageNo">Soy menor de 18 años - Salir</button></section>`};
 const vis=o=>!o.hidden&&(!expired(o)||adm||S.mine.includes(o.id)||S.myServ.includes(o.id)||S.myAds.includes(o.id));
-const badge=o=>(o.feat?'<span class="vf" style="background:#B45309">★ Destacado</span>':'')+(o.verified?'<span class="vf">✓ Vecino verificado</span>':'');
-const featFirst=l=>l.filter(o=>o.feat).concat(l.filter(o=>!o.feat));
+/* v120 — destacado automático: quien tiene plan o acceso pagado vigente tiene sus publicaciones destacadas mientras dure (fexp = fecha de fin). Ya no se cobra aparte. */
+const isFeat=o=>!!(o.feat||(o.fexp||0)>Date.now());
+const badge=o=>(isFeat(o)?'<span class="vf" style="background:#B45309">★ Destacado</span>':'')+(o.verified?'<span class="vf">✓ Vecino verificado</span>':'');
+const featFirst=l=>l.filter(isFeat).concat(l.filter(o=>!isFeat(o)));
+const paidEnd=(k,type)=>{const p=S.plan;if(!p)return 0;const use=k==='store'?'store':k==='serv'?'serv':(type==='veh'?'car':'home');let e=accEnd(use);const pe=p.end||0;if(p.paid&&p.plan&&p.plan!=='free'&&pe>Date.now()&&(!p.use||p.use==='all'||p.use===use))e=Math.max(e,pe);return e>Date.now()?e:0};
+const afTry={};
+function autoFeat(){if(MODE!=='panel'||!S.user||!S.plan)return;let ch=0;[[S.stores,'store',S.mine],[S.services,'serv',S.myServ],[S.ads,'ad',S.myAds]].forEach(([l,k,m])=>l.forEach(o=>{if(!m.includes(o.id))return;const e=paidEnd(k,o.type);if((o.fexp||0)===e||afTry[o.id]===e)return;afTry[o.id]=e;o.fexp=e;ch=1}));if(ch)save()}
 /* ===== v75: planes — 3 meses gratis del plan Básico al registrarse; después se paga y el admin activa ===== */
 const TRIAL_DAYS=90,DAY=864e5,FEAT_PRICE=5000,PLAN_DAYS=30,AD_TOP=15000,AD_BOT=10000,INF=Infinity;
 /* v76: planes por tipo de uso — cada persona elige UNA cosa al entrar y solo ve los planes de esa opción */
@@ -876,7 +881,7 @@ const planPerkList=d=>{const u=d.use,a=[],fe=u==='store'?d.feat.store:u==='serv'
  if(u==='home')a.push(d.ads===INF?'Inmuebles ilimitados':d.ads+(d.ads===1?' inmueble (venta o arriendo)':' inmuebles (venta o arriendo)'));
  if(u==='all')a.push(d.ads===INF?'Anuncios ilimitados (casas, arriendos, vehículos)':d.ads+(d.ads===1?' anuncio abierto':' anuncios abiertos'));
  if(u==='serv'||u==='all')a.push(d.servs===INF?'Servicios ilimitados':d.servs+(d.servs===1?' servicio':' servicios'));
- a.push(fe===INF?'Destacados ilimitados':fe>0?fe+(fe===1?' destacado':' destacados'):'Sin destacados');
+ if(d.price>0)a.push('Publicaciones destacadas automáticamente');
  if(d.home)a.push('Publicidad en la página principal incluida');
  return a};
 const planBlurb=d=>d.d||planPerkList(d).join(' · ');
@@ -886,11 +891,11 @@ function planCard(){const i=planInfo();if(!i&&S.planErr)return `<div class="cg">
  const U=i.p.use||'all',st=(USES[U]?USES[U].ico+' '+USES[U].n+' · ':'')+'Tu plan: '+d.n+(i.on&&!i.p.paid&&i.p.plan!=='free'?' · prueba gratis':'');
  const when=i.on&&i.p.plan==='free'?'Plan gratuito, sin vencimiento.':i.on?(i.left<=7?'Vence en '+i.left+(i.left===1?' día':' días')+' ('+dt+')':(i.p.paid?'Activo hasta el ':'Gratis hasta el ')+dt):'Venció el '+dt+'. Renuévalo para seguir publicando.';
  const use=(n,a,b)=>`<li>${n}: <b>${a}</b>${b===INF?' (ilimitado)':' de '+b}</li>`,rows=[];
- if(U==='store'||U==='all')rows.push(use('Tiendas',u.stores,d.stores),`<li>Productos por tienda: <b>${d.prods<1?'sin productos':d.prods===INF?'ilimitados':'hasta '+d.prods}</b></li>`,use('Destacados · tiendas',u.fk.store,d.feat.store));
- if(U==='car'||U==='home'||U==='all')rows.push(use(U==='car'?'Vehículos abiertos':U==='home'?'Inmuebles abiertos':'Anuncios abiertos',u.ads,d.ads),use('Destacados · anuncios',u.fk.ad,d.feat.ad));
- if(U==='serv'||U==='all')rows.push(use('Servicios',u.servs,d.servs),use('Destacados · servicios',u.fk.serv,d.feat.serv));
+ if(U==='store'||U==='all')rows.push(use('Tiendas',u.stores,d.stores),`<li>Productos por tienda: <b>${d.prods<1?'sin productos':d.prods===INF?'ilimitados':'hasta '+d.prods}</b></li>`);
+ if(U==='car'||U==='home'||U==='all')rows.push(use(U==='car'?'Vehículos abiertos':U==='home'?'Inmuebles abiertos':'Anuncios abiertos',u.ads,d.ads));
+ if(U==='serv'||U==='all')rows.push(use('Servicios',u.servs,d.servs));
  if(U==='ad')rows.push('<li>Elige arriba o abajo del inicio. Pagas por Nequi o transferencia y el administrador activa tu publicidad.</li>');
- return `<div class="cg"><h3>${esc(st)}</h3><p class="muted">${esc(when)}</p><p style="margin:8px 0 4px"><b>Tus beneficios</b></p><ul class="muted" style="margin:0;padding:0;list-style:none">${rows.join('')}${fs?`<li>Destacados extra pagados: <b>${fs}</b></li>`:''}</ul><button type="button" class="btn pink" style="margin-top:12px" data-act="catPlans">Cambia tu plan</button></div>`}
+ return `<div class="cg"><h3>${esc(st)}</h3><p class="muted">${esc(when)}</p><p style="margin:8px 0 4px"><b>Tus beneficios</b></p><ul class="muted" style="margin:0;padding:0;list-style:none">${rows.join('')}</ul><button type="button" class="btn pink" style="margin-top:12px" data-act="catPlans">Cambia tu plan</button></div>`}
 let plSel='',plMode='new',plCur='';
 const plKey=(use,tier)=>use==='all'?tier:use+'_'+tier;
 const plSteps=n=>`<div class="plst" aria-hidden="true">${[1,2,3,4].map(x=>(x>1?'<span></span>':'')+`<i class="${x<=n?'on':''}"></i>`).join('')}</div>`;
@@ -907,7 +912,7 @@ const plStep2HTML=use=>`${plSteps(2)}<h2 class="plh">ELIGE TU PLAN</h2><p class=
 function plStep2(use){const l=Object.entries(PLANS).filter(([k,d])=>d.use===use&&d.on);if(!USES[use]||!l.length)return toast('Esa opción todavía no tiene planes disponibles');plMode='new';plCur='';plSel=(l.find(([k,d])=>!d.price)||l[0])[0];const w=$('#plchoose');if(w)w.innerHTML=plStep2HTML(use)}
 function plStep1(){const w=$('#plchoose');if(w)w.innerHTML=plStep1HTML()}
 function plansHTML(){const i=planInfo();if(!i)return '';const use=i.p.use||'all';plMode='chg';plCur=plKey(use,i.p.plan);const fr=Object.keys(PLANS).find(k=>PLANS[k].use===use&&!PLANS[k].price&&(PLANS[k].on||k===plCur));plSel=fr||(PLANS[plCur]?plCur:'');
- return `<div class="plx" style="margin-top:12px">${plSteps(2)}<h2 class="plh">CAMBIA TU PLAN</h2><div role="radiogroup" aria-label="Planes">${plCards(use,plCur,1)}</div>${plFoot()}</div>${use==='ad'?'':`<div class="cg"><h3>★ Destacado · ${money(FEAT_PRICE)}/mes</h3><p class="muted">Tu tienda, servicio o anuncio sale primero y con insignia. Cada destacado extra se paga aparte.</p><button class="btn" data-act="planPay" data-v="feat">Pedir un destacado</button></div>`}`}
+ return `<div class="plx" style="margin-top:12px">${plSteps(2)}<h2 class="plh">CAMBIA TU PLAN</h2><div role="radiogroup" aria-label="Planes">${plCards(use,plCur,1)}</div>${plFoot()}</div>`}
 function choosePlan(){if($('#plchoose'))return;modal(`<div id="plchoose" class="plx">${plStep1HTML()}</div>`);const o=$('#ov');if(o)o.dataset.lock='1'}
 function planPaid(v){modal(`<h2>Cuenta creada</h2><p>Tu cuenta quedó creada con el plan gratuito. Para activar el plan ${esc(PLANS[v].n)} (${money(PLANS[v].price)}/mes), paga por Nequi o transferencia y el administrador lo activa.</p><div class="row" style="margin-top:8px"><button class="btn pink" data-act="planPay" data-v="${v}">Pagar por WhatsApp</button><button class="btn ghost" data-act="close">Más tarde</button></div>`)}
 /* v109: Desbloquear accesos con el mismo diseño oscuro de los planes, con submenús por tipo de acceso */
@@ -1510,7 +1515,7 @@ modal(`<h2>${a?'Editar anuncio':T.pub}</h2><div id="adf">${T.F.map(sp=>`<div cla
 <label for="a-owner">Tu nombre</label><input id="a-owner" type="text" maxlength="30" value="${esc(a?a.owner:(u?u.name:''))}">
 <label for="a-wa">WhatsApp de contacto</label><input id="a-wa" type="tel" placeholder="3001234567" value="${esc(a?a.wa:(u&&u.wa||''))}">
 <div class="err" id="err"></div><div class="row" style="margin-top:8px"><button class="btn pink" data-act="saveAd">${a?'Guardar cambios':'Publicar'}</button><button class="btn ghost" data-act="close">Cancelar</button></div></div>`);applyVis()}
-function panelView(){
+function panelView(){autoFeat();
 if(!S.user)return `<div class="shead"><h2>Panel de vendedores</h2></div><div class="cg"><p class="muted">Entra con tu código de verificación para administrar tu tienda, tus servicios y tus anuncios.</p><button class="btn pink" data-act="pLogin">Entrar</button></div>`;
 const ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id));
 const row=(t,sub,btns)=>`<div class="ci"><span><b>${esc(t)}</b>${sub?'<br><small class="muted">'+esc(sub)+'</small>':''}</span><span class="row">${btns}</span></div>`,none=t=>`<p class="muted">${t}</p>`;
