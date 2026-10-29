@@ -767,14 +767,14 @@ const QH=(function(){
  function repListen(){plansListen();codesListen();if(MODE!=='admin'||repL||!adm||!ready)return;repL=true;listen('reports',()=>{rebuild();render(true)})}
  /* ---- v52: dueños en línea (punto verde en el logo). Colección presence/<ownerKey> = {t: última señal}; en línea = señal de hace menos de 3,5 min ---- */
  const PRES={};let presOn=false,presLast=0;
- const online=k=>{const t=k&&PRES[k];return!!t&&Date.now()-t<210000};
+ const online=k=>{const t=k&&PRES[k];return!!t&&Date.now()-t<330000};
  const presOwner=()=>{const k=key();return k&&MODE!=='admin'&&S.stores.some(s=>s.ownerKey===k)?k:''};
  async function presBeat(off){const k=presOwner(),now=Date.now();if(!ready||!k)return;if(off!==0&&(document.hidden||now-presLast<30000))return;presLast=now;PRES[k]=off===0?0:now;try{await authP;await ref('presence',k).set({t:off===0?0:now})}catch(e){}}
- async function presPoll(){if(!ready||document.hidden)return;try{await authP;const s=await db.collection('presence').where('t','>',Date.now()-210000).get(),n={};s.forEach(d=>{n[d.id]=(d.data()||{}).t||0});const a=Object.keys(PRES).filter(online).sort().join();Object.keys(PRES).forEach(x=>delete PRES[x]);Object.assign(PRES,n);if(Object.keys(n).sort().join()!==a)sched()}catch(e){}}
- function presInit(){if(presOn)return;presOn=true;presBeat();presPoll();setInterval(presBeat,90000);setInterval(presPoll,120000);document.addEventListener('visibilitychange',()=>{if(document.hidden)presBeat(0);else{presBeat();presPoll()}})}
+ async function presPoll(){if(!ready||document.hidden)return;try{await authP;const s=await db.collection('presence').where('t','>',Date.now()-330000).get(),n={};s.forEach(d=>{n[d.id]=(d.data()||{}).t||0});const a=Object.keys(PRES).filter(online).sort().join();Object.keys(PRES).forEach(x=>delete PRES[x]);Object.assign(PRES,n);if(Object.keys(n).sort().join()!==a)sched()}catch(e){}}
+ function presInit(){if(presOn)return;presOn=true;presBeat();presPoll();setInterval(presBeat,120000);setInterval(presPoll,240000);document.addEventListener('visibilitychange',()=>{if(document.hidden)presBeat(0);else{presBeat();presPoll()}})}
  function start(cb){
   document.body.classList.add('m-'+MODE);{const sl=$('#splash .spl-logo');if(sl)sl.innerHTML='<img src="'+LOGO+'" alt="Qué Hay en Pradera">'}$('#app').innerHTML='<div class="empty">Cargando…</div>';
-  try{firebase.initializeApp(CFG);db=firebase.firestore();auth=firebase.auth()}catch(e){return fail(e)}
+  try{firebase.initializeApp(CFG);db=firebase.firestore();try{db.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}auth=firebase.auth()}catch(e){return fail(e)}
   if(MODE==='panel'&&!S.user){const d=LEG();if(d&&d.user&&d.user.name){S.user=d.user;save()}}
   authP=new Promise(ok=>{auth.onAuthStateChanged(u=>{
    if(!u){auth.signInAnonymously().catch(()=>ok());return}
