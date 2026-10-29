@@ -776,6 +776,8 @@ const QH=(function(){
   document.body.classList.add('m-'+MODE);{const sl=$('#splash .spl-logo');if(sl)sl.innerHTML='<img src="'+LOGO+'" alt="Qué Hay en Pradera">'}$('#app').innerHTML='<div class="empty">Cargando…</div>';
   try{firebase.initializeApp(CFG);db=firebase.firestore();try{db.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}auth=firebase.auth()}catch(e){return fail(e)}
   if(MODE==='panel'&&!S.user){const d=LEG();if(d&&d.user&&d.user.name){S.user=d.user;save()}}
+  /* v143: cierre de sesion por inactividad (30 dias vendedores, 24 h administrador) */
+  try{const IK='pradereando_last_'+MODE,L=+localStorage.getItem(IK)||0,N=Date.now();if(L&&N-L>(MODE==='admin'?864e5:2592e6)){if(MODE==='admin'){auth.signOut()}else if(S.user){S.user=null;auth.signOut();localStorage.setItem(LKEY,JSON.stringify({cart:S.cart,favs:S.favs,user:null,myIdeas:S.myIdeas}));setTimeout(()=>{try{toast('Tu sesión expiró por inactividad. Vuelve a entrar.')}catch(e){}},1500)}}localStorage.setItem(IK,N)}catch(e){}
   authP=new Promise(ok=>{auth.onAuthStateChanged(u=>{
    if(!u){auth.signInAnonymously().catch(()=>ok());return}
    if(MODE==='admin'){const a=!u.isAnonymous&&!!u.email;if(a!==adm){adm=a;if(ready){closeModal();view='admin';render()}}if(a)repListen()}
@@ -836,7 +838,7 @@ const QH=(function(){
  function comListen(){if(comUn||!ready)return;comUn=db.collection('community').where('exp','>',Date.now()-2*DAY).onSnapshot(snap=>{COM.length=0;snap.forEach(d=>COM.push(Object.assign({},d.data(),{id:d.id})));COM.sort((a,b)=>(b.ts||0)-(a.ts||0));if((view==='com'||view==='home'||(view==='admin'&&at==='ver'))&&!$('#ov'))render(true)},e=>{comUn=null;COM.length=0})}
  async function comPut(o){await authP;const u=auth&&auth.currentUser;if(!u||u.isAnonymous)throw{m:'Para publicar entra con tu correo y tu clave.'};o.ownerUid=u.uid;o.ttl=new Date(o.exp+2*DAY);await ref('community',o.id).set(o)}
  const comDel=async id=>{await authP;await ref('community',id).delete()};
- return{COM,comListen,comPut,comDel,start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,planPick,online,accGet,codes,codeGen,codeDel,codeRedeem};
+ return{COM,comListen,comPut,comDel,start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,planPick,online,presBeat,accGet,codes,codeGen,codeDel,codeRedeem};
 })();
 
 const $=s=>document.querySelector(s);
@@ -1842,7 +1844,7 @@ else if(a==='codePrices'){if(!adm)return;const cp={};CODE_USES.forEach(u=>CODE_M
 else if(a==='codeGen'){if(!adm)return;const u=$('#cg-u').value,m=+$('#cg-m').value,n=Math.min(20,Math.max(1,parseInt($('#cg-n').value,10)||1));if(!USES[u]||!CODE_DAYS[m])return;b.disabled=true;try{const l=await QH.codeGen(u,m,n);cpTxt(l.map(codeFmt).join('\n'),n+(n===1?' código generado y copiado':' códigos generados y copiados'))}catch(e){toast('No se pudo generar ('+((e&&e.code)||'error')+'). ¿Publicaste las reglas nuevas?')}b.disabled=false;render(true)}
 else if(a==='codeCp'){cpTxt(codeFmt(b.dataset.c),'Código copiado')}
 else if(a==='codeDel'){if(!adm)return;if(confirm('¿Eliminar este código?'))QH.codeDel(b.dataset.c)}
-else if(a==='logout'){try{if(auth.currentUser&&!auth.currentUser.isAnonymous)auth.signOut()}catch(e){}S.user=null;QH.derive();save();closeModal();syncUI();toast('Sesión cerrada');if(MODE==='panel')render()}
+else if(a==='logout'){try{QH.presBeat(0)}catch(e){}try{if(auth.currentUser&&!auth.currentUser.isAnonymous)auth.signOut()}catch(e){}S.user=null;QH.derive();save();closeModal();syncUI();toast('Sesión cerrada');if(MODE==='panel')render()}
 else if(a==='fav'){const key=b.dataset.k+':'+id;S.favs=S.favs.includes(key)?S.favs.filter(x=>x!==key):S.favs.concat(key);save();const y=scrollY;render();scrollTo(0,y)}
 else if(a==='adFt'){adFOpen=!adFOpen;const y=scrollY;render();scrollTo(0,y)}
 else if(a==='bedq'){adF.beds=adF.beds===v?'':v;const y=scrollY;render();scrollTo(0,y)}
