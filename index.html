@@ -1284,16 +1284,16 @@ if(($('#da-t').value||'').trim().toUpperCase()!=='ELIMINAR')return err.textConte
 const pw=u.pw?($('#da-p').value||''):'';if(u.pw&&!pw)return err.textContent='Escribe tu contraseña.';
 b.disabled=true;err.textContent='Eliminando…';const extra=[];
 if(u.pw){try{const a=await authB(),c=await a.signInWithEmailAndPassword(acctEmail(u.email),pw);extra.push(c.user)}catch(e){b.disabled=false;return err.textContent=(e&&e.code==='auth/network-request-failed')?'Sin conexión. Revisa tu internet.':'La contraseña no es correcta.'}}
-try{const k=QH.key();QH.newsListen();try{QH.presBeat(0)}catch(e){}
+let st='inicio';try{const k=QH.key();QH.newsListen();try{QH.presBeat(0)}catch(e){}st='clasificados';
  for(const x of QH.COM.filter(x=>x.ownerKey===k))await QH.comDel(x.id);
- for(const n of QH.NEWS.filter(x=>x.ownerKey===k))await QH.newsDel(n.id);
+ st='noticias';for(const n of QH.NEWS.filter(x=>x.ownerKey===k))await QH.newsDel(n.id);
  const mine=x=>x.ownerKey===k||S.mine.includes(x.id)||S.myServ.includes(x.id)||S.myAds.includes(x.id);
  S.stores=S.stores.filter(x=>!mine(x));S.services=S.services.filter(x=>!mine(x));S.ads=S.ads.filter(x=>!mine(x));S.ideas=S.ideas.filter(x=>!S.myIdeas.includes(x.id));
- S.mine=[];S.myServ=[];S.myAds=[];save();await QH.push();await new Promise(r=>setTimeout(r,1200));await QH.push();
- let left=false;for(const x of extra.concat([auth&&auth.currentUser])){if(!x||x.isAnonymous)continue;try{await x.delete()}catch(e){left=true}}
+ S.mine=[];S.myServ=[];S.myAds=[];st='guardando';save();await QH.push();await new Promise(r=>setTimeout(r,1200));await QH.push();
+ st='acceso';let left=false;for(const x of extra.concat([auth&&auth.currentUser])){if(!x||x.isAnonymous)continue;try{await x.delete()}catch(e){left=true}}
  try{auth.signOut()}catch(e){}
- S.user=null;S.favs=[];S.myIdeas=[];QH.derive();save();closeModal();syncUI();toast(left?'Datos eliminados. Para cerrar del todo tu acceso, vuelve a entrar y repite «Eliminar cuenta».':'Cuenta eliminada');if(MODE==='panel')render()
-}catch(e){b.disabled=false;err.textContent='No se pudo eliminar todo. Revisa tu internet e inténtalo de nuevo.'}}
+ st='limpieza';S.user=null;S.favs=[];S.myIdeas=[];QH.derive();save();closeModal();syncUI();toast(left?'Datos eliminados. Para cerrar del todo tu acceso, vuelve a entrar y repite «Eliminar cuenta».':'Cuenta eliminada');if(MODE==='panel')render()
+}catch(e){console.error('delAcct',st,e);b.disabled=false;err.textContent='No se pudo eliminar todo (paso: '+st+' · '+((e&&(e.code||e.message))||'error')+'). Revisa tu internet e inténtalo de nuevo.'}}
 /* v167: MI CUENTA como menú — cada sección se abre en su propia ventana (data-pn cierra la ventana antes de ejecutar la acción) */
 const pnRow=(t,sub,btns)=>`<div class="ci"><span><b>${esc(t)}</b>${sub?'<br><small class="muted">'+esc(sub)+'</small>':''}</span><span class="row">${btns}</span></div>`,pnNone=t=>`<p class="muted">${t}</p>`;
 function pnlMenu(){const u=S.user,ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),nf=favRows().length;QH.newsListen();nwWho();
