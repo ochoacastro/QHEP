@@ -1277,11 +1277,28 @@ function pfForm(){const u=S.user;if(!u)return;const lk=pfLock(u);modal(`<h2>Mis 
 function pfSave(){const u=S.user,err=$('#err');if(!u)return;const n=$('#pf-n').value.trim().replace(/\s+/g,' '),w=($('#pf-w').value||'').replace(/\D/g,''),lk=pfLock(u);
 if(n.length<2)return err.textContent='Escribe tu nombre (mínimo 2 letras).';if(!lk&&w&&w.length!==10)return err.textContent='El teléfono debe tener 10 dígitos.';
 key();u.name=n.slice(0,30);if(!lk)u.wa=w;save();try{const cu=auth&&auth.currentUser;if(cu&&!cu.isAnonymous)cu.updateProfile({displayName:u.name}).catch(()=>{})}catch(e){}closeModal();syncUI();render(true);toast('Datos actualizados')}
+/* v169: ELIMINAR CUENTA (panel) — borra tiendas, servicios, anuncios, clasificados, noticias, sugerencias, favoritos, el acceso (Firebase Auth) y los datos de este dispositivo */
+function delAcctForm(){const u=S.user;if(!u)return;modal(`<h2>Eliminar cuenta</h2><p class="muted">Se borrarán de forma <b>permanente</b> tus tiendas, productos, servicios, anuncios, clasificados y noticias, tus favoritos y tus datos guardados en este dispositivo. Esta acción no se puede deshacer.</p>${u.pw?'<label for="da-p">Tu contraseña</label><input id="da-p" type="password" autocomplete="current-password">':''}<label for="da-t">Para confirmar, escribe ELIMINAR</label><input id="da-t" type="text" autocomplete="off" autocapitalize="characters"><div class="err" id="err"></div><div class="row" style="margin-top:10px"><button type="button" class="btn" id="da-go" style="background:#c0392b;color:#fff" data-act="delAcctGo">Eliminar mi cuenta</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>`)}
+async function delAcctGo(){const u=S.user,err=$('#err'),b=$('#da-go');if(!u)return;
+if(($('#da-t').value||'').trim().toUpperCase()!=='ELIMINAR')return err.textContent='Escribe ELIMINAR para confirmar.';
+const pw=u.pw?($('#da-p').value||''):'';if(u.pw&&!pw)return err.textContent='Escribe tu contraseña.';
+b.disabled=true;err.textContent='Eliminando…';const extra=[];
+if(u.pw){try{const a=await authB(),c=await a.signInWithEmailAndPassword(acctEmail(u.email),pw);extra.push(c.user)}catch(e){b.disabled=false;return err.textContent=(e&&e.code==='auth/network-request-failed')?'Sin conexión. Revisa tu internet.':'La contraseña no es correcta.'}}
+try{const k=QH.key();QH.newsListen();try{QH.presBeat(0)}catch(e){}
+ for(const x of QH.COM.filter(x=>x.ownerKey===k))await QH.comDel(x.id);
+ for(const n of QH.NEWS.filter(x=>x.ownerKey===k))await QH.newsDel(n.id);
+ const mine=x=>x.ownerKey===k||S.mine.includes(x.id)||S.myServ.includes(x.id)||S.myAds.includes(x.id);
+ S.stores=S.stores.filter(x=>!mine(x));S.services=S.services.filter(x=>!mine(x));S.ads=S.ads.filter(x=>!mine(x));S.ideas=S.ideas.filter(x=>!S.myIdeas.includes(x.id));
+ S.mine=[];S.myServ=[];S.myAds=[];save();await QH.push();await new Promise(r=>setTimeout(r,1200));await QH.push();
+ let left=false;for(const x of extra.concat([auth&&auth.currentUser])){if(!x||x.isAnonymous)continue;try{await x.delete()}catch(e){left=true}}
+ try{auth.signOut()}catch(e){}
+ S.user=null;S.favs=[];S.myIdeas=[];QH.derive();save();closeModal();syncUI();toast(left?'Datos eliminados. Para cerrar del todo tu acceso, vuelve a entrar y repite «Eliminar cuenta».':'Cuenta eliminada');if(MODE==='panel')render()
+}catch(e){b.disabled=false;err.textContent='No se pudo eliminar todo. Revisa tu internet e inténtalo de nuevo.'}}
 /* v167: MI CUENTA como menú — cada sección se abre en su propia ventana (data-pn cierra la ventana antes de ejecutar la acción) */
 const pnRow=(t,sub,btns)=>`<div class="ci"><span><b>${esc(t)}</b>${sub?'<br><small class="muted">'+esc(sub)+'</small>':''}</span><span class="row">${btns}</span></div>`,pnNone=t=>`<p class="muted">${t}</p>`;
 function pnlMenu(){const u=S.user,ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),nf=favRows().length;QH.newsListen();nwWho();
 const it=(ic,t,sub,act,v)=>`<button type="button" class="pnr" data-act="${act}"${v?` data-v="${v}"`:''}><i aria-hidden="true">${ic}</i><span>${t}<small>${sub}</small></span><b aria-hidden="true">›</b></button>`;
-return `<div class="pnl">${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('🔓','Mi plan','Beneficios, vencimiento y cambio de plan','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas')}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine')}${it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios')}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios')}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${NW?it('📰','Mis noticias','Publica y edita tus noticias','pnl','noticias'):''}</div>${(!NW&&/[?&]diag/.test(location.search))?`<p class="muted" style="margin-top:12px">🔎 Diagnóstico noticias: ${esc(NWu?(QH.why()||'comprobando…'):'sin usuario')}</p>`:''}`}
+return `<div class="pnl">${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('🔓','Mi plan','Beneficios, vencimiento y cambio de plan','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas')}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine')}${it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios')}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios')}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${NW?it('📰','Mis noticias','Publica y edita tus noticias','pnl','noticias'):''}<button type="button" class="pnr" data-act="delAcct" style="border-color:#c0392b"><i aria-hidden="true">🗑️</i><span style="color:#ff6b5e">Eliminar cuenta<small>Borra tu cuenta y tus publicaciones para siempre</small></span><b aria-hidden="true">›</b></button></div>${(!NW&&/[?&]diag/.test(location.search))?`<p class="muted" style="margin-top:12px">🔎 Diagnóstico noticias: ${esc(NWu?(QH.why()||'comprobando…'):'sin usuario')}</p>`:''}`}
 function pnlModal(v){const ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),cl='<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>';let h='';
 if(v==='plan')h='<h2>Mi plan</h2>'+planCard();
 else if(v==='tiendas')h=`<h2>Mis tiendas (${ms.length})</h2>${ms.length?ms.map(s=>pnRow(s.name,s.cat+' · '+(s.products||[]).length+' productos'+(s.hidden?' · oculta por el administrador':''),`<a class="btn ghost" href="${storeUrl(s.id)}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">Ver tienda</a><button class="btn" data-pn="1" data-act="open" data-id="${esc(s.id)}">Editar</button>`)).join(''):pnNone('Aún no tienes tienda.')}`;
@@ -1794,6 +1811,7 @@ else if(a==='copyCard'){cpTxt(cardUrl(id),'Enlace de la tarjeta copiado')}
 else if(a==='nwOpen'){curN=id;view='news';render();scrollTo(0,0)}
 else if(a==='nwList'){curN='';view='news';render();scrollTo(0,0)}
 else if(a==='pfEdit'){pfForm()}
+else if(a==='delAcct'){delAcctForm()}else if(a==='delAcctGo'){delAcctGo()}
 else if(a==='pfSave'){pfSave()}
 else if(a==='nwNew'){nwForm()}
 else if(a==='nwEdit'){const n=QH.NEWS.find(x=>x.id===id);if(n&&n.ownerKey===QH.key())nwForm(n)}
