@@ -658,6 +658,7 @@ for(let j=0;j<N;j+=16){const x=w.slice(j,j+16),a=H.slice();for(let i=0;i<64;i++)
 const e=a[4],t1=(a[7]+(((e>>>6)|(e<<26))^((e>>>11)|(e<<21))^((e>>>25)|(e<<7)))+((e&a[5])^(~e&a[6]))+K[i]+x[i])|0,A=a[0],t2=((((A>>>2)|(A<<30))^((A>>>13)|(A<<19))^((A>>>22)|(A<<10)))+((A&a[1])^(A&a[2])^(a[1]&a[2])))|0;a.pop();a.unshift((t1+t2)|0);a[4]=(a[4]+t1)|0}
 for(let i=0;i<8;i++)H[i]=(H[i]+a[i])|0}return H.map(v=>(v>>>0).toString(16).padStart(8,'0')).join('')}})();
 const ADMIN_HASH='ea3226a18acc09cdb002e13dbbcc84d6a645dfdcb332f6c09f12fffb00a7a766';
+const ADMIN_UID='UKluJD3k7gP4HJN24KjK1HSHlIC3';/* v175: mismo UID que isAdmin() en las reglas; solo la cuenta del administrador entra al panel admin */
 const MODE=(()=>{try{const q=new URLSearchParams(location.search),k=q.get('admin');if(k&&sha256(k)===ADMIN_HASH)return'admin';if(q.has('panel'))return'panel'}catch(e){}return'index'})();
 const KEY='pradereando_v1',LKEY='pradereando_loc1',TITLE=MODE==='admin'?'Administrador – Qué Hay en Pradera':MODE==='panel'?'Mi cuenta – Qué Hay en Pradera':'Qué Hay en Pradera – Lo nuestro, en un solo lugar';
 const BASE_URL=location.href.split('#')[0].split('?')[0],PANEL_URL=BASE_URL+'?panel';
@@ -785,7 +786,7 @@ const QH=(function(){
   try{const IK='pradereando_last_'+MODE,L=+localStorage.getItem(IK)||0,N=Date.now();if(L&&N-L>(MODE==='admin'?864e5:2592e6)){if(MODE==='admin'){auth.signOut()}else if(S.user){S.user=null;auth.signOut();localStorage.setItem(LKEY,JSON.stringify({cart:S.cart,favs:S.favs,user:null,myIdeas:S.myIdeas}));setTimeout(()=>{try{toast('Tu sesión expiró por inactividad. Vuelve a entrar.')}catch(e){}},1500)}}localStorage.setItem(IK,N)}catch(e){}
   authP=new Promise(ok=>{auth.onAuthStateChanged(u=>{
    if(!u){auth.signInAnonymously().catch(()=>ok());return}
-   if(MODE==='admin'){const a=!u.isAnonymous&&!!u.email;if(a!==adm){adm=a;if(ready){closeModal();view='admin';render()}}if(a)repListen()}
+   if(MODE==='admin'){const a=!u.isAnonymous&&!!u.email&&u.uid===ADMIN_UID;if(a!==adm){adm=a;if(ready){closeModal();view='admin';render()}}if(a)repListen()}
    if(ready&&!u.isAnonymous)setTimeout(()=>{try{push()}catch(e){}},400);
    ok()})});
   let n=COLS.length;
@@ -797,7 +798,7 @@ const QH=(function(){
  function admForm(){modal(`<h2>Administrador</h2><p class="muted">Entra con el correo y la clave de administrador.</p><label for="a-em">Correo</label><input id="a-em" type="email" autocomplete="username"><label for="a-pw">Clave</label><input id="a-pw" type="password" autocomplete="current-password"><div class="err" id="err"></div><div class="row" style="margin-top:8px"><button class="btn pink" data-act="admIn">Entrar</button><button class="btn ghost" data-act="close">Cancelar</button></div>`);rcRender('rc-adm')}
  async function admIn(){const em=$('#a-em').value.trim(),pw=$('#a-pw').value,err=$('#err');if(!em||!pw)return err.textContent='Escribe tu correo y tu clave.';
   try{await rcToken('rc-adm')}catch(e){return err.textContent='No se pudo verificar reCAPTCHA. Recarga la página e inténtalo de nuevo.'}
-  try{await auth.signInWithEmailAndPassword(em,pw);adm=true;closeModal();view='admin';render();repListen();toast('Bienvenido')}catch(e){rcReset('rc-adm');err.textContent='Correo o clave incorrectos.'}}
+  try{const c=await auth.signInWithEmailAndPassword(em,pw);if(!c.user||c.user.uid!==ADMIN_UID){try{await auth.signOut()}catch(x){}adm=false;rcReset('rc-adm');err.textContent='Esta cuenta no es la del administrador.';return}adm=true;closeModal();view='admin';render();repListen();toast('Bienvenido')}catch(e){rcReset('rc-adm');err.textContent='Correo o clave incorrectos.'}}
  async function admOut(){try{await auth.signOut()}catch(e){}adm=false;repL=false;S.reports=[];view='admin';render();admForm()}
  /* ---- datos de la versión anterior (guardados solo en este dispositivo) ---- */
  const IMP='pradereando_imp1';
