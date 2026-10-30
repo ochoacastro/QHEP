@@ -714,8 +714,10 @@ const QH=(function(){
   if(c==='reports')return nd&&!od?'set':null;
   return null}
  const ref=(c,id)=>db.collection(c).doc(id);
- async function rates(c,id,nd){const r=ref(c,id),mine=(nd.rates||[]).filter(x=>x.u===DEV);
-  await db.runTransaction(async t=>{const s=await t.get(r);if(!s.exists)return;t.update(r,{rates:(s.data().rates||[]).filter(x=>x.u!==DEV).concat(mine)})})}
+ async function rates(c,id,nd){const r=ref(c,id),mine=(nd.rates||[]).filter(x=>x.u===DEV)[0];
+  /* v150: las reglas v12 solo permiten quitar O agregar UNA calificacion por escritura: editar = quitar y luego agregar */
+  await db.runTransaction(async t=>{const s=await t.get(r);if(!s.exists)return;const cur=s.data().rates||[],i=cur.findIndex(x=>x.u===DEV);if(i<0)return;t.update(r,{rates:cur.filter((x,j)=>j!==i)})});
+  if(mine)await db.runTransaction(async t=>{const s=await t.get(r);if(!s.exists)return;t.update(r,{rates:(s.data().rates||[]).concat([mine])})})}
  async function flush(){const D=want();
   for(const c in D){const L=LAST[c]||(LAST[c]={}),cur=D[c];
    for(const id in cur){const nd=cur[id],j=sj(nd),old=L[id];if(old&&old.j===j)continue;
