@@ -852,7 +852,7 @@ async function writersGet(){await authP;try{const d=await ref('writers','list').
 async function writersSet(a){await authP;await ref('writers','list').set({emails:a,ts:Date.now()})}
 let writerWhy='';/* v168: motivo por el que no se detecta redactor (solo se muestra con ?panel&diag) */
 async function isWriter(){await authP;const u=auth&&auth.currentUser;if(!u){writerWhy='Sin sesion de Firebase';return false}if(u.isAnonymous){writerWhy='Sesion ANONIMA: el ingreso con Google no abrio la sesion segura. Cierra sesion y entra de nuevo con Google';return false}if(!u.email){writerWhy='La sesion no tiene correo (proveedor: '+((u.providerData[0]||{}).providerId||'?')+')';return false}const l=await writersGet();if(!l){writerWhy='No se pudo LEER writers/list (reglas sin publicar o sin permiso). Sesion: '+u.email;return false}if(l.indexOf(u.email.toLowerCase())<0){writerWhy='El correo de la sesion ('+u.email+') NO esta en writers/list. Lista actual: '+(l.length?l.join(', '):'(vacia o el documento no existe)');return false}writerWhy='';return true}
- return{COM,comListen,NEWS,nwReady:()=>nwLoaded,newsListen,newsPut,newsDel,writersGet,writersSet,isWriter,why:()=>writerWhy,comPut,comDel,start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,planPick,online,presBeat,accGet,codes,codeGen,codeDel,codeRedeem};
+ return{COM,comListen,NEWS,nwReady:()=>nwLoaded,newsListen,newsPut,newsDel,writersGet,writersSet,isWriter,why:()=>writerWhy,comPut,comDel,start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,planPick,online,presBeat,accGet,codes,codeGen,codeDel,codeRedeem,authCur:()=>auth&&auth.currentUser,authOut:()=>auth&&auth.signOut()};
 })();
 
 const $=s=>document.querySelector(s);
@@ -1290,8 +1290,8 @@ let st='inicio';try{const k=QH.key();QH.newsListen();try{QH.presBeat(0)}catch(e)
  const mine=x=>x.ownerKey===k||S.mine.includes(x.id)||S.myServ.includes(x.id)||S.myAds.includes(x.id);
  S.stores=S.stores.filter(x=>!mine(x));S.services=S.services.filter(x=>!mine(x));S.ads=S.ads.filter(x=>!mine(x));S.ideas=S.ideas.filter(x=>!S.myIdeas.includes(x.id));
  S.mine=[];S.myServ=[];S.myAds=[];st='guardando';save();await QH.push();await new Promise(r=>setTimeout(r,1200));await QH.push();
- st='acceso';let left=false;for(const x of extra.concat([auth&&auth.currentUser])){if(!x||x.isAnonymous)continue;try{await x.delete()}catch(e){left=true}}
- try{auth.signOut()}catch(e){}
+ st='acceso';let left=false;for(const x of extra.concat([QH.authCur()])){if(!x||x.isAnonymous)continue;try{await x.delete()}catch(e){left=true}}
+ try{QH.authOut()}catch(e){}
  st='limpieza';S.user=null;S.favs=[];S.myIdeas=[];QH.derive();save();closeModal();syncUI();toast(left?'Datos eliminados. Para cerrar del todo tu acceso, vuelve a entrar y repite «Eliminar cuenta».':'Cuenta eliminada');if(MODE==='panel')render()
 }catch(e){console.error('delAcct',st,e);b.disabled=false;err.textContent='No se pudo eliminar todo (paso: '+st+' · '+((e&&(e.code||e.message))||'error')+'). Revisa tu internet e inténtalo de nuevo.'}}
 /* v167: MI CUENTA como menú — cada sección se abre en su propia ventana (data-pn cierra la ventana antes de ejecutar la acción) */
