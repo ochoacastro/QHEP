@@ -792,7 +792,7 @@ const QH=(function(){
   COLS.forEach(c=>listen(c,()=>{if(--n===0){ready=true;rebuild();cb();hideSplash();presInit();comListen()}}));
   setTimeout(()=>{if(!ready&&!failed)fail({code:'timeout'})},15000)}
  /* ---- entradas de cada archivo ---- */
- function after(){if(MODE==='admin'){view='admin';render();if(!adm)admForm();else repListen()}else if(MODE==='panel'){render();const U=accParam();if(U&&(!S.user||key()!==U))accForm(U);else if(!S.user)loginForm();else if(location.hash==='#/accesos')codesModal()}}
+ function after(){if(MODE==='admin'){view='admin';render();if(!adm)admForm();else repListen()}else if(MODE==='panel'){render();const U=accParam();if(U&&(!S.user||key()!==U))accForm(U);else if(!S.user){if(/[?&]reg=1(&|$)/.test(location.search))regForm();else loginForm()}else if(location.hash==='#/accesos')codesModal()}}
  const go=f=>{if(MODE==='index'){location.href=PANEL_URL;return}if(MODE==='admin')return toast('Las publicaciones se crean desde el panel de vendedores');need(f)};
  function admForm(){modal(`<h2>Administrador</h2><p class="muted">Entra con el correo y la clave de administrador.</p><label for="a-em">Correo</label><input id="a-em" type="email" autocomplete="username"><label for="a-pw">Clave</label><input id="a-pw" type="password" autocomplete="current-password"><div class="err" id="err"></div><div class="row" style="margin-top:8px"><button class="btn pink" data-act="admIn">Entrar</button><button class="btn ghost" data-act="close">Cancelar</button></div>`);rcRender('rc-adm')}
  async function admIn(){const em=$('#a-em').value.trim(),pw=$('#a-pw').value,err=$('#err');if(!em||!pw)return err.textContent='Escribe tu correo y tu clave.';
@@ -1755,7 +1755,7 @@ else if(a==='catPg'){if(b.dataset.g==='serv'){view='serv';render()}else{cat=v;vi
 else if(a==='catMore'){view='cats';render()}
 else if(a==='catMoreOld'){modal(`<h2>Todas las categorías</h2><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0"><button class="cgt" data-act="cat" data-v="" style="--c:#5B6475" aria-pressed="${!cat}"><span class="cico">🏪</span><span>Todas</span></button>${CATSA().map(c=>catTile(c[0],c[0],c[2],catIcon(c))).join('')}</div><div class="row"><button class="btn ghost" data-act="close">Cerrar</button></div>`)}
 else if(a==='cat'){closeModal(1);cat=(cat===v&&v)?'':v;vt='';fu='';render(true);const g=$('#grid');if(g)g.scrollIntoView({behavior:'smooth',block:'start'})}
-else if(a==='newShop')QH.go(()=>planGo('store','',shopForm));
+else if(a==='newShop'){if(MODE==='index'&&!S.user){location.href=PANEL_URL+'&reg=1';return}QH.go(()=>planGo('store','',shopForm))}
 else if(a==='pubMenu')QH.go(pubMenu);
 else if(a==='close'){closeModal();after=null}
 else if(a==='pkind'){pick.kind=v;document.querySelectorAll('#f-kind .chip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v));const l=$('#f-name-l'),i=$('#f-name');if(l)l.textContent=v?'Tu nombre (así te conocerán)':'Nombre de la tienda';if(i)i.placeholder=v?'Ej: Marta Rodríguez':'Ej: Dulces de la Abuela'}
