@@ -647,6 +647,8 @@ const COMIDAS=['Restaurantes'];let kf='';
 /* v144: categoria principal Peluquerias = Barberias (hombres), Salones de belleza (mujeres), Peluquerias unisex */
 const PELU=['Barberías','Salones de belleza','Peluquerías unisex'],PELU_C=[['Barberías','💈','#0F766E'],['Salones de belleza','💇‍♀️','#DB2777'],['Peluquerías unisex','✂️','#7C3AED']];
 const ensurePelu=()=>{PELU_C.forEach(x=>{if(!CATS.some(c=>c[0]===x[0])){const k=CATS.findIndex(c=>c[0]==='Otros');if(k>=0)CATS.splice(k,0,x.slice());else CATS.push(x.slice())}})};ensurePelu();
+/* v192: sanea las categorías que llegan de Firestore o del almacenamiento local (nombre, ícono y color) antes de pintarlas */
+const catClean=a=>{const n=String(a[0]).replace(/[<>"`]/g,'').trim().slice(0,40),i=typeof a[1]==='string'?a[1]:'',ic=/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(i)?i:(i.length<=8&&!/[<>"'`&]/.test(i)?i:''),co=typeof a[2]==='string'&&/^#[0-9a-fA-F]{6}$/.test(a[2])?a[2]:'#5B6475';return[n,ic,co]};
 const catOf=n=>CATS.find(c=>c[0]===n)||CATS[CATS.length-1];
 /* ===== v51: UN SOLO ARCHIVO con 3 modos =====
    · index.html            → página pública
@@ -674,7 +676,7 @@ const SEED=[
 ];
 let S={stores:[],cart:{},mine:[],services:[],myServ:[]},view='home',cur=null,cat='',query='',vt='',fu='',sj='',sortBy='',zoneF='',favOnly=false,adm=false,at='rep',after=null,adF={},curAd='',curU='',accFail=0,accLock=0,sm='dom',curP='',pI=0,pQ=1,curN='',NW=false,nwf={id:'',img:''};
 try{const d=JSON.parse(localStorage.getItem(LKEY));if(d){S.cart=d.cart||{};S.favs=d.favs||[];S.user=d.user||null;S.myIdeas=d.myIdeas||[]}}catch(e){}
-S.services=S.services||[];S.myServ=S.myServ||[];S.ideas=S.ideas||[];S.myIdeas=S.myIdeas||[];S.reports=S.reports||[];S.favs=S.favs||[];S.user=S.user||null;S.pin=S.pin||'';S.ads=S.ads||[];S.myAds=S.myAds||[];S.site=S.site||{name:'',wa:'',mail:''};applyJobs();applyPlanCfg();if(Array.isArray(S.cats)&&S.cats.length&&S.catsV===62){CATS.length=0;S.cats.forEach(c=>CATS.push(c))}else{S.cats=CATS.map(c=>c.slice());S.catsV=62}ensurePelu();(S.stores||[]).forEach(s=>{if(s.cat==='Moda')s.cat='Ropa'});
+S.services=S.services||[];S.myServ=S.myServ||[];S.ideas=S.ideas||[];S.myIdeas=S.myIdeas||[];S.reports=S.reports||[];S.favs=S.favs||[];S.user=S.user||null;S.pin=S.pin||'';S.ads=S.ads||[];S.myAds=S.myAds||[];S.site=S.site||{name:'',wa:'',mail:''};applyJobs();applyPlanCfg();if(Array.isArray(S.cats)&&S.cats.length&&S.catsV===62){CATS.length=0;S.cats.filter(c=>Array.isArray(c)&&typeof c[0]==='string').map(catClean).filter(c=>c[0]).forEach(c=>CATS.push(c))}else{S.cats=CATS.map(c=>c.slice());S.catsV=62}ensurePelu();(S.stores||[]).forEach(s=>{if(s.cat==='Moda')s.cat='Ropa'});
 const save=()=>{try{localStorage.setItem(LKEY,JSON.stringify({cart:S.cart,favs:S.favs,user:S.user,myIdeas:S.myIdeas}))}catch(e){toast('No se pudo guardar en este dispositivo')}QH.push()};
 /* ===== v74: base de datos compartida (Firestore) — la usan los 3 modos (público, panel y admin) ===== */
 const QH=(function(){
@@ -716,10 +718,10 @@ const QH=(function(){
   if(c==='reports')return nd&&!od?'set':null;
   return null}
  const ref=(c,id)=>db.collection(c).doc(id);
- async function rates(c,id,nd){const r=ref(c,id),mine=(nd.rates||[]).filter(x=>x.u===DEV)[0];
+ async function rates(c,id,nd){const r=ref(c,id),mine=(nd.rates||[]).filter(isMyRate)[0];
   /* v150: las reglas v12 solo permiten quitar O agregar UNA calificacion por escritura: editar = quitar y luego agregar */
-  await db.runTransaction(async t=>{const s=await t.get(r);if(!s.exists)return;const cur=s.data().rates||[],i=cur.findIndex(x=>x.u===DEV);if(i<0)return;t.update(r,{rates:cur.filter((x,j)=>j!==i)})});
-  if(mine)await db.runTransaction(async t=>{const s=await t.get(r);if(!s.exists)return;t.update(r,{rates:(s.data().rates||[]).concat([mine])})})}
+  await db.runTransaction(async t=>{const s=await t.get(r);if(!s.exists)return;const cur=s.data().rates||[],i=cur.findIndex(isMyRate);if(i<0)return;const rm=cur[i],cu=s.data().rU||[];t.update(r,{rates:cur.filter((x,j)=>j!==i),rRm:rm,rU:rm.a?cu.filter(x=>x!==rm.a):cu})});
+  if(mine)await db.runTransaction(async t=>{const s=await t.get(r);if(!s.exists)return;const d=s.data();t.update(r,{rates:(d.rates||[]).concat([mine]),rU:(d.rU||[]).concat([myUid()])})})}
  async function flush(){const D=want();
   for(const c in D){const L=LAST[c]||(LAST[c]={}),cur=D[c];
    for(const id in cur){const nd=cur[id],j=sj(nd),old=L[id];if(old&&old.j===j)continue;
@@ -739,7 +741,7 @@ const QH=(function(){
   S.services=g('services');S.ads=g('ads');S.ideas=g('ideas',1);
   if(MODE==='admin')S.reports=g('reports',1);
   S.banners=g('banners',1);S.topAds=g('topAds',1);
-  const cs=g('cats',1).filter(x=>Array.isArray(x.a)&&x.a.length&&typeof x.a[0]==='string');if(cs.length){const o=cs.filter(x=>x.a[0]==='Otros'),r=cs.filter(x=>x.a[0]!=='Otros');CATS.length=0;r.concat(o).forEach(x=>{CATS.push(x.a.slice())});ensurePelu();S.cats=CATS.map(c=>c.slice())}
+  const cs=g('cats',1).filter(x=>Array.isArray(x.a)&&x.a.length&&typeof x.a[0]==='string');if(cs.length){const o=cs.filter(x=>x.a[0]==='Otros'),r=cs.filter(x=>x.a[0]!=='Otros');CATS.length=0;r.concat(o).map(x=>catClean(x.a)).filter(c=>c[0]).forEach(c=>{CATS.push(c)});ensurePelu();S.cats=CATS.map(c=>c.slice())}
   const m=(RAW.meta||{}).site;if(m){S.site=clean(m);applyJobs();applyPlanCfg();applyLook()}
   derive();presBeat()}
  function derive(){if(MODE==='index'){planListen();return}if(MODE!=='panel')return;const k=key(),m=l=>k?l.filter(o=>o.ownerKey===k).map(o=>o.id):[];S.mine=m(S.stores);S.myServ=m(S.services);S.myAds=m(S.ads);planListen();autoFeat()}
@@ -864,6 +866,8 @@ const pOld=p=>p&&Number(p.old)>Number(p.price)?`<s class="pold">${money(p.old)}<
 addEventListener('input',e=>{const t=e.target;if(!t||!t.dataset||t.dataset.money===undefined)return;const pos=t.selectionStart,len=t.value.length,v=moneyFmt(t.value.replace(/\D/g,'').replace(/^0+(?=\d)/,''));t.value=v;const np=Math.max(0,(pos||0)+v.length-len);try{t.setSelectionRange(np,np)}catch(_){}});
 const uid=()=>Math.random().toString(36).slice(2,9);
 const DEV=(()=>{try{let d=localStorage.getItem('pradereando_dev');if(!d){d=uid()+uid();localStorage.setItem('pradereando_dev',d)}return d}catch(e){return 'anon'}})();
+/* v193: cada calificacion lleva el uid de la sesion (a); las reglas v17 permiten una por uid y solo quitar la propia */
+const myUid=()=>{try{return (auth.currentUser||{}).uid||''}catch(e){return ''}},isMyRate=x=>x.u===DEV||(!!x.a&&x.a===myUid());
 const avg=r=>r&&r.length?r.reduce((a,b)=>a+b.n,0)/r.length:0;
 const starsHTML=n=>`<span class="stars" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=Math.round(n)?'on':''}">★</i>`).join('')}</span>`;
 const rateLine=o=>{const r=o.rates||[];return r.length?`<span class="rate" role="img" aria-label="Calificación ${avg(r).toFixed(1)} de 5, ${r.length} opiniones">${starsHTML(avg(r))} <b>${avg(r).toFixed(1)}</b> <small>(${r.length})</small></span>`:`<span class="rate muted">Sin calificaciones aún</span>`};
@@ -1090,7 +1094,7 @@ const site=()=>S.site||{};
 const saveCats=()=>{S.cats=CATS.map(c=>c.slice());save()};
 /* v34: iconos de categorías y carrusel de publicidad */
 const CAT_EM={Ropa:'👕',Tecnología:'📱',Cocina:'🍳',Hogar:'🛋️',Belleza:'💄',Juguetes:'🧸',Comida:'🍔',Deportes:'⚽',Otros:'🛍️'};
-const catIcon=c=>{const i=c[1]||'';return /^data:image\//.test(i)?`<img src="${i}" alt="" loading="lazy">`:esc(i||CAT_EM[c[0]]||'🏷️')};
+const catIcon=c=>{const i=c[1]||'';return /^data:image\/[a-z]+;base64,[A-Za-z0-9+\/=]+$/.test(i)?`<img src="${i}" alt="" loading="lazy">`:esc(i||CAT_EM[c[0]]||'🏷️')};
 /* v56: página "Todas las categorías" (botón Más). Servicios va primero para que quede visible */
 /* v68: solo se muestran las categorías que alguna tienda eligió al crearse */
 const usedCats=()=>new Set(S.stores.filter(vis).map(s=>s.cat));
@@ -1364,7 +1368,7 @@ ${sec('Servicios de reparación disponibles en Pradera','Plomeros, electricistas
 ${sec('Ofertas de la semana en negocios locales','Selección de productos de tiendas de Pradera. Cambia cada semana.',sem.map(prodCard).join(''),'Aún no hay productos para destacar esta semana.','<button class="btn" data-act="hubHome">Ver todas las tiendas</button>')}
 ${sec('Casas en venta y arriendo en Pradera','Casas publicadas recientemente, para comprar o arrendar.',venta.concat(arr).map(adCard).join(''),'Aún no hay casas publicadas. Publica la tuya.','<button class="btn" data-act="tab" data-v="casa">Ver casas en venta</button><button class="btn ghost" data-act="tab" data-v="arr">Ver arriendos</button>')}`}
 let rt={k:'',id:'',n:0};
-function rateForm(k,id){const o=rateTarget(k,id);if(!o)return;const prev=(o.rates||[]).find(r=>r.u===DEV);rt={k,id,n:prev?prev.n:0};
+function rateForm(k,id){const o=rateTarget(k,id);if(!o)return;const prev=(o.rates||[]).find(isMyRate);rt={k,id,n:prev?prev.n:0};
 modal(`<h2>Calificar a ${esc(o.name)}</h2><div class="pickstars" id="f-stars" role="group" aria-label="Elige de 1 a 5 estrellas">${[1,2,3,4,5].map(i=>`<button class="star${i<=rt.n?' on':''}" data-act="pstar" data-v="${i}" aria-label="${i} ${i>1?'estrellas':'estrella'}">★</button>`).join('')}</div>
 <label for="r-name">Tu nombre (opcional)</label><input id="r-name" type="text" maxlength="30" value="${esc(prev?prev.name:(S.user?S.user.name:''))}">
 <label for="r-txt">Tu opinión (opcional)</label><textarea id="r-txt" rows="3" maxlength="200">${esc(prev?prev.txt:'')}</textarea>
@@ -1721,7 +1725,7 @@ function shopForm(only){const ol=only?(only==='food'?COMIDAS:PELU):null,cl=CATSA
 <label>Tipo de negocio</label><div class="row" id="f-kind"><button class="chip" data-act="pkind" data-v="" aria-pressed="true">Con nombre de tienda o restaurante</button><button class="chip" data-act="pkind" data-v="casero" aria-pressed="false">Casero (con mi nombre)</button></div>
 <label for="f-name" id="f-name-l">Nombre de la tienda</label><input id="f-name" type="text" maxlength="40" placeholder="Ej: Dulces de la Abuela">
 <label for="f-img">Foto de perfil (opcional)</label><input id="f-img" type="file" accept="image/*">${PHOTO_NOTE}
-<label>Categoría (para que te encuentren)</label><div class="row" id="f-cats">${cl.map(c=>`<button class="chip" data-act="pcat" data-v="${c[0]}" style="--c:${c[2]}" aria-pressed="${pick.cat===c[0]}">${c[0]}</button>`).join('')}${ol?'':'<button class="chip" data-act="pcatnew" aria-pressed="false">+ Otra categoría</button>'}</div><div id="f-newcat-w" hidden><label for="f-newcat">¿Cuál es tu rubro o categoría?</label><input id="f-newcat" type="text" maxlength="20" placeholder="Ej: Farmacia, Papelería, Mascotas"><p class="muted">Si no está en la lista, escríbela aquí. Se agregará a las categorías para que otros vecinos también puedan elegirla.</p></div>
+<label>Categoría (para que te encuentren)</label><div class="row" id="f-cats">${cl.map(c=>`<button class="chip" data-act="pcat" data-v="${esc(c[0])}" style="--c:${c[2]}" aria-pressed="${pick.cat===c[0]}">${c[0]}</button>`).join('')}${ol?'':'<button class="chip" data-act="pcatnew" aria-pressed="false">+ Otra categoría</button>'}</div><div id="f-newcat-w" hidden><label for="f-newcat">¿Cuál es tu rubro o categoría?</label><input id="f-newcat" type="text" maxlength="20" placeholder="Ej: Farmacia, Papelería, Mascotas"><p class="muted">Si no está en la lista, escríbela aquí. Se agregará a las categorías para que otros vecinos también puedan elegirla.</p></div>
 <label for="x-tags">Etiquetas (opcional)</label><input id="x-tags" type="text" maxlength="120" placeholder="Ej: #farmacia #medicinas"><p class="muted">Escribe palabras con # para que te encuentren por más cosas que ofreces. Sepáralas con un espacio (máximo 8).</p>
 <label for="f-owner">Tu nombre</label><input id="f-owner" type="text" maxlength="30">
 <label for="f-wa">WhatsApp para recibir pedidos</label><input id="f-wa" type="tel" placeholder="3001234567">
@@ -2069,7 +2073,7 @@ else if(a==='lbnext')lbGo(1);
 else if(a==='lbgo'){lb.i=+b.dataset.i;lb.z=1;lbRender()}
 else if(a==='chLogo'){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=async()=>{const f=i.files[0];if(!f)return;const d=await resize(f,240,.8);if(!d)return toast('No se pudo leer la imagen');S.stores.find(s=>s.id===cur).logo=d;save();const y=scrollY;render();scrollTo(0,y);toast('Foto de perfil actualizada')};i.click()}else if(a==='chCover'){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=async()=>{const f=i.files[0];if(!f)return;const d=await resize(f,1000,.78);if(!d)return toast('No se pudo leer la imagen');S.stores.find(s=>s.id===cur).cover=d;save();const y=scrollY;render();scrollTo(0,y);toast('Imagen de portada actualizada')};i.click()}else if(a==='delCover'){if(!confirm('¿Quitar la imagen de portada?'))return;const s=S.stores.find(s=>s.id===cur);if(s){delete s.cover;save();const y=scrollY;render();scrollTo(0,y);toast('Portada eliminada')}}
 else if(a==='pstar'){rt.n=+v;document.querySelectorAll('#f-stars .star').forEach(x=>x.classList.toggle('on',+x.dataset.v<=rt.n))}
-else if(a==='saveRate'){if(!rt.n)return $('#err').textContent='Elige de 1 a 5 estrellas.';const o=rateTarget(rt.k,rt.id);if(!o)return closeModal();o.rates=o.rates||[];const r={u:DEV,n:rt.n,name:$('#r-name').value.trim(),txt:$('#r-txt').value.trim(),ts:Date.now()},i=o.rates.findIndex(x=>x.u===DEV);if(i>=0)o.rates[i]=r;else o.rates.push(r);save();closeModal();const y=scrollY;render();scrollTo(0,y);toast('¡Gracias por tu calificación!')}
+else if(a==='saveRate'){if(!rt.n)return $('#err').textContent='Elige de 1 a 5 estrellas.';const o=rateTarget(rt.k,rt.id);if(!o)return closeModal();o.rates=o.rates||[];const r={u:DEV,a:myUid(),n:rt.n,name:$('#r-name').value.trim(),txt:$('#r-txt').value.trim(),ts:Date.now()},i=o.rates.findIndex(isMyRate);if(i>=0)o.rates[i]=r;else o.rates.push(r);save();closeModal();const y=scrollY;render();scrollTo(0,y);toast('¡Gracias por tu calificación!')}
 else if(a==='order'){const s=S.stores.find(x=>x.id===id);if(!s.wa)return toast('Esta tienda aún no tiene WhatsApp registrado');
  let t=0,l=Object.entries(S.cart).filter(([k])=>k.startsWith(id+'|')).map(([k,q])=>{const p=s.products.find(x=>x.id===k.split('|')[1]);t+=p.price*q;return `• ${q} x ${p.name}${vTx(k)?' - '+vTx(k):''} (${money(p.price*q)})\n   ${(c=>c?'ID: '+vId(p,c)+'\n   ':'')(k.split('|')[3])}Código: ${pCode(p)}\n   ${prodUrl(s.id,p.id)}`});
  const num=s.wa.length===10?'57'+s.wa:s.wa;window.open(`https://wa.me/${num}?text=${encodeURIComponent(`Hola ${s.name}, vi su tienda en Qué Hay en Pradera y quiero pedir:\n${l.join('\n')}\nTotal: ${money(t)}`)}`,'_blank');
