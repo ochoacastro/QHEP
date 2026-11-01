@@ -6,7 +6,7 @@
 <!-- v198: CSP. Limita de donde pueden cargar scripts, conexiones y marcos. Si algo deja de funcionar (login, mapa, videos, subir fotos), borra SOLO esta linea <meta http-equiv="Content-Security-Policy"> -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com https://www.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' data: blob: https://*.googleapis.com https://*.google.com https://*.gstatic.com https://*.firebaseio.com https://api.emailjs.com https://*.workers.dev https://www.youtube.com https://cdnjs.cloudflare.com; frame-src https://www.google.com https://maps.google.com https://www.youtube.com https://www.youtube-nocookie.com https://drive.google.com https://accounts.google.com https://*.firebaseapp.com https://www.tiktok.com https://www.facebook.com https://www.instagram.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="description" content="Compra, arrienda y contrata con vecinos de Pradera. Lo nuestro, en un solo lugar."><meta property="og:type" content="website"><meta property="og:site_name" content="Qué Hay en Pradera"><meta property="og:locale" content="es_CO"><meta property="og:title" content="Qué Hay en Pradera – Lo nuestro, en un solo lugar"><meta property="og:description" content="Compra, arrienda y contrata con vecinos de Pradera.">
-<meta name="theme-color" content="#0B2F7A">
+<meta name="theme-color" content="#f2f4f5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="twitter:card" content="summary"><meta name="twitter:title" content="Qué Hay en Pradera – Lo nuestro, en un solo lugar"><meta name="twitter:description" content="Compra, arrienda y contrata con vecinos de Pradera.">
 <script>/* v198: canonical y datos estructurados con la URL real de la pagina (sin # ni parametros) */(function(){try{var u=location.origin+location.pathname.replace(/index\.html$/,''),d=document,h=d.head,l=d.createElement('link');l.rel='canonical';l.href=u;h.appendChild(l);var s=d.createElement('script');s.type='application/ld+json';s.text=JSON.stringify({'@context':'https://schema.org','@graph':[{'@type':'WebSite','name':'Qué Hay en Pradera','url':u,'inLanguage':'es-CO','description':'Compra, arrienda y contrata con vecinos de Pradera. Lo nuestro, en un solo lugar.'},{'@type':'Organization','name':'Qué Hay en Pradera','url':u,'areaServed':{'@type':'City','name':'Pradera, Valle del Cauca, Colombia'}}]});h.appendChild(s)}catch(e){}})();</script>
@@ -23,9 +23,9 @@ window.rcRender=function(){};window.rcReset=function(){};
 window.rcToken=function(id){var action=String(id||'login').replace(/[^A-Za-z0-9_\/]/g,'_');return new Promise(function(ok,no){var t=setTimeout(function(){no(new Error('rc-timeout'))},8000);try{if(!window.grecaptcha||!grecaptcha.ready)throw new Error('rc-missing');grecaptcha.ready(function(){grecaptcha.execute(window.RC_SITE,{action:action}).then(function(k){clearTimeout(t);ok(k)},function(e){clearTimeout(t);no(e)})})}catch(e){clearTimeout(t);no(e)}})};</script>
 <script>(function(){try{var t=localStorage.getItem("qh_theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})()</script>
 <title>Qué Hay en Pradera – Lo nuestro, en un solo lugar</title>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#0B2F7A;--bg:#EEF3FF;--mango:#FFA800;--guava:#FF4D79;--lulo:#14B88A;--rio:#3A5BFF;--card:#fff}
+:root{--ink:#000000;--bg:#f2f4f5;--mango:#FFA800;--guava:#FF4D79;--lulo:#14B88A;--rio:#5433eb;--card:#fff}
 *{box-sizing:border-box;margin:0}
 body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
 h1,h2,h3,.logo{font-family:inherit;font-weight:700}
@@ -629,6 +629,84 @@ div.acts-grid>.btn:last-child:nth-child(odd){grid-column:1/-1}
 .csq input{display:block;width:100%;box-sizing:border-box;padding:14px 16px;border:1px solid var(--line2,#c9d3ea);border-radius:14px;background:#fff;color:var(--ink);font-size:16px}
 .csq input:focus{outline:none;border-color:var(--rio);box-shadow:0 0 0 4px #3A5BFF26}
 @media(prefers-reduced-motion:reduce){*,::before,::after{animation:none!important;transition:none!important}}
+</style>
+<style id="v199-shop">
+/* v199 — sistema de diseño "Shop" (DESIGN.md): lienzo #f2f4f5, tarjetas blancas de 28px con sombra doble, píldoras 9999px,
+   tipografía compacta con tracking negativo y un único acento violeta (#5433eb) en el botón de búsqueda.
+   Solo estilos: no toca lógica ni datos. Va al final para ganar a las reglas anteriores. */
+:root{--line:#ebebeb;--line2:#e2e2e2;--sh1:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);--sh2:0 4px 24px rgba(0,0,0,.12);--sh-soft:0 2px 8px rgba(0,0,0,.06);--sh-violet:0 4px 24px rgba(69,36,219,.34);--muted:#787574;--r-card:28px;--r-img:20px}
+body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;letter-spacing:-.031em;line-height:1.38}
+input,textarea,select,button{letter-spacing:inherit}
+h1,h2,h3,.logo,.price,.hpp,.pvmp,.stn,.ptitle,.hubhero h2,.sname h2,.pvt,article.cmc .cmb>b{font-family:inherit;font-weight:600;letter-spacing:-.05em}
+b,strong{font-weight:600}
+::selection{background:#c0b5f3;color:#000}
+::placeholder{color:var(--muted)}
+/* Cabecera: blanca, sin borde, buscador en píldora con botón violeta */
+header{background:#fff;border-bottom:0}
+#annc{background:#000;font-weight:500;letter-spacing:-.014em}
+.hmb i,.cbd{background:#000}.cbd{color:#fff}
+body.instore #cartBtn{background:#fff;color:#000;box-shadow:var(--sh2)}
+#themeBtn{background:#fff;border:1px solid var(--line);box-shadow:var(--sh-soft)}
+.qw{background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:9999px;padding:4px 4px 4px 20px;overflow:visible;box-shadow:none}
+.qw:focus-within{border-color:rgba(0,0,0,.35);box-shadow:0 0 0 4px rgba(84,51,235,.12)}
+.qw #q{background:transparent;padding:10px 4px;border-radius:0;font-size:16px;letter-spacing:-.031em}
+#qgo{width:48px;height:48px;border-radius:50%;background:var(--rio);color:#fff;box-shadow:var(--sh-violet)}
+#qgo svg{width:22px;height:22px}
+.hh2 #qgo{height:44px;border-radius:9999px}
+html.dark #qgo{filter:hue-rotate(180deg) invert(1)}
+#sr{border-radius:var(--r-img);box-shadow:var(--sh2)}
+/* Botones: píldoras; primario negro, secundario blanco con borde tenue */
+.btn{border-radius:9999px;background:#000;color:#fff;font-weight:600;padding:11px 20px;letter-spacing:-.031em}
+.btn:not(.ghost){box-shadow:none}
+.btn.pink{background:#000;color:#fff}
+.btn.ghost{background:#fff;color:#000;border:1px solid var(--line);box-shadow:var(--sh-soft)}
+.btn.wa{background:#25D366;color:#073b1d}
+.hhr{background:#000;color:#fff;box-shadow:var(--sh2)}
+/* Chips y píldoras */
+.chip,.hswt button,.plsb{border-radius:9999px;background:#fff;color:#000;border:1px solid var(--line);box-shadow:var(--sh-soft);font-weight:500}
+.chip{padding:6px 16px}
+.chip[aria-pressed=true],.hswt button[aria-pressed=true]{background:#000;border-color:#000;color:#fff}
+.dchip span,.bedq button,.amen span{background:#fff;border-color:var(--line)}
+.dchip input:checked+span,.bedq button[aria-pressed=true]{background:#000;border-color:#000;color:#fff}
+.tabs{border-bottom-color:var(--line)}.tabs button[aria-current=true]{border-color:#000}
+.tag,.hnegb,.hscb{background:#000;color:#fff;border-radius:9999px;font-weight:500}
+.hscb{background:#fff;color:#000;box-shadow:var(--sh-soft)}
+/* Campos de formulario */
+input[type=text],input[type=number],input[type=tel],input[type=email],input[type=password],input[type=time],input[type=month],select{border-radius:9999px;padding:11px 20px;border:1px solid rgba(0,0,0,.1);background:#fff}
+textarea{border-radius:var(--r-img);padding:12px 18px;border:1px solid rgba(0,0,0,.1)}
+input[type=text]:focus,input[type=number]:focus,input[type=tel]:focus,input[type=email]:focus,input[type=password]:focus,input[type=time]:focus,input[type=month]:focus,select:focus,textarea:focus,.csq input:focus{border-color:rgba(0,0,0,.35);box-shadow:0 0 0 4px rgba(84,51,235,.12)}
+.csq input{border-radius:9999px;border-color:rgba(0,0,0,.1);padding:14px 20px}
+/* Tarjetas: 28px, blancas, separadas por sombra (sin borde), imagen interior 20px */
+.shop,.prod,.hpc,.rvc,.icard,.pvs,.hnegc,.hubf,.hsc,.hubhero,.hh2,article.cmc,.cg,.cmr,.stbar{border-radius:var(--r-card);border-color:transparent;box-shadow:var(--sh1)}
+.shop:hover,.sg:hover{border-color:transparent}
+.banner,.cover,.plx,.modal,.drawer{border-radius:var(--r-card)}
+.drawer{border-top-right-radius:0;border-bottom-right-radius:0}
+.tbs{border-radius:var(--r-img)}
+.hpc{padding:8px 8px 12px}
+.hpc .hpi,.prod .pic,.cmt{border-radius:var(--r-img)}
+.hpc .hpi,.prod .pic{background:var(--bg)}
+.awning{display:none}
+.shop .em{border-radius:50%}
+.price,.hpc .hpp{color:#000;font-weight:600}
+.hubhero,.hh2{background:#fff;border:0;color:#000}
+.hubhero h2,.hh2 h2{font-weight:600;letter-spacing:-.05em}
+.hh2 h2 em{color:var(--rio)}
+.hh2 .qw{border:1px solid rgba(0,0,0,.1);box-shadow:var(--sh-soft)}
+.hubi{background:var(--c);border-radius:28%;box-shadow:var(--sh1)}
+.hubt{font-weight:500;letter-spacing:-.014em}
+.hgjc{background:#fff;border:1px solid var(--line);box-shadow:var(--sh-soft);border-radius:var(--r-img)}
+.hscc{color:var(--muted)}
+.hsc{overflow:hidden}.hscv{border-radius:9999px;border-color:var(--line)}.hscw{border-radius:9999px}
+.hnegl{color:#000;text-decoration:underline;text-underline-offset:.18em;font-weight:500}
+.hnegn{box-shadow:var(--sh2)}
+.hnegh h2,.hgjh h2,.shead h2{font-size:20px;letter-spacing:-.05em}
+article.cmc .cma{background:var(--bg)}
+/* Capas */
+.overlay{background:rgba(0,0,0,.5)}
+.modal{box-shadow:var(--sh2)}
+#toast{background:#000;border-radius:9999px;font-weight:500}
+footer{color:var(--muted);font-weight:400}
+html:not(.dark) .cdwin .plx{background:var(--bg)}
 </style>
 </head>
 <body>
