@@ -1068,6 +1068,31 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  try{if(document.querySelector('.overlay')&&typeof closeModal==='function')closeModal(1)}catch(_){}
  var t=document.createElement('button');t.hidden=true;t.dataset.act=v==='serv'?'serv':'miniTab';t.dataset.v=v;document.body.appendChild(t);t.click();t.remove();window.scrollTo(0,0)});
 </script>
+<style id="v218-cupos-css">
+/* v218: numero en la esquina del icono en "Mi cuenta" */
+.pnr i{position:relative;min-width:36px}
+.pnbd{position:absolute;top:-11px;left:52%;min-width:19px;height:19px;padding:0 5px;border-radius:980px;background:#0071e3;color:#fff;font:600 11px/19px var(--font-sf-pro-text,system-ui,sans-serif);letter-spacing:0;text-align:center;font-style:normal;box-shadow:0 0 0 2px var(--card,#fff);white-space:nowrap}
+.pnbd.z{background:#8e8e93}
+html.dark .pnbd{filter:hue-rotate(180deg) invert(1)}
+.qh-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+<script id="v218-cupos">
+/* v218: cuantas publicaciones te quedan, para el numero en la esquina de "Mi cuenta".
+   com  = clasificados que puedes publicar ahora: 1 gratis cada 24 h + lo que te queda de cada plan activo; rol Comunidad = sin limite (∞).
+   store/ad/serv = no tienen limite de cantidad: con el rol activo se muestran los dias que quedan (p. ej. 28d). Sin rol, no se muestra nada.
+   Si algo falla, borra este <script id="v218-cupos"> y el <style id="v218-cupos-css"> y quita el ultimo parametro de it() en pnlMenu. */
+function pnQuota(k){try{
+ if(typeof S!=='object'||!S||!S.user)return null;
+ var DAYMS=864e5,left=function(us){var e=0;us.forEach(function(u){e=Math.max(e,accEnd(u)||0)});return e>Date.now()?Math.ceil((e-Date.now())/DAYMS):0};
+ if(k==='com'){
+  if(accOn('comu'))return {n:'∞',t:'puedes publicar clasificados sin límite con el rol Comunidad'};
+  var w=comFreeWait(),n=w?0:1;comTiers().forEach(function(u){var q=COM_DAYS[u]-comUsed(u);if(q>0)n+=q});
+  return {n:String(n),z:!n,t:n?(n===1?'puedes publicar 1 clasificado ahora':'puedes publicar '+n+' clasificados ahora'):'ya usaste tu anuncio gratis; se renueva en unas '+w+' h'}}
+ var us=k==='store'?['store','food','pelu','merc']:k==='ad'?['car','home','merc']:k==='serv'?['serv','merc']:[];
+ var d=left(us);if(!d)return null;
+ return {n:d+'d',t:'puedes publicar sin límite '+d+(d===1?' día más':' días más')};
+}catch(e){return null}}
+</script>
 </head>
 <body>
 <noscript><div style="position:fixed;inset:0;z-index:99999;background:#fff;color:#0B2F7A;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font:600 18px/1.4 system-ui,sans-serif">Mi Pradera necesita JavaScript para funcionar. Actívalo en tu navegador para ver tiendas, comidas, servicios y más.</div></noscript>
@@ -1731,8 +1756,8 @@ const pnRow=(t,sub,btns)=>`<div class="ci"><span><b>${esc(t)}</b>${sub?'<br><sma
 /* v176: noticias — con acceso activo, en Mi cuenta se muestra directo su lista de noticias (editar / eliminar) */
 function nwMenuList(){const l=QH.NEWS.filter(x=>x.ownerKey===QH.key());return `<div class="cg"><h3>📰 Mis noticias (${l.length})</h3><p class="muted">Tu acceso de Noticias está activo hasta el ${new Date(accEnd('news')).toLocaleDateString('es-CO')}: publica con foto y video.</p><div class="row" style="margin:14px 0 18px;gap:10px"><button class="btn pink" data-act="nwNew" style="flex:1 1 150px;text-align:center">+ Nueva noticia</button><a class="btn ghost" href="${BASE_URL}#/noticias" style="flex:1 1 130px;text-align:center;text-decoration:none;display:inline-block">Ver noticias</a></div>${l.length?l.map(n=>`<div class="ci" style="display:block;padding:14px;margin:10px 0;border:1px solid var(--line2,#c9d3ea);border-radius:14px"><div><b style="word-break:break-word">${esc(n.title)}</b><br><small class="muted">${esc(nwDate(n))}</small></div><div class="row" style="margin-top:12px;gap:10px"><button class="btn" data-act="nwEdit" data-id="${esc(n.id)}" style="flex:1 1 0;text-align:center">Editar</button><button class="btn ghost" data-act="nwDel" data-id="${esc(n.id)}" style="flex:1 1 0;text-align:center">Eliminar</button></div></div>`).join(''):'<p class="muted">Aún no has publicado noticias.</p>'}</div>`}
 function pnlMenu(){const u=S.user,ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),nf=favRows().length;QH.newsListen();nwWho();
-const it=(ic,t,sub,act,v)=>`<button type="button" class="pnr" data-act="${act}"${v?` data-v="${v}"`:''}><i aria-hidden="true">${ic}</i><span>${t}<small>${sub}</small></span><b aria-hidden="true">›</b></button>`;
-return `<div class="pnl">${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('🔓','Mis roles','Comerciante, Clasificados, Comunidad y Redactor de noticias','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas')}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine')}${it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios')}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios')}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${NW?nwMenuList():''}<button type="button" class="pnr" data-act="delAcct" style="border-color:#c0392b"><i aria-hidden="true">🗑️</i><span style="color:#ff6b5e">Eliminar cuenta<small>Borra tu cuenta y tus publicaciones para siempre</small></span><b aria-hidden="true">›</b></button></div>`}
+const it=(ic,t,sub,act,v,bd)=>`<button type="button" class="pnr" data-act="${act}"${v?` data-v="${v}"`:''}><i aria-hidden="true">${ic}${bd?`<em class="pnbd${bd.z?' z':''}">${bd.n}</em>`:''}</i><span>${t}${bd?`<span class="qh-sr"> (${bd.t})</span>`:''}<small>${sub}</small></span><b aria-hidden="true">›</b></button>`;/* v218: bd = numero en la esquina del icono */
+return `<div class="pnl">${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('🔓','Mis roles','Comerciante, Clasificados, Comunidad y Redactor de noticias','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas',pnQuota('store'))}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine','',pnQuota('com'))}${it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios',pnQuota('ad'))}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios',pnQuota('serv'))}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${NW?nwMenuList():''}<button type="button" class="pnr" data-act="delAcct" style="border-color:#c0392b"><i aria-hidden="true">🗑️</i><span style="color:#ff6b5e">Eliminar cuenta<small>Borra tu cuenta y tus publicaciones para siempre</small></span><b aria-hidden="true">›</b></button></div>`}
 function pnlModal(v){const ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),cl='<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>';let h='';
 if(v==='plan')h='<h2>Mis roles</h2>'+planCard();
 else if(v==='tiendas')h=`<h2>Mis tiendas (${ms.length})</h2>${ms.length?ms.map(s=>pnRow(s.name,s.cat+' · '+(s.products||[]).length+' productos'+(s.hidden?' · oculta por el administrador':''),`<a class="btn ghost" href="${storeUrl(s.id)}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">Ver tienda</a><button class="btn" data-pn="1" data-act="open" data-id="${esc(s.id)}">Editar</button>`)).join(''):pnNone('Aún no tienes tienda.')}`;
