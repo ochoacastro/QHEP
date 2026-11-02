@@ -8,7 +8,8 @@
 <meta name="description" content="Compra, arrienda y contrata con vecinos de Pradera. Lo nuestro, en un solo lugar."><meta property="og:type" content="website"><meta property="og:site_name" content="Mi Pradera"><meta property="og:locale" content="es_CO"><meta property="og:title" content="Mi Pradera – Lo nuestro, en un solo lugar"><meta property="og:description" content="Compra, arrienda y contrata con vecinos de Pradera.">
 <meta name="theme-color" content="#f2f4f5">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="twitter:card" content="summary"><meta name="twitter:title" content="Mi Pradera – Lo nuestro, en un solo lugar"><meta name="twitter:description" content="Compra, arrienda y contrata con vecinos de Pradera.">
+<meta property="og:url" content="https://mipradera.com.co/"><meta property="og:image" content="https://mipradera.com.co/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Mi Pradera Marketplace – Lo nuestro, en un solo lugar">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://mipradera.com.co/og-image.png"><meta name="twitter:title" content="Mi Pradera – Lo nuestro, en un solo lugar"><meta name="twitter:description" content="Compra, arrienda y contrata con vecinos de Pradera.">
 <script>/* v198: canonical y datos estructurados con la URL real de la pagina (sin # ni parametros) */(function(){try{var u=location.origin+location.pathname.replace(/index\.html$/,''),d=document,h=d.head,l=d.createElement('link');l.rel='canonical';l.href=u;h.appendChild(l);var s=d.createElement('script');s.type='application/ld+json';s.text=JSON.stringify({'@context':'https://schema.org','@graph':[{'@type':'WebSite','name':'Mi Pradera','url':u,'inLanguage':'es-CO','description':'Compra, arrienda y contrata con vecinos de Pradera. Lo nuestro, en un solo lugar.'},{'@type':'Organization','name':'Mi Pradera','url':u,'areaServed':{'@type':'City','name':'Pradera, Valle del Cauca, Colombia'}}]});h.appendChild(s)}catch(e){}})();</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -913,6 +914,27 @@ document.addEventListener('touchend',function(e){if(!el)return;var c=e.changedTo
  }else go();
 },{passive:true});
 document.addEventListener('touchcancel',function(){el=null},{passive:true});
+})();
+</script>
+<style id="v208-ajustes-css">
+/* v208: botones faciles de tocar (minimo 44px de alto) y banner de publicidad oculto si no carga */
+html .hhl{display:inline-flex;align-items:center;min-height:44px;padding:0 8px}
+html .plar{min-width:36px;min-height:44px}
+html footer .back{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+html section.tb.qh-off,html section.bn.qh-off{display:none!important}
+</style>
+<script id="v208-ajustes">
+/* v208: si TODAS las imagenes de un banner de publicidad (arriba .tb o en medio .bn) fallan al cargar,
+   el banner se oculta para no dejar un hueco vacio. Si al menos una carga, el banner se queda como esta.
+   Si algo falla, borra SOLO este <script id="v208-ajustes"> y el <style id="v208-ajustes-css">. */
+(function(){
+function bad(i){return i.complete&&i.naturalWidth===0&&!!i.getAttribute('src')}
+function check(sec){if(!sec)return;var ims=sec.querySelectorAll('img');if(!ims.length)return;
+ for(var k=0;k<ims.length;k++)if(!bad(ims[k]))return;sec.classList.add('qh-off')}
+document.addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&t.closest){var s=t.closest('section.tb,section.bn');if(s)setTimeout(function(){check(s)},0);
+ /* logo de la cabecera: si el que se subio en el panel no carga, se usa el logo incrustado */
+ if(t.closest('#home')&&!t.dataset.qhfb){try{t.dataset.qhfb=1;t.src=document.documentElement.classList.contains('dark')?LOGO_DARK:LOGO}catch(_){}}}},true);
+document.addEventListener('load',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&t.closest){var s=t.closest('section.tb.qh-off,section.bn.qh-off');if(s)s.classList.remove('qh-off')}},true);
 })();
 </script>
 </head>
