@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mipradera.com.co/sitemap.xml
