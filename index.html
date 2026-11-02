@@ -1123,6 +1123,9 @@ html.dark .hmb i{background:#f5f5f7!important}
 .qs-o svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;visibility:hidden}
 .qs-o[aria-selected=true] svg{visibility:visible}
 .qs-o:disabled{opacity:.4;cursor:default}
+/* v221: campos de fecha, enlace y búsqueda con el mismo estilo que los demás campos (antes se veían como un cuadro sin estilo) */
+input[type=date],input[type=datetime-local],input[type=week],input[type=url],input[type=search]{box-sizing:border-box;width:100%;min-height:44px;margin:4px 0 0;padding:11px 20px;border:1px solid var(--color-pale-mist,#d6d6d6);border-radius:9999px;background:#fff;color:var(--color-obsidian,#1d1d1f);font:inherit;font-size:16px;-webkit-appearance:none;appearance:none}
+input[type=date]:focus,input[type=datetime-local]:focus,input[type=week]:focus,input[type=url]:focus,input[type=search]:focus{outline:none;border-color:var(--color-iris-blue,#0071e3);box-shadow:0 0 0 4px rgba(0,113,227,.16)}
 @keyframes qsup{from{transform:translateY(40px);opacity:0}}@keyframes qsfade{from{opacity:0}}
 @media (prefers-reduced-motion:reduce){.qs-ov,.qs-sh{animation:none}}
 </style>
