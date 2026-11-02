@@ -1093,6 +1093,11 @@ function pnQuota(k){try{
  return {n:d+'d',t:'puedes publicar sin límite '+d+(d===1?' día más':' días más')};
 }catch(e){return null}}
 </script>
+<style id="v220-menu-css">
+/* v220: las rayitas del menu (☰) siempre visibles en modo oscuro, tanto con el modo oscuro nuevo (v219) como con el anterior
+   (invertido), que queda de respaldo si el script v219 no funciona en algun navegador. Un color claro se ve igual en ambos casos. */
+html.dark .hmb i{background:#f5f5f7!important}
+</style>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
