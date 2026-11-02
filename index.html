@@ -1885,6 +1885,9 @@ function oauthIn(k){const err=$('#err'),n=($('#u-name')||$('#r-name')||{}).value
  }).catch(e=>{const c=e&&e.code||'';err.textContent=c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request'?'Cancelaste el ingreso.':c==='auth/popup-blocked'?'Tu navegador bloqueó la ventana. Permite ventanas emergentes e intenta de nuevo.':c==='auth/operation-not-allowed'||c==='auth/unauthorized-domain'?'Este ingreso aún no está activado.':'No se pudo ingresar ('+(c||'error')+'). Intenta de nuevo.'})}
 async function deliverCode(){const p=PEND,msg=`Tu código de Mi Pradera es ${p.code}. Vence en ${CODE_MIN} minutos. No lo compartas con nadie.`;
  if(p.ch==='sms'){await smsSend(p);return}
+ /* v217: primero Resend a traves del Worker (worker_v8.js, POST /mail). Si el Worker aun no tiene Resend configurado o no responde, se usa EmailJS como antes */
+ try{const t=await QH.token(),r=await fetch(R2_WORKER+'/mail',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({to:p.to,name:p.name,code:p.code})});
+  if(r.ok)return;if(r.status===429||r.status===400){const j=await r.json().catch(()=>({})),er=new Error('send');er.det=j.error||String(r.status);throw er}}catch(e){if(e&&e.message==='send')throw e}
  if(!EMAILJS.service||!EMAILJS.template||!EMAILJS.key)throw new Error('cfg');
  const r=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_id:EMAILJS.service,template_id:EMAILJS.template,user_id:EMAILJS.key,template_params:{to_email:p.to,to_name:p.name,code:p.code,minutes:CODE_MIN,name:'Mi Pradera',email:p.to,title:'Tu código de verificación',message:'Hola '+p.name+', tu código de verificación es '+p.code+'. Vence en '+CODE_MIN+' minutos. No lo compartas con nadie.'}})});
  if(!r.ok){const t=await r.text().catch(()=>'');const er=new Error('send');er.det=r.status+' '+String(t).slice(0,70);throw er}}
