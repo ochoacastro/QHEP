@@ -937,6 +937,22 @@ document.addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='
 document.addEventListener('load',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&t.closest){var s=t.closest('section.tb.qh-off,section.bn.qh-off');if(s)s.classList.remove('qh-off')}},true);
 })();
 </script>
+<script id="v209-enlace-clasificado">
+/* v209: cada clasificado tiene su propio enlace: mipradera.com.co/#/c/ID
+   Al abrirlo, muestra Clasificados y lleva la pantalla hasta ese anuncio (resaltado 2,5 s).
+   Si algo falla, borra SOLO este <script id="v209-enlace-clasificado"> (y el enlace de "Compartir" vuelve a #/comunidad si cambias #/c/ por #/comunidad en la accion cmxShare). */
+(function(){
+var want=null;
+function take(){var m=(location.hash||'').match(/^#\/c\/(.+)$/);if(!m)return false;
+ try{want=decodeURIComponent(m[1])}catch(e){want=m[1]}
+ history.replaceState(history.state,'',location.pathname+location.search+'#/comunidad');return true}
+function find(n){if(!want)return;var id=want,el;try{el=document.querySelector('[data-cid="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]')}catch(e){el=null}
+ if(el){want=null;el.scrollIntoView({block:'center',behavior:'smooth'});el.classList.add('cmhl');setTimeout(function(){el.classList.remove('cmhl')},2500);return}
+ if(n<40)setTimeout(function(){find(n+1)},250);else want=null}
+if(take())find(0);
+window.addEventListener('hashchange',function(e){if(take()){e.stopImmediatePropagation();window.dispatchEvent(new HashChangeEvent('hashchange'));find(0)}},true);
+})();
+</script>
 </head>
 <body>
 <noscript><div style="position:fixed;inset:0;z-index:99999;background:#fff;color:#0B2F7A;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font:600 18px/1.4 system-ui,sans-serif">Mi Pradera necesita JavaScript para funcionar. Actívalo en tu navegador para ver tiendas, comidas, servicios y más.</div></noscript>
@@ -2603,7 +2619,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-act^
  else if(a==='cmxDel'){if(!ad||ad.ownerKey!==QH.key()||!await askC('¿Eliminar este anuncio?'))return;QH.comDel(id).then(()=>toast('Anuncio eliminado'),()=>toast('No se pudo eliminar'))}
  else if(a==='cmxAdmDel'){if(!adm||!ad||!await askC('¿Eliminar este anuncio de Clasificados?'))return;QH.comDel(id).then(()=>toast('Anuncio eliminado'),()=>toast('No se pudo eliminar'))}
  else if(a==='cmxWa'){if(ad)waOpen(ad.wa,'Hola, vi tu anuncio «'+ad.title+'» en Clasificados de Mi Pradera.')}
- else if(a==='cmxShare'){if(ad)shTxt(ad.title+' — anuncio en Clasificados, Mi Pradera',BASE_URL+'#/comunidad')}
+ else if(a==='cmxShare'){if(ad)shTxt(ad.title+' — anuncio en Clasificados, Mi Pradera',BASE_URL+'#/c/'+encodeURIComponent(ad.id))}
  else if(a==='cmxPlans'){closeModal(1);if(MODE==='index'&&!S.user){location.href=PANEL_URL+'#/comunidad';return}cmSel=comCur();view='comp';render()}
  else if(a==='cmxBack'){view='com';render()}
  else if(a==='cmxSel'){cmSel=b.dataset.v;document.querySelectorAll('.plx .plo[data-act="cmxSel"]').forEach(x=>{const on=x.dataset.v===cmSel;x.classList.toggle('on',on);x.setAttribute('aria-checked',on)});const up=$('#cm-up'),go=$('#cm-go');if(up)up.textContent=cmSel==='free'?money(0):money(comPrice(cmSel));if(go){go.disabled=cmSel==='free';go.textContent=cmSel===comCur()?'RENOVAR':'CONTINUAR'}}
