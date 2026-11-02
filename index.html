@@ -1171,6 +1171,20 @@ new MutationObserver(function(){if(!pend){pend=true;(window.requestAnimationFram
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
 })();
 </script>
+<script id="v222-sesion-admin">
+/* v222: el panel de administrador cierra la sesion tras 30 minutos sin uso, tambien con la pagina abierta.
+   Antes solo se revisaba al abrir la pagina y el plazo era de 24 horas. Las cuentas de los vecinos no cambian (30 dias).
+   La ultima actividad se guarda en la misma clave que ya usaba la pagina (pradereando_last_admin).
+   Si algo falla, borra SOLO este <script id="v222-sesion-admin"> (y vuelve a poner 864e5 en lugar de 18e5 si quieres las 24 h). */
+(function(){var LIM=18e5,K='pradereando_last_admin',t=0;
+ function adm(){try{return MODE==='admin'}catch(e){return false}}
+ function touch(){var n=Date.now();if(n-t<15e3)return;t=n;try{localStorage.setItem(K,n)}catch(e){}}
+ ['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){addEventListener(ev,function(){if(adm())touch()},{passive:true,capture:true})});
+ function check(){if(!adm())return;var l=0;try{l=+localStorage.getItem(K)||0}catch(e){}if(!l||Date.now()-l<=LIM)return;
+  try{var u=QH.authCur&&QH.authCur();if(u&&!u.isAnonymous){QH.authOut();try{localStorage.setItem(K,Date.now())}catch(e){}setTimeout(function(){try{toast('Por seguridad cerramos el panel tras 30 minutos sin uso. Vuelve a entrar.')}catch(e){}},600)}}catch(e){}}
+ setInterval(check,30e3);document.addEventListener('visibilitychange',function(){if(!document.hidden)check()});
+})();
+</script>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
@@ -1414,7 +1428,7 @@ const QH=(function(){
   try{firebase.initializeApp(CFG);db=firebase.firestore();try{db.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}auth=firebase.auth()}catch(e){return fail(e)}
   if(MODE==='panel'&&!S.user){const d=LEG();if(d&&d.user&&d.user.name){S.user=d.user;save()}}
   /* v143: cierre de sesion por inactividad (30 dias vendedores, 24 h administrador) */
-  try{const IK='pradereando_last_'+MODE,L=+localStorage.getItem(IK)||0,N=Date.now();if(L&&N-L>(MODE==='admin'?864e5:2592e6)){if(MODE==='admin'){auth.signOut()}else if(S.user){S.user=null;auth.signOut();localStorage.setItem(LKEY,JSON.stringify({cart:S.cart,favs:S.favs,user:null,myIdeas:S.myIdeas}));setTimeout(()=>{try{toast('Tu sesión expiró por inactividad. Vuelve a entrar.')}catch(e){}},1500)}}localStorage.setItem(IK,N)}catch(e){}
+  try{const IK='pradereando_last_'+MODE,L=+localStorage.getItem(IK)||0,N=Date.now();if(L&&N-L>(MODE==='admin'?18e5/* v222: 30 min (antes 24 h) */:2592e6)){if(MODE==='admin'){auth.signOut()}else if(S.user){S.user=null;auth.signOut();localStorage.setItem(LKEY,JSON.stringify({cart:S.cart,favs:S.favs,user:null,myIdeas:S.myIdeas}));setTimeout(()=>{try{toast('Tu sesión expiró por inactividad. Vuelve a entrar.')}catch(e){}},1500)}}localStorage.setItem(IK,N)}catch(e){}
   authP=new Promise(ok=>{auth.onAuthStateChanged(u=>{
    if(!u){auth.signInAnonymously().catch(()=>ok());return}
    if(MODE==='admin'){const a=!u.isAnonymous&&!!u.email&&u.uid===ADMIN_UID;if(a!==adm){adm=a;if(ready){closeModal();view='admin';render()}}if(a)repListen()}
