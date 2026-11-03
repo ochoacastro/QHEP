@@ -1545,6 +1545,26 @@ html.dark #annc .qtw-c{background:#fff!important}
 .qbiv{position:fixed;inset:0;z-index:100002;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;background:rgba(0,0,0,.88)}
 .qbiv img{max-width:100%;max-height:calc(100vh - 110px);border-radius:12px;background:#fff}
 .qbiv .btn{color:#fff!important;border-color:#fff!important;background:transparent!important}
+/* v236: Mis códigos (seguimiento del pago y tabla de códigos) */
+.qch{margin:16px 0 8px;font-size:18px}
+.qst{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:10px}
+.qst li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4}
+.qst li i{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:2px solid var(--color-pale-mist,#d6d6d6);font-style:normal;font-size:13px;font-weight:700;color:#fff}
+.qst li b{display:block;font-size:15px}
+.qst li.ok i{background:#1b8a3c;border-color:#1b8a3c}.qst li.now i{border-color:#0066cc;background:#0066cc}.qst li.no i{background:#c0123c;border-color:#c0123c}
+.qst li.off{color:var(--color-pewter,#707070)}
+.qst code,.qct code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;letter-spacing:.02em}
+.qct{width:100%;border-collapse:collapse;font-size:14px}
+.qct th{text-align:left;font-size:13px;font-weight:600;color:var(--color-pewter,#707070);padding:6px 6px 8px;border-bottom:1px solid var(--color-pale-mist,#d6d6d6)}
+.qct td{padding:10px 6px;vertical-align:top;border-bottom:1px solid var(--color-pale-mist,#d6d6d6)}
+.qct td small{display:block;font-size:12px;color:var(--color-pewter,#707070);margin-top:2px}
+.qct code{font-size:13px;word-break:normal;overflow-wrap:break-word}
+.qcs{display:inline-block;padding:2px 8px;border-radius:980px;font-size:12px;font-weight:600}
+.qcs.ok{background:#e7f6ec;color:#1b6b34}.qcs.p{background:#fff4e5;color:#7a4b00}.qcs.no{background:#fde8e8;color:#9b1c1c}
+.qct .btn{margin-top:6px;padding:4px 12px;min-height:32px;font-size:13px}
+html.dark .qcs.ok{background:#12351f!important;color:#8fe0a8!important}
+html.dark .qcs.p{background:#3a2a10!important;color:#ffd79a!important}
+html.dark .qcs.no{background:#3d1414!important;color:#ffaaaa!important}
 .qbq{display:block;width:200px;max-width:70%;margin:8px auto;border-radius:12px;background:#fff;padding:8px}
 .qbst{margin:8px 0 12px;padding-left:20px;font-size:15px;line-height:1.5}
 .qbw{margin:8px 0;padding:10px 12px;border-radius:12px;background:#fff4e5;color:#7a4b00;font-size:14px;line-height:1.4}
@@ -1615,7 +1635,7 @@ function list(sn){var a=[];sn.forEach(function(d){var x=d.data();x.id=d.id;a.pus
 function mine(u){var id=u&&!u.isAnonymous?u.uid:'';if(id===uidL)return;uidL=id;subs.forEach(function(f){try{f()}catch(e){}});subs=[];SENT=[];RECV=[];paint();if(!id)return;
  var c=db().collection('pagos');
  subs.push(c.where('from','==',id).onSnapshot(function(sn){SENT=list(sn);paint();autoRole()},function(){}));
- subs.push(c.where('to','==',id).onSnapshot(function(sn){RECV=list(sn);paint()},function(){}))}
+ subs.push(c.where('to','==',id).onSnapshot(function(sn){RECV=list(sn);paint()},function(){}));myCodesListen()}
 function start(){try{if(!window.firebase||!firebase.apps||!firebase.apps.length||typeof QH==='undefined')return setTimeout(start,500);
  db().collection('breb').onSnapshot(function(sn){var m={};sn.forEach(function(d){m[d.id]=d.data()});PRO=m;paint();roleTxt()},function(){PRO={};paint()});
  firebase.auth().onAuthStateChanged(mine)}catch(e){setTimeout(start,1000)}}
@@ -1676,7 +1696,7 @@ async function paySave(b){var o=PAY,u=me();if(!o||!u)return;var er=document.getE
  var d={from:u.uid,fromName:String(S.user&&S.user.name||'Vecino').slice(0,60),to:o.to,toName:String(o.toName||'').slice(0,60),amt:amt,ref:ref.slice(0,40),what:String(o.what||'').slice(0,120),
   kind:o.kind,item:String(o.item||'').slice(0,80),use:String(o.use||''),m:Number(o.m)||0,via:VIA,img:String(img||''),st:'pend',ts:Date.now()};
  db().collection('pagos').add(d).then(function(){PAY=null;LAST=o.wa&&o.kind!=='rol'?{wa:o.wa,t:'Hola '+o.toName+', te pagué '+M(amt)+' por '+VN(d.via)+' ('+o.what+'). '+(d.ref?'Número de transacción: '+d.ref+'. ':'')+(d.img?'Te dejé el comprobante en Mi Pradera':'Lo registré en Mi Pradera')+' para que lo confirmes cuando te llegue.'}:null;
-  modal('<h2>Pago registrado</h2><p>'+(o.kind==='rol'?'El administrador revisará el pago en su banco. Cuando lo confirme, tu rol se activa solo.':E(o.toName)+' verá tu pago en su perfil y confirmará cuando le llegue.')+' Puedes ver cómo va en <b>Mi cuenta → Pagos Bre-B y Nequi</b>.</p><div class="row">'+(LAST?'<button type="button" class="btn wa" data-qbwa="1">Avisar por WhatsApp</button>':'')+'<button type="button" class="btn ghost" data-act="close">Listo</button></div>')})
+  modal('<h2>Pago registrado</h2><p>'+(o.kind==='rol'?'El administrador revisará el pago en su banco. Cuando lo confirme, tu rol se activa solo.':E(o.toName)+' verá tu pago en su perfil y confirmará cuando le llegue.')+' Puedes ver cómo va en <b>Mi cuenta → Pagos Bre-B y Nequi</b>.</p><div class="row">'+(LAST?'<button type="button" class="btn wa" data-qbwa="1">Avisar por WhatsApp</button>':'')+(o.kind==='rol'?'<button type="button" class="btn pink" data-qbtrack="1">Ver seguimiento</button>':'')+'<button type="button" class="btn ghost" data-act="close">Listo</button></div>')})
  .catch(function(e){b.disabled=false;er.textContent=e&&e.code==='permission-denied'?'No se pudo registrar el pago. Cierra sesión, vuelve a entrar e inténtalo de nuevo.':'No se pudo registrar el pago. Revisa tu conexión.'})}
 /* ---- Mi cuenta → Pagos Bre-B ---- */
 function stH(p,rc){var r=p.kind==='rol';
@@ -1684,12 +1704,14 @@ function stH(p,rc){var r=p.kind==='rol';
  if(p.st==='no')return '<span class="qbs no">'+(rc?'Marcaste que no llegó':'Dice que no le llegó')+'</span>';
  return '<span class="qbs p">'+(rc?'Por confirmar':'Esperando confirmación')+'</span>'}
 function itH(p,rc,admL){var bt='';
- if(admL){if(p.st==='pend')bt='<button type="button" class="btn pink" data-qbact="'+E(p.id)+'">Confirmar y activar</button><button type="button" class="btn ghost" data-qbno="'+E(p.id)+'">No llegó</button>';
-  else if(p.st==='no')bt='<button type="button" class="btn ghost" data-qbund="'+E(p.id)+'">Volver a revisar</button>'}
+ if(admL){if(p.st==='pend')bt='<button type="button" class="btn pink" data-qbact="'+E(p.id)+'">Aprobar y enviar código</button><button type="button" class="btn ghost" data-qbno="'+E(p.id)+'">No llegó</button>';
+  else if(p.st==='no')bt='<button type="button" class="btn ghost" data-qbund="'+E(p.id)+'">Volver a revisar</button>';
+  else if(p.st==='ok'&&p.code&&payerWa(p))bt='<button type="button" class="btn wa" data-qbwac="'+E(p.id)+'">'+(p.waAt?'Reenviar código por WhatsApp':'Enviar código por WhatsApp')+'</button>'}
  else if(rc){if(p.kind!=='rol'){bt=p.st==='pend'?'<button type="button" class="btn pink" data-qbok="'+E(p.id)+'">Sí me llegó</button><button type="button" class="btn ghost" data-qbno="'+E(p.id)+'">No me llegó</button>':'<button type="button" class="btn ghost" data-qbund="'+E(p.id)+'">Cambiar</button>'}}
  else if(p.st==='pend')bt='<button type="button" class="btn ghost" data-qbdel="'+E(p.id)+'">Borrar registro</button>';
+ if(!rc&&!admL&&p.kind==='rol')bt='<button type="button" class="btn pink" data-qbtrack="1">Ver seguimiento</button>'+bt;
  return '<div class="qbi"><div class="qbh"><b>'+E(rc||admL?p.fromName:p.toName)+'</b><strong>'+E(M(p.amt))+'</strong></div><small>'+E(p.what)+'</small><small>Por '+VN(p.via)+(p.ref?' · Transacción: '+E(p.ref):'')+' · '+E(D(p.ts))+'</small>'+
-  (admL&&p.code?'<small>Código creado: '+E(p.code)+'</small>':'')+stH(p,rc||admL)+((bt||p.img)?'<div class="row">'+(p.img?'<button type="button" class="btn ghost" data-qbimg="'+E(p.id)+'">Ver comprobante</button>':'')+bt+'</div>':'')+'</div>'}
+  (admL&&p.code?'<small>Código enviado: '+E(fmtC(p.code))+' · '+(p.red||admUsed(p.code)?'ya lo activó':'aún sin activar')+(p.waAt?' · enviado por WhatsApp el '+E(D(p.waAt)):'')+'</small>'+(payerWa(p)?'':'<small>Esta persona no registró WhatsApp: el código solo le llega a su perfil.</small>'):'')+stH(p,rc||admL)+((bt||p.img)?'<div class="row">'+(p.img?'<button type="button" class="btn ghost" data-qbimg="'+E(p.id)+'">Ver comprobante</button>':'')+bt+'</div>':'')+'</div>'}
 function recvH(){var u=me();if(!u)return '<p class="muted">Para ver y confirmar pagos entra con tu correo y tu clave.</p>';var L=RECV.filter(function(p){return p.kind!=='rol'});
  return '<p class="qbw">Antes de tocar «Sí me llegó», abre la app de tu banco o de Nequi y revisa que el dinero sí llegó. Los pantallazos de pago pueden ser falsos.</p>'+
   (L.length?'<div class="qbl">'+L.map(function(p){return itH(p,true)}).join('')+'</div>':'<p class="muted">Aún no tienes pagos recibidos.</p>')+
@@ -1697,7 +1719,7 @@ function recvH(){var u=me();if(!u)return '<p class="muted">Para ver y confirmar 
 function sentH(){if(!me())return '<p class="muted">Para ver tus pagos entra con tu correo y tu clave.</p>';
  return SENT.length?'<div class="qbl">'+SENT.map(function(p){return itH(p,false)}).join('')+'</div>':'<p class="muted">Aún no has registrado pagos. Busca el botón «Pagar con Bre-B» o «Pagar con Nequi» en tiendas, servicios y anuncios.</p>'}
 function admH(){var L=RECV.filter(function(p){return p.kind==='rol'});
- return '<p class="qbw">Antes de confirmar, revisa en tu banco o en Nequi que el dinero llegó. Al confirmar se crea un código y el rol se activa solo cuando la persona abre la página.</p>'+
+ return '<p class="qbw">Antes de aprobar, revisa en tu banco o en Nequi que el dinero llegó. Al aprobar se crea un código: la persona lo ve en Mi cuenta → Mis códigos y el rol se activa solo. Si registró WhatsApp, también se lo puedes enviar por ahí.</p>'+
   (L.length?'<div class="qbl">'+L.map(function(p){return itH(p,false,true)}).join('')+'</div>':'<p class="muted">Aún no hay pagos de roles.</p>')}
 function keyH(){var u=me();if(!u)return '<p class="muted">Para recibir pagos entra con tu correo y tu clave.</p>';var p=PRO[u.uid]||{},a=KM==='adm';QRD='';
  return '<p class="muted">'+(a?'Datos de pago de Mi Pradera: aquí pagan los roles.':'Tus datos aparecen con el botón «Pagar» en tus tiendas, servicios y anuncios. El dinero llega directo a tu banco o a tu Nequi: Mi Pradera no lo toca.')+'</p>'+
@@ -1718,10 +1740,55 @@ function paintList(force){var el=document.getElementById('qb-list');if(!el)retur
  if(tab==='key'){if(force){el._h='';el.innerHTML=keyH()}return}
  var h=tab==='adm'?admH():tab==='sent'?sentH():recvH();if(force||el._h!==h){el._h=h;el.innerHTML=h}
  var tb=document.getElementById('qb-tabs');if(tb){var th=tabsH();if(tb._h!==th){tb._h=th;tb.innerHTML=th}}}
-function paint(){try{inject()}catch(e){}paintList(false);
+function paint(){try{inject()}catch(e){}paintList(false);try{myCodesListen();paintCodes()}catch(e){}
  var n=pend(),l=document.querySelectorAll('.pnr[data-act="brebOpen"] i');for(var i=0;i<l.length;i++){var em=l[i].querySelector('.pnbd');if(n){if(!em){em=document.createElement('em');em.className='pnbd';l[i].appendChild(em)}em.textContent=n}else if(em)em.remove()}
  var a=document.getElementById('qb-admn');if(a){var k=RECV.filter(function(p){return p.kind==='rol'&&p.st==='pend'}).length;a.textContent=k?'('+k+' por revisar)':''}}
 /* ---- guardar la llave ---- */
+/* ---- v236: MIS CÓDIGOS. Seguimiento de cada pago de rol (pago → revisión → código → rol activado) y tabla con los códigos
+   de la persona: código, rol, días que faltan y fecha de vencimiento. Lee "codes" donde usedBy = su ficha de plan o uid = su uid
+   (reglas de Firestore v28). Cada código guarda su vencimiento (end) al canjearlo. ---- */
+var QA=[],QB=[],csub=[],ckey='';
+function docs(sn){var a=[];sn.forEach(function(d){var x=d.data();x.c=x.c||d.id;a.push(x)});return a}
+function myCodesListen(){var u=me(),k='';try{k=S.user?QH.key():''}catch(e){}var id=u?u.uid+'|'+k:'';if(id===ckey)return;ckey=id;csub.forEach(function(f){try{f()}catch(e){}});csub=[];QA=[];QB=[];if(!u)return;
+ var c=db().collection('codes');if(k)csub.push(c.where('usedBy','==',k).onSnapshot(function(sn){QA=docs(sn);paintCodes()},function(){}));
+ csub.push(c.where('uid','==',u.uid).onSnapshot(function(sn){QB=docs(sn);paintCodes()},function(){}))}
+function codesRows(){var m={};QB.concat(QA).forEach(function(c){m[c.c]=c});return Object.keys(m).map(function(k){return m[k]}).sort(function(a,b){return (b.usedAt||b.ts||0)-(a.usedAt||a.ts||0)})}
+function cEnd(c){return c.used?(Number(c.end)||((Number(c.usedAt)||0)+(Number(c.days)||0)*864e5)):0}
+function dLeft(e){return Math.ceil((e-Date.now())/864e5)}
+function fd(t){try{return new Date(t).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}catch(e){return ''}}
+function roleN(u){try{return (USES[u]||COMU[u]||{}).n||u}catch(e){return u}}
+function fmtC(c){try{return codeFmt(c)}catch(e){return c}}
+/* v237: WhatsApp de quien pagó (de su ficha de plan) y mensaje con el código */
+function payerWa(p){try{var pl=QH.plans().find(function(x){return x.uid===p.from});return pl&&pl.wa?String(pl.wa).replace(/\D/g,''):''}catch(e){return ''}}
+function sendCodeWa(p){var w=payerWa(p);if(!w||!p.code)return T('Esta persona no registró WhatsApp.');
+ waOpen(w,'Hola '+(p.fromName||'')+', tu pago de '+M(p.amt)+' por '+VN(p.via)+' para «'+p.what+'» fue aprobado. Tu código es: '+fmtC(p.code)+'. Se activa solo cuando abras Mi Pradera y también lo ves en Mi cuenta → Mis códigos. https://mipradera.com.co');
+ db().collection('pagos').doc(p.id).update({waAt:Date.now()}).catch(function(){})}
+function admUsed(c){try{var x=QH.codes().find(function(y){return y.c===c});return !!(x&&x.used)}catch(e){return false}}
+function stp(c,t,d){return '<li class="'+c+'"><i aria-hidden="true">'+(c==='ok'?'✓':c==='no'?'✕':'')+'</i><span><b>'+t+'</b>'+d+'</span></li>'}
+function trackH(){var L=SENT.filter(function(p){return p.kind==='rol'});if(!L.length)return '';
+ return '<h3 class="qch">Cómo van tus pagos</h3><div class="qbl">'+L.map(function(p){var c=p.code?codesRows().find(function(x){return x.c===p.code}):null,e=c?cEnd(c):0,act=!!(p.red||(c&&c.used)),no=p.st==='no';
+  return '<div class="qbi"><div class="qbh"><b>'+E(p.what)+'</b><strong>'+E(M(p.amt))+'</strong></div><small>Por '+VN(p.via)+' · '+E(D(p.ts))+'</small><ol class="qst">'+
+   stp('ok','Pago enviado','Lo registraste el '+E(D(p.ts)))+
+   stp(p.st==='ok'?'ok':no?'no':'now',no?'Pago no aprobado':'Revisión del administrador',p.st==='ok'?'Aprobado el '+E(D(p.sts||p.ts)):no?'El administrador no encontró el pago en su cuenta.':'El administrador está revisando el pago en su banco.')+
+   (no?'':stp(p.code?'ok':p.st==='ok'?'now':'off','Código entregado',p.code?'Tu código: <code>'+E(fmtC(p.code))+'</code>':'Llega cuando el pago sea aprobado.')+
+    stp(act?'ok':p.code?'now':'off','Rol activado',act?(e?'Vence el '+E(fd(e))+(dLeft(e)>0?' · faltan '+dLeft(e)+(dLeft(e)===1?' día':' días'):' · ya venció')+'.':'Listo.'):p.code?'Se activa solo al abrir la página.':'Se activa cuando llegue el código.'))+'</ol>'+
+   (no?'<div class="row"><button type="button" class="btn wa" data-qbadmwa="'+E(p.id)+'">Escribir al administrador</button></div>':'')+'</div>'}).join('')+'</div>'}
+function tableH(){var L=codesRows();
+ if(!L.length)return '<p class="muted">Aún no tienes códigos. Cuando el administrador apruebe tu pago o canjees un código, aparece aquí.</p>';
+ return '<table class="qct"><thead><tr><th>Código</th><th>Rol</th><th>Faltan</th></tr></thead><tbody>'+L.map(function(c){var e=cEnd(c),d=e?dLeft(e):0,f;
+  if(!c.used)f='<b class="qcs p">Sin activar</b><button type="button" class="btn ghost" data-qbuse="'+E(c.c)+'">Activar</button>';
+  else if(d>0)f='<b class="qcs ok">'+d+(d===1?' día':' días')+'</b><small>Vence el '+E(fd(e))+'</small>';
+  else f='<b class="qcs no">Vencido</b><small>El '+E(fd(e))+'</small>';
+  var mo='';try{mo=COMU[c.use]?(COM_DAYS[c.use]+' días'):codeMn(c.months)}catch(x){}
+  return '<tr><td><code>'+E(fmtC(c.c))+'</code></td><td>'+E(roleN(c.use))+'<small>'+E(mo)+'</small></td><td>'+f+'</td></tr>'}).join('')+'</tbody></table>'+
+  '<p class="muted" style="font-size:13px;margin-top:8px">Si tienes varios códigos del mismo rol, cada uno empieza a contar cuando termina el anterior.</p>'}
+function codesH(){return trackH()+'<h3 class="qch">Mis códigos</h3>'+tableH()}
+function paintCodes(){var el=document.getElementById('qc-body');if(!el)return;var h=codesH();if(el._h!==h){el._h=h;el.innerHTML=h}}
+function myCodesOpen(){if(!S.user){try{need(myCodesOpen)}catch(e){}return}myCodesListen();
+ modal('<h2>Mis códigos</h2><p class="muted" style="margin:0">Aquí ves cómo va el pago de tus roles y todos tus códigos.</p><div id="qc-body"></div><div class="row" style="margin-top:12px"><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>');paintCodes()}
+window.myCodesOpen=myCodesOpen;
+function useCode(c,b){if(b)b.disabled=true;QH.codeRedeem(c).then(function(r){T('Rol activado: '+roleN(r.use)+' hasta el '+fd(r.end));var p=SENT.find(function(x){return x.code===c});if(p)red(p.id);try{if(!document.querySelector('.overlay'))render(true)}catch(e){}})
+ .catch(function(e){if(b)b.disabled=false;T((e&&e.m)||'No se pudo activar el código.')})}
 /* v235: achica la foto del comprobante (máx. 1100 px y ~280 KB) y la muestra en grande */
 function shrink(f,max,lim,cb){var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var w=im.width,h=im.height,sc=Math.min(1,max/Math.max(w,h)),q=.82,du='';
   for(var k=0;k<7;k++){var c=document.createElement('canvas');c.width=Math.round(w*sc);c.height=Math.round(h*sc);var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
@@ -1748,8 +1815,14 @@ async function keyDel(){var u=me();if(!u)return;var go=true;try{go=await askC('�
 /* ---- confirmar o no un pago ---- */
 function setSt(id,st,msg){db().collection('pagos').doc(id).update({st:st,sts:Date.now()}).then(function(){T(msg)}).catch(function(){T('No se pudo guardar. Revisa tu conexión.')})}
 async function admAct(id){var p=RECV.find(function(x){return x.id===id});if(!p)return;var go=true;
- try{go=await askC('¿Ya revisaste en tu banco o en Nequi que llegaron '+M(p.amt)+' de '+p.fromName+'?','Sí, activar')}catch(e){}if(!go)return;
- try{var isC=typeof COMU==='object'&&COMU[p.use],l=await QH.codeGen(p.use,isC?0:p.m,1,VN(p.via)+' '+p.ref);await db().collection('pagos').doc(id).update({st:'ok',sts:Date.now(),code:l[0]});T('Pago confirmado. El rol se activa cuando la persona abra la página.')}
+ try{go=await askC('¿Ya revisaste en tu banco o en Nequi que llegaron '+M(p.amt)+' de '+p.fromName+'? Se crea el código y '+p.fromName+' lo verá en su perfil.','Aprobar y enviar código')}catch(e){}if(!go)return;
+ try{/* v236: el código queda ligado a la persona (uid) y al pago, así aparece en su tabla "Mis códigos" */
+  var isC=typeof COMU==='object'&&COMU[p.use],mo=isC?0:(Number(p.m)||0),dy=(isC?COM_DAYS[p.use]:CODE_DAYS[mo])||0;if(!dy)throw 0;
+  var AL='ABCDEFGHJKMNPQRSTUVWXYZ23456789',cd=Array.from(crypto.getRandomValues(new Uint32Array(12)),function(x){return AL[x%AL.length]}).join('');
+  await db().collection('codes').doc(cd).set({c:cd,use:p.use,months:mo,days:dy,used:false,ts:Date.now(),uid:p.from,pago:id,pref:String(p.ref||'').slice(0,40)});
+  await db().collection('pagos').doc(id).update({st:'ok',sts:Date.now(),code:cd});T('Pago aprobado. El código ya está en el perfil de '+p.fromName+'.');
+  /* v237: si la persona registró WhatsApp, ofrecer enviarle el código también por ahí */
+  if(payerWa(p)){var go2=false;try{go2=await askC('El código ya está en el perfil de '+p.fromName+'. ¿También se lo envías por WhatsApp?','Enviar por WhatsApp')}catch(x){}if(go2)sendCodeWa(Object.assign({},p,{id:id,code:cd}))}}
  catch(e){T('No se pudo activar el rol.')}}
 /* ---- tarjeta en Administrar → Mis datos ---- */
 window.brebAdmHTML=function(){var p=PRO[aid()]||{},n=RECV.filter(function(x){return x.kind==='rol'&&x.st==='pend'}).length;
@@ -1762,7 +1835,7 @@ document.addEventListener('change',function(e){var t=e.target;if(!t)return;
  else if(t.id==='qb-img'&&t.files&&t.files[0])shrink(t.files[0],1100,280000,function(du){PIMG=du;var er=document.getElementById('qb-err');if(er)er.textContent=''});
  else if(t.id==='breb-on'){try{S.site=Object.assign({},S.site,{breb:!!t.checked});save();T(t.checked?'Pagos con Bre-B y Nequi activados':'Pagos con Bre-B y Nequi ocultos')}catch(x){}}});
 document.addEventListener('input',function(e){if(e.target&&e.target.id==='qb-tn'){var v=document.getElementById('qb-tnv');if(v)v.textContent=mask(e.target.value)||mask('Ana Elizabeth Meléndez');return}if(e.target&&e.target.id==='qb-amt'&&!e.target.readOnly){var v=e.target.value,f=moneyFmt(v);if(v!==f)e.target.value=f}});
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],[data-qbimg],#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],[data-qbimg],[data-act="myCodes"],[data-qbtrack],[data-qbuse],[data-qbadmwa],[data-qbwac],#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
  e.preventDefault();e.stopPropagation();var d=b.dataset;
  if(d.act==='brebOpen')return myOpen();
  if(b.classList.contains('qbb')){var i=info(b.previousElementSibling);if(i)payOpen({to:i.o,toName:(PRO[i.o]&&PRO[i.o].name)||i.n,amt:i.amt,what:i.what,kind:'item',item:i.item,wa:i.wa});return}
@@ -1772,6 +1845,10 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
   o.item='rol:'+o.use+':'+o.m;return payOpen(o)}
  if(d.qbcp!=null){var p=PAY&&PRO[PAY.to];if(p)cpTxt(VIA==='nequi'?p.nq:p.key,VIA==='nequi'?'Número copiado':'Llave copiada');return}
  if(d.qbvia){VIA=d.qbvia;var vl=b.parentNode.querySelectorAll('[data-qbvia]');for(var z=0;z<vl.length;z++)vl[z].setAttribute('aria-selected',vl[z]===b);var vb=document.getElementById('qb-via');if(vb)vb.innerHTML=viaH();return}
+ if(d.act==='myCodes'||d.qbtrack)return myCodesOpen();
+ if(d.qbuse)return useCode(d.qbuse,b);
+ if(d.qbwac){var pc=RECV.find(function(y){return y.id===d.qbwac});if(pc)sendCodeWa(pc);return}
+ if(d.qbadmwa){var pw=SENT.find(function(y){return y.id===d.qbadmwa}),w=site_().wa;if(!w)return T('El administrador aún no configuró su WhatsApp.');if(pw)waOpen(w,'Hola, soy '+(S.user&&S.user.name||'')+'. Pagué '+M(pw.amt)+' por '+VN(pw.via)+' ('+pw.what+') el '+D(pw.ts)+(pw.ref?'. Número de transacción: '+pw.ref:'')+'. En Mi Pradera aparece como no aprobado, ¿me ayudas a revisarlo?');return}
  if(d.qbimg){var pi=SENT.concat(RECV).find(function(y){return y.id===d.qbimg});if(pi&&pi.img)imgView(pi.img);return}
  if(b.id==='qb-go')return paySave(b);
  if(d.qbwa){if(LAST)waOpen(LAST.wa,LAST.t);closeModal(1);return}
@@ -2009,7 +2086,7 @@ const QH=(function(){
  async function codeGen(use,months,n,why){await authP;const AL='ABCDEFGHJKMNPQRSTUVWXYZ23456789',out=[];
   for(let i=0;i<n;i++){const r=crypto.getRandomValues(new Uint32Array(12)),c=Array.from(r,x=>AL[x%AL.length]).join('');await ref('codes',c).set({c,use,months,days:COM_DAYS[use]||CODE_DAYS[months],used:false,ts:Date.now(),...(why?{why}:{})});out.push(c)}return out}
  const codeDel=c=>ref('codes',c).delete().catch(wfail);
- async function codeRedeem(raw){const k=key(),c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+ async function codeRedeem(raw,noEnd){/* v236: el código guarda su fecha de vencimiento (end); si las reglas aún no lo permiten, se canjea sin ella */const k=key(),c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(!k)throw{m:'Tu sesión no está activa. Entra de nuevo.'};if(c.length!==12)throw{m:'Escribe los 12 caracteres del código.'};
   await authP;const cr=ref('codes',c),pr=ref('plans',k);
   try{return await db.runTransaction(async t=>{const cs=await t.get(cr);if(!cs.exists)throw{m:'Código incorrecto.'};const cd=cs.data();if(cd.used)throw{m:'Ese código ya fue usado.'};
@@ -2017,8 +2094,8 @@ const QH=(function(){
    const now=Date.now(),acc=Object.assign({},ps.data().acc||{}),end=Math.max(now,Number(acc[cd.use])||0)+cd.days*DAY;acc[cd.use]=end;
    /* v208: el rol Comerciante de 6 meses o más (6, 9 meses o 1 año) incluye destacado hasta el fin de ese acceso (acc.mercF) */
    const feat=cd.use==='merc'&&(Number(cd.months)||0)>=6;if(feat)acc.mercF=end;
-   t.update(cr,{used:true,usedBy:k,usedAt:now});t.update(pr,{acc,accCode:c});return{use:cd.use,end,feat}})}
-  catch(e){if(e&&e.m)throw e;throw{m:(e&&e.code==='permission-denied')?'No se pudo canjear. Avisa al administrador.':'No se pudo canjear ('+((e&&e.code)||'error')+'). Revisa tu internet.'}}}
+   t.update(cr,noEnd?{used:true,usedBy:k,usedAt:now}:{used:true,usedBy:k,usedAt:now,end});t.update(pr,{acc,accCode:c});return{use:cd.use,end,feat}})}
+  catch(e){if(e&&e.m)throw e;if(e&&e.code==='permission-denied'&&!noEnd)return codeRedeem(raw,true);throw{m:(e&&e.code==='permission-denied')?'No se pudo canjear. Avisa al administrador.':'No se pudo canjear ('+((e&&e.code)||'error')+'). Revisa tu internet.'}}}
  function repListen(){plansListen();codesListen();if(MODE!=='admin'||repL||!adm||!ready)return;repL=true;listen('reports',()=>{rebuild();render(true)})}
  /* ---- v52: dueños en línea (punto verde en el logo). Colección presence/<ownerKey> = {t: última señal}; en línea = señal de hace menos de 3,5 min ---- */
  const PRES={};let presOn=false,presLast=0;
@@ -2194,7 +2271,7 @@ function cdBox(){setTimeout(cdSubInit,0);const fd2=t=>new Date(t).toLocaleDateSt
  const u=cdU,e=accEnd(u),on=e>Date.now(),ms=codeMs(u),fr=codeFree(u),m=ms.includes(cdM)?cdM:ms[0];
  return `${sub}<h2 class="plh">${USES[u].ico} ${esc(USES[u].n)}</h2><p class="plmut">${esc(USES[u].d)}</p><p class="plmut">${on?'<em class="plbadge">Activo</em> hasta el '+fd2(e):'Sin acceso activo'}</p>${!fr&&promoOn()?`<p class="plmut"><em class="plbadge">Promoción</em> ${promoOn().pct}% de descuento hasta el ${fd2(promoOn().until)}</p>`:''}<div role="radiogroup" aria-label="Duración del acceso">${ms.map(x=>`<button type="button" class="plo${x===m?' on':''}" role="radio" aria-checked="${x===m}" data-act="cdSel" data-m="${x}"><span class="plr"></span><span class="plb"><b>${codeMn(x)}</b><small>${u==='news'?'Para redactores: publica noticias durante '+codeMn(x):u==='comu'?'Avisos comunitarios sin límite en Clasificados durante '+codeMn(x):'Tienda, comidas, peluquería, servicios, inmuebles y vehículos sin límite durante '+codeMn(x)+(x>=6?' · ★ incluye destacado':'')}</small></span><span class="plp">${fr?'Gratis':cpHTML(u,x)}<small>/ ${codeMn(x)}</small></span></button>`).join('')}</div><div class="plsum"><b>${fr?'Costo del acceso':'Pago del acceso'}</b><b>${fr?'Gratis':cpHTML(u,m)}</b></div><p class="plnote">${fr?'Es gratis, pero necesitas un código. Pídeselo al administrador y actívalo abajo.':(typeof payNote==='function'?payNote(0):'Pago único. No se renueva solo. Pagas por Nequi o transferencia y el administrador te entrega un código.')/* v233 */}</p><button type="button" class="plgo" data-act="codeBuy" data-u="${u}" data-m="${m}">${fr?'PEDIR CÓDIGO':on?'RENOVAR':'COMPRAR ACCESO'}</button>`}
 function codesCard(){if(!S.user)return '';const fd2=t=>new Date(t).toLocaleDateString('es-CO');
- return `<h3 style="margin:18px 2px 4px">🔓 Activar un rol</h3><p class="muted" style="margin:0 2px">Cada rol se activa con su propio código y dura el tiempo del código. Puedes tener varios.</p><div class="plx" id="cdbox" style="margin-top:12px">${cdBox()}</div><div class="cg"><h4>Tengo un código</h4><label for="cd-in">Código de 12 caracteres</label><input id="cd-in" type="text" maxlength="14" autocapitalize="characters" autocomplete="off" placeholder="XXXX-XXXX-XXXX"><div class="row"><button class="btn pink" data-act="codeUse">Canjear código</button></div></div>`}
+ return `<h3 style="margin:18px 2px 4px">🔓 Activar un rol</h3><p class="muted" style="margin:0 2px">Cada rol se activa con su propio código y dura el tiempo del código. Puedes tener varios.</p><div class="plx" id="cdbox" style="margin-top:12px">${cdBox()}</div><div class="cg"><h4>Tengo un código</h4><label for="cd-in">Código de 12 caracteres</label><input id="cd-in" type="text" maxlength="14" autocapitalize="characters" autocomplete="off" placeholder="XXXX-XXXX-XXXX"><div class="row"><button class="btn pink" data-act="codeUse">Canjear código</button><button class="btn ghost" data-act="myCodes">Ver mis códigos</button></div></div>`}
 function cdArrows(){const s=document.querySelector('#cdbox .plsub');if(!s)return;const w=s.parentElement,l=w.querySelector('.plar.l'),r=w.querySelector('.plar.r');if(l)l.hidden=s.scrollLeft<=2;if(r)r.hidden=s.scrollLeft+s.clientWidth>=s.scrollWidth-2}
 function cdSubInit(){const s=document.querySelector('#cdbox .plsub');if(!s)return;const o=s.querySelector('.plsb.on');if(o)s.scrollLeft=o.offsetLeft-(s.clientWidth-o.offsetWidth)/2;cdArrows()}
 document.addEventListener('scroll',e=>{if(e.target&&e.target.classList&&e.target.classList.contains('plsub'))cdArrows()},true);
@@ -2256,7 +2333,7 @@ function codAdmin(){const L=QH.codes(),fd2=t=>new Date(t).toLocaleDateString('es
  return `${accSoonHTML()}${comCodAdmin()}<div class="cg"><h3>Precios de los accesos</h3><p class="muted">Precio de cada tipo según la duración. Se muestran a los usuarios en su panel. Solo el rol Comerciante tiene precio; Comunidad y Redactor de noticias son gratis por 1 año con código.</p>${CODE_USES.filter(u=>!codeFree(u)).map(u=>`<h4>${USES[u].ico} ${esc(USES[u].n)}</h4><div class="row">${CODE_MS.map(m=>`<div style="flex:1 1 90px"><label for="cp-${u}-${m}">${codeMn(m)}</label><input id="cp-${u}-${m}" type="text" inputmode="numeric" value="${codePrice(u,m)}"></div>`).join('')}</div>`).join('')}<button class="btn pink" style="margin-top:10px" data-act="codePrices">Guardar precios</button></div>
 <div class="cg"><h3>🏷️ Promoción con fecha límite</h3><p class="muted">Descuento en todos los accesos pagos hasta la fecha que elijas (por ejemplo, 50 % para el lanzamiento). Los usuarios ven el precio normal tachado. Pon 0 para quitarla.</p><div class="row"><div style="flex:1 1 120px"><label for="pm-p">Descuento (%)</label><input id="pm-p" type="text" inputmode="numeric" value="${pm.pct||0}"></div><div style="flex:1 1 160px"><label for="pm-u">Hasta (incluido)</label><input id="pm-u" type="date" value="${pm.until?new Date(pm.until).toLocaleDateString('en-CA'):''}"></div></div><p class="muted">${promoOn()?'Activa: '+promoOn().pct+'% de descuento hasta el '+fd2(promoOn().until)+'.':'Sin promoción activa.'}</p><button class="btn pink" data-act="promoSave">Guardar promoción</button></div>
 <div class="cg"><h3>Generar códigos</h3><label for="cg-why">Motivo</label><select id="cg-why">${CODE_WHY.map(([v,n])=>`<option value="${v}">${n}</option>`).join('')}</select><p class="muted">El motivo queda guardado en el código para saber cuáles vendiste y cuáles regalaste. Al elegirlo se ponen el rol y la duración sugeridos.</p><label for="cg-u">Rol</label><select id="cg-u">${CODE_USES.map(u=>`<option value="${u}">${USES[u].ico} ${esc(USES[u].n)}</option>`).join('')}</select><label for="cg-m">Duración</label><select id="cg-m">${CODE_MS.map(m=>`<option value="${m}">${codeMn(m)}</option>`).join('')}</select><p class="muted">Los códigos de Comunidad y de Redactor de noticias siempre duran 1 año (gratis), sin importar la duración elegida. Los de Comerciante de 6 meses o más incluyen ★ destacado durante todo ese tiempo.</p><label for="cg-n">Cantidad (1 a 20)</label><input id="cg-n" type="text" inputmode="numeric" value="1"><button class="btn pink" style="margin-top:10px" data-act="codeGen">Generar</button></div>
-<div class="cg"><h3>Códigos (${L.length})</h3><p class="muted">🎁 Regalados: ${L.filter(x=>codeGift(x.why)).length} · 🤝 Emprendedor vulnerable: ${L.filter(x=>x.why==='vul').length} · 💵 Vendidos: ${L.filter(x=>!x.why||x.why==='promo').length}</p>${L.length?L.map(x=>`<div class="cg${x.used?' out':''}"><b>${esc(codeFmt(x.c))}</b> <small>· ${esc((USES[x.use]||COMU[x.use]||{}).n||x.use)} · ${COMU[x.use]?'':codeMn(x.months)+' · '}${x.why?esc(codeWhyN(x.why))+' · ':''}${x.used?'usado el '+fd2(x.usedAt||0)+' por '+esc(((QH.plans().find(p=>p.k===x.usedBy))||{}).name||'—'):'sin usar'}</small><div class="row" style="margin-top:6px"><button class="btn ghost" data-act="codeCp" data-c="${esc(x.c)}">Copiar</button><button class="btn ghost" data-act="codeDel" data-c="${esc(x.c)}">Eliminar</button></div></div>`).join(''):'<p class="muted">Aún no hay códigos.</p>'}</div>`}
+<div class="cg"><h3>Códigos (${L.length})</h3><p class="muted">🎁 Regalados: ${L.filter(x=>codeGift(x.why)).length} · 🤝 Emprendedor vulnerable: ${L.filter(x=>x.why==='vul').length} · 💵 Vendidos: ${L.filter(x=>!x.why||x.why==='promo').length}</p>${L.length?L.map(x=>`<div class="cg${x.used?' out':''}"><b>${esc(codeFmt(x.c))}</b> <small>· ${esc((USES[x.use]||COMU[x.use]||{}).n||x.use)} · ${COMU[x.use]?'':codeMn(x.months)+' · '}${x.why?esc(codeWhyN(x.why))+' · ':''}${x.used?'usado el '+fd2(x.usedAt||0)+' por '+esc(((QH.plans().find(p=>p.k===x.usedBy))||{}).name||'—'):'sin usar'}${x.used&&x.end?' · vence el '+fd2(x.end)+(x.end>Date.now()?' (faltan '+Math.ceil((x.end-Date.now())/864e5)+' días)':' (vencido)'):''}${x.pago?' · pagado en la página':''}</small><div class="row" style="margin-top:6px"><button class="btn ghost" data-act="codeCp" data-c="${esc(x.c)}">Copiar</button><button class="btn ghost" data-act="codeDel" data-c="${esc(x.c)}">Eliminar</button></div></div>`).join(''):'<p class="muted">Aún no hay códigos.</p>'}</div>`}
 const sortL=l=>sortBy==='rate'?l.slice().sort((a,b)=>avg(b.rates)-avg(a.rates)||(b.rates||[]).length-(a.rates||[]).length):sortBy==='az'?l.slice().sort((a,b)=>a.name.localeCompare(b.name,'es')):featFirst(l);
 const isFav=(k,id)=>S.favs.includes(k+':'+id);
 /* v84: lista de favoritos del usuario (tiendas, productos, servicios y anuncios) para "Mis favoritos" en el panel */
@@ -2526,7 +2603,7 @@ const pnRow=(t,sub,btns)=>`<div class="ci"><span><b>${esc(t)}</b>${sub?'<br><sma
 function nwMenuList(){const l=QH.NEWS.filter(x=>x.ownerKey===QH.key());return `<div class="cg"><h3>📰 Mis noticias (${l.length})</h3><p class="muted">Tu acceso de Noticias está activo hasta el ${new Date(accEnd('news')).toLocaleDateString('es-CO')}: publica con foto y video.</p><div class="row" style="margin:14px 0 18px;gap:10px"><button class="btn pink" data-act="nwNew" style="flex:1 1 150px;text-align:center">+ Nueva noticia</button><a class="btn ghost" href="${BASE_URL}#/noticias" style="flex:1 1 130px;text-align:center;text-decoration:none;display:inline-block">Ver noticias</a></div>${l.length?l.map(n=>`<div class="ci" style="display:block;padding:14px;margin:10px 0;border:1px solid var(--line2,#c9d3ea);border-radius:14px"><div><b style="word-break:break-word">${esc(n.title)}</b><br><small class="muted">${esc(nwDate(n))}</small></div><div class="row" style="margin-top:12px;gap:10px"><button class="btn" data-act="nwEdit" data-id="${esc(n.id)}" style="flex:1 1 0;text-align:center">Editar</button><button class="btn ghost" data-act="nwDel" data-id="${esc(n.id)}" style="flex:1 1 0;text-align:center">Eliminar</button></div></div>`).join(''):'<p class="muted">Aún no has publicado noticias.</p>'}</div>`}
 function pnlMenu(){const u=S.user,ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),nf=favRows().length;QH.newsListen();nwWho();
 const it=(ic,t,sub,act,v,bd)=>`<button type="button" class="pnr" data-act="${act}"${v?` data-v="${v}"`:''}><i aria-hidden="true">${ic}${bd?`<em class="pnbd${bd.z?' z':''}">${bd.n}</em>`:''}</i><span>${t}${bd?`<span class="qh-sr"> (${bd.t})</span>`:''}<small>${sub}</small></span><b aria-hidden="true">›</b></button>`;/* v218: bd = numero en la esquina del icono */
-return `<div class="pnl">${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('🔓','Mis roles','Comerciante, Clasificados, Comunidad y Redactor de noticias','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas',pnQuota('store'))}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine','',pnQuota('com'))}${it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios',pnQuota('ad'))}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios',pnQuota('serv'))}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${(typeof brebOn==='function'&&brebOn())?it('💳','Pagos Bre-B y Nequi','Tus datos de cobro y los pagos que envías y recibes','brebOpen','',brebBadge())/* v233 */:''/* v232 */}${it('🧭','Ayuda y guías','Tutorial y guías paso a paso','helpOpen')/* v229, v230 */}${NW?nwMenuList():''}<button type="button" class="pnr" data-act="delAcct" style="border-color:#c0392b"><i aria-hidden="true">🗑️</i><span style="color:#ff6b5e">Eliminar cuenta<small>Borra tu cuenta y tus publicaciones para siempre</small></span><b aria-hidden="true">›</b></button></div>`}
+return `<div class="pnl">${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('🔓','Mis roles','Comerciante, Clasificados, Comunidad y Redactor de noticias','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas',pnQuota('store'))}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine','',pnQuota('com'))}${it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios',pnQuota('ad'))}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios',pnQuota('serv'))}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${(typeof brebOn==='function'&&brebOn())?it('💳','Pagos Bre-B y Nequi','Tus datos de cobro y los pagos que envías y recibes','brebOpen','',brebBadge())/* v233 */:''/* v232 */}${typeof myCodesOpen==='function'?it('🔑','Mis códigos','Tus códigos, los días que faltan y cómo va tu pago','myCodes'):''/* v236 */}${it('🧭','Ayuda y guías','Tutorial y guías paso a paso','helpOpen')/* v229, v230 */}${NW?nwMenuList():''}<button type="button" class="pnr" data-act="delAcct" style="border-color:#c0392b"><i aria-hidden="true">🗑️</i><span style="color:#ff6b5e">Eliminar cuenta<small>Borra tu cuenta y tus publicaciones para siempre</small></span><b aria-hidden="true">›</b></button></div>`}
 function pnlModal(v){const ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),cl='<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>';let h='';
 if(v==='plan')h='<h2>Mis roles</h2>'+planCard();
 else if(v==='tiendas')h=`<h2>Mis tiendas (${ms.length})</h2>${ms.length?ms.map(s=>pnRow(s.name,s.cat+' · '+(s.products||[]).length+' productos'+(s.hidden?' · oculta por el administrador':''),`<a class="btn ghost" href="${storeUrl(s.id)}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">Ver tienda</a><button class="btn" data-pn="1" data-act="open" data-id="${esc(s.id)}">Editar</button>`)).join(''):pnNone('Aún no tienes tienda.')}`;
