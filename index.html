@@ -1560,6 +1560,8 @@ html.dark #annc .qtw-c{background:#fff!important}
 .qpt code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}
 .qmd{display:inline-block;padding:3px 10px;border-radius:980px;font-size:12px;font-weight:700;color:#fff}
 .modal.qwide{max-width:920px}
+.qbs.en{background:#e8f0fe;color:#0b5cad}.qbs.qbe{margin-left:4px}
+html.dark .qbs.en{background:#12284a!important;color:#9cc3ff!important}
 .qmd.nq{background:#da0081}.qmd.bb{background:#0b5cad}.qmd.gr{background:#6e6e73}
 .qac{display:flex;flex-wrap:wrap;gap:6px}.qac .btn{margin:0;padding:6px 12px;min-height:34px;font-size:13px}
 /* en el celular cada fila de la tabla se ve como una ficha: nombre de la columna a la izquierda y el dato a la derecha */
@@ -1763,15 +1765,23 @@ function itH(p,rc,admL){var bt='';
 /* ---- v241: Recibidos y Enviados del vecino con resumen, filtros y tabla (igual que la pestaña Pagos del administrador) ---- */
 var RF='',SF='';
 function medH(p){return '<span class="qmd '+(p.via==='nequi'?'nq':p.via==='gratis'?'gr':'bb')+'">'+VN(p.via)+'</span>'+(p.ref?'<small>Ref. '+E(p.ref)+'</small>':'')+(p.img?'<small>Con comprobante</small>':'')}
+function entH(p,rc){if(p.kind==='rol')return '';if(p.ent==='ent')return '<span class="qbs ok qbe">Entregado</span><small>'+E(D(p.ents||p.ts))+'</small>';
+ if(p.ent==='env')return '<span class="qbs en qbe">'+(rc?'Enviado':'En camino')+'</span><small>'+E(D(p.ents||p.ts))+'</small>';
+ return p.st==='ok'&&!rc?'<small>Aún no lo marcan como enviado</small>':''}
 function vRow(p,rc){var ac=(p.img?'<button type="button" class="btn ghost" data-qbimg="'+E(p.id)+'">Comprobante</button>':'');
  if(rc)ac+=p.st==='pend'?'<button type="button" class="btn pink" data-qbok="'+E(p.id)+'">Sí me llegó</button><button type="button" class="btn ghost" data-qbno="'+E(p.id)+'">No me llegó</button>':'<button type="button" class="btn ghost" data-qbund="'+E(p.id)+'">Cambiar</button>';
+ /* v242: quien vende marca si ya envió o entregó el pedido */
+ if(rc&&p.kind!=='rol'&&p.st!=='no'){var en=p.ent||'';
+  if(en!=='env'&&en!=='ent')ac+='<button type="button" class="btn ghost" data-qbent="'+E(p.id)+'|env">Marcar enviado</button>';
+  if(en!=='ent')ac+='<button type="button" class="btn pink" data-qbent="'+E(p.id)+'|ent">Marcar entregado</button>';
+  if(en)ac+='<button type="button" class="btn ghost" data-qbent="'+E(p.id)+'|">Quitar '+(en==='ent'?'entregado':'enviado')+'</button>'}
  else{if(p.kind==='rol')ac+='<button type="button" class="btn pink" data-qbtrack="1">Ver seguimiento</button>';if(p.st==='pend')ac+='<button type="button" class="btn ghost" data-qbdel="'+E(p.id)+'">Borrar registro</button>'}
- return '<tr><td class="qd" data-l="Fecha">'+E(D(p.ts))+'</td><td data-l="'+(rc?'Cliente':'Para')+'"><b>'+E(rc?p.fromName:p.toName)+'</b></td><td data-l="Concepto">'+E(p.what)+'</td><td class="qv" data-l="Valor">'+E(amtT(p))+'</td><td data-l="Medio"><span>'+medH(p)+'</span></td><td data-l="Estado"><span>'+stH(p,rc)+'</span></td>'+
+ return '<tr><td class="qd" data-l="Fecha">'+E(D(p.ts))+'</td><td data-l="'+(rc?'Cliente':'Para')+'"><b>'+E(rc?p.fromName:p.toName)+'</b></td><td data-l="Concepto">'+E(p.what)+'</td><td class="qv" data-l="Valor">'+E(amtT(p))+'</td><td data-l="Medio"><span>'+medH(p)+'</span></td><td data-l="Estado"><span>'+stH(p,rc)+entH(p,rc)+'</span></td>'+
   (ac?'<td class="qx" data-l="Acciones"><div class="qac">'+ac+'</div></td>':'<td data-l="Acciones">—</td>')+'</tr>'}
 function vTable(all,rc){var cnt=function(c){return all.filter(function(p){return p.st===c}).length},fv=rc?RF:SF,f=fv||(cnt('pend')?'pend':'all'),L=all.filter(function(p){return f==='all'||p.st===f}),
-  m0=new Date();m0.setDate(1);m0.setHours(0,0,0,0);var okm=all.filter(function(p){return p.st==='ok'&&(p.sts||p.ts)>=m0.getTime()}),sum=okm.reduce(function(a,p){return a+(Number(p.amt)||0)},0),k=rc?'qrf':'qsf';
+  m0=new Date();m0.setDate(1);m0.setHours(0,0,0,0);var pe=function(p){return p.kind!=='rol'&&p.st!=='no'&&p.ent!=='ent'};if(f==='ent0')L=all.filter(pe);var okm=all.filter(function(p){return p.st==='ok'&&(p.sts||p.ts)>=m0.getTime()}),sum=okm.reduce(function(a,p){return a+(Number(p.amt)||0)},0),k=rc?'qrf':'qsf';
  return '<div class="qps"><div><b>'+cnt('pend')+'</b><span>'+(rc?'Por confirmar':'Esperando confirmación')+'</span></div><div><b>'+E(M(sum))+'</b><span>'+(rc?'Recibido':'Pagado y confirmado')+' este mes ('+okm.length+(okm.length===1?' pago':' pagos')+')</span></div></div>'+
-  '<div class="qbt qpf" role="tablist" aria-label="Filtrar pagos">'+[['pend',(rc?'Por confirmar':'Esperando')+' ('+cnt('pend')+')'],['ok','Confirmados ('+cnt('ok')+')'],['no','No llegaron ('+cnt('no')+')'],['all','Todos ('+all.length+')']].map(function(t){return '<button type="button" role="tab" data-'+k+'="'+t[0]+'" aria-selected="'+(f===t[0])+'">'+t[1]+'</button>'}).join('')+'</div>'+
+  '<div class="qbt qpf" role="tablist" aria-label="Filtrar pagos">'+[['pend',(rc?'Por confirmar':'Esperando')+' ('+cnt('pend')+')'],['ok','Confirmados ('+cnt('ok')+')']].concat(rc?[['ent0','Por entregar ('+all.filter(pe).length+')']]:[]).concat([['no','No llegaron ('+cnt('no')+')'],['all','Todos ('+all.length+')']]).map(function(t){return '<button type="button" role="tab" data-'+k+'="'+t[0]+'" aria-selected="'+(f===t[0])+'">'+t[1]+'</button>'}).join('')+'</div>'+
   (L.length?'<div class="qtw"><table class="qpt"><thead><tr><th>Fecha</th><th>'+(rc?'Cliente':'Para')+'</th><th>Concepto</th><th>Valor</th><th>Medio</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>'+L.map(function(p){return vRow(p,rc)}).join('')+'</tbody></table></div>'
    :'<p class="muted">No hay pagos en esta lista.</p>')}
 function recvH(){var u=me();if(!u)return '<p class="muted">Para ver y confirmar pagos entra con tu correo y tu clave.</p>';var L=RECV.filter(function(p){return p.kind!=='rol'});
@@ -1920,7 +1930,7 @@ document.addEventListener('change',function(e){var t=e.target;if(!t)return;
  else if(t.id==='qb-img'&&t.files&&t.files[0])shrink(t.files[0],1100,280000,function(du){PIMG=du;var er=document.getElementById('qb-err');if(er)er.textContent=''});
  else if(t.id==='breb-on'){try{S.site=Object.assign({},S.site,{breb:!!t.checked});save();T(t.checked?'Pagos con Bre-B y Nequi activados':'Pagos con Bre-B y Nequi ocultos')}catch(x){}}});
 document.addEventListener('input',function(e){if(e.target&&e.target.id==='qb-tn'){var v=document.getElementById('qb-tnv');if(v)v.textContent=mask(e.target.value)||mask('Ana Elizabeth Meléndez');return}if(e.target&&e.target.id==='qb-amt'&&!e.target.readOnly){var v=e.target.value,f=moneyFmt(v);if(v!==f)e.target.value=f}});
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],[data-qbimg],[data-act="myCodes"],[data-qbtrack],[data-qbuse],[data-qbadmwa],[data-qbwac],[data-qpf],[data-qrf],[data-qsf],[data-qbccp],#qb-free,#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],[data-qbimg],[data-act="myCodes"],[data-qbtrack],[data-qbuse],[data-qbadmwa],[data-qbwac],[data-qpf],[data-qrf],[data-qsf],[data-qbent],[data-qbccp],#qb-free,#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
  e.preventDefault();e.stopPropagation();var d=b.dataset;
  if(d.act==='brebOpen')return myOpen();
  if(b.classList.contains('qbb')){var i=info(b.previousElementSibling);if(i)payOpen({to:i.o,toName:(PRO[i.o]&&PRO[i.o].name)||i.n,amt:i.amt,what:i.what,kind:'item',item:i.item,wa:i.wa});return}
@@ -1933,6 +1943,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  if(d.act==='myCodes'||d.qbtrack)return myCodesOpen();
  if(d.qbuse)return useCode(d.qbuse,b);
  if(d.qbccp){cpTxt(fmtC(d.qbccp),'Código copiado');return}
+ if(d.qbent!=null){var pq=d.qbent.split('|'),nv=pq[1]||'';db().collection('pagos').doc(pq[0]).update({ent:nv,ents:Date.now()}).then(function(){T(nv==='ent'?'Marcado como entregado':nv==='env'?'Marcado como enviado':'Marca quitada')}).catch(function(e){T(e&&e.code==='permission-denied'?'No se pudo guardar. Actualiza la página e inténtalo de nuevo.':'No se pudo guardar. Revisa tu conexión.')});return}
  if(d.qrf||d.qsf){if(d.qrf)RF=d.qrf;else SF=d.qsf;paintList(true);return}
  if(d.qpf){PF=d.qpf;var qb=document.getElementById('qp-body');if(qb)qb._h='';paintPag();return}
  if(d.qbwac){var pc=RECV.find(function(y){return y.id===d.qbwac});if(pc)sendCodeWa(pc);return}
