@@ -1914,7 +1914,7 @@ function pagBody(){var all=RECV.filter(function(p){return p.kind==='rol'}),cnt=f
   (L.length?'<div class="qtw"><table class="qpt"><thead><tr><th>Fecha</th><th>Persona</th><th>Rol</th><th>Valor</th><th>Medio</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>'+L.map(rowP).join('')+'</tbody></table></div>'
    :'<p class="muted">No hay pagos en esta lista.</p>')}
 function paintPag(){var el=document.getElementById('qp-body');if(el){var h=pagBody();if(el._h!==h){el._h=h;el.innerHTML=h}}
- var tb=document.querySelector('.tabs [data-act="at"][data-v="pag"]');if(tb){var n=window.brebAdmPend(),t='Pagos'+(n?' ('+n+')':'');if(tb.textContent!==t)tb.textContent=t}}
+ var tb=document.querySelector('.tabs [data-act="at"][data-v="pag"]');if(tb){var n=window.brebAdmPend(),em=tb.querySelector('.admn');/* v246: el número va en la esquina del cuadro */if(n){if(!em){em=document.createElement('em');em.className='admn';tb.appendChild(em)}if(em.textContent!==String(n))em.textContent=n}else if(em)em.remove()}}
 window.brebPagHTML=function(){return '<div class="cg"><h3>Pagos de roles (Bre-B y Nequi)</h3><div id="qp-body">'+pagBody()+'</div></div>'+brebAdmHTML()};
 /* v235: achica la foto del comprobante (máx. 1100 px y ~280 KB) y la muestra en grande */
 function shrink(f,max,lim,cb){var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var w=im.width,h=im.height,sc=Math.min(1,max/Math.max(w,h)),q=.82,du='';
@@ -2008,6 +2008,31 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .plsw .plar:hover{background:#2b313b}
 html.dark .plsw .plar{background:#1f232b!important;border-color:rgba(255,255,255,.32)!important;color:#fff!important;box-shadow:0 0 0 6px #0e141b!important}
 </style>
+<style id="v246-admin-cuadros-css">
+/* v246: secciones del panel de administrador como cuadros con icono (antes: pestañas en una fila que se deslizaba).
+   El número de cada sección va en la esquina (rojo en Pagos y Reportes, gris en el resto). Para volver a las pestañas, borra este <style>. */
+.tabs.admg{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px;overflow:visible;white-space:normal;border:0;margin:4px 0 16px;padding:0}
+.tabs.admg button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:96px;padding:12px 6px;border:1px solid var(--color-pale-mist,#d6d6d6);border-radius:18px;background:#fff;color:var(--color-obsidian,#1d1d1f);font:inherit;font-size:13px;font-weight:600;line-height:1.2;text-align:center;opacity:1;cursor:pointer}
+.tabs.admg button>i{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--color-fog-white,#f5f5f7);color:var(--color-sapphire,#0066cc);font-style:normal;font-size:22px}
+.tabs.admg button>i .qi{width:24px;height:24px}
+.tabs.admg button:hover{border-color:#0066cc}
+.tabs.admg button[aria-current="true"]{background:#0066cc;border-color:#0066cc;color:#fff}
+.tabs.admg button[aria-current="true"]>i{background:rgba(255,255,255,.18);color:#fff}
+.tabs.admg .admn{position:absolute;top:6px;right:6px;min-width:22px;height:22px;padding:0 6px;border-radius:980px;background:#c0123c;color:#fff;font-style:normal;font-size:12px;font-weight:700;line-height:22px}
+.tabs.admg .admn[data-z]{background:var(--color-pale-mist,#d6d6d6);color:var(--color-obsidian,#1d1d1f)}
+.tabs.admg button[aria-current="true"] .admn[data-z]{background:rgba(255,255,255,.25);color:#fff}
+@media (min-width:900px){.tabs.admg{grid-template-columns:repeat(6,1fr)}}
+html.dark .tabs.admg button{background:#1c1c1f!important;border-color:#3a3a3d!important;color:#f5f5f7!important}
+html.dark .tabs.admg button>i{background:#2c2c2e!important;color:#4da3ff!important}
+html.dark .tabs.admg button[aria-current="true"]{background:#0a84ff!important;border-color:#0a84ff!important;color:#fff!important}
+html.dark .tabs.admg button[aria-current="true"]>i{background:rgba(255,255,255,.2)!important;color:#fff!important}
+html.dark .tabs.admg .admn[data-z]{background:#3a3a3d!important;color:#f5f5f7!important}
+</style>
+<script id="v246-admin-cuadros">
+/* v246: en el celular los cuadros ocupan casi toda la pantalla; al elegir una sección se baja solo hasta su contenido */
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.tabs.admg [data-act="at"]');if(!b||innerWidth>=900)return;
+ setTimeout(function(){var n=document.querySelector('.tabs.admg');if(n)scrollTo({top:n.getBoundingClientRect().bottom+scrollY-8,behavior:'smooth'})},150)});
+</script>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
@@ -2979,7 +3004,7 @@ ${catFields('m',st,p.c1||'',p.c2||'')}${pxFields('m',p)}
 <label><input type="checkbox" id="m-out"${p.out?' checked':''}> Marcar como agotado</label>
 <div class="err" id="err"></div><div class="row" style="margin-top:8px"><button class="btn pink" data-act="saveEdit">Guardar cambios</button><button class="btn ghost" data-act="close">Cancelar</button></div>`)}
 function admView(){if(!adm)return `<div class="shead"><h2>Administrador</h2></div><div class="cg"><p class="muted">Entra con tu correo y tu clave para moderar la página.</p><button class="btn pink" data-act="admLogin">Entrar</button></div>`;
-const pend=S.reports.filter(r=>!r.done).length,T=(v,t)=>`<button data-act="at" data-v="${v}" aria-current="${at===v}">${t}</button>`;let body='';
+const pend=S.reports.filter(r=>!r.done).length,ADI={pag:'💳',rep:'🛡',cod:'🔑',usr:'👤',sug:'📝',ver:'📋',cfg:'💼',cat:'🏷',srv:'🛠',pub:'📣',alm:'📦'},T=(v,t)=>{const m=String(t).match(/^(.*?)\s*\((\d+)\)$/),l=m?m[1]:t,n=m?+m[2]:0;return `<button data-act="at" data-v="${v}" aria-current="${at===v}"><i aria-hidden="true">${ADI[v]||'📋'}</i><span>${l}</span>${n?`<em class="admn"${v==='rep'||v==='pag'?'':' data-z="1"'}>${n}</em>`:''}${n?`<span class="qh-sr"> (${n})</span>`:''}</button>`};/* v246: cuadros con icono y número en la esquina */let body='';
 if(at==='rep'){const l=S.reports.slice().reverse();body=l.length?l.map(r=>{const o=rateTarget(r.k,r.tid);return `<div class="cg${r.done?' out':''}"><b>${o?esc(o.name):'(ya no existe)'}</b> <small>· ${r.k==='store'?'Tienda':r.k==='ad'?'Anuncio':r.k==='prod'?'Producto':'Servicio'} ·${new Date(r.ts).toLocaleDateString('es-CO')}${r.done?' · atendido':''}</small><p>${esc(r.reason)}${r.txt?': '+esc(r.txt):''}</p><small>Reportó: ${esc(r.by)}</small><div class="row" style="margin-top:8px">${o?`${r.k==='store'?`<button class="btn ghost" data-act="admOpen" data-id="${r.tid}">Ver tienda</button>`:r.k==='ad'?`<button class="btn ghost" data-act="openAd" data-id="${r.tid}">Ver anuncio</button>`:''}${r.k==='prod'?`<button class="btn ghost" data-act="admOpenP" data-id="${r.tid}">Ver producto</button>`:`<button class="btn" data-act="admHide" data-k="${r.k}" data-id="${r.tid}">${o.hidden?'Mostrar':'Ocultar'}</button>`}<button class="btn ghost" data-act="admDel" data-k="${r.k}" data-id="${r.tid}">Eliminar</button>`:''}${r.done?'':`<button class="btn ghost" data-act="admDone" data-id="${r.id}">Descartar reporte</button>`}</div></div>`}).join(''):'<div class="empty">No hay reportes.</div>'}
 else if(at==='pag'){body=typeof brebPagHTML==='function'?brebPagHTML():''/* v238 */}
 else if(at==='cod'){body=codAdmin()}
@@ -2995,7 +3020,7 @@ else if(at==='cfg'){const s=site();body=`${admMailHTML()/* v227 */}${tourAdmHTML
 else{const vr=(k,o)=>`<div class="ci adm${o.hidden?' out':''}"><span>${esc(o.name||o.title||'(sin nombre)')} <small>· ${k==='store'?'Tienda':k==='ad'?'Anuncio':'Servicio'}${o.hidden?' · bloqueada':''}</small></span><div class="row"><button class="btn${o.feat?'':' ghost'}" data-act="admFeat" data-k="${k}" data-id="${o.id}">${o.feat?'★ Destacado':'Destacar'}</button><button class="btn${o.verified?'':' ghost'}" data-act="admVer" data-k="${k}" data-id="${o.id}">${o.verified?'✓ Verificado':'Verificar'}</button><button class="btn" data-act="admHide" data-k="${k}" data-id="${o.id}">${o.hidden?'Mostrar':'Bloquear'}</button><button class="btn ghost" data-act="admDel" data-k="${k}" data-id="${o.id}">Eliminar</button></div></div>`;
 const grp=(t,k,l)=>l.length?`<div class="cg"><h3>${t} (${l.length})</h3>${l.map(o=>vr(k,o)).join('')}</div>`:'';
 const rows=grp('Tiendas','store',S.stores)+grp('Servicios','serv',S.services)+grp('Anuncios','ad',S.ads)+comAdm();body=(rows||'<div class="empty">Todavía no hay tiendas, servicios ni anuncios.</div>')+newsAdm()}
-return `<div class="shead"><h2>Panel de administrador</h2><button class="btn ghost" data-act="admOut">Salir del modo administrador</button></div><nav class="tabs">${typeof brebPagHTML==='function'?T('pag','Pagos'+(brebAdmPend()?' ('+brebAdmPend()+')':'')):''/* v238 */}${T('rep','Reportes ('+pend+')')}${T('cod','Códigos')}${T('usr','Usuarios ('+QH.plans().length+')')}${T('sug','Sugerencias ('+S.ideas.length+')')}${T('ver','Publicaciones ('+(S.stores.length+S.services.length+S.ads.length)+')')}${T('cfg','Mis datos')}${T('cat','Categorías')}${T('srv','Servicios')}${T('pub','Publicidad')}${T('alm','Almacenamiento')}</nav>${QH.legacyCard()}${body}`}
+return `<div class="shead"><h2>Panel de administrador</h2><button class="btn ghost" data-act="admOut">Salir del modo administrador</button></div><nav class="tabs admg" aria-label="Secciones del administrador">${typeof brebPagHTML==='function'?T('pag','Pagos'+(brebAdmPend()?' ('+brebAdmPend()+')':'')):''/* v238 */}${T('rep','Reportes ('+pend+')')}${T('cod','Códigos')}${T('usr','Usuarios ('+QH.plans().length+')')}${T('sug','Sugerencias ('+S.ideas.length+')')}${T('ver','Publicaciones ('+(S.stores.length+S.services.length+S.ads.length)+')')}${T('cfg','Mis datos')}${T('cat','Categorías')}${T('srv','Servicios')}${T('pub','Publicidad')}${T('alm','Almacenamiento')}</nav>${QH.legacyCard()}${body}`}
 function syncUI(){const u=$('#ut');if(u)u.textContent=S.user?S.user.name.split(' ')[0]:'Iniciar sesión';{const ub=$('#userBtn');if(ub){let im=ub.querySelector('.uph');const sv=ub.querySelector('svg'),d=S.user&&S.user.img;if(d){if(!im){im=document.createElement('img');im.className='uph';im.alt='';ub.insertBefore(im,ub.firstChild)}im.src=d;im.style.display='';if(sv)sv.style.display='none'}else{if(im)im.style.display='none';if(sv)sv.style.display=''}}}const rb=$('#regBtn');if(rb)rb.style.display=S.user?'none':'';const hb=$('#hhr');if(hb){hb.dataset.act=S.user?'goPanel':'newShop';hb.textContent=S.user?'Mi cuenta':'+ Registra tu negocio'}
 const s=(view==='store'||view==='prod')&&S.stores.find(x=>x.id===cur),pr=view==='prod'&&s&&s.products.find(x=>x.id===curP),ad=view==='ad'&&S.ads.find(x=>x.id===curAd),h=view==='prod'?'#/p/'+encodeURIComponent(cur)+'/'+encodeURIComponent(curP):view==='store'?'#/t/'+encodeURIComponent(cur):view==='card'?'#/n/'+encodeURIComponent(cur):view==='news'?(curN?'#/nw/'+encodeURIComponent(curN):'#/noticias'):view==='ad'?'#/a/'+encodeURIComponent(curAd):ADT[view]?'#/'+ADT[view].slug:view==='serv'?'#/servicios':view==='map'?'#/mapa':view==='cats'?'#/categorias':view==='sug'?'#/sugerencias':view==='guias'?'#/guias':view==='com'||view==='comp'?'#/comunidad':view==='planes'?'#/planes':view==='admin'?'#/admin':'#/';
 if(location.hash!==h){try{history.replaceState(null,'',h)}catch(e){}}
