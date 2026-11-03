@@ -1590,6 +1590,7 @@ html.dark .qmd.nq{background:#da0081!important;color:#fff!important}html.dark .q
 .qcs{display:inline-block;padding:2px 8px;border-radius:980px;font-size:12px;font-weight:600}
 .qcs.ok{background:#e7f6ec;color:#1b6b34}.qcs.p{background:#fff4e5;color:#7a4b00}.qcs.no{background:#fde8e8;color:#9b1c1c}
 .qct .btn{margin-top:6px;padding:4px 12px;min-height:32px;font-size:13px}
+.btn.qcp{display:inline-flex;margin:6px 0 0;padding:4px 12px;min-height:32px;font-size:13px}.qct td .btn.qcp{display:flex}
 html.dark .qcs.ok{background:#12351f!important;color:#8fe0a8!important}
 html.dark .qcs.p{background:#3a2a10!important;color:#ffd79a!important}
 html.dark .qcs.no{background:#3d1414!important;color:#ffaaaa!important}
@@ -1798,7 +1799,7 @@ function trackH(){var L=SENT.filter(function(p){return p.kind==='rol'});if(!L.le
   return '<div class="qbi"><div class="qbh"><b>'+E(p.what)+'</b><strong>'+E(M(p.amt))+'</strong></div><small>Por '+VN(p.via)+' · '+E(D(p.ts))+'</small><ol class="qst">'+
    stp('ok','Pago enviado','Lo registraste el '+E(D(p.ts)))+
    stp(p.st==='ok'?'ok':no?'no':'now',no?'Pago no aprobado':'Revisión del administrador',p.st==='ok'?'Aprobado el '+E(D(p.sts||p.ts)):no?'El administrador no encontró el pago en su cuenta.':'El administrador está revisando el pago en su banco.')+
-   (no?'':stp(p.code?'ok':p.st==='ok'?'now':'off','Código entregado',p.code?'Tu código: <code>'+E(fmtC(p.code))+'</code>':'Llega cuando el pago sea aprobado.')+
+   (no?'':stp(p.code?'ok':p.st==='ok'?'now':'off','Código entregado',p.code?'Tu código: <code>'+E(fmtC(p.code))+'</code> <button type="button" class="btn ghost qcp" data-qbccp="'+E(p.code)+'" aria-label="Copiar el código '+E(fmtC(p.code))+'">Copiar</button>':'Llega cuando el pago sea aprobado.')+
     stp(act?'ok':p.code?'now':'off','Rol activado',act?(e?'Vence el '+E(fd(e))+(dLeft(e)>0?' · faltan '+dLeft(e)+(dLeft(e)===1?' día':' días'):' · ya venció')+'.':'Listo.'):p.code?'Se activa solo al abrir la página.':'Se activa cuando llegue el código.'))+'</ol>'+
    (no?'<div class="row"><button type="button" class="btn wa" data-qbadmwa="'+E(p.id)+'">Escribir al administrador</button></div>':'')+'</div>'}).join('')+'</div>'}
 function tableH(){var L=codesRows();
@@ -1808,7 +1809,7 @@ function tableH(){var L=codesRows();
   else if(d>0)f='<b class="qcs ok">'+d+(d===1?' día':' días')+'</b><small>Vence el '+E(fd(e))+'</small>';
   else f='<b class="qcs no">Vencido</b><small>El '+E(fd(e))+'</small>';
   var mo='';try{mo=COMU[c.use]?(COM_DAYS[c.use]+' días'):codeMn(c.months)}catch(x){}
-  return '<tr><td><code>'+E(fmtC(c.c))+'</code></td><td>'+E(roleN(c.use))+'<small>'+E(mo)+'</small></td><td>'+f+'</td></tr>'}).join('')+'</tbody></table>'+
+  return '<tr><td><code>'+E(fmtC(c.c))+'</code><button type="button" class="btn ghost qcp" data-qbccp="'+E(c.c)+'" aria-label="Copiar el código '+E(fmtC(c.c))+'">Copiar</button></td><td>'+E(roleN(c.use))+'<small>'+E(mo)+'</small></td><td>'+f+'</td></tr>'}).join('')+'</tbody></table>'+
   '<p class="muted" style="font-size:13px;margin-top:8px">Si tienes varios códigos del mismo rol, cada uno empieza a contar cuando termina el anterior.</p>'}
 function codesH(){return trackH()+'<h3 class="qch">Mis códigos</h3>'+tableH()}
 function paintCodes(){var el=document.getElementById('qc-body');if(!el)return;var h=codesH();if(el._h!==h){el._h=h;el.innerHTML=h}}
@@ -1885,7 +1886,7 @@ document.addEventListener('change',function(e){var t=e.target;if(!t)return;
  else if(t.id==='qb-img'&&t.files&&t.files[0])shrink(t.files[0],1100,280000,function(du){PIMG=du;var er=document.getElementById('qb-err');if(er)er.textContent=''});
  else if(t.id==='breb-on'){try{S.site=Object.assign({},S.site,{breb:!!t.checked});save();T(t.checked?'Pagos con Bre-B y Nequi activados':'Pagos con Bre-B y Nequi ocultos')}catch(x){}}});
 document.addEventListener('input',function(e){if(e.target&&e.target.id==='qb-tn'){var v=document.getElementById('qb-tnv');if(v)v.textContent=mask(e.target.value)||mask('Ana Elizabeth Meléndez');return}if(e.target&&e.target.id==='qb-amt'&&!e.target.readOnly){var v=e.target.value,f=moneyFmt(v);if(v!==f)e.target.value=f}});
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],[data-qbimg],[data-act="myCodes"],[data-qbtrack],[data-qbuse],[data-qbadmwa],[data-qbwac],[data-qpf],#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],[data-qbimg],[data-act="myCodes"],[data-qbtrack],[data-qbuse],[data-qbadmwa],[data-qbwac],[data-qpf],[data-qbccp],#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
  e.preventDefault();e.stopPropagation();var d=b.dataset;
  if(d.act==='brebOpen')return myOpen();
  if(b.classList.contains('qbb')){var i=info(b.previousElementSibling);if(i)payOpen({to:i.o,toName:(PRO[i.o]&&PRO[i.o].name)||i.n,amt:i.amt,what:i.what,kind:'item',item:i.item,wa:i.wa});return}
@@ -1897,6 +1898,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  if(d.qbvia){VIA=d.qbvia;var vl=b.parentNode.querySelectorAll('[data-qbvia]');for(var z=0;z<vl.length;z++)vl[z].setAttribute('aria-selected',vl[z]===b);var vb=document.getElementById('qb-via');if(vb)vb.innerHTML=viaH();return}
  if(d.act==='myCodes'||d.qbtrack)return myCodesOpen();
  if(d.qbuse)return useCode(d.qbuse,b);
+ if(d.qbccp){cpTxt(fmtC(d.qbccp),'Código copiado');return}
  if(d.qpf){PF=d.qpf;var qb=document.getElementById('qp-body');if(qb)qb._h='';paintPag();return}
  if(d.qbwac){var pc=RECV.find(function(y){return y.id===d.qbwac});if(pc)sendCodeWa(pc);return}
  if(d.qbadmwa){var pw=SENT.find(function(y){return y.id===d.qbadmwa}),w=site_().wa;if(!w)return T('El administrador aún no configuró su WhatsApp.');if(pw)waOpen(w,'Hola, soy '+(S.user&&S.user.name||'')+'. Pagué '+M(pw.amt)+' por '+VN(pw.via)+' ('+pw.what+') el '+D(pw.ts)+(pw.ref?'. Número de transacción: '+pw.ref:'')+'. En Mi Pradera aparece como no aprobado, ¿me ayudas a revisarlo?');return}
