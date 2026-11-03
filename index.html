@@ -1541,6 +1541,10 @@ html.dark #annc .qtw-c{background:#fff!important}
 .qbd .qbr2 b{flex:1;text-align:right;font-size:18px;word-break:break-word}
 .qbd .qbr2 b.qbtn{color:var(--color-sapphire,#0066cc)}
 .qbd .btn{width:100%;margin-top:12px}
+/* v235: comprobante del pago (foto o captura) */
+.qbiv{position:fixed;inset:0;z-index:100002;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;background:rgba(0,0,0,.88)}
+.qbiv img{max-width:100%;max-height:calc(100vh - 110px);border-radius:12px;background:#fff}
+.qbiv .btn{color:#fff!important;border-color:#fff!important;background:transparent!important}
 .qbq{display:block;width:200px;max-width:70%;margin:8px auto;border-radius:12px;background:#fff;padding:8px}
 .qbst{margin:8px 0 12px;padding-left:20px;font-size:15px;line-height:1.5}
 .qbw{margin:8px 0;padding:10px 12px;border-radius:12px;background:#fff4e5;color:#7a4b00;font-size:14px;line-height:1.4}
@@ -1588,7 +1592,7 @@ function T(m){try{toast(m)}catch(e){}}
 function pend(){return RECV.filter(function(p){return p.st==='pend'}).length}
 /* v233: Nequi además de Bre-B. La ficha "breb" puede tener key (llave Bre-B), nq (número de Nequi) o las dos;
    cada pago guarda por dónde se hizo (via 'breb' | 'nequi'). Necesita las reglas de Firestore v25. */
-var VIA='breb',ADMK='0';
+var VIA='breb',ADMK='0',PIMG='';
 function hasP(p){return !!(p&&(p.key||p.nq))}
 function vias(p){var v=[];if(p&&p.key)v.push('breb');if(p&&p.nq)v.push('nequi');return v}
 function VN(v){return v==='nequi'?'Nequi':'Bre-B'}
@@ -1635,7 +1639,7 @@ function inject(){var u=me(),l=document.querySelectorAll(SEL);for(var k=0;k<l.le
   else if(!ok&&has)nx.remove();else if(ok&&has&&nx.dataset.tx!==tx){nx.dataset.tx=tx;nx.textContent=tx}}
  /* pagar un rol: debajo de COMPRAR ACCESO / CONTINUAR en "Mis roles" */
  var A=PRO[aid()],r=document.querySelectorAll('.plgo[data-act="codeBuy"],#cm-go');for(var j=0;j<r.length;j++){var g=r[j],n2=g.nextElementSibling,h2=!!(n2&&n2.classList.contains('qbr')),
-  ok2=on()&&hasP(A)&&!(g.dataset.act==='codeBuy'&&typeof codeFree==='function'&&codeFree(g.dataset.u)),t2=ok2?'PAGAR CON '+lbl(A).toUpperCase():'';
+  ok2=on()&&hasP(A)&&!(u&&u.uid===aid())&&!(g.dataset.act==='codeBuy'&&typeof codeFree==='function'&&codeFree(g.dataset.u)),t2=ok2?'PAGAR CON '+lbl(A).toUpperCase():'';
   if(ok2&&!h2){var q2=document.createElement('button');q2.type='button';q2.className='plgo qbr';q2.style.marginTop='10px';q2.textContent=t2;g.insertAdjacentElement('afterend',q2)}
   else if(!ok2&&h2)n2.remove();else if(ok2&&h2&&n2.textContent!==t2)n2.textContent=t2}}
 /* ---- ventana para pagar ---- */
@@ -1646,26 +1650,34 @@ function viaH(){var o=PAY,p=(o&&PRO[o.to])||{},n=VIA==='nequi',bk=n?'Nequi':(p.b
   '<div class="qbr2"><span>Banco destino</span><b>'+E(bk||'Sin registrar')+'</b></div>'+
   '<button type="button" class="btn ghost" data-qbcp="1">'+(n?'Copiar número':'Copiar llave')+'</button></div>'+
   (!n&&p.qr?'<img class="qbq" src="'+E(p.qr)+'" alt="Código QR de Bre-B de '+E(o.toName)+'">':'')+
-  '<ol class="qbst">'+(n?'<li>Copia el número de Nequi.</li><li>En la app <b>Nequi</b> toca «Envía» y envía el valor a ese número.</li><li>Escribe aquí la referencia que sale en el comprobante y toca «Ya pagué».</li>'
-   :'<li>Copia la llave o escanea el QR.</li><li>En la app de tu banco o billetera entra a <b>Bre-B</b> (o «Enviar con llave»), pega la llave y paga el valor.</li><li>Escribe aquí el número de la transacción que sale en el comprobante y toca «Ya pagué».</li>')+'</ol>'}
+  '<ol class="qbst">'+(n?'<li>Copia el número de Nequi.</li><li>En la app <b>Nequi</b> toca «Envía» y envía el valor a ese número.</li><li>Toma una captura del comprobante, adjúntala aquí y toca «Ya pagué».</li>'
+   :'<li>Copia la llave o escanea el QR.</li><li>En la app de tu banco o billetera entra a <b>Bre-B</b> (o «Enviar con llave»), pega la llave y paga el valor.</li><li>Toma una captura del comprobante, adjúntala aquí y toca «Ya pagué».</li>')+'</ol>'}
 function payOpen(o){if(!S.user){try{need(function(){payOpen(o)})}catch(e){}return}
  if(!me())return T('Para registrar pagos entra con tu correo y tu clave.');
- var p=PRO[o.to];if(!hasP(p))return T('Aún no hay datos de pago para este pago.');PAY=o;var vs=vias(p);VIA=vs[0];
+ if(me().uid===o.to)return T('Esta cuenta es la que recibe el pago: no puedes pagarte a ti mismo. Para probar, entra con otra cuenta.');/* v235 */
+ var p=PRO[o.to];if(!hasP(p))return T('Aún no hay datos de pago para este pago.');PAY=o;PIMG='';var vs=vias(p);VIA=vs[0];
  modal('<h2>Pagar con '+E(lbl(p))+'</h2><p class="muted" style="margin:0">Para: <b>'+E(o.toName)+'</b><br>'+E(o.what)+'</p>'+
   (vs.length>1?'<div class="qbt" role="tablist" aria-label="Cómo quieres pagar" style="margin-top:12px">'+vs.map(function(v){return '<button type="button" role="tab" data-qbvia="'+v+'" aria-selected="'+(v===VIA)+'">'+VN(v)+'</button>'}).join('')+'</div>':'')+
   '<div id="qb-via">'+viaH()+'</div>'+
   '<label for="qb-amt">Valor a pagar</label><input type="text" id="qb-amt" inputmode="numeric" autocomplete="off" value="'+(o.amt?E(moneyFmt(o.amt)):'')+'"'+(o.kind==='rol'?' readonly':'')+' placeholder="Ej: 25.000">'+
-  '<label for="qb-ref">Número de la transacción o referencia</label><input type="text" id="qb-ref" maxlength="40" autocomplete="off" placeholder="Ej: M1234567">'+
+  '<label for="qb-img">Comprobante del pago (foto o captura)</label><input type="file" id="qb-img" accept="image/*">'+
+  '<label for="qb-ref">Número de la transacción (opcional si adjuntas el comprobante)</label><input type="text" id="qb-ref" maxlength="40" autocomplete="off" placeholder="Ej: M1234567">'+
   '<p class="qbw">Antes de confirmar el envío, tu banco o Nequi te muestra el nombre y el banco de quien recibe. Revisa que coincidan con «Enviar a» y «Banco destino». Si no coinciden, no pagues.</p>'+
   '<p class="err" id="qb-err" role="alert"></p><div class="row"><button type="button" class="btn pink" id="qb-go">Ya pagué</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>')}
-function paySave(b){var o=PAY,u=me();if(!o||!u)return;var er=document.getElementById('qb-err'),amt=+String(document.getElementById('qb-amt').value).replace(/\D/g,'')||0,ref=String(document.getElementById('qb-ref').value||'').trim();
- if(amt<100)return er.textContent='Escribe el valor que pagaste.';if(ref.length<4)return er.textContent='Escribe el número de la transacción (mínimo 4 letras o números).';
+async function paySave(b){var o=PAY,u=me();if(!o||!u)return;var er=document.getElementById('qb-err'),amt=+String(document.getElementById('qb-amt').value).replace(/\D/g,'')||0,ref=String(document.getElementById('qb-ref').value||'').trim();
+ if(amt<100)return er.textContent='Escribe el valor que pagaste.';
+ if(!PIMG&&ref.length<4)return er.textContent='Adjunta la captura del comprobante o escribe el número de la transacción.';
+ if(ref&&ref.length<4)return er.textContent='El número de la transacción es muy corto (mínimo 4 letras o números).';
+ /* v235: avisos claros en vez de "no se pudo" */
+ if(u.uid===o.to)return er.textContent='Esta cuenta es la que recibe el pago: no puedes pagarte a ti mismo. Para probar, entra con otra cuenta.';
+ var pv=(u.providerData||[]).map(function(x){return x.providerId});if(pv.length&&pv.every(function(x){return x==='password'})&&!u.emailVerified)return er.textContent='Primero confirma tu correo con el enlace que te enviamos y vuelve a entrar.';
+ b.disabled=true;er.textContent='Guardando…';var img='';
+ if(PIMG){try{img=typeof r2up==='function'?await r2up(PIMG):PIMG}catch(x){img=PIMG}if(String(img).length>300000){b.disabled=false;return er.textContent='La imagen del comprobante es muy pesada. Prueba con otra captura.'}}
  var d={from:u.uid,fromName:String(S.user&&S.user.name||'Vecino').slice(0,60),to:o.to,toName:String(o.toName||'').slice(0,60),amt:amt,ref:ref.slice(0,40),what:String(o.what||'').slice(0,120),
-  kind:o.kind,item:String(o.item||'').slice(0,80),use:String(o.use||''),m:Number(o.m)||0,via:VIA,st:'pend',ts:Date.now()};
- b.disabled=true;er.textContent='';
- db().collection('pagos').add(d).then(function(){PAY=null;LAST=o.wa&&o.kind!=='rol'?{wa:o.wa,t:'Hola '+o.toName+', te pagué '+M(amt)+' por '+VN(d.via)+' ('+o.what+'). Número de transacción: '+d.ref+'. Lo registré en Mi Pradera para que lo confirmes cuando te llegue.'}:null;
+  kind:o.kind,item:String(o.item||'').slice(0,80),use:String(o.use||''),m:Number(o.m)||0,via:VIA,img:String(img||''),st:'pend',ts:Date.now()};
+ db().collection('pagos').add(d).then(function(){PAY=null;LAST=o.wa&&o.kind!=='rol'?{wa:o.wa,t:'Hola '+o.toName+', te pagué '+M(amt)+' por '+VN(d.via)+' ('+o.what+'). '+(d.ref?'Número de transacción: '+d.ref+'. ':'')+(d.img?'Te dejé el comprobante en Mi Pradera':'Lo registré en Mi Pradera')+' para que lo confirmes cuando te llegue.'}:null;
   modal('<h2>Pago registrado</h2><p>'+(o.kind==='rol'?'El administrador revisará el pago en su banco. Cuando lo confirme, tu rol se activa solo.':E(o.toName)+' verá tu pago en su perfil y confirmará cuando le llegue.')+' Puedes ver cómo va en <b>Mi cuenta → Pagos Bre-B y Nequi</b>.</p><div class="row">'+(LAST?'<button type="button" class="btn wa" data-qbwa="1">Avisar por WhatsApp</button>':'')+'<button type="button" class="btn ghost" data-act="close">Listo</button></div>')})
- .catch(function(e){b.disabled=false;er.textContent=e&&e.code==='permission-denied'?'No se pudo registrar el pago. Actualiza la página e inténtalo de nuevo.':'No se pudo registrar el pago. Revisa tu conexión.'})}
+ .catch(function(e){b.disabled=false;er.textContent=e&&e.code==='permission-denied'?'No se pudo registrar el pago. Cierra sesión, vuelve a entrar e inténtalo de nuevo.':'No se pudo registrar el pago. Revisa tu conexión.'})}
 /* ---- Mi cuenta → Pagos Bre-B ---- */
 function stH(p,rc){var r=p.kind==='rol';
  if(p.st==='ok')return '<span class="qbs ok">'+(rc?'Confirmaste que llegó':r?(p.red?'Confirmado · rol activado':'Confirmado · activando el rol…'):'Confirmado: le llegó')+'</span>';
@@ -1676,8 +1688,8 @@ function itH(p,rc,admL){var bt='';
   else if(p.st==='no')bt='<button type="button" class="btn ghost" data-qbund="'+E(p.id)+'">Volver a revisar</button>'}
  else if(rc){if(p.kind!=='rol'){bt=p.st==='pend'?'<button type="button" class="btn pink" data-qbok="'+E(p.id)+'">Sí me llegó</button><button type="button" class="btn ghost" data-qbno="'+E(p.id)+'">No me llegó</button>':'<button type="button" class="btn ghost" data-qbund="'+E(p.id)+'">Cambiar</button>'}}
  else if(p.st==='pend')bt='<button type="button" class="btn ghost" data-qbdel="'+E(p.id)+'">Borrar registro</button>';
- return '<div class="qbi"><div class="qbh"><b>'+E(rc||admL?p.fromName:p.toName)+'</b><strong>'+E(M(p.amt))+'</strong></div><small>'+E(p.what)+'</small><small>Por '+VN(p.via)+' · Transacción: '+E(p.ref)+' · '+E(D(p.ts))+'</small>'+
-  (admL&&p.code?'<small>Código creado: '+E(p.code)+'</small>':'')+stH(p,rc||admL)+(bt?'<div class="row">'+bt+'</div>':'')+'</div>'}
+ return '<div class="qbi"><div class="qbh"><b>'+E(rc||admL?p.fromName:p.toName)+'</b><strong>'+E(M(p.amt))+'</strong></div><small>'+E(p.what)+'</small><small>Por '+VN(p.via)+(p.ref?' · Transacción: '+E(p.ref):'')+' · '+E(D(p.ts))+'</small>'+
+  (admL&&p.code?'<small>Código creado: '+E(p.code)+'</small>':'')+stH(p,rc||admL)+((bt||p.img)?'<div class="row">'+(p.img?'<button type="button" class="btn ghost" data-qbimg="'+E(p.id)+'">Ver comprobante</button>':'')+bt+'</div>':'')+'</div>'}
 function recvH(){var u=me();if(!u)return '<p class="muted">Para ver y confirmar pagos entra con tu correo y tu clave.</p>';var L=RECV.filter(function(p){return p.kind!=='rol'});
  return '<p class="qbw">Antes de tocar «Sí me llegó», abre la app de tu banco o de Nequi y revisa que el dinero sí llegó. Los pantallazos de pago pueden ser falsos.</p>'+
   (L.length?'<div class="qbl">'+L.map(function(p){return itH(p,true)}).join('')+'</div>':'<p class="muted">Aún no tienes pagos recibidos.</p>')+
@@ -1710,6 +1722,12 @@ function paint(){try{inject()}catch(e){}paintList(false);
  var n=pend(),l=document.querySelectorAll('.pnr[data-act="brebOpen"] i');for(var i=0;i<l.length;i++){var em=l[i].querySelector('.pnbd');if(n){if(!em){em=document.createElement('em');em.className='pnbd';l[i].appendChild(em)}em.textContent=n}else if(em)em.remove()}
  var a=document.getElementById('qb-admn');if(a){var k=RECV.filter(function(p){return p.kind==='rol'&&p.st==='pend'}).length;a.textContent=k?'('+k+' por revisar)':''}}
 /* ---- guardar la llave ---- */
+/* v235: achica la foto del comprobante (máx. 1100 px y ~280 KB) y la muestra en grande */
+function shrink(f,max,lim,cb){var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var w=im.width,h=im.height,sc=Math.min(1,max/Math.max(w,h)),q=.82,du='';
+  for(var k=0;k<7;k++){var c=document.createElement('canvas');c.width=Math.round(w*sc);c.height=Math.round(h*sc);var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
+   du=c.toDataURL('image/webp',q);if(du.slice(0,15)!=='data:image/webp')du=c.toDataURL('image/jpeg',q);if(du.length<=lim)break;sc*=.82;q=Math.max(.5,q-.08)}cb(du)};im.src=rd.result};rd.readAsDataURL(f)}
+function imgView(src){var o=document.createElement('div');o.className='qbiv';o.setAttribute('role','dialog');o.setAttribute('aria-label','Comprobante del pago');o.innerHTML='<img alt="Comprobante del pago"><button type="button" class="btn ghost">Cerrar</button>';o.querySelector('img').src=src;
+ var k=function(e){if(e.key==='Escape'){e.stopPropagation();cl()}},cl=function(){document.removeEventListener('keydown',k,true);o.remove()};o.addEventListener('click',cl);document.addEventListener('keydown',k,true);document.body.appendChild(o);o.querySelector('button').focus()}
 function qrPick(f){if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,520/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
   var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);var du=c.toDataURL('image/webp',.85);if(du.slice(0,15)!=='data:image/webp')du=c.toDataURL('image/jpeg',.85);QRD=du;var v=document.getElementById('qb-qrv');if(v){v.src=du;v.hidden=false}};im.src=rd.result};rd.readAsDataURL(f)}
 async function keySave(b){var u=me(),er=document.getElementById('qb-kerr');if(!u)return;var k=String(document.getElementById('qb-key').value||'').trim(),nq=String(document.getElementById('qb-nq').value||'').replace(/\D/g,''),
@@ -1741,9 +1759,10 @@ window.brebAdmHTML=function(){var p=PRO[aid()]||{},n=RECV.filter(function(x){ret
   '<div class="row"><button type="button" class="btn ghost" data-qbadm="key">'+(hasP(p)?'Cambiar datos de pago':'Configurar datos de pago')+'</button><button type="button" class="btn pink" data-qbadm="list">Pagos de roles <span id="qb-admn">'+(n?'('+n+' por revisar)':'')+'</span></button></div></div>'};
 document.addEventListener('change',function(e){var t=e.target;if(!t)return;
  if(t.id==='qb-qr')qrPick(t.files&&t.files[0]);
+ else if(t.id==='qb-img'&&t.files&&t.files[0])shrink(t.files[0],1100,280000,function(du){PIMG=du;var er=document.getElementById('qb-err');if(er)er.textContent=''});
  else if(t.id==='breb-on'){try{S.site=Object.assign({},S.site,{breb:!!t.checked});save();T(t.checked?'Pagos con Bre-B y Nequi activados':'Pagos con Bre-B y Nequi ocultos')}catch(x){}}});
 document.addEventListener('input',function(e){if(e.target&&e.target.id==='qb-tn'){var v=document.getElementById('qb-tnv');if(v)v.textContent=mask(e.target.value)||mask('Ana Elizabeth Meléndez');return}if(e.target&&e.target.id==='qb-amt'&&!e.target.readOnly){var v=e.target.value,f=moneyFmt(v);if(v!==f)e.target.value=f}});
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],[data-qbimg],#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
  e.preventDefault();e.stopPropagation();var d=b.dataset;
  if(d.act==='brebOpen')return myOpen();
  if(b.classList.contains('qbb')){var i=info(b.previousElementSibling);if(i)payOpen({to:i.o,toName:(PRO[i.o]&&PRO[i.o].name)||i.n,amt:i.amt,what:i.what,kind:'item',item:i.item,wa:i.wa});return}
@@ -1753,10 +1772,11 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
   o.item='rol:'+o.use+':'+o.m;return payOpen(o)}
  if(d.qbcp!=null){var p=PAY&&PRO[PAY.to];if(p)cpTxt(VIA==='nequi'?p.nq:p.key,VIA==='nequi'?'Número copiado':'Llave copiada');return}
  if(d.qbvia){VIA=d.qbvia;var vl=b.parentNode.querySelectorAll('[data-qbvia]');for(var z=0;z<vl.length;z++)vl[z].setAttribute('aria-selected',vl[z]===b);var vb=document.getElementById('qb-via');if(vb)vb.innerHTML=viaH();return}
+ if(d.qbimg){var pi=SENT.concat(RECV).find(function(y){return y.id===d.qbimg});if(pi&&pi.img)imgView(pi.img);return}
  if(b.id==='qb-go')return paySave(b);
  if(d.qbwa){if(LAST)waOpen(LAST.wa,LAST.t);closeModal(1);return}
  if(d.qbtab){tab=d.qbtab;var tb=document.getElementById('qb-tabs');if(tb){tb._h='';tb.innerHTML=tabsH()}paintList(true);return}
- if(d.qbok){var x=RECV.find(function(y){return y.id===d.qbok});askC('¿Ya revisaste en la app de tu banco que te llegaron '+(x?M(x.amt):'')+'?','Sí, ya llegó').then(function(ok){if(ok)setSt(d.qbok,'ok','Pago confirmado')});return}
+ if(d.qbok){var x=RECV.find(function(y){return y.id===d.qbok});askC('¿Ya revisaste en la app de tu banco o de Nequi que te llegaron '+(x?M(x.amt):'')+'? El comprobante solo es una ayuda: lo que vale es que el dinero esté en tu cuenta.','Sí, ya llegó').then(function(ok){if(ok)setSt(d.qbok,'ok','Pago confirmado')});return}
  if(d.qbno)return setSt(d.qbno,'no','Marcado como no recibido');
  if(d.qbund)return setSt(d.qbund,'pend','El pago vuelve a quedar por confirmar');
  if(d.qbdel){askC('¿Borrar este registro de pago? El dinero no se devuelve: solo se borra el registro.','Borrar').then(function(ok){if(ok)db().collection('pagos').doc(d.qbdel).delete().then(function(){T('Registro borrado')}).catch(function(){T('No se pudo borrar.')})});return}
@@ -2077,7 +2097,7 @@ const newsDel=async id=>{await authP;const o=NEWS.find(x=>x.id===id);await ref('
 /* v173: borrar mi plan al eliminar la cuenta */
 async function planWipe(k){if(planUn)planUn();planUn=null;planK='';S.plan=null;await authP;await ref('plans',k).delete()}
  /* v202: URL de R2 que usa hoy cualquier documento de Firestore (lectura completa, sin límites). Si falla una colección importante, lanza error */
-async function r2live(){await authP;if(!db)throw new Error('db');const live=new Set(),add=s=>s.forEach(d=>{(JSON.stringify(d.data()).match(R2RE)||[]).forEach(u=>live.add(u))});for(const c of['stores','products','services','ads','ideas','reports','banners','topAds','cats','meta','community','news'])add(await db.collection(c).get());for(const c of['plans','presence','codes']){try{add(await db.collection(c).get())}catch(e){}}return live}
+async function r2live(){await authP;if(!db)throw new Error('db');const live=new Set(),add=s=>s.forEach(d=>{(JSON.stringify(d.data()).match(R2RE)||[]).forEach(u=>live.add(u))});for(const c of['stores','products','services','ads','ideas','reports','banners','topAds','cats','meta','community','news','breb','pagos']/* v235: QR y comprobantes de pago; si no se pueden leer, la limpieza se detiene */)add(await db.collection(c).get());for(const c of['plans','presence','codes']){try{add(await db.collection(c).get())}catch(e){}}return live}
 return{r2live,COM,comListen,NEWS,nwReady:()=>nwLoaded,newsListen,newsPut,newsDel,comPut,comDel,start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,online,presBeat,codes,codeGen,codeDel,codeRedeem,planWipe,authCur:()=>auth&&auth.currentUser,authOut:()=>auth&&auth.signOut()};
 })();
 
