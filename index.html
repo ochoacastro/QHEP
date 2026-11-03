@@ -1534,6 +1534,13 @@ html.dark #annc .qtw-c{background:#fff!important}
 /* v232: pagos con Bre-B */
 .qbk{display:flex;align-items:center;gap:10px;margin:10px 0;padding:14px 16px;border-radius:14px;background:var(--color-fog-white,#f5f5f7)}
 .qbk b{flex:1;font-size:20px;font-weight:700;word-break:break-all;color:var(--color-obsidian,#1d1d1f)}
+/* v234: resumen "Enviar a / Llave / Banco destino", como en la app del banco */
+.qbk.qbd{display:block;padding:4px 16px 14px}
+.qbd .qbr2{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-pale-mist,#d6d6d6)}
+.qbd .qbr2 span{flex:none;font-size:15px;color:var(--color-pewter,#707070)}
+.qbd .qbr2 b{flex:1;text-align:right;font-size:18px;word-break:break-word}
+.qbd .qbr2 b.qbtn{color:var(--color-sapphire,#0066cc)}
+.qbd .btn{width:100%;margin-top:12px}
 .qbq{display:block;width:200px;max-width:70%;margin:8px auto;border-radius:12px;background:#fff;padding:8px}
 .qbst{margin:8px 0 12px;padding-left:20px;font-size:15px;line-height:1.5}
 .qbw{margin:8px 0;padding:10px 12px;border-radius:12px;background:#fff4e5;color:#7a4b00;font-size:14px;line-height:1.4}
@@ -1585,6 +1592,10 @@ var VIA='breb',ADMK='0';
 function hasP(p){return !!(p&&(p.key||p.nq))}
 function vias(p){var v=[];if(p&&p.key)v.push('breb');if(p&&p.nq)v.push('nequi');return v}
 function VN(v){return v==='nequi'?'Nequi':'Bre-B'}
+/* v234: titular y banco destino. Se guardan YA ENMASCARADOS (3 primeras letras de cada palabra), así el nombre completo
+   nunca queda en la ficha pública. Enmascarar dos veces da lo mismo, por eso el formulario puede mostrar el valor guardado. */
+function mask(t){return String(t||'').trim().replace(/\s+/g,' ').split(' ').map(function(w){var a=Array.from(w);return a.length<=3?w:a.slice(0,3).join('')+'*'.repeat(a.length-3)}).join(' ')}
+var BANKS=['Bancolombia','Banco de Bogotá','Davivienda','BBVA','Banco de Occidente','Banco Popular','Banco AV Villas','Banco Caja Social','Scotiabank Colpatria','Banco Agrario','Itaú','Banco Falabella','Banco Pichincha','Bancamía','Banco W','Banco Finandina','Banco Serfinanza','Banco Coopcentral','Lulo Bank','Nu','Nequi','Daviplata','Movii','Dale','Ualá','RappiPay','Confiar','Otra entidad'];
 function lbl(p){var v=vias(p);return v.length>1?'Bre-B o Nequi':v.length?VN(v[0]):'Bre-B'}
 window.brebRoleOn=function(){return on()&&hasP(PRO[aid()])};
 /* si cambia si se pueden pagar roles aquí, se vuelve a pintar el texto de "Mis roles" */
@@ -1629,8 +1640,11 @@ function inject(){var u=me(),l=document.querySelectorAll(SEL);for(var k=0;k<l.le
   else if(!ok2&&h2)n2.remove();else if(ok2&&h2&&n2.textContent!==t2)n2.textContent=t2}}
 /* ---- ventana para pagar ---- */
 /* v233: la parte que cambia según se pague por Bre-B o por Nequi */
-function viaH(){var o=PAY,p=(o&&PRO[o.to])||{},n=VIA==='nequi';
- return '<div class="qbk"><b>'+E(n?p.nq:p.key)+'</b><button type="button" class="btn ghost" data-qbcp="1">Copiar</button></div>'+
+function viaH(){var o=PAY,p=(o&&PRO[o.to])||{},n=VIA==='nequi',bk=n?'Nequi':(p.bk||'');
+ return '<div class="qbk qbd"><div class="qbr2"><span>Enviar a</span><b class="qbtn">'+E(p.tn||'Sin registrar')+'</b></div>'+
+  '<div class="qbr2"><span>'+(n?'Número Nequi':'Llave')+'</span><b>'+E(n?p.nq:p.key)+'</b></div>'+
+  '<div class="qbr2"><span>Banco destino</span><b>'+E(bk||'Sin registrar')+'</b></div>'+
+  '<button type="button" class="btn ghost" data-qbcp="1">'+(n?'Copiar número':'Copiar llave')+'</button></div>'+
   (!n&&p.qr?'<img class="qbq" src="'+E(p.qr)+'" alt="Código QR de Bre-B de '+E(o.toName)+'">':'')+
   '<ol class="qbst">'+(n?'<li>Copia el número de Nequi.</li><li>En la app <b>Nequi</b> toca «Envía» y envía el valor a ese número.</li><li>Escribe aquí la referencia que sale en el comprobante y toca «Ya pagué».</li>'
    :'<li>Copia la llave o escanea el QR.</li><li>En la app de tu banco o billetera entra a <b>Bre-B</b> (o «Enviar con llave»), pega la llave y paga el valor.</li><li>Escribe aquí el número de la transacción que sale en el comprobante y toca «Ya pagué».</li>')+'</ol>'}
@@ -1642,7 +1656,7 @@ function payOpen(o){if(!S.user){try{need(function(){payOpen(o)})}catch(e){}retur
   '<div id="qb-via">'+viaH()+'</div>'+
   '<label for="qb-amt">Valor a pagar</label><input type="text" id="qb-amt" inputmode="numeric" autocomplete="off" value="'+(o.amt?E(moneyFmt(o.amt)):'')+'"'+(o.kind==='rol'?' readonly':'')+' placeholder="Ej: 25.000">'+
   '<label for="qb-ref">Número de la transacción o referencia</label><input type="text" id="qb-ref" maxlength="40" autocomplete="off" placeholder="Ej: M1234567">'+
-  '<p class="qbw">Antes de pagar, revisa que el nombre que te muestra tu banco o Nequi sea el de '+E(o.toName)+'.</p>'+
+  '<p class="qbw">Antes de confirmar el envío, tu banco o Nequi te muestra el nombre y el banco de quien recibe. Revisa que coincidan con «Enviar a» y «Banco destino». Si no coinciden, no pagues.</p>'+
   '<p class="err" id="qb-err" role="alert"></p><div class="row"><button type="button" class="btn pink" id="qb-go">Ya pagué</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>')}
 function paySave(b){var o=PAY,u=me();if(!o||!u)return;var er=document.getElementById('qb-err'),amt=+String(document.getElementById('qb-amt').value).replace(/\D/g,'')||0,ref=String(document.getElementById('qb-ref').value||'').trim();
  if(amt<100)return er.textContent='Escribe el valor que pagaste.';if(ref.length<4)return er.textContent='Escribe el número de la transacción (mínimo 4 letras o números).';
@@ -1674,9 +1688,13 @@ function admH(){var L=RECV.filter(function(p){return p.kind==='rol'});
  return '<p class="qbw">Antes de confirmar, revisa en tu banco o en Nequi que el dinero llegó. Al confirmar se crea un código y el rol se activa solo cuando la persona abre la página.</p>'+
   (L.length?'<div class="qbl">'+L.map(function(p){return itH(p,false,true)}).join('')+'</div>':'<p class="muted">Aún no hay pagos de roles.</p>')}
 function keyH(){var u=me();if(!u)return '<p class="muted">Para recibir pagos entra con tu correo y tu clave.</p>';var p=PRO[u.uid]||{},a=KM==='adm';QRD='';
- return '<p class="muted">'+(a?'Datos de pago de Mi Pradera: aquí pagan los roles.':'Tus datos aparecen con el botón «Pagar» en tus tiendas, servicios y anuncios. El dinero llega directo a tu banco o a tu Nequi: Mi Pradera no lo toca.')+' Llena al menos uno.</p>'+
+ return '<p class="muted">'+(a?'Datos de pago de Mi Pradera: aquí pagan los roles.':'Tus datos aparecen con el botón «Pagar» en tus tiendas, servicios y anuncios. El dinero llega directo a tu banco o a tu Nequi: Mi Pradera no lo toca.')+'</p>'+
+  '<label for="qb-tn">Nombre del titular de la cuenta</label><input type="text" id="qb-tn" maxlength="80" autocomplete="off" value="'+E(p.tn||'')+'" placeholder="Como aparece en tu banco o en Nequi">'+
+  '<p class="muted" style="font-size:13px;margin:4px 0 0">Por seguridad se guarda y se muestra así: <b id="qb-tnv">'+E(p.tn||mask('Ana Elizabeth Meléndez'))+'</b></p>'+
+  '<p class="muted" style="margin-top:12px">Llena al menos uno: la llave Bre-B o el número de Nequi.</p>'+
   '<label for="qb-key">Llave Bre-B (opcional)</label><input type="text" id="qb-key" maxlength="80" autocomplete="off" value="'+E(p.key||'')+'" placeholder="Celular, correo o @tullave">'+
   '<p class="qbw">No uses tu cédula como llave: la verían todos. Usa tu celular, tu correo o una llave alfanumérica (@…).</p>'+
+  '<label for="qb-bk">Banco o billetera de esa llave</label><select id="qb-bk"><option value="">'+(p.bk?'Guardado: '+E(p.bk):'Elige…')+'</option>'+BANKS.map(function(x){return '<option>'+E(x)+'</option>'}).join('')+'</select>'+
   '<label for="qb-nq">Número de Nequi (opcional)</label><input type="tel" id="qb-nq" inputmode="numeric" maxlength="14" autocomplete="off" value="'+E(p.nq||'')+'" placeholder="3001234567">'+
   '<label for="qb-qr">Código QR de Bre-B (opcional)</label><img class="qbq" id="qb-qrv" src="'+E(p.qr||'')+'" alt="Código QR"'+(p.qr?'':' hidden')+'><input type="file" id="qb-qr" accept="image/*"><p class="muted" style="font-size:13px;margin:4px 0 0">Lo descargas desde la app de tu banco, en la opción Bre-B.</p>'+
   '<p class="err" id="qb-kerr" role="alert"></p><div class="row"><button type="button" class="btn pink" id="qb-ksave">Guardar</button>'+(hasP(p)?'<button type="button" class="btn ghost" id="qb-kdel">Quitar mis datos</button>':'')+'</div>'}
@@ -1694,14 +1712,17 @@ function paint(){try{inject()}catch(e){}paintList(false);
 /* ---- guardar la llave ---- */
 function qrPick(f){if(!f)return;var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,520/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
   var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);var du=c.toDataURL('image/webp',.85);if(du.slice(0,15)!=='data:image/webp')du=c.toDataURL('image/jpeg',.85);QRD=du;var v=document.getElementById('qb-qrv');if(v){v.src=du;v.hidden=false}};im.src=rd.result};rd.readAsDataURL(f)}
-async function keySave(b){var u=me(),er=document.getElementById('qb-kerr');if(!u)return;var k=String(document.getElementById('qb-key').value||'').trim(),nq=String(document.getElementById('qb-nq').value||'').replace(/\D/g,'');
+async function keySave(b){var u=me(),er=document.getElementById('qb-kerr');if(!u)return;var k=String(document.getElementById('qb-key').value||'').trim(),nq=String(document.getElementById('qb-nq').value||'').replace(/\D/g,''),
+  tn=mask(document.getElementById('qb-tn').value),bs=document.getElementById('qb-bk').value,bk=bs?mask(bs):((PRO[u.uid]||{}).bk||'');
+ if(tn.replace(/[\s*]/g,'').length<3||tn.indexOf(' ')<0)return er.textContent='Escribe el nombre completo del titular, como aparece en tu banco.';
+ if(k&&!bk)return er.textContent='Elige el banco o la billetera de tu llave Bre-B.';
  if(!k&&!nq)return er.textContent='Escribe tu llave Bre-B, tu número de Nequi o los dos.';
  if(k&&k.length<3)return er.textContent='La llave Bre-B es muy corta.';
  if(nq&&!/^3\d{9}$/.test(nq))return er.textContent='El número de Nequi debe tener 10 dígitos y empezar por 3.';
  if(/^\d{6,10}$/.test(k)&&!/^3\d{9}$/.test(k)){var go=true;try{go=await askC('Ese número parece una cédula. Todos los vecinos la verían. ¿Quieres usarla igual?','Usarla igual')}catch(e){}if(!go)return}
  b.disabled=true;er.textContent='';var p=PRO[u.uid]||{},qr=p.qr||'';
  try{if(QRD){qr=typeof r2up==='function'?await r2up(QRD):QRD;if(String(qr).length>380000)throw{m:'La imagen del QR es muy pesada. Prueba con otra.'}}
-  await db().collection('breb').doc(u.uid).set({key:k.slice(0,80),nq:nq,name:String(KM==='adm'?'Mi Pradera':(S.user&&S.user.name)||'Vecino').slice(0,60),qr:String(qr||''),ts:Date.now()});QRD='';
+  await db().collection('breb').doc(u.uid).set({key:k.slice(0,80),nq:nq,tn:tn.slice(0,80),bk:k?bk.slice(0,40):'',name:String(KM==='adm'?'Mi Pradera':(S.user&&S.user.name)||'Vecino').slice(0,60),qr:String(qr||''),ts:Date.now()});QRD='';
   T('Datos de pago guardados');if(KM==='adm')closeModal(1);else{tab='recv';paintList(true)}}
  catch(e){er.textContent=(e&&e.m)||(e&&e.code==='permission-denied'?'No se pudo guardar. Entra con tu correo y tu clave.':'No se pudo guardar. Revisa tu conexión.')}b.disabled=false}
 async function keyDel(){var u=me();if(!u)return;var go=true;try{go=await askC('¿Quitar tus datos de pago? El botón «Pagar» deja de salir en tus publicaciones.','Quitar')}catch(e){}if(!go)return;
@@ -1721,7 +1742,7 @@ window.brebAdmHTML=function(){var p=PRO[aid()]||{},n=RECV.filter(function(x){ret
 document.addEventListener('change',function(e){var t=e.target;if(!t)return;
  if(t.id==='qb-qr')qrPick(t.files&&t.files[0]);
  else if(t.id==='breb-on'){try{S.site=Object.assign({},S.site,{breb:!!t.checked});save();T(t.checked?'Pagos con Bre-B y Nequi activados':'Pagos con Bre-B y Nequi ocultos')}catch(x){}}});
-document.addEventListener('input',function(e){if(e.target&&e.target.id==='qb-amt'&&!e.target.readOnly){var v=e.target.value,f=moneyFmt(v);if(v!==f)e.target.value=f}});
+document.addEventListener('input',function(e){if(e.target&&e.target.id==='qb-tn'){var v=document.getElementById('qb-tnv');if(v)v.textContent=mask(e.target.value)||mask('Ana Elizabeth Meléndez');return}if(e.target&&e.target.id==='qb-amt'&&!e.target.readOnly){var v=e.target.value,f=moneyFmt(v);if(v!==f)e.target.value=f}});
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
  e.preventDefault();e.stopPropagation();var d=b.dataset;
  if(d.act==='brebOpen')return myOpen();
