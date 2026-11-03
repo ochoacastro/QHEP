@@ -1705,12 +1705,13 @@ function stH(p,rc){var r=p.kind==='rol';
  return '<span class="qbs p">'+(rc?'Por confirmar':'Esperando confirmación')+'</span>'}
 function itH(p,rc,admL){var bt='';
  if(admL){if(p.st==='pend')bt='<button type="button" class="btn pink" data-qbact="'+E(p.id)+'">Aprobar y enviar código</button><button type="button" class="btn ghost" data-qbno="'+E(p.id)+'">No llegó</button>';
-  else if(p.st==='no')bt='<button type="button" class="btn ghost" data-qbund="'+E(p.id)+'">Volver a revisar</button>'}
+  else if(p.st==='no')bt='<button type="button" class="btn ghost" data-qbund="'+E(p.id)+'">Volver a revisar</button>';
+  else if(p.st==='ok'&&p.code&&payerWa(p))bt='<button type="button" class="btn wa" data-qbwac="'+E(p.id)+'">'+(p.waAt?'Reenviar código por WhatsApp':'Enviar código por WhatsApp')+'</button>'}
  else if(rc){if(p.kind!=='rol'){bt=p.st==='pend'?'<button type="button" class="btn pink" data-qbok="'+E(p.id)+'">Sí me llegó</button><button type="button" class="btn ghost" data-qbno="'+E(p.id)+'">No me llegó</button>':'<button type="button" class="btn ghost" data-qbund="'+E(p.id)+'">Cambiar</button>'}}
  else if(p.st==='pend')bt='<button type="button" class="btn ghost" data-qbdel="'+E(p.id)+'">Borrar registro</button>';
  if(!rc&&!admL&&p.kind==='rol')bt='<button type="button" class="btn pink" data-qbtrack="1">Ver seguimiento</button>'+bt;
  return '<div class="qbi"><div class="qbh"><b>'+E(rc||admL?p.fromName:p.toName)+'</b><strong>'+E(M(p.amt))+'</strong></div><small>'+E(p.what)+'</small><small>Por '+VN(p.via)+(p.ref?' · Transacción: '+E(p.ref):'')+' · '+E(D(p.ts))+'</small>'+
-  (admL&&p.code?'<small>Código enviado: '+E(fmtC(p.code))+' · '+(p.red||admUsed(p.code)?'ya lo activó':'aún sin activar')+'</small>':'')+stH(p,rc||admL)+((bt||p.img)?'<div class="row">'+(p.img?'<button type="button" class="btn ghost" data-qbimg="'+E(p.id)+'">Ver comprobante</button>':'')+bt+'</div>':'')+'</div>'}
+  (admL&&p.code?'<small>Código enviado: '+E(fmtC(p.code))+' · '+(p.red||admUsed(p.code)?'ya lo activó':'aún sin activar')+(p.waAt?' · enviado por WhatsApp el '+E(D(p.waAt)):'')+'</small>'+(payerWa(p)?'':'<small>Esta persona no registró WhatsApp: el código solo le llega a su perfil.</small>'):'')+stH(p,rc||admL)+((bt||p.img)?'<div class="row">'+(p.img?'<button type="button" class="btn ghost" data-qbimg="'+E(p.id)+'">Ver comprobante</button>':'')+bt+'</div>':'')+'</div>'}
 function recvH(){var u=me();if(!u)return '<p class="muted">Para ver y confirmar pagos entra con tu correo y tu clave.</p>';var L=RECV.filter(function(p){return p.kind!=='rol'});
  return '<p class="qbw">Antes de tocar «Sí me llegó», abre la app de tu banco o de Nequi y revisa que el dinero sí llegó. Los pantallazos de pago pueden ser falsos.</p>'+
   (L.length?'<div class="qbl">'+L.map(function(p){return itH(p,true)}).join('')+'</div>':'<p class="muted">Aún no tienes pagos recibidos.</p>')+
@@ -1718,7 +1719,7 @@ function recvH(){var u=me();if(!u)return '<p class="muted">Para ver y confirmar 
 function sentH(){if(!me())return '<p class="muted">Para ver tus pagos entra con tu correo y tu clave.</p>';
  return SENT.length?'<div class="qbl">'+SENT.map(function(p){return itH(p,false)}).join('')+'</div>':'<p class="muted">Aún no has registrado pagos. Busca el botón «Pagar con Bre-B» o «Pagar con Nequi» en tiendas, servicios y anuncios.</p>'}
 function admH(){var L=RECV.filter(function(p){return p.kind==='rol'});
- return '<p class="qbw">Antes de confirmar, revisa en tu banco o en Nequi que el dinero llegó. Al confirmar se crea un código y el rol se activa solo cuando la persona abre la página.</p>'+
+ return '<p class="qbw">Antes de aprobar, revisa en tu banco o en Nequi que el dinero llegó. Al aprobar se crea un código: la persona lo ve en Mi cuenta → Mis códigos y el rol se activa solo. Si registró WhatsApp, también se lo puedes enviar por ahí.</p>'+
   (L.length?'<div class="qbl">'+L.map(function(p){return itH(p,false,true)}).join('')+'</div>':'<p class="muted">Aún no hay pagos de roles.</p>')}
 function keyH(){var u=me();if(!u)return '<p class="muted">Para recibir pagos entra con tu correo y tu clave.</p>';var p=PRO[u.uid]||{},a=KM==='adm';QRD='';
  return '<p class="muted">'+(a?'Datos de pago de Mi Pradera: aquí pagan los roles.':'Tus datos aparecen con el botón «Pagar» en tus tiendas, servicios y anuncios. El dinero llega directo a tu banco o a tu Nequi: Mi Pradera no lo toca.')+'</p>'+
@@ -1757,6 +1758,11 @@ function dLeft(e){return Math.ceil((e-Date.now())/864e5)}
 function fd(t){try{return new Date(t).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}catch(e){return ''}}
 function roleN(u){try{return (USES[u]||COMU[u]||{}).n||u}catch(e){return u}}
 function fmtC(c){try{return codeFmt(c)}catch(e){return c}}
+/* v237: WhatsApp de quien pagó (de su ficha de plan) y mensaje con el código */
+function payerWa(p){try{var pl=QH.plans().find(function(x){return x.uid===p.from});return pl&&pl.wa?String(pl.wa).replace(/\D/g,''):''}catch(e){return ''}}
+function sendCodeWa(p){var w=payerWa(p);if(!w||!p.code)return T('Esta persona no registró WhatsApp.');
+ waOpen(w,'Hola '+(p.fromName||'')+', tu pago de '+M(p.amt)+' por '+VN(p.via)+' para «'+p.what+'» fue aprobado. Tu código es: '+fmtC(p.code)+'. Se activa solo cuando abras Mi Pradera y también lo ves en Mi cuenta → Mis códigos. https://mipradera.com.co');
+ db().collection('pagos').doc(p.id).update({waAt:Date.now()}).catch(function(){})}
 function admUsed(c){try{var x=QH.codes().find(function(y){return y.c===c});return !!(x&&x.used)}catch(e){return false}}
 function stp(c,t,d){return '<li class="'+c+'"><i aria-hidden="true">'+(c==='ok'?'✓':c==='no'?'✕':'')+'</i><span><b>'+t+'</b>'+d+'</span></li>'}
 function trackH(){var L=SENT.filter(function(p){return p.kind==='rol'});if(!L.length)return '';
@@ -1814,7 +1820,9 @@ async function admAct(id){var p=RECV.find(function(x){return x.id===id});if(!p)r
   var isC=typeof COMU==='object'&&COMU[p.use],mo=isC?0:(Number(p.m)||0),dy=(isC?COM_DAYS[p.use]:CODE_DAYS[mo])||0;if(!dy)throw 0;
   var AL='ABCDEFGHJKMNPQRSTUVWXYZ23456789',cd=Array.from(crypto.getRandomValues(new Uint32Array(12)),function(x){return AL[x%AL.length]}).join('');
   await db().collection('codes').doc(cd).set({c:cd,use:p.use,months:mo,days:dy,used:false,ts:Date.now(),uid:p.from,pago:id,pref:String(p.ref||'').slice(0,40)});
-  await db().collection('pagos').doc(id).update({st:'ok',sts:Date.now(),code:cd});T('Pago aprobado. El código ya está en el perfil de '+p.fromName+'.')}
+  await db().collection('pagos').doc(id).update({st:'ok',sts:Date.now(),code:cd});T('Pago aprobado. El código ya está en el perfil de '+p.fromName+'.');
+  /* v237: si la persona registró WhatsApp, ofrecer enviarle el código también por ahí */
+  if(payerWa(p)){var go2=false;try{go2=await askC('El código ya está en el perfil de '+p.fromName+'. ¿También se lo envías por WhatsApp?','Enviar por WhatsApp')}catch(x){}if(go2)sendCodeWa(Object.assign({},p,{id:id,code:cd}))}}
  catch(e){T('No se pudo activar el rol.')}}
 /* ---- tarjeta en Administrar → Mis datos ---- */
 window.brebAdmHTML=function(){var p=PRO[aid()]||{},n=RECV.filter(function(x){return x.kind==='rol'&&x.st==='pend'}).length;
@@ -1827,7 +1835,7 @@ document.addEventListener('change',function(e){var t=e.target;if(!t)return;
  else if(t.id==='qb-img'&&t.files&&t.files[0])shrink(t.files[0],1100,280000,function(du){PIMG=du;var er=document.getElementById('qb-err');if(er)er.textContent=''});
  else if(t.id==='breb-on'){try{S.site=Object.assign({},S.site,{breb:!!t.checked});save();T(t.checked?'Pagos con Bre-B y Nequi activados':'Pagos con Bre-B y Nequi ocultos')}catch(x){}}});
 document.addEventListener('input',function(e){if(e.target&&e.target.id==='qb-tn'){var v=document.getElementById('qb-tnv');if(v)v.textContent=mask(e.target.value)||mask('Ana Elizabeth Meléndez');return}if(e.target&&e.target.id==='qb-amt'&&!e.target.readOnly){var v=e.target.value,f=moneyFmt(v);if(v!==f)e.target.value=f}});
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],[data-qbimg],[data-act="myCodes"],[data-qbtrack],[data-qbuse],[data-qbadmwa],#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],[data-qbimg],[data-act="myCodes"],[data-qbtrack],[data-qbuse],[data-qbadmwa],[data-qbwac],#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
  e.preventDefault();e.stopPropagation();var d=b.dataset;
  if(d.act==='brebOpen')return myOpen();
  if(b.classList.contains('qbb')){var i=info(b.previousElementSibling);if(i)payOpen({to:i.o,toName:(PRO[i.o]&&PRO[i.o].name)||i.n,amt:i.amt,what:i.what,kind:'item',item:i.item,wa:i.wa});return}
@@ -1839,6 +1847,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  if(d.qbvia){VIA=d.qbvia;var vl=b.parentNode.querySelectorAll('[data-qbvia]');for(var z=0;z<vl.length;z++)vl[z].setAttribute('aria-selected',vl[z]===b);var vb=document.getElementById('qb-via');if(vb)vb.innerHTML=viaH();return}
  if(d.act==='myCodes'||d.qbtrack)return myCodesOpen();
  if(d.qbuse)return useCode(d.qbuse,b);
+ if(d.qbwac){var pc=RECV.find(function(y){return y.id===d.qbwac});if(pc)sendCodeWa(pc);return}
  if(d.qbadmwa){var pw=SENT.find(function(y){return y.id===d.qbadmwa}),w=site_().wa;if(!w)return T('El administrador aún no configuró su WhatsApp.');if(pw)waOpen(w,'Hola, soy '+(S.user&&S.user.name||'')+'. Pagué '+M(pw.amt)+' por '+VN(pw.via)+' ('+pw.what+') el '+D(pw.ts)+(pw.ref?'. Número de transacción: '+pw.ref:'')+'. En Mi Pradera aparece como no aprobado, ¿me ayudas a revisarlo?');return}
  if(d.qbimg){var pi=SENT.concat(RECV).find(function(y){return y.id===d.qbimg});if(pi&&pi.img)imgView(pi.img);return}
  if(b.id==='qb-go')return paySave(b);
