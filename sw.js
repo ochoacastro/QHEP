@@ -29,3 +29,13 @@ self.addEventListener('fetch', e => {
   }
   e.respondWith(fetch(r).catch(() => caches.match(r)));
 });
+
+/* v250: al tocar el aviso de una noticia nueva («Seguir noticias»), abre esa noticia en la página */
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || './#/noticias';
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(l => {
+    for (const c of l) { if ('focus' in c) { c.navigate ? c.navigate(url).catch(() => {}) : 0; return c.focus(); } }
+    return self.clients.openWindow ? self.clients.openWindow(url) : null;
+  }));
+});
