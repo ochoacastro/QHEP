@@ -2168,8 +2168,10 @@ var G={
   T('[data-act="saveAd"]','Toca <b>«Publicar»</b>.',{final:1})]},
  not:{t:'Redactar una noticia',open:function(){nwForm()},first:'#nw-t',steps:[
   F('#nw-t','Escribe un <b>título corto y claro</b>.',len(5)),
-  F('#nw-x','Cuenta <b>qué pasó, cuándo y dónde</b> (mínimo 20 letras).',len(20)),
+  P('#nw-cat','Elige la <b>categoría</b>: Comunidad, Clima, Empleo, Eventos…'),
+  F('#nw-x','Cuenta <b>qué pasó, cuándo y dónde</b> (mínimo 20 letras). Con los botones de arriba puedes poner <b>negrilla</b>, subtítulos, listas y enlaces.',len(20)),
   U('#nw-img','Sube una <b>imagen de portada</b> (opcional).',{opt:1}),
+  U('#nw-imgs','Si quieres, agrega <b>más fotos</b> (hasta 4).',{opt:1}),
   F('#nw-v','¿Tienes un <b>video</b>? Pega aquí el enlace (opcional).'+NETS,function(el){return !el.value.trim()||(net(el.value)&&net(el.value).ok)},{opt:1,net:1}),
   F('#nw-a','La <b>firma</b>: tu nombre o el del medio.',len(2)),
   T('[data-act="nwSave"]','Toca <b>«Publicar»</b>.',{final:1})]}
@@ -2250,6 +2252,146 @@ var pend=false;new MutationObserver(function(){if(pend)return;pend=true;(window.
  ['#cm-v','#nw-v'].forEach(function(s){var el=$1(s);if(!el||el.dataset.qnet)return;el.dataset.qnet=1;var d=document.createElement('div');d.innerHTML='<p class="qnets">▶ <b>YouTube</b> se ve dentro de la página · ↗ <b>TikTok, Facebook, Instagram y Google Drive</b> se abren en su app. Para copiar el enlace: en la red social toca <b>Compartir → Copiar enlace</b>.</p><p class="qnet-st" aria-live="polite"></p>';el.insertAdjacentElement('afterend',d);
   var st=d.querySelector('.qnet-st'),u=function(){var n=net(el.value);st.textContent=n?n.t:'';st.className='qnet-st'+(n?(n.ok?' ok':' bad'):'')};el.addEventListener('input',u);u()})})}).observe(document.documentElement,{childList:true,subtree:true});
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-qcm]');if(!b)return;MODE_IMG=b.dataset.qcm==='1';b.parentNode.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)})});
+})();
+</script>
+<style id="v250-noticias-blog-css">
+/* v250: noticias como blog — categorías, archivo por mes, texto con formato, galería, reacciones, comentarios, relacionadas y «Seguir noticias» */
+.nwchips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin:0 0 6px;scrollbar-width:none}
+.nwchips::-webkit-scrollbar{display:none}
+.nwchip{flex:none;min-height:40px;padding:8px 14px;border-radius:980px;border:1px solid var(--color-pale-mist,#d6d6d6);background:#fff;color:var(--color-obsidian,#1d1d1f);font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+.nwchip[aria-pressed=true]{background:var(--color-obsidian,#1d1d1f);border-color:var(--color-obsidian,#1d1d1f);color:#fff}
+.nwct{display:inline-flex;align-items:center;gap:4px;margin:0 0 6px;padding:3px 10px;border:0;border-radius:980px;background:rgba(0,113,227,.1);color:var(--color-sapphire,#0066cc);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.nwmon{margin:18px 4px 8px;font-size:15px;font-weight:700;letter-spacing:.01em;color:var(--color-pewter,#707070);text-transform:none}
+.nwmon:first-child{margin-top:4px}
+.nwmb{display:block;margin:6px auto 4px;min-height:44px}
+.nwend{text-align:center;font-size:14px;margin:10px 0 0}
+.nwnf{font-size:13px !important;opacity:.7;margin-top:6px !important}
+.cmb .nwtx{margin-top:6px}
+.cmb .nwtx p{white-space:normal;margin:0 0 12px;font-size:16px;line-height:1.6;opacity:.92;max-width:65ch}
+.cmb .nwtx h4{margin:18px 0 8px;font-size:18px;line-height:1.3;font-weight:700}
+.cmb .nwtx ul{margin:0 0 12px;padding-left:22px}
+.cmb .nwtx li{margin:4px 0;font-size:16px;line-height:1.55}
+.cmb .nwtx a{color:var(--color-sapphire,#0066cc);word-break:break-all}
+.nwgal{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:0 16px 12px}
+.nwgal img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;cursor:zoom-in;background:var(--color-fog-white,#f5f5f7)}
+.nwgal img:only-child{grid-column:1/-1;aspect-ratio:16/10}
+.nwtb{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
+.nwtb button{min-height:36px;padding:6px 12px;border-radius:10px;border:1px solid var(--color-pale-mist,#d6d6d6);background:#fff;color:var(--color-obsidian,#1d1d1f);font:inherit;font-size:14px;cursor:pointer}
+.nwgp{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0}
+.nwgp:empty{display:none}
+.nwgt{position:relative;width:76px;height:76px}
+.nwgt img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.nwgt button{position:absolute;top:-6px;right:-6px;width:28px;height:28px;border-radius:50%;border:2px solid #fff;background:#1d1d1f;color:#fff;font-size:13px;line-height:1;cursor:pointer}
+.nwrel{margin:18px 0 0}
+.nwrel h3{font-size:19px;margin:0 4px 10px}
+.nwri{display:flex;gap:12px;align-items:center;width:100%;margin:0 0 8px;padding:10px;border:0;border-radius:16px;background:#fff;color:inherit;font:inherit;text-align:left;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.nwri img,.nwri0{flex:none;width:72px;height:56px;border-radius:10px;object-fit:cover;background:var(--color-fog-white,#f5f5f7);display:grid;place-items:center;font-size:24px}
+.nwri b{display:block;font-size:15px;line-height:1.3}
+.nwri small{display:block;margin-top:3px;font-size:13px;color:var(--color-pewter,#707070)}
+.nwcnt:empty,.nwfb:empty{display:none}
+.nwcnt{padding:0 16px 12px;font-size:13px;color:var(--color-pewter,#707070)}
+.nwfb{padding:4px 16px 16px;border-top:1px solid rgba(0,0,0,.06)}
+.nwre{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.nwre button{display:inline-flex;align-items:center;gap:5px;min-height:40px;padding:6px 12px;border-radius:980px;border:1px solid var(--color-pale-mist,#d6d6d6);background:#fff;color:var(--color-obsidian,#1d1d1f);font:inherit;font-size:15px;cursor:pointer}
+.nwre button[aria-pressed=true]{border-color:var(--color-iris-blue,#0071e3);background:rgba(0,113,227,.1);color:var(--color-sapphire,#0066cc);font-weight:600}
+.nwre b{font-weight:600;font-size:14px}
+.nwfb h4{margin:14px 0 6px;font-size:16px}
+.nwcm{padding:10px 0;border-bottom:1px solid rgba(0,0,0,.06)}
+.nwcm b{font-size:14px}
+.nwcm small{margin-left:6px;font-size:12px;color:var(--color-pewter,#707070)}
+.nwcm .tg{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:980px;font-size:11px;font-weight:600;background:rgba(0,113,227,.1);color:var(--color-sapphire,#0066cc)}
+.nwcm p{margin:4px 0 0;font-size:15px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.nwcm .del{background:none;border:0;padding:6px 0 0;color:var(--color-sapphire,#0066cc);font:inherit;font-size:13px;cursor:pointer}
+.nwcf{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.nwcf textarea{width:100%;min-height:76px;margin:0;padding:12px 14px;border:1px solid var(--color-pale-mist,#d6d6d6);border-radius:14px;background:#fff;color:var(--color-obsidian,#1d1d1f);font:inherit;font-size:16px;resize:vertical}
+.nwcf .btn{align-self:flex-start}
+.nwnote{font-size:13px;color:var(--color-pewter,#707070);margin:8px 0 0}
+.nwfol[aria-pressed=true]{border-color:var(--color-iris-blue,#0071e3);color:var(--color-sapphire,#0066cc);background:rgba(0,113,227,.08)}
+[data-v="news"]{position:relative}
+.nwbadge{position:absolute;top:2px;right:2px;min-width:20px;height:20px;padding:0 6px;border-radius:980px;background:#ff3b30;color:#fff;font:600 12px/20px system-ui,sans-serif;font-style:normal;text-align:center;pointer-events:none;box-shadow:0 0 0 2px #fff;z-index:2}
+.nwnot{position:fixed;top:12px;right:12px;left:auto;z-index:60;max-width:340px;width:calc(100% - 24px);display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:#fff;color:var(--color-obsidian,#1d1d1f);box-shadow:0 12px 32px -8px rgba(0,0,0,.35);font-size:14px;line-height:1.4}
+.nwnot b{display:block;font-size:14px}
+.nwnot .go{margin-top:6px;min-height:36px;padding:6px 14px;border:0;border-radius:980px;background:var(--color-iris-blue,#0071e3);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.nwnot .x{margin-left:auto;flex:none;width:32px;height:32px;border:0;border-radius:50%;background:var(--color-fog-white,#f5f5f7);color:inherit;font-size:14px;cursor:pointer}
+</style>
+<script id="v250-noticias-blog">
+/* v250: reacciones y comentarios de noticias (colección "nwFb", reglas de Firestore v31), cuántas noticias nuevas hay
+   (globito rojo en «Noticias»), «Seguir noticias» (aviso en la esquina y notificación del celular mientras la página o la app
+   está abierta) y los botones de formato del texto. Si algo falla, borra este <script id="v250-noticias-blog"> y su <style>:
+   las noticias se siguen viendo y publicando. */
+(function(){
+var FB=null,busy=false,LAST=[],KNOWN=null,T0=Date.now();
+var RE=[['like','👍','Me gusta'],['love','❤️','Me encanta'],['wow','😮','Me sorprende'],['sad','😢','Me entristece'],['clap','👏','Aplausos']];
+function E(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function me(){try{var u=QH.authCur&&QH.authCur();return u&&!u.isAnonymous?u:null}catch(e){return null}}
+function isAdm(){var u=me();try{return (typeof MODE!=='undefined'&&MODE==='admin')||(u&&typeof ADMIN_UID!=='undefined'&&u.uid===ADMIN_UID)}catch(e){return false}}
+function nwOf(id){try{return (QH.NEWS||[]).find(function(x){return x.id===id})||null}catch(e){return null}}
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,String(v))}catch(e){return null}}
+function when(t){try{return new Date(t).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}catch(e){return ''}}
+function db(){return firebase.firestore().collection('nwFb')}
+/* ---- reacciones y comentarios ---- */
+function box(id){var d=FB&&FB[id]||{re:{},cm:[]},u=me(),n=nwOf(id),mine=u&&d.re[u.uid],h='<div class="nwre" role="group" aria-label="¿Qué te pareció esta noticia?">';
+ RE.forEach(function(r){var c=0;for(var k in d.re)if(d.re[k]===r[0])c++;h+='<button type="button" data-nwre="'+r[0]+'" aria-pressed="'+(mine===r[0])+'" aria-label="'+r[2]+' ('+c+')" title="'+r[2]+'"><span aria-hidden="true">'+r[1]+'</span><b>'+(c||'')+'</b></button>'});
+ h+='</div>';var L=d.cm.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0)});
+ h+='<h4>Comentarios ('+L.length+')</h4>';
+ h+=L.length?L.map(function(c){var del=(u&&(c.uid===u.uid||(n&&n.ownerUid===u.uid)))||isAdm();
+   return '<div class="nwcm"><b>'+E(c.name||'Vecino')+'</b>'+(n&&c.uid===n.ownerUid?'<span class="tg">Autor</span>':'')+'<small>'+E(when(c.ts))+'</small><p>'+E(c.txt)+'</p>'+(del?'<button type="button" class="del" data-nwcd="'+E(c.cid)+'" data-u="'+E(c.uid)+'">Borrar comentario</button>':'')+'</div>'}).join(''):'<p class="nwnote">Aún no hay comentarios. ¡Sé el primero!</p>';
+ h+=u?'<div class="nwcf"><label class="qh-sr" for="nwc-'+E(id)+'">Tu comentario</label><textarea id="nwc-'+E(id)+'" maxlength="500" placeholder="Escribe tu comentario (máximo 500 letras). Sé respetuoso."></textarea><button type="button" class="btn" data-nwcs="1">Publicar comentario</button></div>'
+   :'<p class="nwnote">Para reaccionar o comentar <button type="button" class="del" data-nwin="1" style="padding:0">entra a tu cuenta</button>.</p>';
+ return h}
+function cnt(id){var d=FB&&FB[id];if(!d)return '';var r=Object.keys(d.re).length,c=d.cm.length;if(!r&&!c)return '';var t={};for(var k in d.re)t[d.re[k]]=1;var ic=RE.filter(function(x){return t[x[0]]}).map(function(x){return x[1]}).join('');
+ return (r?ic+' '+r:'')+(r&&c?' · ':'')+(c?'💬 '+c+(c===1?' comentario':' comentarios'):'')}
+function paint(){if(!FB)return;var l=document.querySelectorAll('.nwfb[data-nw]');for(var i=0;i<l.length;i++){var b=l[i];if(document.activeElement&&b.contains(document.activeElement)&&document.activeElement.tagName==='TEXTAREA')continue;var h=box(b.dataset.nw);if(b._h!==h){b._h=h;b.innerHTML=h}}
+ l=document.querySelectorAll('.nwcnt[data-nwc]');for(i=0;i<l.length;i++){h=cnt(l[i].dataset.nwc);if(l[i]._h!==h){l[i]._h=h;l[i].textContent=h}}}
+function fail(e){busy=false;toast(e&&e.code==='permission-denied'?'No se pudo guardar. Entra con tu correo verificado para participar.':'No se pudo guardar. Revisa tu conexión.')}
+/* ---- noticias nuevas, globito y «Seguir noticias» ---- */
+function seen(){return Number(ls('qh_nw_seen'))||0}
+function fol(){return ls('qh_nw_fol')==='1'}
+function unread(){var s=seen();return LAST.filter(function(x){return (x.ts||0)>s}).length}
+function badges(){var n=unread(),onList=typeof view!=='undefined'&&view==='news'&&!curN;if(onList&&LAST.length){var m=Math.max.apply(null,LAST.map(function(x){return x.ts||0}));if(m>seen())ls('qh_nw_seen',m);n=0}
+ var l=document.querySelectorAll('[data-act][data-v="news"]');for(var i=0;i<l.length;i++){var b=l[i],g=b.querySelector(':scope>.nwbadge');if(n){if(!g){g=document.createElement('i');g.className='nwbadge';b.appendChild(g)}var t=n>9?'9+':String(n);if(g.textContent!==t)g.textContent=t;b.setAttribute('aria-description',n+(n===1?' noticia nueva':' noticias nuevas'))}else if(g){g.remove();b.removeAttribute('aria-description')}}
+ l=document.querySelectorAll('.nwfol');for(i=0;i<l.length;i++){var on=fol(),tx=on?'🔔 Siguiendo':'🔔 Seguir noticias';if(l[i].textContent!==tx)l[i].textContent=tx;l[i].setAttribute('aria-pressed',on)}}
+function openNw(id){try{var o=document.querySelector('.nwnot');if(o)o.remove();if(typeof closeModal==='function'&&document.querySelector('#ov'))closeModal(1);if(id){curN=id}else{curN=''}view='news';render();scrollTo(0,0)}catch(e){location.hash=id?'#/nw/'+id:'#/noticias'}}
+function notice(t,s,id){var o=document.querySelector('.nwnot');if(o)o.remove();o=document.createElement('div');o.className='nwnot';o.setAttribute('role','status');
+ o.innerHTML='<span aria-hidden="true" style="font-size:22px">📰</span><div><b>'+E(t)+'</b>'+E(s)+'<br><button type="button" class="go" data-nwgo="'+E(id||'')+'">Leer</button></div><button type="button" class="x" data-nwx="1" aria-label="Cerrar aviso">✕</button>';document.body.appendChild(o);setTimeout(function(){if(o.isConnected)o.remove()},15000)}
+function push(n){try{if(!fol()||!('Notification' in window)||Notification.permission!=='granted'||!document.hidden)return;var url=location.href.split('#')[0]+'#/nw/'+n.id,op={body:n.title,icon:'icon-192.png',tag:'nw-'+n.id,data:{url:url}};
+ if(navigator.serviceWorker&&navigator.serviceWorker.controller)navigator.serviceWorker.ready.then(function(r){r.showNotification('Nueva noticia en Mi Pradera',op)});else{var x=new Notification('Nueva noticia en Mi Pradera',op);x.onclick=function(){window.focus();openNw(n.id)}}}catch(e){}}
+function latest(sn){var L=[];sn.forEach(function(d){var x=d.data()||{};L.push({id:d.id,title:x.title||'',ts:x.ts||0})});LAST=L;
+ if(!ls('qh_nw_seen')&&L.length)ls('qh_nw_seen',Math.max.apply(null,L.map(function(x){return x.ts}))) /* primera visita: no hay nada "nuevo" */;
+ if(KNOWN===null){KNOWN={};L.forEach(function(x){KNOWN[x.id]=1});var u=unread();if(fol()&&u&&!(view==='news'&&!curN))notice(u===1?'Hay 1 noticia nueva':'Hay '+u+' noticias nuevas','Desde tu última visita.',u===1?(L.find(function(x){return x.ts>seen()})||{}).id:'')}
+ else{L.forEach(function(x){if(!KNOWN[x.id]){KNOWN[x.id]=1;if(fol()&&x.ts>T0){var k=QH.key&&QH.key(),n=nwOf(x.id);if(!(n&&k&&n.ownerKey===k)){notice('Nueva noticia',x.title,x.id);push(x)}}}})}
+ badges()}
+function folToggle(){if(fol()){ls('qh_nw_fol',null);badges();return toast('Ya no te avisaremos de noticias nuevas')}
+ ls('qh_nw_fol','1');badges();var go=function(){var rss=(typeof nwBase==='function'?nwBase():'')+'noticias/feed.xml';
+  modal('<h2>🔔 Sigues las noticias</h2><p>Cuando se publique una noticia nueva te avisamos en la esquina de la pantalla'+(('Notification' in window&&Notification.permission==='granted')?' y con una notificación del celular':'')+', mientras tengas Mi Pradera abierta o instalada como app. Además, el botón <b>Noticias</b> muestra un número rojo con las noticias que no has visto.</p><p class="muted">¿Usas un lector de noticias (RSS)? Copia esta dirección: <a href="'+E(rss)+'" target="_blank" rel="noopener">'+E(rss)+'</a></p><div class="row" style="margin-top:12px"><button type="button" class="btn" data-act="close">Entendido</button></div>')};
+ try{if('Notification' in window&&Notification.permission==='default'){Notification.requestPermission().then(go,go);return}}catch(e){}go()}
+/* ---- formato del texto (formulario de noticia) ---- */
+function fx(k){var t=document.getElementById('nw-x');if(!t)return;var a=t.selectionStart||0,b=t.selectionEnd||0,v=t.value,sel=v.slice(a,b),ls0=v.lastIndexOf('\n',a-1)+1,ins,c0,c1;
+ if(k==='b'){ins='**'+(sel||'texto en negrilla')+'**';t.value=v.slice(0,a)+ins+v.slice(b);c0=a+2;c1=a+ins.length-2}
+ else if(k==='h'||k==='l'){var p=k==='h'?'## ':'• ',bl=v.slice(0,ls0),nl=(bl&&!/\n$/.test(bl))?'\n':'';var body=sel||(k==='h'?'Subtítulo':'Elemento de la lista');ins=(a===ls0?'':'\n')+p+body+'\n';t.value=v.slice(0,a)+ins+v.slice(b);c0=a+ins.indexOf(body);c1=c0+body.length}
+ else{ins=(a&&!/\s$/.test(v.slice(0,a))?' ':'')+'https://';t.value=v.slice(0,a)+ins+v.slice(b);c0=c1=a+ins.length}
+ t.focus();try{t.setSelectionRange(c0,c1)}catch(e){}t.dispatchEvent(new Event('input',{bubbles:true}))}
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-nwre],[data-nwcs],[data-nwcd],[data-nwin],[data-nwfx],[data-qnwf],[data-nwgo],[data-nwx]');if(!b)return;e.preventDefault();e.stopPropagation();
+ if(b.dataset.nwfx)return fx(b.dataset.nwfx);
+ if(b.dataset.qnwf)return folToggle();
+ if(b.dataset.nwx){var o=b.closest('.nwnot');if(o)o.remove();return}
+ if(b.dataset.nwgo!=null)return openNw(b.dataset.nwgo);
+ if(b.dataset.nwin){try{need(function(){paint()})}catch(x){}return}
+ var bx=b.closest('.nwfb'),id=bx&&bx.dataset.nw,u=me();if(!id)return;
+ if(!u){try{need(function(){paint()})}catch(x){toast('Entra a tu cuenta para participar.')}return}
+ if(busy)return;
+ if(b.dataset.nwre){var d=FB&&FB[id]||{re:{}},cur=d.re[u.uid],r=b.dataset.nwre,ref=db().doc(id+'_'+u.uid);busy=true;
+  (cur===r?ref.delete():ref.set({nw:id,uid:u.uid,re:r,ts:Date.now()})).then(function(){busy=false},fail);return}
+ if(b.dataset.nwcs){var ta=bx.querySelector('textarea'),t=(ta&&ta.value||'').trim().slice(0,500);if(t.length<2)return toast('Escribe tu comentario.');
+  var cid='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);busy=true;
+  db().doc(id+'_'+u.uid+'_'+cid).set({nw:id,uid:u.uid,cid:cid,name:String((S.user&&S.user.name)||'Vecino').slice(0,40),txt:t,ts:Date.now()}).then(function(){busy=false;if(ta)ta.value='';ta&&ta.blur();toast('Comentario publicado');paint()},fail);return}
+ if(b.dataset.nwcd){(async function(){if(typeof askC==='function'&&!await askC('¿Borrar este comentario?'))return;db().doc(id+'_'+b.dataset.u+'_'+b.dataset.nwcd).delete().then(function(){toast('Comentario borrado')},function(){toast('No se pudo borrar.')})})();return}
+},true);
+function start(){try{if(!window.firebase||!firebase.apps||!firebase.apps.length||typeof QH==='undefined')return setTimeout(start,500);
+ db().onSnapshot(function(sn){var m={};sn.forEach(function(d){var x=d.data();if(!x||!x.nw)return;var o=m[x.nw]=m[x.nw]||{re:{},cm:[]};if(x.re)o.re[x.uid]=x.re;else if(x.txt)o.cm.push(x)});FB=m;paint()},function(){FB=null;var l=document.querySelectorAll('.nwfb,.nwcnt');for(var i=0;i<l.length;i++){l[i].innerHTML='';l[i]._h=''}});
+ firebase.firestore().collection('news').orderBy('ts','desc').limit(10).onSnapshot(latest,function(){})}catch(e){setTimeout(start,1000)}}
+var pend=false;new MutationObserver(function(){if(!pend){pend=true;(window.requestAnimationFrame||setTimeout)(function(){pend=false;paint();badges()})}}).observe(document.documentElement,{childList:true,subtree:true});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
 <script id="v219-modo-oscuro">
@@ -2553,15 +2695,16 @@ const QH=(function(){
  async function comPut(o){await authP;const u=auth&&auth.currentUser;if(!u||u.isAnonymous)throw{m:'Para publicar entra con tu correo y tu clave.'};o.ownerUid=u.uid;o.ttl=new Date(o.exp+2*DAY);await ref('community',o.id).set(o)}
  const comDel=async id=>{await authP;const o=COM.find(x=>x.id===id);await ref('community',id).delete();r2q(o);r2gc([want(),COM.filter(x=>x.id!==id),NEWS])};
 /* v163: Noticias — coleccion news/<id>; publican quienes tengan el acceso "news" (plans/<k>.acc.news, por código) */
-const NEWS=[];let nwUn=null,nwLoaded=false;
-function newsListen(){if(nwUn||!ready)return;nwUn=db.collection('news').orderBy('ts','desc').limit(60).onSnapshot(snap=>{NEWS.length=0;snap.forEach(d=>NEWS.push(Object.assign({},d.data(),{id:d.id})));nwLoaded=true;if(view==='news'&&!$('#ov'))render(true)},e=>{nwUn=null;nwLoaded=true;NEWS.length=0})}
+const NEWS=[];let nwUn=null,nwLoaded=false,nwLim=60,nwMoreF=false/* v250: «Ver más noticias» sube el límite de 30 en 30 */;
+function newsListen(){if(nwUn||!ready)return;nwUn=db.collection('news').orderBy('ts','desc').limit(nwLim).onSnapshot(snap=>{NEWS.length=0;snap.forEach(d=>NEWS.push(Object.assign({},d.data(),{id:d.id})));nwMoreF=snap.size>=nwLim;nwLoaded=true;if(view==='news'&&!$('#ov'))render(true)},e=>{nwUn=null;nwLoaded=true;NEWS.length=0})}
 async function newsPut(o){await authP;const u=auth&&auth.currentUser;if(!u||u.isAnonymous)throw{m:'Para publicar noticias entra con tu correo.'};o.ownerUid=u.uid;await ref('news',o.id).set(o)}
-const newsDel=async id=>{await authP;const o=NEWS.find(x=>x.id===id);await ref('news',id).delete();r2q(o);r2gc([want(),COM,NEWS.filter(x=>x.id!==id)])};
+const newsMore=()=>{if(!nwMoreF)return;nwLim+=30;if(nwUn){try{nwUn()}catch(e){}nwUn=null}newsListen()};
+const newsDel=async id=>{await authP;const o=NEWS.find(x=>x.id===id);try{/* v250: primero sus comentarios y reacciones */const fs=await db.collection('nwFb').where('nw','==',id).get();await Promise.all(fs.docs.map(d=>d.ref.delete().catch(()=>{})))}catch(e){}await ref('news',id).delete();r2q(o);r2gc([want(),COM,NEWS.filter(x=>x.id!==id)])};
 /* v173: borrar mi plan al eliminar la cuenta */
 async function planWipe(k){if(planUn)planUn();planUn=null;planK='';S.plan=null;await authP;await ref('plans',k).delete()}
  /* v202: URL de R2 que usa hoy cualquier documento de Firestore (lectura completa, sin límites). Si falla una colección importante, lanza error */
 async function r2live(){await authP;if(!db)throw new Error('db');const live=new Set(),add=s=>s.forEach(d=>{(JSON.stringify(d.data()).match(R2RE)||[]).forEach(u=>live.add(u))});for(const c of['stores','products','services','ads','ideas','reports','banners','topAds','cats','meta','community','news','breb','pagos']/* v235: QR y comprobantes de pago; si no se pueden leer, la limpieza se detiene */)add(await db.collection(c).get());for(const c of['plans','presence','codes']){try{add(await db.collection(c).get())}catch(e){}}return live}
-return{r2live,COM,comListen,NEWS,nwReady:()=>nwLoaded,newsListen,newsPut,newsDel,comPut,comDel,start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,online,presBeat,codes,codeGen,codeDel,codeRedeem,planWipe,authCur:()=>auth&&auth.currentUser,authOut:()=>auth&&auth.signOut()};
+return{r2live,COM,comListen,NEWS,nwReady:()=>nwLoaded,newsListen,newsMore,nwHasMore:()=>nwMoreF,newsPut,newsDel,comPut,comDel,start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,online,presBeat,codes,codeGen,codeDel,codeRedeem,planWipe,authCur:()=>auth&&auth.currentUser,authOut:()=>auth&&auth.signOut()};
 })();
 
 const $=s=>document.querySelector(s);
@@ -2936,24 +3079,41 @@ return `<div class="stsw"><div class="ctop stb"><button class="rb" data-act="hom
 <div class="banner promo" style="--c:${c[2]}"><div><div>${esc(s.name)}</div><div>${esc(s.desc)}</div>${(s.tags||[]).length?`<div class="tg">${s.tags.map(t=>'#'+esc(t)).join(' ')}</div>`:''}${socHTML(s)}${s.zone?`<div>Barrio: ${esc(s.zone)}</div>`:''}${hoursTxt(s)?`<div>Horario: ${esc(hoursTxt(s))} ${openBadge(s)}</div>`:''}${s.addr?`<div>Dirección: ${esc(s.addr)}</div>`:''}${s.delivery?`<div>Domicilios: ${esc(s.delivery)}${delFeeTxt(s)}</div>`:''}${paysTxt(s)?`<div>Pagos: ${esc(paysTxt(s))}</div>`:''}<div>${badge(s)} ${rateLine(s)}</div>${s.hidden?'<div><b>Oculta por el administrador</b></div>':''}</div><div class="acts acts-grid">${mine?`<button class="btn" data-act="addProd">+ Producto</button><button class="btn ghost" data-act="mcats">Categorías</button><button class="btn ghost" data-act="chLogo">Foto de perfil</button><button class="btn ghost" data-act="chCover">Imagen de portada</button>${s.cover?'<button class="btn ghost" data-act="delCover">Quitar portada</button>':''}<button class="btn ghost" data-act="editShop">Editar tienda</button><button class="btn ghost" data-act="delShop">Eliminar tienda</button>`:`<button class="btn ghost" data-act="rate" data-k="store" data-id="${s.id}">★ Calificar</button>`}<button class="btn" data-act="reviews" data-k="store" data-id="${s.id}">Opiniones</button><button class="btn" data-act="card" data-id="${s.id}">Tarjeta digital</button>${mine?'':`<button class="btn ghost" data-act="report" data-k="store" data-id="${s.id}">Reportar</button>`}${s.addr||s.plus||hasPin(s)?`<button class="btn ghost" data-act="showloc" data-id="${s.id}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;margin-right:4px"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Mostrar ubicación</span></button>`:''}</div></div>
 ${rr.length?`<h3 class="ptitle rvt">Calificación y opiniones</h3><div class="rvrow">${rr.slice(-3).reverse().map(x=>`<div class="rvc"><div class="rvh"><span class="rva">${esc((x.name||'Vecino').charAt(0).toUpperCase())}</span><div><b>${esc(x.name||'Vecino')}</b>${x.ts?`<small>${new Date(x.ts).toLocaleDateString('es-CO')}</small>`:''}</div>${starsHTML(x.n)}</div>${x.txt?`<p>"${esc(x.txt)}"</p>`:''}</div>`).join('')}</div>`:''}<div id="smap">${sm==='rec'?mapHTML(s):''}</div>${crumb(s)}${sectioned(s)?'':`<h3 class="ptitle">${li?'Publicaciones':'Productos'}</h3>`}<div class="${sectioned(s)?'psecs':'grid pgrid'}" style="--c:${c[2]}">${shown(s).length?prodList(s,p=>FASH.includes(s.cat)?fxCard(s,p,mine):`<div class="prod">${mine?`<button class="x" data-act="delProd" data-id="${p.id}" aria-label="Quitar ${esc(p.name)}">✕</button><button class="x" style="right:42px" data-act="editProd" data-id="${p.id}" aria-label="Editar ${esc(p.name)}">✎</button>`:''}<div class="pic">${gal(p).length?`<button class="zoom" data-act="prod" data-id="${p.id}" aria-label="Ver ${esc(p.name)}"><img src="${lbSrc(gal(p)[0])}" alt="${esc(p.name)}">${isYt(gal(p)[0])?'<span class="play big" aria-hidden="true">▶</span>':''}${gal(p).length>1?`<span class="cnt">${pimgs(p).length?pimgs(p).length+(pimgs(p).length===1?' foto':' fotos'):''}${p.video?(pimgs(p).length?' · ':'')+'▶ video':''}</span>`:''}<span class="zi" aria-hidden="true">Ampliar</span></button>`:'<span class="nop">Sin foto</span>'}${cardOv(s,p,null)}</div><h3><button class="plink" data-act="prod" data-id="${p.id}">${esc(p.name)}</button></h3><div class="price">${pOld(p)}${money(p.price)}${s.cat==='Arriendos'?' <small>/ mes</small>':''}</div>${p.vtype?`<div class="meta">${esc(p.vtype)} · ${esc(p.fuel)}</div>`:''}${p.d?`<div class="muted">${esc(p.d)}</div>`:''}${LISTING.includes(s.cat)?`<button class="btn pink" data-act="ask" data-id="${p.id}">Consultar por WhatsApp</button>`:`${p.out?'<span class="soldout">Agotado</span>':`<button class="plus" data-act="add" data-id="${p.id}" aria-label="Agregar ${esc(p.name)} al carrito">+</button>`}`}</div>`):`<div class="empty">${mine?'Tu tienda aún no tiene publicaciones. Agrega la primera con el botón "+ Producto".':(sq.trim()?'No encontramos «'+esc(sq.trim())+'» en esta tienda.':'Esta tienda aún no tiene publicaciones.')}</div>`}</div>`}
 /* ===== v163: NOTICIAS — blog local; publican quienes tengan el acceso "news" activado por código ===== */
-const newsUrl=id=>BASE_URL+'#/nw/'+encodeURIComponent(id);
+/* v250: cada noticia tiene su página propia (noticias/<titulo>-<id>.html, la crea la acción «Noticias» de GitHub cada hora; mientras tanto 404.html lleva a #/nw/<id>) */
+const nwBase=()=>BASE_URL.replace(/[^\/]*$/,''),nwSlug=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60).replace(/-+$/,'')||'noticia';
+const newsUrl=id=>{const n=QH.NEWS.find(x=>x.id===id);return /^[A-Za-z0-9_]+$/.test(id)?nwBase()+'noticias/'+nwSlug(n&&n.title)+'-'+id+'.html':BASE_URL+'#/nw/'+encodeURIComponent(id)};
+/* v250: categorías, texto con formato (**negrilla**, ## subtítulo, listas con • o -, enlaces), fotos extra y noticias relacionadas */
+const NWC=[['comu','🤝','Comunidad'],['clima','🌦️','Clima y ambiente'],['empleo','💼','Empleo'],['eventos','🎉','Eventos'],['salud','🩺','Salud'],['seguridad','🚨','Seguridad'],['gobierno','🏛️','Gobierno'],['negocios','🛍️','Negocios'],['educacion','📚','Educación'],['deportes','⚽','Deportes'],['cultura','🎭','Cultura']];
+const nwCatOf=k=>NWC.find(c=>c[0]===k),nwImgs=n=>Array.isArray(n&&n.imgs)?n.imgs.filter(u=>typeof u==='string'&&u):[];let nwCat='';
+const nwPlain=t=>String(t||'').replace(/\*\*/g,'').replace(/^#{1,3}\s+/gm,'').replace(/^[-*•]\s+/gm,'• ');
+const nwInl=x=>String(x).split(/(https?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]])/).map((y,i)=>i%2?`<a href="${esc(y)}" target="_blank" rel="noopener nofollow ugc">${esc(y.length>48?y.slice(0,45)+'…':y)}</a>`:esc(y).replace(/\*\*([^*]+?)\*\*/g,'<b>$1</b>')).join('');
+function nwFmt(t){const o=[];let P=[],U=[];const fl=()=>{if(P.length)o.push('<p>'+P.map(nwInl).join('<br>')+'</p>');if(U.length)o.push('<ul>'+U.map(x=>'<li>'+nwInl(x)+'</li>').join('')+'</ul>');P=[];U=[]};
+ String(t||'').replace(/\r/g,'').split('\n').forEach(L=>{const z=L.trim();let m;if(!z)return fl();if((m=z.match(/^#{1,3}\s+(.+)$/))){fl();o.push('<h4>'+nwInl(m[1])+'</h4>');return}if((m=z.match(/^[-*•]\s+(.+)$/))){if(P.length){o.push('<p>'+P.map(nwInl).join('<br>')+'</p>');P=[]}U.push(m[1]);return}if(U.length){o.push('<ul>'+U.map(x=>'<li>'+nwInl(x)+'</li>').join('')+'</ul>');U=[]}P.push(L)});fl();return o.join('')}
+function nwRel(n){const o=QH.NEWS.filter(x=>x.id!==n.id),sm=n.cat?o.filter(x=>x.cat===n.cat):[],r=sm.concat(o.filter(x=>!sm.includes(x))).slice(0,3);if(!r.length)return '';
+ return `<section class="nwrel" aria-label="Más noticias"><h3>Más noticias</h3>${r.map(x=>{const c=nwCatOf(x.cat);return `<button type="button" class="nwri" data-act="nwOpen" data-id="${esc(x.id)}">${x.img?`<img src="${esc(x.img)}" alt="" loading="lazy">`:'<span class="nwri0" aria-hidden="true">📰</span>'}<span><b>${esc(x.title)}</b><small>${esc(nwDate(x))}${c?' · '+esc(c[2]):''}</small></span></button>`}).join('')}</section>`}
+function nwGalPaint(){const p=$('#nw-gp');if(p)p.innerHTML=nwf.imgs.map((u,i)=>`<span class="nwgt"><img src="${esc(u)}" alt="Foto ${i+1}"><button type="button" data-act="nwGalX" data-id="${i}" aria-label="Quitar foto ${i+1}">✕</button></span>`).join('')}
 const nwDate=n=>new Date(n.ts||0).toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'});
 function nwWho(){NW=!!S.user&&accOn('news')}
-function newsCard(n,full){const k=QH.key(),mine=!!k&&n.ownerKey===k,ini=esc((n.author||'?').trim().charAt(0).toUpperCase()||'?'),tx=n.text||'';
+function newsCard(n,full){const k=QH.key(),mine=!!k&&n.ownerKey===k,ini=esc((n.author||'?').trim().charAt(0).toUpperCase()||'?'),tx=n.text||'',c=nwCatOf(n.cat),g=nwImgs(n),pt=nwPlain(tx).replace(/\s*\n+\s*/g,' ');
 const media=cmVid(n.link)?`<div class="cmvw"><img class="cmi" data-act="nwVid" data-id="${esc(n.id)}" style="cursor:pointer;aspect-ratio:16/9" src="${esc(n.img)}" alt="${esc(n.title)}" loading="lazy"><button type="button" class="cmplay" data-act="nwVid" data-id="${esc(n.id)}" aria-label="Ver video: ${esc(n.title)}"><span class="cmpi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z"/></svg></span><em>Ver video</em></button><span class="cmplat">${cmPlat(n.link)}</span></div>`:(n.img?`<img class="cmi" data-act="nwZoom" data-id="${esc(n.id)}" style="cursor:zoom-in;aspect-ratio:auto;height:auto;min-height:0;max-height:75vh;object-fit:contain;background:transparent" src="${esc(n.img)}" alt="${esc(n.title)}" loading="lazy">`:'');
-return `<article class="cmc" aria-label="${esc(n.title)}"><div class="cmh"><span class="cma">${ini}</span><div><b>${esc(n.author||'Redacción')}</b><small>${esc(nwDate(n))}${n.ed?' · editada':''}</small></div></div>${media}<div class="cmb"><h3>${esc(n.title)}</h3><p>${esc(full||tx.length<=220?tx:tx.slice(0,220).trimEnd()+'…')}</p></div><div class="cmact">${full?'':`<button class="btn" data-act="nwOpen" data-id="${esc(n.id)}">Leer más</button>`}<button class="btn ghost" data-act="nwShare" data-id="${esc(n.id)}">Compartir</button></div>${mine?`<div class="cmown"><button class="btn ghost" data-act="nwEdit" data-id="${esc(n.id)}">Editar</button><button class="btn ghost" data-act="nwDel" data-id="${esc(n.id)}">Eliminar</button></div>`:''}</article>`}
+return `<article class="cmc" aria-label="${esc(n.title)}"><div class="cmh"><span class="cma">${ini}</span><div><b>${esc(n.author||'Redacción')}</b><small>${esc(nwDate(n))}${n.ed?' · editada':''}</small></div></div>${media}<div class="cmb">${c?`<button type="button" class="nwct" data-act="nwCat" data-id="${c[0]}">${c[1]} ${esc(c[2])}</button>`:''}<h3>${esc(n.title)}</h3>${full?`<div class="nwtx">${nwFmt(tx)}</div>`:`<p>${esc(pt.length<=220?pt:pt.slice(0,220).trimEnd()+'…')}</p>${g.length?`<p class="nwnf">📷 ${g.length+(n.img?1:0)} fotos</p>`:''}`}</div>${full&&g.length?`<div class="nwgal">${g.map((u,i)=>`<img src="${esc(u)}" alt="Foto ${i+1}: ${esc(n.title)}" loading="lazy" data-act="nwGal" data-id="${esc(n.id)}" data-i="${i}">`).join('')}</div>`:''}<div class="cmact">${full?'':`<button class="btn" data-act="nwOpen" data-id="${esc(n.id)}">Leer más</button>`}<button class="btn ghost" data-act="nwShare" data-id="${esc(n.id)}">Compartir</button></div>${full?`<div class="nwfb" data-nw="${esc(n.id)}"></div>`:`<div class="nwcnt" data-nwc="${esc(n.id)}"></div>`}${mine?`<div class="cmown"><button class="btn ghost" data-act="nwEdit" data-id="${esc(n.id)}">Editar</button><button class="btn ghost" data-act="nwDel" data-id="${esc(n.id)}">Eliminar</button></div>`:''}</article>`}
 function newsView(){QH.newsListen();nwWho();const home=MODE==='panel'?'<button class="btn ghost" data-act="home">← Volver a mi cuenta</button>':'<button class="btn ghost" data-act="hubHome">← Inicio</button>',head=`${tabs()}<div class="hubbar">${curN?'<button class="btn ghost" data-act="nwList">← Noticias</button>':home}</div>`;
-if(curN){const n=QH.NEWS.find(x=>x.id===curN);if(!n)return `${head}<div class="shead"><h2>Noticias</h2></div><div class="cmf"><div class="empty">${QH.nwReady()?'Esa noticia ya no está disponible.':'Cargando noticia…'}</div></div>`;return `${head}<div class="cmf">${newsCard(n,true)}</div>`}
-const nq=norm(query).trim(),l=QH.NEWS.filter(n=>!nq||norm((n.title||'')+' '+(n.text||'')+' '+(n.author||'')).includes(nq));return `${head}${catSearch('Buscar en Noticias')}<div class="shead"><div><h2>Noticias</h2><p class="muted">Lo que pasa en Pradera, contado por la comunidad.</p></div><div class="row"><button class="btn pink" data-act="nwNew">+ Nueva noticia</button></div></div><div class="cmf">${l.length?l.map(n=>newsCard(n,false)).join(''):`<div class="empty">${QH.nwReady()?(nq?'No encontramos noticias con esa búsqueda.':'Todavía no hay noticias publicadas.'):'Cargando noticias…'}</div>`}</div>`}
-function nwForm(n){if(!S.user)return need(()=>nwForm(n));nwWho();if(!NW)return codesModal('news');nwf={id:n?n.id:'',img:n&&n.img?n.img:''};
-modal(`<h2>${n?'Editar noticia':'Nueva noticia'}</h2><div class="cmf"><label for="nw-t">Título</label><input id="nw-t" type="text" maxlength="120" placeholder="Ej: Hoy no habrá agua en el barrio centro" value="${esc(n?n.title:'')}"><label for="nw-x">Texto de la noticia</label><textarea id="nw-x" rows="8" maxlength="5000" placeholder="Cuenta qué pasó, cuándo y dónde.">${esc(n?n.text:'')}</textarea><label for="nw-img">Imagen de portada (opcional)</label><div class="cmprev" id="nw-prev">${nwf.img?`<img src="${esc(nwf.img)}" alt="">`:''}</div><input id="nw-img" type="file" accept="image/*"><label for="nw-v">Enlace de video (opcional: YouTube, Facebook, Instagram, TikTok o Drive)</label><input id="nw-v" type="text" inputmode="url" placeholder="https://" value="${esc(n&&n.link?n.link:'')}"><p class="muted">Los videos de YouTube se ven dentro de la página; los de Facebook, Instagram, TikTok o Drive se abren en su app. En YouTube la portada se crea sola; en las demás redes sube una captura del video.</p><label for="nw-a">Firma (autor)</label><input id="nw-a" type="text" maxlength="60" value="${esc(n?n.author:(S.user.name||''))}">${PHOTO_NOTE}<div class="err" id="err"></div><div class="row" style="margin-top:10px"><button type="button" class="btn pink" data-act="nwSave">${n?'Guardar cambios':'Publicar'}</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div></div>`)}
-async function nwSave(b){const err=$('#err'),t=$('#nw-t').value.trim(),x=$('#nw-x').value.trim(),au=$('#nw-a').value.trim(),l0=$('#nw-v').value.trim();
-if(t.length<5)return err.textContent='Escribe un título (mínimo 5 letras).';if(x.length<20)return err.textContent='Escribe el texto de la noticia (mínimo 20 letras).';if(!au)return err.textContent='Escribe la firma del autor.';
+if(curN){const n=QH.NEWS.find(x=>x.id===curN);if(!n)return `${head}<div class="shead"><h2>Noticias</h2></div><div class="cmf"><div class="empty">${QH.nwReady()?'Esa noticia ya no está disponible.':'Cargando noticia…'}</div></div>`;return `${head}<div class="cmf">${newsCard(n,true)}${nwRel(n)}</div>`}
+const nq=norm(query).trim(),l=QH.NEWS.filter(n=>(!nwCat||n.cat===nwCat)&&(!nq||norm((n.title||'')+' '+(n.text||'')+' '+(n.author||'')).includes(nq))),cs=NWC.filter(c=>c[0]===nwCat||QH.NEWS.some(n=>n.cat===c[0]));let lm='';
+const chips=cs.length?`<div class="nwchips" role="group" aria-label="Categorías de noticias"><button type="button" class="nwchip" data-act="nwCat" data-id="" aria-pressed="${!nwCat}">Todas</button>${cs.map(c=>`<button type="button" class="nwchip" data-act="nwCat" data-id="${c[0]}" aria-pressed="${nwCat===c[0]}">${c[1]} ${esc(c[2])}</button>`).join('')}</div>`:'';
+const items=l.map(n=>{const m=new Date(n.ts||0).toLocaleDateString('es-CO',{month:'long',year:'numeric'}),h=m!==lm?`<h3 class="nwmon">${esc(m.charAt(0).toUpperCase()+m.slice(1))}</h3>`:'';lm=m;return h+newsCard(n,false)}).join('');
+const more=QH.nwHasMore()?'<button type="button" class="btn ghost nwmb" data-act="nwMore">Ver más noticias</button>':(l.length?`<p class="muted nwend">Esas son todas las noticias${nwCat?' de esta categoría':''}. <a href="${esc(nwBase())}noticias/">Ver el archivo de noticias</a></p>`:'');
+return `${head}${catSearch('Buscar en Noticias')}<div class="shead"><div><h2>Noticias</h2><p class="muted">Lo que pasa en Pradera, contado por la comunidad.</p></div><div class="row"><button type="button" class="btn ghost nwfol" data-qnwf="1">🔔 Seguir noticias</button><button class="btn pink" data-act="nwNew">+ Nueva noticia</button></div></div>${chips}<div class="cmf">${l.length?items+more:`<div class="empty">${QH.nwReady()?(nq?'No encontramos noticias con esa búsqueda.':nwCat?'Todavía no hay noticias en esta categoría.':'Todavía no hay noticias publicadas.'):'Cargando noticias…'}</div>${QH.nwHasMore()?more:''}`}</div>`}
+function nwForm(n){if(!S.user)return need(()=>nwForm(n));nwWho();if(!NW)return codesModal('news');nwf={id:n?n.id:'',img:n&&n.img?n.img:'',imgs:nwImgs(n).slice(0,4)};
+modal(`<h2>${n?'Editar noticia':'Nueva noticia'}</h2><div class="cmf"><label for="nw-t">Título</label><input id="nw-t" type="text" maxlength="120" placeholder="Ej: Hoy no habrá agua en el barrio centro" value="${esc(n?n.title:'')}"><label for="nw-cat">Categoría</label><select id="nw-cat"><option value="">Elige…</option>${NWC.map(c=>`<option value="${c[0]}"${n&&n.cat===c[0]?' selected':''}>${c[1]} ${esc(c[2])}</option>`).join('')}</select><label for="nw-x">Texto de la noticia</label><div class="nwtb" role="toolbar" aria-label="Formato del texto"><button type="button" data-nwfx="b"><b>B</b> Negrilla</button><button type="button" data-nwfx="h">Subtítulo</button><button type="button" data-nwfx="l">• Lista</button><button type="button" data-nwfx="a">🔗 Enlace</button></div><textarea id="nw-x" rows="8" maxlength="5000" placeholder="Cuenta qué pasó, cuándo y dónde.">${esc(n?n.text:'')}</textarea><label for="nw-img">Imagen de portada (opcional)</label><div class="cmprev" id="nw-prev">${nwf.img?`<img src="${esc(nwf.img)}" alt="">`:''}</div><input id="nw-img" type="file" accept="image/*"><label for="nw-imgs">Más fotos (opcional, hasta 4)</label><div class="nwgp" id="nw-gp">${nwf.imgs.map((u,i)=>`<span class="nwgt"><img src="${esc(u)}" alt="Foto ${i+1}"><button type="button" data-act="nwGalX" data-id="${i}" aria-label="Quitar foto ${i+1}">✕</button></span>`).join('')}</div><input id="nw-imgs" type="file" accept="image/*" multiple><label for="nw-v">Enlace de video (opcional: YouTube, Facebook, Instagram, TikTok o Drive)</label><input id="nw-v" type="text" inputmode="url" placeholder="https://" value="${esc(n&&n.link?n.link:'')}"><p class="muted">Los videos de YouTube se ven dentro de la página; los de Facebook, Instagram, TikTok o Drive se abren en su app. En YouTube la portada se crea sola; en las demás redes sube una captura del video.</p><label for="nw-a">Firma (autor)</label><input id="nw-a" type="text" maxlength="60" value="${esc(n?n.author:(S.user.name||''))}">${PHOTO_NOTE}<div class="err" id="err"></div><div class="row" style="margin-top:10px"><button type="button" class="btn pink" data-act="nwSave">${n?'Guardar cambios':'Publicar'}</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div></div>`)}
+async function nwSave(b){const err=$('#err'),t=$('#nw-t').value.trim(),x=$('#nw-x').value.trim(),au=$('#nw-a').value.trim(),l0=$('#nw-v').value.trim(),cat=($('#nw-cat')||{}).value||'',imgs=(nwf.imgs||[]).slice(0,4);
+if(t.length<5)return err.textContent='Escribe un título (mínimo 5 letras).';if(!cat)return err.textContent='Elige la categoría de la noticia.';if(x.length<20)return err.textContent='Escribe el texto de la noticia (mínimo 20 letras).';if(!au)return err.textContent='Escribe la firma del autor.';
 let l='';if(l0){l=/^https?:\/\//i.test(l0)?l0:'https://'+l0;try{l=new URL(l).href}catch(e){return err.textContent='El enlace no es válido.'}if(!cmVid(l))return err.textContent='Pega un enlace de video de YouTube, Facebook, Instagram, TikTok o Drive.'}
 let img=nwf.img||'';if(l&&(!img||/^https:\/\/i\.ytimg\.com\//.test(img))){const y=ytId(l);img=y?ytThumb(y):(img||comTxtImg('🎬 '+t,'#111827','#ffffff'))}
-if(img.length>700000)return err.textContent='La imagen pesa demasiado. Elige otra.';
-const now=Date.now();let n;if(nwf.id){const old=QH.NEWS.find(z=>z.id===nwf.id);if(!old)return err.textContent='Esa noticia ya no existe.';n=Object.assign({},old,{title:t,text:x,author:au,link:l,img,ed:now})}else n={id:'n'+now.toString(36)+Math.random().toString(36).slice(2,6),ownerKey:QH.key(),author:au,title:t,text:x,img,link:l,ts:now};
+if(img.length>700000)return err.textContent='La imagen pesa demasiado. Elige otra.';if(imgs.some(u=>u.length>250000)||imgs.join('').length+img.length>900000)return err.textContent='Las fotos pesan demasiado. Quita alguna e inténtalo de nuevo.';
+const now=Date.now();let n;if(nwf.id){const old=QH.NEWS.find(z=>z.id===nwf.id);if(!old)return err.textContent='Esa noticia ya no existe.';n=Object.assign({},old,{title:t,text:x,author:au,link:l,img,cat,imgs,ed:now})}else n={id:'n'+now.toString(36)+Math.random().toString(36).slice(2,6),ownerKey:QH.key(),author:au,title:t,text:x,img,link:l,cat,imgs,ts:now};
 b.disabled=true;try{await QH.newsPut(n);closeModal();toast(nwf.id?'Noticia actualizada':'¡Noticia publicada!');render(true)}catch(e){err.textContent=e&&e.m?e.m:(e&&e.code==='permission-denied'?'Tu acceso de Noticias no está activo o venció. Actívalo con un código en «Mis roles».':'No se pudo publicar. Revisa tu internet.')}b.disabled=false}
+document.addEventListener('change',async e=>{if(e.target.id!=='nw-imgs')return;const fs=[...e.target.files].slice(0,4-nwf.imgs.length);e.target.value='';if(!fs.length)return toast('Puedes agregar máximo 4 fotos extra');const p=$('#nw-gp');if(p)p.insertAdjacentHTML('beforeend','<span class="muted nwgw">Procesando fotos…</span>');for(const f of fs){const d=await resize(f,1000,.72);if(d&&nwf.imgs.length<4)nwf.imgs.push(d)}nwGalPaint()});/* v250: fotos extra de la noticia */
 document.addEventListener('change',async e=>{if(e.target.id!=='nw-img')return;const f=e.target.files[0];if(!f)return;const p=$('#nw-prev');if(p)p.innerHTML='<span class="muted">Procesando imagen…</span>';const d=await resize(f,900,.72);if(!d){if(p)p.innerHTML='';return toast('No se pudo leer esa imagen')}nwf.img=d;if(p)p.innerHTML=`<img src="${d}" alt="">`});
 /* v166: MIS DATOS (panel) — nombre y teléfono editables; el correo identifica la cuenta y no se cambia; la clave usa passForm */
 const pfLock=u=>!(u.pw&&u.email)&&!!u.wa;
@@ -3241,10 +3401,10 @@ const grp=(t,k,l)=>l.length?`<div class="cg"><h3>${t} (${l.length})</h3>${l.map(
 const rows=grp('Tiendas','store',S.stores)+grp('Servicios','serv',S.services)+grp('Anuncios','ad',S.ads)+comAdm();body=(rows||'<div class="empty">Todavía no hay tiendas, servicios ni anuncios.</div>')+newsAdm()}
 return `<div class="shead"><h2>Panel de administrador</h2><button class="btn ghost" data-act="admOut">Salir del modo administrador</button></div><nav class="tabs admg" aria-label="Secciones del administrador">${typeof brebPagHTML==='function'?T('pag','Pagos'+(brebAdmPend()?' ('+brebAdmPend()+')':'')):''/* v238 */}${T('rep','Reportes ('+pend+')')}${T('cod','Códigos')}${T('usr','Usuarios ('+QH.plans().length+')')}${T('sug','Sugerencias ('+S.ideas.length+')')}${T('ver','Publicaciones ('+(S.stores.length+S.services.length+S.ads.length)+')')}${T('cfg','Mis datos')}${T('cat','Categorías')}${T('srv','Servicios')}${T('pub','Publicidad')}${T('alm','Almacenamiento')}</nav>${QH.legacyCard()}${body}`}
 function syncUI(){const u=$('#ut');if(u)u.textContent=S.user?S.user.name.split(' ')[0]:'Iniciar sesión';{const ub=$('#userBtn');if(ub){let im=ub.querySelector('.uph');const sv=ub.querySelector('svg'),d=S.user&&S.user.img;if(d){if(!im){im=document.createElement('img');im.className='uph';im.alt='';ub.insertBefore(im,ub.firstChild)}im.src=d;im.style.display='';if(sv)sv.style.display='none'}else{if(im)im.style.display='none';if(sv)sv.style.display=''}}}const rb=$('#regBtn');if(rb)rb.style.display=S.user?'none':'';const hb=$('#hhr');if(hb){hb.dataset.act=S.user?'goPanel':'newShop';hb.textContent=S.user?'Mi cuenta':'+ Registra tu negocio'}
-const s=(view==='store'||view==='prod')&&S.stores.find(x=>x.id===cur),pr=view==='prod'&&s&&s.products.find(x=>x.id===curP),ad=view==='ad'&&S.ads.find(x=>x.id===curAd),h=view==='prod'?'#/p/'+encodeURIComponent(cur)+'/'+encodeURIComponent(curP):view==='store'?'#/t/'+encodeURIComponent(cur):view==='card'?'#/n/'+encodeURIComponent(cur):view==='news'?(curN?'#/nw/'+encodeURIComponent(curN):'#/noticias'):view==='ad'?'#/a/'+encodeURIComponent(curAd):ADT[view]?'#/'+ADT[view].slug:view==='serv'?'#/servicios':view==='map'?'#/mapa':view==='cats'?'#/categorias':view==='sug'?'#/sugerencias':view==='guias'?'#/guias':view==='com'||view==='comp'?'#/comunidad':view==='planes'?'#/planes':view==='admin'?'#/admin':'#/';
+const s=(view==='store'||view==='prod')&&S.stores.find(x=>x.id===cur),pr=view==='prod'&&s&&s.products.find(x=>x.id===curP),ad=view==='ad'&&S.ads.find(x=>x.id===curAd),nwx=view==='news'&&!!curN&&QH.NEWS.find(x=>x.id===curN),h=view==='prod'?'#/p/'+encodeURIComponent(cur)+'/'+encodeURIComponent(curP):view==='store'?'#/t/'+encodeURIComponent(cur):view==='card'?'#/n/'+encodeURIComponent(cur):view==='news'?(curN?'#/nw/'+encodeURIComponent(curN):'#/noticias'):view==='ad'?'#/a/'+encodeURIComponent(curAd):ADT[view]?'#/'+ADT[view].slug:view==='serv'?'#/servicios':view==='map'?'#/mapa':view==='cats'?'#/categorias':view==='sug'?'#/sugerencias':view==='guias'?'#/guias':view==='com'||view==='comp'?'#/comunidad':view==='planes'?'#/planes':view==='admin'?'#/admin':'#/';
 if(location.hash!==h){try{history.replaceState(null,'',h)}catch(e){}}
-document.title=MODE!=='index'?TITLE:pr?pr.name+' – '+s.name+' – Mi Pradera':s?s.name+' – Mi Pradera':ad?ad.title+' – Mi Pradera':'Mi Pradera – Lo nuestro, en un solo lugar';
-const m=document.querySelector('meta[name=description]');if(m)m.content=pr?pr.name+' en '+s.name+' – Mi Pradera.':s?s.name+' en Mi Pradera: '+s.desc:ad?ad.title+' en Mi Pradera.':'Compra, arrienda y contrata con vecinos de Pradera. Lo nuestro, en un solo lugar.'}
+document.title=MODE!=='index'?TITLE:pr?pr.name+' – '+s.name+' – Mi Pradera':s?s.name+' – Mi Pradera':ad?ad.title+' – Mi Pradera':nwx?nwx.title+' – Noticias de Mi Pradera':view==='news'?'Noticias de Pradera – Mi Pradera':'Mi Pradera – Lo nuestro, en un solo lugar';
+const m=document.querySelector('meta[name=description]');if(m)m.content=pr?pr.name+' en '+s.name+' – Mi Pradera.':s?s.name+' en Mi Pradera: '+s.desc:ad?ad.title+' en Mi Pradera.':nwx?nwPlain(nwx.text).replace(/\s+/g,' ').slice(0,155):'Compra, arrienda y contrata con vecinos de Pradera. Lo nuestro, en un solo lugar.'}
 function route(){const h=decodeURIComponent(location.hash||''),mn=h.match(/^#\/n\/(.+)$/),m=h.match(/^#\/t\/(.+)$/),ma=h.match(/^#\/a\/(.+)$/),mp=h.match(/^#\/p\/([^\/]+)\/(.+)$/);
 if(mp){const s=S.stores.find(x=>x.id===mp[1]),p=s&&s.products.find(x=>x.id===mp[2]);if(s&&p&&vis(s)){view='prod';cur=s.id;curP=p.id;pI=0;pQ=1}else{view='home';toast('Ese producto no está disponible en este dispositivo')}}
 else if(/^#\/nw\/.+/.test(h)){curN=h.slice(5);view='news'}
@@ -3567,6 +3727,10 @@ else if(a==='shareCard'){const s=S.stores.find(x=>x.id===id);if(s)shTxt('Mira la
 else if(a==='copyCard'){cpTxt(cardUrl(id),'Enlace de la tarjeta copiado')}
 else if(a==='nwOpen'){curN=id;view='news';render();scrollTo(0,0)}
 else if(a==='nwList'){curN='';view='news';render();scrollTo(0,0)}
+else if(a==='nwCat'){nwCat=id||'';curN='';view='news';render();scrollTo(0,0)}
+else if(a==='nwMore'){QH.newsMore();b.disabled=true;b.textContent='Cargando…'}
+else if(a==='nwGal'){const n=QH.NEWS.find(x=>x.id===id),g=nwImgs(n);if(g.length)lbOpen(g,Number(b.dataset.i)||0,n.title)}
+else if(a==='nwGalX'){if(nwf&&nwf.imgs){nwf.imgs.splice(Number(id)||0,1);nwGalPaint()}}
 else if(a==='pfEdit'){pfForm()}
 else if(a==='delAcct'){delAcctForm()}else if(a==='delAcctGo'){delAcctGo()}
 else if(a==='pfSave'){pfSave()}

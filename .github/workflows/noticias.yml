@@ -1,0 +1,30 @@
+# v250: cada hora crea/actualiza las páginas de las noticias (noticias/*.html), el archivo, el RSS y el sitemap.xml
+# con las noticias publicadas en Mi Pradera. También se puede correr a mano: pestaña Actions → «Noticias» → Run workflow.
+name: Noticias
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: noticias
+  cancel-in-progress: false
+jobs:
+  paginas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Crear páginas de noticias
+        run: node tools/noticias.mjs
+      - name: Guardar cambios
+        run: |
+          git add -A noticias sitemap.xml
+          if git diff --cached --quiet; then echo "Sin cambios"; exit 0; fi
+          git config user.name "Mi Pradera (noticias)"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Noticias: páginas, archivo, RSS y sitemap actualizados"
+          git push
