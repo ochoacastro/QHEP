@@ -2678,6 +2678,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .obi-prev canvas{width:216px;height:384px;border-radius:12px;box-shadow:0 10px 24px -12px rgba(0,0,0,.5);background:#eee}
 .obi-row{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
 .obi-row>div{min-width:0}
+.obi-dm{display:flex;gap:6px;margin:2px 0 6px}
+.obi-dm button{flex:1;min-height:34px;padding:4px 8px;border-radius:999px;border:1px solid var(--color-pale-mist,#d6d6d6);background:#fff;font:inherit;font-size:13px;color:var(--color-obsidian,#1d1d1f);cursor:pointer}
+.obi-dm button[aria-pressed=true]{background:var(--color-obsidian,#1d1d1f);border-color:var(--color-obsidian,#1d1d1f);color:#fff}
 .obi-ex{margin-top:6px;padding:10px 12px;border-radius:14px;background:var(--color-fog-white,#f5f5f7)}
 .obi-ex summary{cursor:pointer;font-weight:600}
 .obi-sug{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
@@ -2698,7 +2701,7 @@ var O=null,PH=null,W=1080,H=1920;
 function E(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function fonts(){if(document.getElementById('obi-fonts'))return;var l=document.createElement('link');l.id='obi-fonts';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,600;1,400;1,600;1,700&display=swap';document.head.appendChild(l)}
 function fready(){try{return Promise.all(['italic 700 60px "Playfair Display"','italic 400 40px "Playfair Display"','60px "Great Vibes"'].map(function(f){return document.fonts.load(f)})).catch(function(){})}catch(e){return Promise.resolve()}}
-function dmy(v){if(!v)return '';var p=v.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:v}
+function dmy(v){if(!v)return '';if(/^\d{4}$/.test(v))return v/* v266: solo el año */;var p=v.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:v}
 function exTxt(o){if(!o.exd&&!o.exh&&!o.exl)return null;var a='';if(o.exd){var d=new Date(o.exd+'T12:00:00');a=d.toLocaleDateString('es-CO',{month:'long',day:'numeric'});a=a.charAt(0).toUpperCase()+a.slice(1)}
  if(o.exh){var t=o.exh.split(':'),h=+t[0],m=t[1],ap=h>=12?'P.M.':'A.M.';h=h%12||12;a+=(a?' - ':'')+h+':'+m+' '+ap}return {a:a,b:o.exl||''}}
 /* ---------- dibujo ---------- */
@@ -2740,21 +2743,29 @@ function drawDark(c,o){var g=c.createRadialGradient(W/2,H*.35,80,W/2,H*.5,H*.75)
  c.font='400 50px "Inter", Arial, sans-serif';c.fillText('†  '+(o.bn?dmy(o.bn)+' - ':'')+dmy(o.dd),W/2,dY);c.textAlign='left'}
 function draw(cv,o){var c=cv.getContext('2d');c.clearRect(0,0,W,H);c.save();(o.tp==='dark'?drawDark:drawLight)(c,o);c.restore()}
 /* ---------- formulario ---------- */
-function vals(){var g=function(id){var e=document.getElementById(id);return e?e.value.trim():''};return {tp:O.tp,nm:g('ob-nm').slice(0,60),bn:g('ob-bn'),dd:g('ob-dd'),msg:g('ob-msg').slice(0,260),exd:g('ob-exd'),exh:g('ob-exh'),exl:g('ob-exl').slice(0,80),by:g('ob-by').slice(0,30),wa:g('ob-wa').replace(/\D/g,'')}}
+function vals(){var g=function(id){var e=document.getElementById(id);return e?e.value.trim():''};return {tp:O.tp,nm:g('ob-nm').slice(0,60),bn:dval('bn'),dd:dval('dd'),msg:g('ob-msg').slice(0,260),exd:g('ob-exd'),exh:g('ob-exh'),exl:g('ob-exl').slice(0,80),by:g('ob-by').slice(0,30),wa:g('ob-wa').replace(/\D/g,'')}}
 var pend=0;function prev(){if(pend)return;pend=1;requestAnimationFrame(function(){pend=0;var cv=document.getElementById('ob-cv');if(cv&&O){O=Object.assign(O,vals());draw(cv,O)}})}
-function form(){fonts();O={tp:'light'};PH=null;var u=(typeof S!=='undefined'&&S.user)||{},today=new Date().toLocaleDateString('en-CA');
+/* v266: cada fecha puede ser completa o solo el año */
+function dfield(k,lab,today,val){var y=new Date().getFullYear();return '<div><label for="ob-'+k+'">'+lab+'</label><div class="obi-dm" role="group" aria-label="Formato de la fecha"><button type="button" data-obdm="'+k+':d" aria-pressed="true">Fecha</button><button type="button" data-obdm="'+k+':y" aria-pressed="false">Solo el año</button></div><input id="ob-'+k+'" type="date" max="'+today+'" value="'+val+'"><input id="ob-'+k+'y" type="number" inputmode="numeric" min="1900" max="'+y+'" placeholder="Ej: '+(k==='bn'?'1950':y)+'" hidden aria-label="Año de '+(k==='bn'?'nacimiento':'fallecimiento')+'"></div>'}
+function dval(k){var y=O&&O.dm&&O.dm[k]==='y';var e=document.getElementById('ob-'+k+(y?'y':''));var v=e?e.value.trim():'';return y?(/^\d{4}$/.test(v)?v:''):v}
+function dmode(k,m,v){O.dm=O.dm||{};O.dm[k]=m;document.querySelectorAll('[data-obdm^="'+k+':"]').forEach(function(x){x.setAttribute('aria-pressed',x.dataset.obdm===k+':'+m)});var a=document.getElementById('ob-'+k),b=document.getElementById('ob-'+k+'y');if(a)a.hidden=m==='y';if(b)b.hidden=m!=='y';if(v!=null){if(m==='y'&&b)b.value=v;else if(a)a.value=v}}
+function form(){fonts();O={tp:'light',dm:{bn:'d',dd:'d'}};PH=null;var u=(typeof S!=='undefined'&&S.user)||{},today=new Date().toLocaleDateString('en-CA');
  modal('<h2>Publicar obituario</h2><p class="muted">Llena los datos y mira cómo queda. La imagen también sirve para compartir por WhatsApp. <b>'+E(durTxt())+'</b></p>'+
   '<label>Plantilla</label><div class="obi-tpl" role="group" aria-label="Plantilla"><button type="button" class="t1" data-obtp="light" aria-pressed="true"><i aria-hidden="true"></i>Clara (velas)</button><button type="button" class="t2" data-obtp="dark" aria-pressed="false"><i aria-hidden="true"></i>Oscura (lazo)</button></div>'+
   '<div class="obi-prev"><canvas id="ob-cv" width="'+W+'" height="'+H+'" aria-label="Vista previa del obituario"></canvas></div>'+
   '<label for="ob-ph">Foto de la persona</label><input id="ob-ph" type="file" accept="image/*">'+
   '<label for="ob-nm">Nombre completo</label><input id="ob-nm" type="text" maxlength="60" placeholder="Ej: Rubén Jaramillo">'+
-  '<div class="obi-row"><div><label for="ob-bn">Fecha de nacimiento (opcional)</label><input id="ob-bn" type="date" max="'+today+'"></div><div><label for="ob-dd">Fecha de fallecimiento</label><input id="ob-dd" type="date" max="'+today+'" value="'+today+'"></div></div>'+
+  '<div class="obi-row">'+dfield('bn','Nacimiento (opcional)',today,'')+dfield('dd','Fallecimiento',today,today)+'</div>'+
   '<label for="ob-msg">Palabras para la persona</label><textarea id="ob-msg" rows="3" maxlength="260" placeholder="Escribe unas palabras o elige una de abajo"></textarea><div class="obi-sug">'+SUG.map(function(t,i){return '<button type="button" data-obsug="'+i+'">'+E(t.length>48?t.slice(0,46)+'…':t)+'</button>'}).join('')+'</div>'+
   '<details class="obi-ex"><summary>Exequias (opcional)</summary><div class="obi-row"><div><label for="ob-exd">Fecha</label><input id="ob-exd" type="date"></div><div><label for="ob-exh">Hora</label><input id="ob-exh" type="time"></div></div><label for="ob-exl">Lugar</label><input id="ob-exl" type="text" maxlength="80" placeholder="Ej: Parroquia San Antonio, Calle 6 # 8-20"></details>'+
   '<div class="obi-row"><div><label for="ob-by">Publicado por</label><input id="ob-by" type="text" maxlength="30" value="'+E(u.name||'')+'" placeholder="Tu nombre o la familia"></div><div><label for="ob-wa">WhatsApp (opcional)</label><input id="ob-wa" type="tel" inputmode="numeric" maxlength="14" value="'+E(u.wa||'')+'" placeholder="3001234567"></div></div>'+
   '<p class="err" id="ob-err" role="alert"></p><div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-obpub="1">Publicar obituario</button><button type="button" class="btn ghost" data-obdl="1">Descargar imagen</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>');
  fready().then(prev);prev()}
-function check(o){if(!PH)return 'Sube la foto de la persona.';if(o.nm.length<3)return 'Escribe el nombre completo.';if(!o.dd)return 'Escribe la fecha de fallecimiento.';if(o.bn&&o.bn>o.dd)return 'La fecha de nacimiento debe ser antes de la de fallecimiento.';if(o.msg.length<5)return 'Escribe unas palabras para la persona.';if(o.wa&&o.wa.length!==10)return 'El WhatsApp debe tener 10 dígitos.';return ''}
+function check(o){if(!PH)return 'Sube la foto de la persona.';if(o.nm.length<3)return 'Escribe el nombre completo.';var yN=new Date().getFullYear(),yr=function(v){return +String(v).slice(0,4)};
+ if(O.dm&&O.dm.bn==='y'&&document.getElementById('ob-bny').value.trim()&&!o.bn)return 'Escribe el año de nacimiento con 4 números (ej: 1950).';
+ if(!o.dd)return O.dm&&O.dm.dd==='y'?'Escribe el año de fallecimiento con 4 números (ej: '+yN+').':'Escribe la fecha de fallecimiento.';
+ if(yr(o.dd)<1900||yr(o.dd)>yN||(o.bn&&(yr(o.bn)<1850||yr(o.bn)>yN)))return 'Revisa los años: deben estar entre 1900 y '+yN+'.';
+ if(o.bn&&((o.bn.length===4||o.dd.length===4)?yr(o.bn)>yr(o.dd):o.bn>o.dd))return 'El nacimiento debe ser antes del fallecimiento.';if(o.msg.length<5)return 'Escribe unas palabras para la persona.';if(o.wa&&o.wa.length!==10)return 'El WhatsApp debe tener 10 dígitos.';return ''}
 function big(o){var cv=document.createElement('canvas');cv.width=W;cv.height=H;draw(cv,o);return cv.toDataURL('image/jpeg',.82)}
 /* v265: cupo propio del obituario (pl 'obi'): 3 días gratis, 1 al día por persona, sin gastar el anuncio gratis del día */
 function obiToday(){try{var n=Date.now();return comMine().some(function(a){return a.pl==='obi'&&n-(a.ts||0)<864e5})}catch(e){return false}}
@@ -2766,14 +2777,15 @@ async function publish(b){var o=vals(),er=document.getElementById('ob-err'),m=ch
  b.disabled=true;er.textContent='Preparando la imagen…';await fready();var img=big(o);try{if(typeof r2up==='function')img=await r2up(img)}catch(e){}
  if(String(img).length>790000){b.disabled=false;er.textContent='La imagen quedó muy pesada. Prueba con otra foto.';return}
  var ex=exTxt(o),now=Date.now(),DAYMS=86400000,days=pl==='free'?1:pl==='obi'?3:pl==='comu'?30:COM_DAYS[pl],
-  tx=(o.msg+(o.bn?'\n'+dmy(o.bn)+' - '+dmy(o.dd):'\nFalleció el '+dmy(o.dd))+(ex?'\nExequias: '+[ex.a,ex.b].filter(Boolean).join(', '):'')).slice(0,500),
+  tx=(o.msg+(o.bn?'\n'+dmy(o.bn)+' - '+dmy(o.dd):(o.dd.length===4?'\nFalleció en ':'\nFalleció el ')+dmy(o.dd))+(ex?'\nExequias: '+[ex.a,ex.b].filter(Boolean).join(', '):'')).slice(0,500),
   a={id:'c'+now.toString(36)+Math.random().toString(36).slice(2,6),ownerKey:QH.key(),owner:(o.by||S.user.name||'Familia').slice(0,30),title:('Obituario: '+o.nm).slice(0,80),text:tx,img:img,wa:o.wa,link:'',pl:pl,ts:now,exp:now+days*DAYMS,op:'',cat:'com',sub:'Obituarios',price:0,zone:'Pradera',cond:'',imgs:[]};
  er.textContent='Publicando…';try{await QH.comPut(a);closeModal(1);view='com';render();scrollTo(0,0);toast('Obituario publicado')}catch(e){b.disabled=false;er.textContent=(e&&e.m)||(e&&e.code==='permission-denied'?'No se pudo publicar. Revisa que tu cuenta esté verificada.':'No se pudo publicar. Revisa tu internet.')}}
-var CMO=null;function form2(){/* vuelve al formulario tras entrar (la foto se vuelve a pedir) */form();if(CMO){var o=CMO;CMO=null;setTimeout(function(){['nm','bn','dd','msg','exd','exh','exl','by','wa'].forEach(function(k){var e=document.getElementById('ob-'+k);if(e&&o[k])e.value=o[k]});O.tp=o.tp;document.querySelectorAll('[data-obtp]').forEach(function(x){x.setAttribute('aria-pressed',x.dataset.obtp===o.tp)});document.getElementById('ob-err').textContent='Ya entraste. Vuelve a subir la foto y toca «Publicar obituario».';prev()},50)}}
+var CMO=null;function form2(){/* vuelve al formulario tras entrar (la foto se vuelve a pedir) */form();if(CMO){var o=CMO;CMO=null;setTimeout(function(){['nm','msg','exd','exh','exl','by','wa'].forEach(function(k){var e=document.getElementById('ob-'+k);if(e&&o[k])e.value=o[k]});['bn','dd'].forEach(function(k){if(o[k])dmode(k,o[k].length===4?'y':'d',o[k])});O.tp=o.tp;document.querySelectorAll('[data-obtp]').forEach(function(x){x.setAttribute('aria-pressed',x.dataset.obtp===o.tp)});document.getElementById('ob-err').textContent='Ya entraste. Vuelve a subir la foto y toca «Publicar obituario».';prev()},50)}}
 /* ---------- eventos ---------- */
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-obi],[data-obtp],[data-obsug],[data-obpub],[data-obdl]');if(!b)return;e.preventDefault();e.stopPropagation();var d=b.dataset;
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-obi],[data-obtp],[data-obsug],[data-obpub],[data-obdl],[data-obdm]');if(!b)return;e.preventDefault();e.stopPropagation();var d=b.dataset;
  if(d.obi){if(typeof MODE!=='undefined'&&MODE==='index'){location.href=PANEL_URL+'#/obituario';return}closeModal(1);return form()}
  if(d.obtp){O.tp=d.obtp;document.querySelectorAll('[data-obtp]').forEach(function(x){x.setAttribute('aria-pressed',x===b)});return prev()}
+ if(d.obdm){var kk=d.obdm.split(':');dmode(kk[0],kk[1]);var f=document.getElementById('ob-'+kk[0]+(kk[1]==='y'?'y':''));if(f)f.focus();return prev()}
  if(d.obsug!=null){var t=document.getElementById('ob-msg');t.value=SUG[+d.obsug];return prev()}
  if(d.obdl){var o=vals();if(!PH){document.getElementById('ob-err').textContent='Sube la foto para descargar la imagen.';return}fready().then(function(){var a=document.createElement('a');a.href=big(o);a.download='obituario-'+(o.nm||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-')+'.jpg';document.body.appendChild(a);a.click();a.remove()});return}
  if(d.obpub)return publish(b)},true);
