@@ -1738,6 +1738,8 @@ function freeOpen(o){if(!S.user){try{need(function(){freeOpen(o)})}catch(e){}ret
  if(SENT.some(function(p){return p.kind==='rol'&&p.st==='pend'&&p.use===o.use}))return T('Ya tienes una solicitud de este rol esperando aprobación. Mírala en Mi cuenta → Mis códigos.');
  /* v251: los roles gratis (Redactor de noticias, Entidad comunitaria) dan el código al instante, sin esperar al administrador */
  var had=SENT.filter(function(p){return p.kind==='rol'&&p.via==='gratis'&&p.st==='ok'&&p.code&&p.use===o.use&&(Date.now()-(p.ts||0))<330*864e5})[0];
+ /* v264: los códigos gratis no se acumulan: solo se pide otro cuando al rol le queda menos de 1 mes (reglas v35) */
+ try{var ae=accEnd(o.use);if(ae>Date.now()+31*864e5){var nx=new Date(ae-30*864e5).toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'});return modal('<h2>Tu rol ya está activo</h2><p>Tienes <b>'+E(o.what.split(' · ')[0])+'</b> hasta el <b>'+E(new Date(ae).toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'}))+'</b>. Podrás pedir otro código gratis desde el '+E(nx)+' (un mes antes de que venza).</p><div class="row" style="margin-top:10px">'+(typeof roleBtnTxt==='function'?'<button type="button" class="btn pink" data-act="roleGo" data-v="'+E(o.use)+'">'+roleBtnTxt(o.use)+'</button>':'')+'<button type="button" class="btn ghost" data-act="close">Cerrar</button></div>')}}catch(x){}
  if(had)return freeDone(had.code,o,1);
  PAY=o;modal('<h2>Obtener código gratis</h2><p class="muted" style="margin:0">'+E(o.what)+'</p><div class="qbk qbd"><div class="qbr2"><span>Valor</span><b class="qbtn">Gratis</b></div><div class="qbr2"><span>Comprobante</span><b>No hace falta</b></div></div>'+
   '<ol class="qbst"><li>Toca «Obtener mi código». No tienes que pagar ni adjuntar nada.</li><li>Tu código aparece <b>al instante</b> y queda guardado en <b>Mi cuenta → Mis códigos</b>.</li><li>El rol se activa solo, por 1 año.</li></ol>'+
@@ -2401,8 +2403,11 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  if(b.dataset.nwre){var d=FB&&FB[id]||{re:{}},cur=d.re[u.uid],r=b.dataset.nwre,ref=db().doc(id+'_'+u.uid);busy=true;
   (cur===r?ref.delete():ref.set({nw:id,uid:u.uid,re:r,ts:Date.now()})).then(function(){busy=false},fail);return}
  if(b.dataset.nwcs){var ta=bx.querySelector('textarea'),t=(ta&&ta.value||'').trim().slice(0,500);if(t.length<2)return toast('Escribe tu comentario.');
-  var cid='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);busy=true;
-  db().doc(id+'_'+u.uid+'_'+cid).set({nw:id,uid:u.uid,cid:cid,name:String((S.user&&S.user.name)||'Vecino').slice(0,40),txt:t,ts:Date.now()}).then(function(){busy=false;if(ta)ta.value='';ta&&ta.blur();toast('Comentario publicado');paint()},fail);return}
+  /* v264: mínimo 30 s entre comentarios (reglas v35: el comentario va con la marca nwRate/<uid> en el mismo paso) */
+  var wait=30000-(Date.now()-(window.__nwLast||0));if(wait>0)return toast('Espera '+Math.ceil(wait/1000)+' segundos para comentar otra vez.');
+  var cid='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),T0=Date.now(),cd={nw:id,uid:u.uid,cid:cid,name:String((S.user&&S.user.name)||'Vecino').slice(0,40),txt:t,ts:T0},F=firebase.firestore(),ok=function(){busy=false;window.__nwLast=T0;if(ta)ta.value='';ta&&ta.blur();toast('Comentario publicado');paint()};busy=true;
+  var bt=F.batch();bt.set(db().doc(id+'_'+u.uid+'_'+cid),cd);bt.set(F.collection('nwRate').doc(u.uid),{ts:T0});
+  bt.commit().then(ok,function(e){if(e&&e.code==='permission-denied'){/* reglas anteriores (sin nwRate) o comentó hace menos de 30 s */db().doc(id+'_'+u.uid+'_'+cid).set(cd).then(ok,function(){busy=false;toast('Espera unos segundos para comentar otra vez.')})}else fail(e)});return}
  if(b.dataset.nwcd){(async function(){if(typeof askC==='function'&&!await askC('¿Borrar este comentario?'))return;db().doc(id+'_'+b.dataset.u+'_'+b.dataset.nwcd).delete().then(function(){toast('Comentario borrado')},function(){toast('No se pudo borrar.')})})();return}
 },true);
 function start(){try{if(!window.firebase||!firebase.apps||!firebase.apps.length||typeof QH==='undefined')return setTimeout(start,500);
