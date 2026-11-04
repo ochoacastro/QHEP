@@ -1688,7 +1688,8 @@ function start(){try{if(!window.firebase||!firebase.apps||!firebase.apps.length|
  firebase.auth().onAuthStateChanged(mine)}catch(e){setTimeout(start,1000)}}
 /* ---- el rol pagado se activa solo cuando el administrador confirma ---- */
 function autoRole(){if(adm()||!S.user)return;SENT.forEach(function(p){if(p.kind!=='rol'||p.st!=='ok'||!p.code||p.red||RED[p.id])return;RED[p.id]=1;
- QH.codeRedeem(p.code).then(function(r){var n=(USES[r.use]||COMU[r.use]||{}).n||'';T('Pago confirmado. Rol activado'+(n?': '+n:'')+' hasta el '+new Date(r.end).toLocaleDateString('es-CO'));red(p.id);try{if(!document.querySelector('.overlay'))render(true)}catch(e){}})
+ QH.codeRedeem(p.code).then(function(r){var n=(USES[r.use]||COMU[r.use]||{}).n||'';T((p.via==='gratis'?'Código activado':'Pago confirmado')+'. Rol activado'+(n?': '+n:'')+' hasta el '+new Date(r.end).toLocaleDateString('es-CO'));red(p.id);try{if(!document.querySelector('.overlay'))render(true)}catch(e){}
+  /* v256: aviso con botón para ir directo a crear (si no hay otra ventana abierta, o si la abierta es la del código gratis) */try{if(!document.querySelector('#ov'))roleReady(r.use,r.end)}catch(e){}})
   .catch(function(e){if(e&&/usado/.test(e.m||''))red(p.id);else setTimeout(function(){RED[p.id]=0},30000)})})}
 function red(id){db().collection('pagos').doc(id).update({red:true}).catch(function(){})}
 /* ---- botón "Pagar con Bre-B" junto al WhatsApp de cada publicación ---- */
@@ -1742,7 +1743,7 @@ function freeOpen(o){if(!S.user){try{need(function(){freeOpen(o)})}catch(e){}ret
   '<ol class="qbst"><li>Toca «Obtener mi código». No tienes que pagar ni adjuntar nada.</li><li>Tu código aparece <b>al instante</b> y queda guardado en <b>Mi cuenta → Mis códigos</b>.</li><li>El rol se activa solo, por 1 año.</li></ol>'+
   '<p class="err" id="qb-err" role="alert"></p><div class="row"><button type="button" class="btn pink" id="qb-free">Obtener mi código</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>')}
 function freeDone(cd,o,old){modal('<h2>'+(old?'Ya tienes tu código':'¡Listo! Este es tu código')+'</h2><p class="muted" style="margin:0">'+E(o.what)+'</p><div class="qfc"><code>'+E(fmtC(cd))+'</code><button type="button" class="btn ghost" data-qfcp="'+E(cd)+'">Copiar</button></div>'+
- '<p>'+(old?'Lo pediste antes y sigue guardado en <b>Mi cuenta → Mis códigos</b>.':'Tu rol se está activando solo. También lo ves en <b>Mi cuenta → Mis códigos</b>.')+'</p><div class="row"><button type="button" class="btn pink" data-qbtrack="1">Ver mis códigos</button><button type="button" class="btn ghost" data-act="close">Listo</button></div>')}
+ '<p>'+(old?'Lo pediste antes y sigue guardado en <b>Mi cuenta → Mis códigos</b>.':'Tu rol se está activando solo. También lo ves en <b>Mi cuenta → Mis códigos</b>.')+'</p><div class="row"><button type="button" class="btn pink" data-act="roleGo" data-v="'+E(o.use)+'">'+(typeof roleBtnTxt==='function'?roleBtnTxt(o.use):'Continuar')/* v256 */+'</button><button type="button" class="btn ghost" data-qbtrack="1">Ver mis códigos</button><button type="button" class="btn ghost" data-act="close">Listo</button></div>')}
 function freeSave(b){var o=PAY,u=me();if(!o||!u)return;var er=document.getElementById('qb-err');
  var pv=(u.providerData||[]).map(function(x){return x.providerId});if(pv.length&&pv.every(function(x){return x==='password'})&&!u.emailVerified)return er.textContent='Primero confirma tu correo con el enlace que te enviamos y vuelve a entrar.';
  b.disabled=true;er.textContent='';
@@ -1905,7 +1906,7 @@ function paintNews(){var L=adm()?[]:news(),n=L.length,l=document.querySelectorAl
 function myCodesOpen(){if(!S.user){try{need(myCodesOpen)}catch(e){}return}myCodesListen();seeAll();
  modal('<h2>Mis códigos</h2><p class="muted" style="margin:0">Aquí ves cómo va el pago de tus roles y todos tus códigos.</p><div id="qc-body"></div><div class="row" style="margin-top:12px"><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>');paintCodes()}
 window.myCodesOpen=myCodesOpen;
-function useCode(c,b){if(b)b.disabled=true;QH.codeRedeem(c).then(function(r){T('Rol activado: '+roleN(r.use)+' hasta el '+fd(r.end));var p=SENT.find(function(x){return x.code===c});if(p)red(p.id);try{if(!document.querySelector('.overlay'))render(true)}catch(e){}})
+function useCode(c,b){if(b)b.disabled=true;QH.codeRedeem(c).then(function(r){T('Rol activado: '+roleN(r.use)+' hasta el '+fd(r.end));var p=SENT.find(function(x){return x.code===c});if(p)red(p.id);try{render(true)}catch(e){}try{roleGo(r.use)}catch(e){}/* v256 */})
  .catch(function(e){if(b)b.disabled=false;T((e&&e.m)||'No se pudo activar el código.')})}
 /* ---- v238: PESTAÑA "PAGOS" DEL ADMINISTRADOR: resumen, filtros y tabla de los pagos de roles ---- */
 var PF='';
@@ -2487,6 +2488,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .pnl .bzc{margin:0 0 12px;padding:16px 14px}
 .hhr2{display:block;margin:10px auto 0;padding:12px 24px;min-height:48px;border-radius:999px;border:2px solid #16a34a;background:#fff;color:#0a7d3b;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
 .hhr2[hidden]{display:none}
+.cmpv{display:flex;gap:12px;align-items:flex-start;margin:12px 0;padding:12px;border-radius:16px;background:var(--color-fog-white,#f5f5f7)}
+.cmpv img{flex:none;width:96px;height:96px;border-radius:12px;object-fit:cover}
+.cmpv b{display:block;font-size:16px;line-height:1.3}.cmpv .cmpv-p{display:block;font-weight:700;margin-top:2px}
+.cmpv small{display:block;font-size:13px;color:var(--color-pewter,#707070);margin-top:2px}.cmpv p{margin:6px 0 0;font-size:14px}
+.cd-msg{margin:6px 0 0;font-size:14px;font-weight:600}.cd-msg.no{color:#c0392b}
 html.dark .hhr2{background:transparent!important;color:#4ade80!important;border-color:#22c55e!important}.pnl .bzt h3{font-size:18px}
 html.dark .bzc .btn.bzb{background:#fff!important;color:#0a5c2c!important}
 html.dark .bzp .btn.bzb{color:#0050b3!important}
@@ -2746,7 +2752,7 @@ const QH=(function(){
   COLS.forEach(c=>listen(c,()=>{if(--n===0){ready=true;rebuild();cb();hideSplash();presInit();comListen();newsListen()}}));
   setTimeout(()=>{if(!ready&&!failed)fail({code:'timeout'})},15000)}
  /* ---- entradas de cada archivo ---- */
- function after(){if(MODE==='admin'){view='admin';render();if(!adm)admForm();else repListen()}else if(MODE==='panel'){const h0=window.QH_H0||location.hash;window.QH_H0='';/* v211: la dirección original (render() y route() la reescriben) */render();if(h0==='#/negocio'&&typeof qhBiz==='function')qhBiz()/* v253 */;else if(h0==='#/clasificado'){view='com';render();comForm()}/* v255 */else if(h0==='#/publicar'&&!/[?&]reg=1(&|$)/.test(location.search)){need(pubMenu)}else if(!S.user){if(/[?&]reg=1(&|$)/.test(location.search))regForm();else loginForm()}else if(h0==='#/accesos')codesModal()}}
+ function after(){if(MODE==='admin'){view='admin';render();if(!adm)admForm();else repListen()}else if(MODE==='panel'){const h0=window.QH_H0||location.hash;window.QH_H0='';/* v211: la dirección original (render() y route() la reescriben) */render();if(h0==='#/negocio'&&typeof qhBiz==='function')qhBiz()/* v253 */;else if(h0==='#/clasificado'){view='com';render();comForm()}/* v255 */else if(/^#\/crear\/\w+$/.test(h0)&&S.user&&typeof roleGo==='function')roleGo(h0.slice(8));/* v256 */else if(h0==='#/publicar'&&!/[?&]reg=1(&|$)/.test(location.search)){need(pubMenu)}else if(!S.user){if(/[?&]reg=1(&|$)/.test(location.search))regForm();else loginForm()}else if(h0==='#/accesos')codesModal();setTimeout(()=>{try{cmgPend()}catch(e){}},900)/* v256 */}}
  const go=f=>{if(MODE==='index'){location.href=PANEL_URL;return}if(MODE==='admin')return toast('Las publicaciones se crean desde el panel de vendedores');need(f)};
  function admForm(){modal(`<h2>Administrador</h2><p class="muted">Entra con el correo y la clave de administrador.</p><label for="a-em">Correo</label><input id="a-em" type="email" autocomplete="username"><label for="a-pw">Clave</label><input id="a-pw" type="password" autocomplete="current-password"><div class="err" id="err"></div><p class="muted" style="font-size:12px">Protegido por reCAPTCHA de Google: aplican su <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacidad</a> y sus <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Términos</a>.</p><div class="row" style="margin-top:8px"><button class="btn pink" data-act="admIn">Entrar</button><button class="btn ghost" data-act="close">Cancelar</button></div>`);rcRender('rc-adm')}
  async function admIn(){const em=$('#a-em').value.trim(),pw=$('#a-pw').value,err=$('#err');if(!em||!pw)return err.textContent='Escribe tu correo y tu clave.';
@@ -3986,7 +3992,7 @@ else if(a==='saveAd'){const T=ADT[af.type],err=$('#err'),vty=$('#af-vtype')?$('#
  o.name=o.title;o.owner=$('#a-owner').value.trim()||'Vecino';o.wa=w;o.imgs=af.imgs.concat(add);
  if(old)Object.assign(old,o);else{const pm=planMsg('ad','',af.type);if(pm)return err.textContent=pm;const n=Object.assign({id:'a'+uid(),type:af.type,ts:Date.now(),closed:false},o);S.ads.unshift(n);S.myAds.push(n.id);af.id=n.id}
  save();closeModal();curAd=af.id;view='ad';render();toast(old?'Cambios guardados':'Anuncio publicado')}
-else if(a==='doLogin'){passLogin()}else if(a==='forgot'){forgotForm()}else if(a==='forgotSend'){forgotSend()}else if(a==='regForm'){regForm()}else if(a==='cmGuestRetry'){comGuestPub()}else if(a==='loginForm'){loginForm()}else if(a==='doReg'){regSend()}else if(a==='regBack'){PEND=null;REG=null;regForm()}else if(a==='passForm'){passForm()}else if(a==='showPw'){document.querySelectorAll('#l-pw,#r-pw,#r-pw2').forEach(i=>{i.type=b.checked?'text':'password'})}else if(a==='savePass'){savePass()}
+else if(a==='doLogin'){passLogin()}else if(a==='forgot'){forgotForm()}else if(a==='forgotSend'){forgotSend()}else if(a==='regForm'){regForm()}else if(a==='cmGuestRetry'){comGuestPub()}else if(a==='cmGuestDel'){if(await askC('¿Descartar este anuncio?')){cmgClear();closeModal(1);toast('Anuncio descartado')}}else if(a==='roleGo'){roleGo(b.dataset.v)}else if(a==='loginForm'){loginForm()}else if(a==='doReg'){regSend()}else if(a==='regBack'){PEND=null;REG=null;regForm()}else if(a==='passForm'){passForm()}else if(a==='showPw'){document.querySelectorAll('#l-pw,#r-pw,#r-pw2').forEach(i=>{i.type=b.checked?'text':'password'})}else if(a==='savePass'){savePass()}
 else if(a==='oauth'){oauthIn(v)}
 else if(a==='verifyCode'){verifyCode()}
 else if(a==='resendCode'){if(PEND)issueCode(PEND.name,PEND.ch,PEND.to,true)}
@@ -3999,7 +4005,9 @@ else if(a==='cdScr'){const s=b.parentElement.querySelector('.plsub');if(s)s.scro
 else if(a==='hswScr'){const s=b.parentElement.querySelector('.hswt');if(s)s.scrollBy({left:(+b.dataset.d)*160,behavior:'smooth'})}
 else if(a==='cdSel'){cdM=+b.dataset.m;const x=$('#cdbox');if(x){x.innerHTML=cdBox();const f=x.querySelector('[data-act="cdSel"][data-m="'+cdM+'"]');if(f)f.focus()}}
 else if(a==='codeBuy'){const u=b.dataset.u,m=+b.dataset.m,w=(S.site||{}).wa;if(!S.user||!USES[u]||!CODE_DAYS[m])return;if(!w)return toast('El administrador aún no configuró su WhatsApp de pagos');if(codeFree(u))return waOpen(w,'Hola, soy '+S.user.name+' ('+(S.user.wa||S.user.email)+'). Quiero el código gratis de «'+USES[u].n+'» por 1 año en Mi Pradera.');waOpen(w,'Hola, soy '+S.user.name+' ('+(S.user.wa||S.user.email)+'). Quiero comprar el acceso «'+USES[u].n+'» por '+codeMn(m)+' ('+money(codePriceNow(u,m))+(promoOn()?', con la promoción':'')+') en Mi Pradera. ¿Por dónde te pago?')}
-else if(a==='codeUse'){if(!S.user)return toast('Entra primero a tu cuenta');const v=$('#cd-in').value;b.disabled=true;try{const r=await QH.codeRedeem(v);toast('Acceso activado: '+(USES[r.use]||COMU[r.use]).n+' hasta el '+new Date(r.end).toLocaleDateString('es-CO')+(r.feat?' · con ★ destacado':''));render(true);const cb=$('#cdbox');if(cb)cb.innerHTML=cdBox()}catch(e){toast((e&&e.m)||'No se pudo canjear')}b.disabled=false}
+else if(a==='codeUse'){if(!S.user)return toast('Entra primero a tu cuenta');const v=$('#cd-in').value,cm=()=>{let m=$('#cd-msg');if(!m){m=document.createElement('p');m.id='cd-msg';m.setAttribute('role','alert');const i=$('#cd-in');if(i)i.insertAdjacentElement('afterend',m)}return m};b.disabled=true;
+ try{const r=await QH.codeRedeem(v);toast('¡Código activado! '+(USES[r.use]||COMU[r.use]).n+' hasta el '+new Date(r.end).toLocaleDateString('es-CO')+(r.feat?' · con destacado':''));render(true);/* v256: abre directo lo que se crea con ese rol */setTimeout(()=>roleGo(r.use),350)}
+ catch(e){const m=cm();m.className='cd-msg no';m.textContent='No se pudo activar: '+((e&&e.m)||'revisa el código e inténtalo de nuevo.');toast('El código no se pudo activar')}b.disabled=false}
 else if(a==='codePrices'){if(!adm)return;const cp={};CODE_USES.forEach(u=>CODE_MS.forEach(m=>{const e=$('#cp-'+u+'-'+m),v=e?parseInt(String(e.value).replace(/\D/g,''),10):NaN;if(isFinite(v)&&v>=0)cp[u+'_'+m]=v}));S.site={...S.site,accPrices:cp};save();render(true);toast('Precios guardados')}
 else if(a==='promoSave'){if(!adm)return;const pct=Math.min(90,Math.max(0,parseInt(String($('#pm-p').value).replace(/\D/g,''),10)||0)),d=$('#pm-u').value,until=d?new Date(d+'T23:59:59').getTime():0;if(pct&&!(until>Date.now()))return toast('Elige una fecha futura para la promoción');const n={...S.site};if(pct)n.promo={pct,until};else delete n.promo;S.site=n;save();render(true);toast(pct?'Promoción guardada':'Promoción quitada')}
 else if(a==='accRemind'){if(!adm)return;const p=QH.plans().find(x=>x.k===id),u=b.dataset.u;if(!p||!p.wa||!USES[u])return;const e=Number((p.acc||{})[u])||0;waOpen(String(p.wa).replace(/\D/g,''),'Hola '+(p.name||'')+', te escribo de Mi Pradera. Tu acceso de «'+USES[u].n+'» '+(e>Date.now()?'vence el ':'venció el ')+new Date(e).toLocaleDateString('es-CO')+'. ¿Quieres renovarlo? Te envío el código apenas me confirmes.')}
@@ -4261,7 +4269,7 @@ async function comSave(b){const err=$('#err'),t=$('#cm-t').value.trim(),x=$('#cm
  const ex=cmf.mode==='img'?(cmf.imgs||[]).slice(1,3):[];if(cmf.img.length>700000||ex.some(m=>m.length>380000)||cmf.img.length+ex.join('').length>850000)return err.textContent='Las fotos pesan demasiado. Quita una o elige otras.';
  const xf={op:$('#cm-op').value,cat:$('#cm-cat').value,sub:$('#cm-sub').value,price:Number($('#cm-pr').value.replace(/\D/g,'').slice(0,12))||0,zone:z.slice(0,40),cond:$('#cm-cd').value,imgs:ex};
  let l='';if(l0){l=/^https?:\/\//i.test(l0)?l0:'https://'+l0;try{const u=new URL(l);if(!/^https?:$/.test(u.protocol)||!u.hostname.includes('.'))throw 0;l=u.href}catch(e){return err.textContent='El enlace no es válido.'}}
- if(!S.user&&!cmf.id){CMG={t,x,o,w,l,img:cmf.img,xf};return comGuestAsk()}
+ if(!S.user&&!cmf.id){CMG={t,x,o,w,l,img:cmf.img,xf,ts:Date.now()};try{localStorage.setItem('qh_cmg',JSON.stringify(CMG))}catch(e){}return comGuestAsk()}
  const now=Date.now();let a;
  if(cmf.id){const old=QH.COM.find(z=>z.id===cmf.id);if(!old)return err.textContent='Ese anuncio ya no existe.';a=Object.assign({},old,{title:t,text:x,owner:o,wa:w,link:l,img:cmf.img,ed:now},xf)}
  else{const pl=$('#cm-p').value;if(pl==='free'?comFreeWait():pl==='comu'?!accOn('comu'):!(accOn(pl)&&comUsed(pl)<COM_DAYS[pl]))return err.textContent='Ese plan no está disponible ahora. Cierra y vuelve a intentarlo.';
@@ -4270,12 +4278,32 @@ async function comSave(b){const err=$('#err'),t=$('#cm-t').value.trim(),x=$('#cm
  b.disabled=true;try{await QH.comPut(a);closeModal();toast(cmf.id?'Anuncio actualizado':'¡Anuncio publicado!');render(true)}catch(e){err.textContent=e&&e.m?e.m:(e&&e.code==='permission-denied'?'No se pudo publicar: faltan publicar las reglas de Firestore para «community». Avisa al administrador.':'No se pudo publicar. Revisa tu internet.')}b.disabled=false}
 /* v255: anuncio clasificado sin cuenta. El borrador (CMG) se guarda al tocar «Publicar»; tras registrarse o entrar se publica solo (plan gratis de 24 horas) */
 let CMG=null;
-function comGuestAsk(){after=comGuestPub;modal(`<h2>Crea tu cuenta para publicar</h2><p>Tu anuncio <b>«${esc(CMG.t)}»</b> está listo. Para publicarlo, crea tu cuenta gratis o entra si ya tienes una. Apenas termines, se publica solo.</p><p class="muted">La cuenta sirve para que solo tú puedas editar o borrar tu anuncio.</p><div class="row" style="margin-top:12px"><button type="button" class="btn pink" data-act="regForm">Crear cuenta gratis</button><button type="button" class="btn ghost" data-act="loginForm">Ya tengo cuenta</button></div>`)}
+function comGuestAsk(){after=comGuestShow;modal(`<h2>Crea tu cuenta para publicar</h2><p>Tu anuncio <b>«${esc(CMG.t)}»</b> está guardado. Crea tu cuenta gratis o entra si ya tienes una; apenas termines te lo mostramos para que lo publiques.</p><p class="muted">La cuenta sirve para que solo tú puedas editar o borrar tu anuncio.</p><div class="row" style="margin-top:12px"><button type="button" class="btn pink" data-act="regForm">Crear cuenta gratis</button><button type="button" class="btn ghost" data-act="loginForm">Ya tengo cuenta</button></div>`)}
+/* v256: tras registrarse (o al volver a entrar) se muestra el anuncio pendiente con «Publicar ahora» */
+function cmgClear(){CMG=null;try{localStorage.removeItem('qh_cmg')}catch(e){}}
+let cmgTry=0;function cmgPend(){if(!S.user||MODE==='admin')return;if(document.querySelector('#ov')){if(cmgTry++<80)setTimeout(cmgPend,1500);return}/* espera a que se cierre otra ventana (p. ej. la bienvenida) */if(!CMG){try{CMG=JSON.parse(localStorage.getItem('qh_cmg')||'null')}catch(e){CMG=null}}if(!CMG||!CMG.t)return;if(Date.now()-(CMG.ts||0)>7*DAY)return cmgClear();comGuestShow()}
+function comGuestShow(){const G=CMG;if(!G||!S.user)return;const pr=G.xf&&G.xf.price?money(G.xf.price):'';
+ modal(`<h2>Tienes un anuncio pendiente</h2><p>Ya tienes tu cuenta. Revisa tu anuncio y publícalo.</p><div class="cmpv">${G.img?`<img src="${esc(G.img)}" alt="">`:''}<div><b>${esc(G.t)}</b>${pr?`<span class="cmpv-p">${pr}</span>`:''}<small>${esc([G.o,G.xf&&G.xf.zone].filter(Boolean).join(' · '))}</small>${G.x?`<p>${esc(G.x.length>140?G.x.slice(0,140)+'…':G.x)}</p>`:''}</div></div><p class="muted">Se publica gratis y dura 24 horas.</p><div class="row" style="margin-top:10px"><button type="button" class="btn pink" data-act="cmGuestRetry">Publicar ahora</button><button type="button" class="btn ghost" data-act="cmGuestDel">Descartar</button></div>`)}
 async function comGuestPub(){const G=CMG;if(!G||!S.user)return;
- if(comFreeWait()){CMG=null;return modal(`<h2>Ya usaste tu anuncio gratis de hoy</h2><p>Tu anuncio gratis se renueva en unas ${comFreeWait()} h. Si quieres publicar ahora o que dure más, activa un plan.</p><div class="row" style="margin-top:8px"><button class="btn pink" data-act="cmxPlans">Ver planes</button><button class="btn ghost" data-act="close">Cerrar</button></div>`)}
+ if(comFreeWait()){cmgClear();return modal(`<h2>Ya usaste tu anuncio gratis de hoy</h2><p>Tu anuncio gratis se renueva en unas ${comFreeWait()} h. Si quieres publicar ahora o que dure más, activa un plan.</p><div class="row" style="margin-top:8px"><button class="btn pink" data-act="cmxPlans">Ver planes</button><button class="btn ghost" data-act="close">Cerrar</button></div>`)}
  const now=Date.now(),a=Object.assign({id:'c'+now.toString(36)+Math.random().toString(36).slice(2,6),ownerKey:QH.key(),owner:G.o,title:G.t,text:G.x,img:G.img,wa:G.w,link:G.l,pl:'free',ts:now,exp:now+DAY},G.xf);
- try{await QH.comPut(a);CMG=null;closeModal(1);view='com';render();scrollTo(0,0);toast('¡Anuncio publicado!')}
+ try{await QH.comPut(a);cmgClear();closeModal(1);view='com';render();scrollTo(0,0);toast('¡Anuncio publicado!')}
  catch(e){modal(`<h2>No se pudo publicar todavía</h2><p>${esc(e&&e.m?e.m:'Revisa tu internet y vuelve a intentarlo.')}</p><div class="row" style="margin-top:8px"><button class="btn pink" data-act="cmGuestRetry">Intentar de nuevo</button><button class="btn ghost" data-act="close">Cerrar</button></div>`)}}
+/* v256: después de activar un rol se abre directo lo que se crea con él (noticia, tienda/productos, aviso, clasificado, servicio, anuncio) */
+function roleBtnTxt(u){return u==='news'?'Crear una noticia':u==='comu'?'Publicar un aviso comunitario':(typeof COMU==='object'&&COMU[u])?'Publicar un clasificado':u==='serv'?'Ofrecer un servicio':u==='car'?'Publicar un vehículo':u==='home'?'Publicar un inmueble':(S.stores.some(s=>S.mine.includes(s.id))?'Agregar productos a mi tienda':'Crear mi tienda')}
+function roleGo(u){if(MODE==='index'){location.href=PANEL_URL+'#/crear/'+u;return}
+ if(!accOn(u)&&!(['store','food','pelu','car','home','serv'].includes(u)&&accOn('merc'))){roleGo.t=(roleGo.t||0)+1;if(roleGo.t<10){if(roleGo.t===1)toast('Activando tu rol, un momento…');return setTimeout(()=>roleGo(u),1200)}}roleGo.t=0;/* el rol aún se está activando: espera */
+ closeModal(1);
+ const k=(()=>{try{return QH.key()}catch(e){return ''}})(),ms=S.stores.filter(s=>S.mine.includes(s.id)||(k&&s.ownerKey===k));
+ if(u==='news')return nwForm();
+ if(u==='comu'||(typeof COMU==='object'&&COMU[u])){view='com';render();return comForm()}
+ if(u==='serv')return servForm();
+ if(u==='car')return adForm('veh');
+ if(u==='home')return adForm('arr');
+ if(!ms.length)return shopForm(u==='food'||u==='pelu'?u:undefined);
+ cur=ms[0].id;view='store';render();scrollTo(0,0);prodForm()}
+function roleReady(u,end){const n=(USES[u]||(typeof COMU==='object'&&COMU[u])||{}).n||u;
+ modal(`<h2>¡Código activado!</h2><p>Tu rol <b>${esc(n)}</b> está activo${end?' hasta el '+new Date(end).toLocaleDateString('es-CO'):''}.</p><div class="row" style="margin-top:10px"><button type="button" class="btn pink" data-act="roleGo" data-v="${esc(u)}">${roleBtnTxt(u)}</button><button type="button" class="btn ghost" data-act="close">Más tarde</button></div>`)}
 function comPlansView(){if(!S.user)return `<div class="shead"><h2>Planes de Clasificados</h2></div><div class="cg"><p class="muted">Entra para ver y activar tus planes.</p><button class="btn pink" data-act="pLogin">Entrar</button></div>`;
  const cur=comCur(),fd=t=>new Date(t).toLocaleDateString('es-CO'),all=['free'].concat(COM_USES),
  card=u=>`<button type="button" class="plo cm${u===cmSel?' on':''}" role="radio" aria-checked="${u===cmSel}" data-act="cmxSel" data-v="${u}"><span class="plr"></span><span class="plb"><b>${u==='free'?'Gratis':COMU[u].n}</b>${u===cur?'<em class="plbadge">PLAN ACTUAL</em>':''}<small>${u==='free'?'1 anuncio al día · dura 24 horas':'Anuncia '+COM_DAYS[u]+' anuncios al día durante '+COM_DAYS[u]+' días'}</small></span><span class="plp">${u==='free'?'Gratis':money(comPrice(u))}<small>${u==='free'?'/ día':'/ '+COM_DAYS[u]+' días'}</small></span></button>`;
