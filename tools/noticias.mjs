@@ -7,7 +7,7 @@ import fs from 'fs';import path from 'path';
 const SITE = 'https://mipradera.com.co/', PROJECT = 'qhep-b812f', ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const OUT = path.join(ROOT, 'noticias'), IMG = path.join(OUT, 'img');
 const FIXED = [['', 'daily', '1.0'], ['noticias/', 'daily', '0.8'], ['privacidad.html', 'yearly', '0.3'], ['eliminar-datos.html', 'yearly', '0.2']];
-const NWC = { comu: ['🤝', 'Comunidad'], clima: ['🌦️', 'Clima y ambiente'], empleo: ['💼', 'Empleo'], eventos: ['🎉', 'Eventos'], salud: ['🩺', 'Salud'], seguridad: ['🚨', 'Seguridad'], gobierno: ['🏛️', 'Gobierno'], negocios: ['🛍️', 'Negocios'], educacion: ['📚', 'Educación'], deportes: ['⚽', 'Deportes'], cultura: ['🎭', 'Cultura'] };
+const NWC = { comu: ['', 'Comunidad'], clima: ['', 'Clima y ambiente'], empleo: ['', 'Empleo'], eventos: ['', 'Eventos'], salud: ['', 'Salud'], seguridad: ['', 'Seguridad'], gobierno: ['', 'Gobierno'], negocios: ['', 'Negocios'], educacion: ['', 'Educación'], deportes: ['', 'Deportes'], cultura: ['', 'Cultura'] };
 
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 // igual que nwSlug() de la página: el enlace que se comparte desde la página tiene que existir aquí
@@ -82,9 +82,9 @@ for (const n of all) {
   const ld = { '@context': 'https://schema.org', '@type': 'NewsArticle', headline: n.title.slice(0, 110), description: d, datePublished: iso, dateModified: ed, mainEntityOfPage: n.url, author: { '@type': 'Person', name: n.author || 'Redacción' }, publisher: { '@type': 'Organization', name: 'Mi Pradera', logo: { '@type': 'ImageObject', url: SITE + 'icon-512.png' } }, image: [n.cover, ...n.gal].filter(Boolean) };
   const app = SITE + '#/nw/' + n.id, wa = 'https://wa.me/?text=' + encodeURIComponent(n.title + ' — Noticias de Mi Pradera ' + n.url);
   const html = head(n.title + ' – Noticias de Mi Pradera', d, n.url, n.cover, `<meta property="og:type" content="article"><meta property="article:published_time" content="${iso}">${c ? `<meta property="article:section" content="${esc(c[1])}">` : ''}<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`)
-    + `<main><article class="card">${n.cover ? `<img class="cover" src="${esc(n.cover)}" alt="${esc(n.title)}">` : ''}<div class="in">${c ? `<a class="cat" href="/noticias/#${esc(n.cat)}">${c[0]} ${esc(c[1])}</a>` : ''}<h1>${esc(n.title)}</h1><p class="by">Por ${esc(n.author || 'Redacción')} · <time datetime="${iso}">${esc(fdate(n.ts))}</time>${n.ed ? ' · editada' : ''}</p>`
-    + `${n.link ? `<a class="vid" href="${esc(y ? 'https://www.youtube.com/watch?v=' + y : n.link)}" rel="noopener nofollow">▶ Ver el video en ${plat(n.link)}</a>` : ''}<div class="tx">${fmt(n.text)}</div>`
-    + `<div class="act"><a class="btn" href="${esc(app)}">💬 Comentar y reaccionar</a><a class="btn wa" href="${esc(wa)}">Compartir por WhatsApp</a></div></div>`
+    + `<main><article class="card">${n.cover ? `<img class="cover" src="${esc(n.cover)}" alt="${esc(n.title)}">` : ''}<div class="in">${c ? `<a class="cat" href="/noticias/#${esc(n.cat)}">${esc(c[1])}</a>` : ''}<h1>${esc(n.title)}</h1><p class="by">Por ${esc(n.author || 'Redacción')} · <time datetime="${iso}">${esc(fdate(n.ts))}</time>${n.ed ? ' · editada' : ''}</p>`
+    + `${n.link ? `<a class="vid" href="${esc(y ? 'https://www.youtube.com/watch?v=' + y : n.link)}" rel="noopener nofollow">Ver el video en ${plat(n.link)}</a>` : ''}<div class="tx">${fmt(n.text)}</div>`
+    + `<div class="act"><a class="btn" href="${esc(app)}">Comentar y reaccionar</a><a class="btn wa" href="${esc(wa)}">Compartir por WhatsApp</a></div></div>`
     + `${n.gal.length ? `<div class="gal">${n.gal.map((u, i) => `<img src="${esc(u)}" alt="Foto ${i + 1}: ${esc(n.title)}" loading="lazy">`).join('')}</div>` : ''}</article>`
     + `${rel.length ? `<section class="rel"><h3>Más noticias</h3>${rel.map(x => `<a href="/${esc(page(x))}">${x.cover ? `<img src="${esc(x.cover)}" alt="" loading="lazy">` : ''}<span><b>${esc(x.title)}</b><small>${esc(fdate(x.ts))}${NWC[x.cat] ? ' · ' + esc(NWC[x.cat][1]) : ''}</small></span></a>`).join('')}</section>` : ''}`
     + `<p style="text-align:center;margin-top:24px"><a class="btn s" href="/noticias/">Ver todas las noticias</a></p></main>` + foot;
@@ -92,7 +92,7 @@ for (const n of all) {
 }
 // archivo de noticias por mes
 let lm = '', ls = '';
-for (const n of all) { const m = month(n.ts); if (m !== lm) { ls += `<h2>${esc(m)}</h2>`; lm = m } const c = NWC[n.cat]; ls += `<a href="/${esc(page(n))}" data-cat="${esc(n.cat || '')}">${n.cover ? `<img src="${esc(n.cover)}" alt="" loading="lazy">` : ''}<span><b>${esc(n.title)}</b><small>${esc(fdate(n.ts))}${c ? ' · ' + c[0] + ' ' + esc(c[1]) : ''}</small></span></a>` }
+for (const n of all) { const m = month(n.ts); if (m !== lm) { ls += `<h2>${esc(m)}</h2>`; lm = m } const c = NWC[n.cat]; ls += `<a href="/${esc(page(n))}" data-cat="${esc(n.cat || '')}">${n.cover ? `<img src="${esc(n.cover)}" alt="" loading="lazy">` : ''}<span><b>${esc(n.title)}</b><small>${esc(fdate(n.ts))}${c ? ' · ' + esc(c[1]) : ''}</small></span></a>` }
 put(path.join(OUT, 'index.html'), head('Noticias de Pradera – Mi Pradera', 'Noticias, avisos y eventos de Pradera, Valle del Cauca, contados por la comunidad en Mi Pradera.', SITE + 'noticias/', '')
   + `<main><h1>Noticias de Pradera</h1><p class="by">Lo que pasa en Pradera, contado por la comunidad. <a href="/#/noticias">Ver en Mi Pradera</a> · <a href="/noticias/feed.xml">RSS</a></p><div class="ls">${ls || '<p>Todavía no hay noticias publicadas.</p>'}</div></main>`
   + `<script>(function(){var h=location.hash.slice(1);if(!h)return;var l=document.querySelectorAll('.ls a');for(var i=0;i<l.length;i++)if(l[i].dataset.cat!==h)l[i].style.display='none'})()</script>` + foot);
