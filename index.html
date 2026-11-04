@@ -1735,12 +1735,24 @@ function payOpen(o){if(!S.user){try{need(function(){payOpen(o)})}catch(e){}retur
 function freeOpen(o){if(!S.user){try{need(function(){freeOpen(o)})}catch(e){}return}var u=me();
  if(!u)return T('Para solicitar códigos entra con tu correo y tu clave.');if(u.uid===o.to)return T('Esta es la cuenta del administrador: no necesitas solicitar códigos.');
  if(SENT.some(function(p){return p.kind==='rol'&&p.st==='pend'&&p.use===o.use}))return T('Ya tienes una solicitud de este rol esperando aprobación. Mírala en Mi cuenta → Mis códigos.');
- PAY=o;modal('<h2>Solicitar código gratis</h2><p class="muted" style="margin:0">'+E(o.what)+'</p><div class="qbk qbd"><div class="qbr2"><span>Valor</span><b class="qbtn">Gratis</b></div><div class="qbr2"><span>Comprobante</span><b>No hace falta</b></div></div>'+
-  '<ol class="qbst"><li>Toca «Enviar solicitud». No tienes que pagar ni adjuntar nada.</li><li>El administrador revisa tu solicitud.</li><li>Cuando la apruebe, el código te llega a <b>Mi cuenta → Mis códigos</b> y el rol se activa solo.</li></ol>'+
-  '<p class="err" id="qb-err" role="alert"></p><div class="row"><button type="button" class="btn pink" id="qb-free">Enviar solicitud</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>')}
+ /* v251: los roles gratis (Redactor de noticias, Entidad comunitaria) dan el código al instante, sin esperar al administrador */
+ var had=SENT.filter(function(p){return p.kind==='rol'&&p.via==='gratis'&&p.st==='ok'&&p.code&&p.use===o.use&&(Date.now()-(p.ts||0))<330*864e5})[0];
+ if(had)return freeDone(had.code,o,1);
+ PAY=o;modal('<h2>Obtener código gratis</h2><p class="muted" style="margin:0">'+E(o.what)+'</p><div class="qbk qbd"><div class="qbr2"><span>Valor</span><b class="qbtn">Gratis</b></div><div class="qbr2"><span>Comprobante</span><b>No hace falta</b></div></div>'+
+  '<ol class="qbst"><li>Toca «Obtener mi código». No tienes que pagar ni adjuntar nada.</li><li>Tu código aparece <b>al instante</b> y queda guardado en <b>Mi cuenta → Mis códigos</b>.</li><li>El rol se activa solo, por 1 año.</li></ol>'+
+  '<p class="err" id="qb-err" role="alert"></p><div class="row"><button type="button" class="btn pink" id="qb-free">Obtener mi código</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>')}
+function freeDone(cd,o,old){modal('<h2>'+(old?'Ya tienes tu código':'¡Listo! Este es tu código')+'</h2><p class="muted" style="margin:0">'+E(o.what)+'</p><div class="qfc"><code>'+E(fmtC(cd))+'</code><button type="button" class="btn ghost" data-qfcp="'+E(cd)+'">Copiar</button></div>'+
+ '<p>'+(old?'Lo pediste antes y sigue guardado en <b>Mi cuenta → Mis códigos</b>.':'Tu rol se está activando solo. También lo ves en <b>Mi cuenta → Mis códigos</b>.')+'</p><div class="row"><button type="button" class="btn pink" data-qbtrack="1">Ver mis códigos</button><button type="button" class="btn ghost" data-act="close">Listo</button></div>')}
 function freeSave(b){var o=PAY,u=me();if(!o||!u)return;var er=document.getElementById('qb-err');
  var pv=(u.providerData||[]).map(function(x){return x.providerId});if(pv.length&&pv.every(function(x){return x==='password'})&&!u.emailVerified)return er.textContent='Primero confirma tu correo con el enlace que te enviamos y vuelve a entrar.';
  b.disabled=true;er.textContent='';
+ /* v251: solicitud ya aprobada + su código en un solo paso (reglas v32). Si las reglas aún no lo permiten, queda como antes: pendiente de aprobar */
+ var pr=db().collection('pagos').doc(),AL='ABCDEFGHJKMNPQRSTUVWXYZ23456789',cd=Array.from(crypto.getRandomValues(new Uint32Array(12)),function(x){return AL[x%AL.length]}).join(''),now=Date.now(),bt=db().batch();
+ bt.set(pr,{from:u.uid,fromName:String(S.user&&S.user.name||'Vecino').slice(0,60),to:o.to,toName:String(o.toName||'').slice(0,60),amt:0,ref:'',what:String(o.what||'').slice(0,120),
+  kind:'rol',item:String(o.item||'').slice(0,80),use:String(o.use||''),m:Number(o.m)||0,via:'gratis',img:'',st:'ok',sts:now,code:cd,ts:now});
+ bt.set(db().collection('codes').doc(cd),{c:cd,use:String(o.use||''),months:12,days:365,used:false,ts:now,uid:u.uid,pago:pr.id,why:'gratis'});
+ bt.commit().then(function(){PAY=null;freeDone(cd,o)},function(){freeAsk(o,u,b,er)})}
+function freeAsk(o,u,b,er){
  db().collection('pagos').add({from:u.uid,fromName:String(S.user&&S.user.name||'Vecino').slice(0,60),to:o.to,toName:String(o.toName||'').slice(0,60),amt:0,ref:'',what:String(o.what||'').slice(0,120),
   kind:'rol',item:String(o.item||'').slice(0,80),use:String(o.use||''),m:Number(o.m)||0,via:'gratis',img:'',st:'pend',ts:Date.now()})
  .then(function(){PAY=null;modal('<h2>Solicitud enviada</h2><p>El administrador revisará tu solicitud. Cuando la apruebe, el código te llega a <b>Mi cuenta → Mis códigos</b> y el rol se activa solo.</p><div class="row"><button type="button" class="btn pink" data-qbtrack="1">Ver seguimiento</button><button type="button" class="btn ghost" data-act="close">Listo</button></div>')})
@@ -1965,7 +1977,7 @@ document.addEventListener('change',function(e){var t=e.target;if(!t)return;
  else if(t.id==='qb-img'&&t.files&&t.files[0])shrink(t.files[0],1100,280000,function(du){PIMG=du;var er=document.getElementById('qb-err');if(er)er.textContent=''});
  else if(t.id==='breb-on'){try{S.site=Object.assign({},S.site,{breb:!!t.checked});save();T(t.checked?'Pagos con Bre-B y Nequi activados':'Pagos con Bre-B y Nequi ocultos')}catch(x){}}});
 document.addEventListener('input',function(e){if(e.target&&e.target.id==='qb-tn'){var v=document.getElementById('qb-tnv');if(v)v.textContent=mask(e.target.value)||mask('Ana Elizabeth Meléndez');return}if(e.target&&e.target.id==='qb-amt'&&!e.target.readOnly){var v=e.target.value,f=moneyFmt(v);if(v!==f)e.target.value=f}});
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],[data-qbimg],[data-act="myCodes"],[data-qbtrack],[data-qbuse],[data-qbadmwa],[data-qbwac],[data-qpf],[data-qrf],[data-qsf],[data-qbent],[data-qbadel],[data-qbadelall],[data-qbrelog],[data-qnotx],[data-qbccp],#qb-free,#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="brebOpen"],.qbb,.qbr,[data-qbcp],[data-qbvia],[data-qbimg],[data-act="myCodes"],[data-qbtrack],[data-qfcp],[data-qbuse],[data-qbadmwa],[data-qbwac],[data-qpf],[data-qrf],[data-qsf],[data-qbent],[data-qbadel],[data-qbadelall],[data-qbrelog],[data-qnotx],[data-qbccp],#qb-free,#qb-go,[data-qbwa],[data-qbtab],[data-qbok],[data-qbno],[data-qbund],[data-qbdel],[data-qbact],[data-qbadm],#qb-ksave,#qb-kdel');if(!b)return;
  e.preventDefault();e.stopPropagation();var d=b.dataset;
  if(d.act==='brebOpen')return myOpen();
  if(b.classList.contains('qbb')){var i=info(b.previousElementSibling);if(i)payOpen({to:i.o,toName:(PRO[i.o]&&PRO[i.o].name)||i.n,amt:i.amt,what:i.what,kind:'item',item:i.item,wa:i.wa});return}
@@ -1975,6 +1987,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
   o.item='rol:'+o.use+':'+o.m;if(!(Number(o.amt)>0)){o.amt=0;return freeOpen(o)}/* v240 */return payOpen(o)}
  if(d.qbcp!=null){var p=PAY&&PRO[PAY.to];if(p)cpTxt(VIA==='nequi'?p.nq:p.key,VIA==='nequi'?'Número copiado':'Llave copiada');return}
  if(d.qbvia){VIA=d.qbvia;var vl=b.parentNode.querySelectorAll('[data-qbvia]');for(var z=0;z<vl.length;z++)vl[z].setAttribute('aria-selected',vl[z]===b);var vb=document.getElementById('qb-via');if(vb)vb.innerHTML=viaH();return}
+ if(d.qfcp){try{cpTxt(fmtC(d.qfcp),'Código copiado')}catch(x){}return}
  if(d.act==='myCodes'||d.qbtrack)return myCodesOpen();
  if(d.qbuse)return useCode(d.qbuse,b);
  if(d.qbccp){cpTxt(fmtC(d.qbccp),'Código copiado');return}
@@ -2394,6 +2407,43 @@ var pend=false;new MutationObserver(function(){if(!pend){pend=true;(window.reque
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
+<style id="v251-codigos-css">
+/* v251: Administrar → Códigos ordenado (resumen, formulario en cuadrícula, tabla con filtros, secciones plegables) y código gratis al instante */
+.cdsum{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px;margin:0 0 14px}
+.cdt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border:1px solid var(--color-pale-mist,#d6d6d6);border-radius:16px;background:#fff;color:var(--color-obsidian,#1d1d1f);font:inherit;text-align:left;cursor:pointer;min-height:84px}
+.cdt span{font-size:18px;line-height:1}
+.cdt b{font-size:24px;font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.cdt small{font-size:12.5px;color:var(--color-pewter,#707070);line-height:1.25}
+.cdt[aria-pressed=true]{border-color:var(--color-iris-blue,#0071e3);box-shadow:0 0 0 2px rgba(0,113,227,.25)}
+.cdg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 12px;align-items:end}
+.cdg>div{min-width:0}
+.cdh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.cdh h3{margin:0}
+.cdh .btn{min-height:36px;padding:6px 14px;font-size:14px}
+.cdf{display:grid;grid-template-columns:1fr;gap:8px;margin:12px 0 4px}
+@media(min-width:640px){.cdf{grid-template-columns:2fr 1fr 1fr}}
+.cdf input,.cdf select{margin:0}
+.cdc{margin:8px 0 4px;font-size:13px}
+.cdw{overflow-x:auto;margin:0 -4px;-webkit-overflow-scrolling:touch}
+.cdtb{min-width:720px}
+.cdtb td:last-child{white-space:nowrap}
+.cdtb td:last-child .btn{display:inline-flex;margin:0 4px 4px 0}
+.cdtb tr.cd-exp td{opacity:.6}
+.cds{display:inline-block;padding:2px 9px;border-radius:980px;font-size:12px;font-weight:600;white-space:nowrap}
+.cds.new{background:rgba(255,159,10,.15);color:#a35a00}
+.cds.act{background:rgba(48,209,88,.16);color:#1b7a34}
+.cds.exp{background:rgba(0,0,0,.07);color:var(--color-pewter,#707070)}
+.cdx>summary{cursor:pointer;font-size:17px;font-weight:600;padding:2px 0;list-style:none;display:flex;align-items:center;gap:6px}
+.cdx>summary::-webkit-details-marker{display:none}
+.cdx>summary::after{content:"›";margin-left:auto;font-size:22px;line-height:1;transform:rotate(90deg);transition:transform .2s;color:var(--color-pewter,#707070)}
+.cdx:not([open])>summary::after{transform:rotate(0)}
+.cdx[open]>summary{margin-bottom:8px}
+.cdx>.cg{margin:0;padding:0;border:0;box-shadow:none;background:none}
+.cdx>.cg>h3{display:none}
+.cdon{font-style:normal;font-size:12px;font-weight:600;padding:2px 8px;border-radius:980px;background:rgba(48,209,88,.16);color:#1b7a34}
+.qfc{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0;padding:16px;border-radius:16px;background:var(--color-fog-white,#f5f5f7)}
+.qfc code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:24px;font-weight:700;letter-spacing:.06em}
+</style>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
@@ -2858,11 +2908,29 @@ function accSoonHTML(){const now=Date.now(),fd=t=>new Date(t).toLocaleDateString
  soon.sort((x,y)=>x[2]-y[2]);gone.sort((x,y)=>y[2]-x[2]);
  const row=([p,u,e])=>`<div class="ci"><span><b>${esc(p.name||'(sin nombre)')}</b> <small>· ${USES[u].ico} ${esc(CD_SH[u])} · ${e>now?'vence el ':'venció el '}${fd(e)}</small></span><span class="row">${p.wa?`<button class="btn" data-act="accRemind" data-id="${esc(p.k)}" data-u="${u}">WhatsApp</button>`:'<small class="muted">sin celular</small>'}</span></div>`;
  return `<div class="cg"><h3>⏰ Accesos por vencer</h3><p class="muted">Recuérdales renovar antes de que se les acabe el acceso.</p><h4>Vencen en los próximos 7 días (${soon.length})</h4>${soon.length?soon.map(row).join(''):'<p class="muted">Ninguno.</p>'}<h4>Vencieron en los últimos 15 días (${gone.length})</h4>${gone.length?gone.map(row).join(''):'<p class="muted">Ninguno.</p>'}</div>`}
-function codAdmin(){const L=QH.codes(),fd2=t=>new Date(t).toLocaleDateString('es-CO'),pm=(S.site||{}).promo||{};
- return `${accSoonHTML()}${comCodAdmin()}<div class="cg"><h3>Precios de los accesos</h3><p class="muted">Precio de cada tipo según la duración. Se muestran a los usuarios en su panel. Solo el rol Comerciante tiene precio; Comunidad y Redactor de noticias son gratis por 1 año con código.</p>${CODE_USES.filter(u=>!codeFree(u)).map(u=>`<h4>${USES[u].ico} ${esc(USES[u].n)}</h4><div class="row">${CODE_MS.map(m=>`<div style="flex:1 1 90px"><label for="cp-${u}-${m}">${codeMn(m)}</label><input id="cp-${u}-${m}" type="text" inputmode="numeric" value="${codePrice(u,m)}"></div>`).join('')}</div>`).join('')}<button class="btn pink" style="margin-top:10px" data-act="codePrices">Guardar precios</button></div>
-<div class="cg"><h3>🏷️ Promoción con fecha límite</h3><p class="muted">Descuento en todos los accesos pagos hasta la fecha que elijas (por ejemplo, 50 % para el lanzamiento). Los usuarios ven el precio normal tachado. Pon 0 para quitarla.</p><div class="row"><div style="flex:1 1 120px"><label for="pm-p">Descuento (%)</label><input id="pm-p" type="text" inputmode="numeric" value="${pm.pct||0}"></div><div style="flex:1 1 160px"><label for="pm-u">Hasta (incluido)</label><input id="pm-u" type="date" value="${pm.until?new Date(pm.until).toLocaleDateString('en-CA'):''}"></div></div><p class="muted">${promoOn()?'Activa: '+promoOn().pct+'% de descuento hasta el '+fd2(promoOn().until)+'.':'Sin promoción activa.'}</p><button class="btn pink" data-act="promoSave">Guardar promoción</button></div>
-<div class="cg"><h3>Generar códigos</h3><label for="cg-why">Motivo</label><select id="cg-why">${CODE_WHY.map(([v,n])=>`<option value="${v}">${n}</option>`).join('')}</select><p class="muted">El motivo queda guardado en el código para saber cuáles vendiste y cuáles regalaste. Al elegirlo se ponen el rol y la duración sugeridos.</p><label for="cg-u">Rol</label><select id="cg-u">${CODE_USES.map(u=>`<option value="${u}">${USES[u].ico} ${esc(USES[u].n)}</option>`).join('')}</select><label for="cg-m">Duración</label><select id="cg-m">${CODE_MS.map(m=>`<option value="${m}">${codeMn(m)}</option>`).join('')}</select><p class="muted">Los códigos de Comunidad y de Redactor de noticias siempre duran 1 año (gratis), sin importar la duración elegida. Los de Comerciante de 6 meses o más incluyen ★ destacado durante todo ese tiempo.</p><label for="cg-n">Cantidad (1 a 20)</label><input id="cg-n" type="text" inputmode="numeric" value="1"><button class="btn pink" style="margin-top:10px" data-act="codeGen">Generar</button></div>
-<div class="cg"><h3>Códigos (${L.length})</h3><p class="muted">🎁 Regalados: ${L.filter(x=>codeGift(x.why)).length} · 🤝 Emprendedor vulnerable: ${L.filter(x=>x.why==='vul').length} · 💵 Vendidos: ${L.filter(x=>!x.why||x.why==='promo').length}</p>${L.length?L.map(x=>`<div class="cg${x.used?' out':''}"><b>${esc(codeFmt(x.c))}</b> <small>· ${esc((USES[x.use]||COMU[x.use]||{}).n||x.use)} · ${COMU[x.use]?'':codeMn(x.months)+' · '}${x.why?esc(codeWhyN(x.why))+' · ':''}${x.used?'usado el '+fd2(x.usedAt||0)+' por '+esc(((QH.plans().find(p=>p.k===x.usedBy))||{}).name||'—'):'sin usar'}${x.used&&x.end?' · vence el '+fd2(x.end)+(x.end>Date.now()?' (faltan '+Math.ceil((x.end-Date.now())/864e5)+' días)':' (vencido)'):''}${x.pago?' · pagado en la página':''}</small><div class="row" style="margin-top:6px"><button class="btn ghost" data-act="codeCp" data-c="${esc(x.c)}">Copiar</button><button class="btn ghost" data-act="codeDel" data-c="${esc(x.c)}">Eliminar</button></div></div>`).join(''):'<p class="muted">Aún no hay códigos.</p>'}</div>`}
+function codAdmin(){const L=QH.codes(),fd2=t=>new Date(t).toLocaleDateString('es-CO'),pm=(S.site||{}).promo||{},now=Date.now(),st=x=>cdSt(x),
+ n={all:L.length,free:L.filter(x=>!x.used).length,act:L.filter(x=>st(x)==='act').length,exp:L.filter(x=>st(x)==='exp').length,gr:L.filter(x=>x.why==='gratis').length,gift:L.filter(x=>codeGift(x.why)).length,sold:L.filter(x=>x.why!=='gratis'&&!codeGift(x.why)&&x.why!=='vul').length};
+ /* v251: Códigos ordenado: resumen, generar, tabla con filtros y, plegados, precios, promoción y clasificados */
+ return `${accSoonHTML()}<div class="cdsum">${[['🎟️',n.all,'Códigos en total',''],['⏳',n.free,'Sin usar','new'],['✅',n.act,'Activos','act'],['⌛',n.exp,'Vencidos','exp'],['🆓',n.gr,'Gratis (al instante)','gratis'],['🎁',n.gift,'Regalados','gift'],['💵',n.sold,'Vendidos','sold']].map(([i,v,t,f])=>`<button type="button" class="cdt" data-act="cdF" data-id="${f}" aria-pressed="${(cdF.s===f&&f!=='')||(!cdF.s&&f==='')}"><span aria-hidden="true">${i}</span><b>${v}</b><small>${t}</small></button>`).join('')}</div>
+<div class="cg"><h3>Generar códigos</h3><div class="cdg"><div><label for="cg-why">Motivo</label><select id="cg-why">${CODE_WHY.map(([v,n])=>`<option value="${v}">${n}</option>`).join('')}</select></div><div><label for="cg-u">Rol</label><select id="cg-u">${CODE_USES.map(u=>`<option value="${u}">${USES[u].ico} ${esc(USES[u].n)}</option>`).join('')}</select></div><div><label for="cg-m">Duración</label><select id="cg-m">${CODE_MS.map(m=>`<option value="${m}">${codeMn(m)}</option>`).join('')}</select></div><div><label for="cg-n">Cantidad (1 a 20)</label><input id="cg-n" type="text" inputmode="numeric" value="1"></div></div><p class="muted">Al elegir el motivo se ponen el rol y la duración sugeridos. Comunidad y Redactor de noticias duran 1 año. Comerciante de 6 meses o más incluye ★ destacado. <b>Los vecinos ya no necesitan pedirte los códigos gratis</b>: los obtienen solos al instante en Mi cuenta → Mis roles.</p><button class="btn pink" data-act="codeGen">Generar y copiar</button></div>
+<div class="cg"><div class="cdh"><h3>Códigos generados</h3><button type="button" class="btn ghost" data-act="cdCsv">Descargar (CSV)</button></div><div class="cdf"><label class="qh-sr" for="cdf-q">Buscar código o persona</label><input id="cdf-q" type="search" placeholder="Buscar código o persona" value="${esc(cdF.q)}"><label class="qh-sr" for="cdf-u">Rol</label><select id="cdf-u"><option value="">Todos los roles</option>${CODE_USES.map(u=>`<option value="${u}"${cdF.u===u?' selected':''}>${USES[u].ico} ${esc(USES[u].n)}</option>`).join('')}${COM_USES.map(u=>`<option value="${u}"${cdF.u===u?' selected':''}>📢 ${esc(COMU[u].n)}</option>`).join('')}</select><label class="qh-sr" for="cdf-s">Estado</label><select id="cdf-s">${[['','Todos los estados'],['new','⏳ Sin usar'],['act','✅ Activos'],['exp','⌛ Vencidos'],['gratis','🆓 Gratis (al instante)'],['gift','🎁 Regalados'],['sold','💵 Vendidos']].map(([v,t])=>`<option value="${v}"${cdF.s===v?' selected':''}>${t}</option>`).join('')}</select></div><div id="cdt">${cdTable()}</div></div>
+<details class="cg cdx"><summary>💲 Precios de los roles</summary><p class="muted">Precio de cada duración. Se muestran a los usuarios en su panel. Solo Comerciante tiene precio; Comunidad y Redactor de noticias son gratis por 1 año.</p>${CODE_USES.filter(u=>!codeFree(u)).map(u=>`<h4>${USES[u].ico} ${esc(USES[u].n)}</h4><div class="cdg">${CODE_MS.map(m=>`<div><label for="cp-${u}-${m}">${codeMn(m)}</label><input id="cp-${u}-${m}" type="text" inputmode="numeric" value="${codePrice(u,m)}"></div>`).join('')}</div>`).join('')}<button class="btn pink" style="margin-top:10px" data-act="codePrices">Guardar precios</button></details>
+<details class="cg cdx"${promoOn()?' open':''}><summary>🏷️ Promoción con fecha límite${promoOn()?' · <em class="cdon">Activa</em>':''}</summary><p class="muted">Descuento en todos los roles pagos hasta la fecha que elijas. Los usuarios ven el precio normal tachado. Pon 0 para quitarla.</p><div class="cdg"><div><label for="pm-p">Descuento (%)</label><input id="pm-p" type="text" inputmode="numeric" value="${pm.pct||0}"></div><div><label for="pm-u">Hasta (incluido)</label><input id="pm-u" type="date" value="${pm.until?new Date(pm.until).toLocaleDateString('en-CA'):''}"></div></div><p class="muted">${promoOn()?'Activa: '+promoOn().pct+'% de descuento hasta el '+fd2(promoOn().until)+'.':'Sin promoción activa.'}</p><button class="btn pink" data-act="promoSave">Guardar promoción</button></details>
+<details class="cg cdx"><summary>📢 Clasificados: precios y códigos</summary>${comCodAdmin()}</details>`}
+/* v251: tabla de códigos con filtros (estado, rol, búsqueda) */
+let cdF={s:'',u:'',q:''};
+const cdSt=x=>!x.used?'new':(Number(x.end)||((Number(x.usedAt)||0)+(Number(x.days)||0)*864e5))>Date.now()?'act':'exp';
+const cdOrig=x=>x.why==='gratis'?'🆓 Gratis (al instante)':x.pago?'💳 Pago en la página':x.why?codeWhyN(x.why):'💵 Venta normal';
+const cdWho=x=>{const P=QH.plans(),a=x.usedBy&&P.find(p=>p.k===x.usedBy),b=x.uid&&P.find(p=>p.uid===x.uid);return (a||b||{}).name||''};
+function cdList(){const q=norm(cdF.q||'').trim().replace(/-/g,'');return QH.codes().filter(x=>{const s=cdSt(x);if(cdF.u&&x.use!==cdF.u)return false;
+ if(cdF.s==='new'||cdF.s==='act'||cdF.s==='exp'){if(s!==cdF.s)return false}else if(cdF.s==='gratis'){if(x.why!=='gratis')return false}else if(cdF.s==='gift'){if(!codeGift(x.why))return false}else if(cdF.s==='sold'){if(x.why==='gratis'||codeGift(x.why)||x.why==='vul')return false}
+ return !q||norm(x.c+' '+cdWho(x)+' '+cdOrig(x)).includes(q)})}
+function cdTable(){const L=cdList(),fd2=t=>new Date(t).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'}),SN={new:'⏳ Sin usar',act:'✅ Activo',exp:'⌛ Vencido'};
+ if(!L.length)return `<p class="muted">${QH.codes().length?'Ningún código coincide con el filtro.':'Aún no hay códigos.'}</p>`;
+ return `<p class="muted cdc">${L.length} ${L.length===1?'código':'códigos'}</p><div class="cdw"><table class="qct cdtb"><thead><tr><th>Código</th><th>Rol</th><th>Origen</th><th>Estado</th><th>Persona</th><th>Vence</th><th></th></tr></thead><tbody>${L.map(x=>{const s=cdSt(x),e=x.used?(Number(x.end)||((Number(x.usedAt)||0)+(Number(x.days)||0)*864e5)):0,r=USES[x.use]||COMU[x.use]||{},w=cdWho(x);
+  return `<tr class="cd-${s}"><td><code>${esc(codeFmt(x.c))}</code><small>Creado ${esc(fd2(x.ts||0))}</small></td><td>${r.ico||'📢'} ${esc(r.n||x.use)}<small>${COMU[x.use]?COM_DAYS[x.use]+' días':codeMn(x.months)}</small></td><td>${esc(cdOrig(x))}</td><td><span class="cds ${s}">${SN[s]}</span>${x.used?`<small>Usado el ${esc(fd2(x.usedAt||0))}</small>`:''}</td><td>${w?esc(w):'—'}${!x.used&&x.uid?'<small>Reservado para esta persona</small>':''}</td><td>${e?esc(fd2(e))+`<small>${e>Date.now()?'Faltan '+Math.ceil((e-Date.now())/864e5)+' días':'Vencido'}</small>`:'—'}</td><td><button class="btn ghost" data-act="codeCp" data-c="${esc(x.c)}">Copiar</button>${x.used?'':`<button class="btn ghost" data-act="codeDel" data-c="${esc(x.c)}">Eliminar</button>`}</td></tr>`}).join('')}</tbody></table></div>`}
+document.addEventListener('input',e=>{if(e.target.id!=='cdf-q')return;cdF.q=e.target.value;const t=$('#cdt');if(t)t.innerHTML=cdTable()});
+document.addEventListener('change',e=>{const id=e.target.id;if(id!=='cdf-u'&&id!=='cdf-s')return;cdF[id==='cdf-u'?'u':'s']=e.target.value;const t=$('#cdt');if(t)t.innerHTML=cdTable();document.querySelectorAll('.cdsum .cdt').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===cdF.s)))});
 const sortL=l=>sortBy==='rate'?l.slice().sort((a,b)=>avg(b.rates)-avg(a.rates)||(b.rates||[]).length-(a.rates||[]).length):sortBy==='az'?l.slice().sort((a,b)=>a.name.localeCompare(b.name,'es')):featFirst(l);
 const isFav=(k,id)=>S.favs.includes(k+':'+id);
 /* v84: lista de favoritos del usuario (tiendas, productos, servicios y anuncios) para "Mis favoritos" en el panel */
@@ -3870,6 +3938,8 @@ else if(a==='promoSave'){if(!adm)return;const pct=Math.min(90,Math.max(0,parseIn
 else if(a==='accRemind'){if(!adm)return;const p=QH.plans().find(x=>x.k===id),u=b.dataset.u;if(!p||!p.wa||!USES[u])return;const e=Number((p.acc||{})[u])||0;waOpen(String(p.wa).replace(/\D/g,''),'Hola '+(p.name||'')+', te escribo de Mi Pradera. Tu acceso de «'+USES[u].n+'» '+(e>Date.now()?'vence el ':'venció el ')+new Date(e).toLocaleDateString('es-CO')+'. ¿Quieres renovarlo? Te envío el código apenas me confirmes.')}
 else if(a==='codeGen'){if(!adm)return;const u=$('#cg-u').value,m=codeFree(u)?12:+$('#cg-m').value,n=Math.min(20,Math.max(1,parseInt($('#cg-n').value,10)||1));if(!USES[u]||!CODE_DAYS[m])return;b.disabled=true;try{const l=await QH.codeGen(u,m,n,($('#cg-why')||{}).value||'');cpTxt(l.map(codeFmt).join('\n'),n+(n===1?' código generado y copiado':' códigos generados y copiados'))}catch(e){toast('No se pudo generar ('+((e&&e.code)||'error')+'). ¿Publicaste las reglas nuevas?')}b.disabled=false;render(true)}
 else if(a==='codeCp'){cpTxt(codeFmt(b.dataset.c),'Código copiado')}
+else if(a==='cdF'){cdF.s=id||'';render(true);const t=$('#cdt');if(t)t.scrollIntoView({block:'start',behavior:'smooth'})}
+else if(a==='cdCsv'){const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"',fd3=t=>t?new Date(t).toLocaleDateString('es-CO'):'',SN={new:'Sin usar',act:'Activo',exp:'Vencido'},rows=[['Código','Rol','Duración','Origen','Estado','Persona','Creado','Usado','Vence']].concat(cdList().map(x=>{const e=x.used?(Number(x.end)||((Number(x.usedAt)||0)+(Number(x.days)||0)*864e5)):0;return [codeFmt(x.c),(USES[x.use]||COMU[x.use]||{}).n||x.use,COMU[x.use]?COM_DAYS[x.use]+' días':codeMn(x.months),cdOrig(x).replace(/^\S+\s/,''),SN[cdSt(x)],cdWho(x),fd3(x.ts),fd3(x.usedAt),fd3(e)]}));const bl=new Blob(['\ufeff'+rows.map(r=>r.map(q).join(';')).join('\r\n')],{type:'text/csv'}),u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download='codigos-mipradera.csv';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
 else if(a==='codeDel'){if(!adm)return;if(await askC('¿Eliminar este código?'))QH.codeDel(b.dataset.c)}
 else if(a==='logout'){try{QH.presBeat(0)}catch(e){}try{const cu=QH.authCur();if(cu&&!cu.isAnonymous)QH.authOut()}catch(e){}S.user=null;QH.derive();save();closeModal();syncUI();toast('Sesión cerrada');if(MODE==='panel')render()}
 else if(a==='fav'){const key=b.dataset.k+':'+id;S.favs=S.favs.includes(key)?S.favs.filter(x=>x!==key):S.favs.concat(key);save();const y=scrollY;render();scrollTo(0,y)}
