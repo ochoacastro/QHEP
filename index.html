@@ -2588,8 +2588,14 @@ function cel(t){var d=String(t||'').replace(/\D/g,'');if(d.length===12&&d.slice(
 function isAdm(){try{return MODE==='admin'&&adm}catch(e){return false}}
 /* datos personales: solo en este celular */
 function myKey(){var k='';try{k=QH.key()||''}catch(e){}return 'qh_emg_'+(k||'anon')}
-function mine(){try{return JSON.parse(localStorage.getItem(myKey())||'null')||{}}catch(e){return {}}}
-function setMine(o){try{localStorage.setItem(myKey(),JSON.stringify(o))}catch(e){toast('No se pudo guardar en este celular')}}
+/* v260: 1) al registrarse o entrar, los datos que llenó como visitante pasan solos a su cuenta (en este celular);
+   2) sin sesión, el SOS muestra los últimos datos guardados en este celular (qh_emg_last apunta a ellos) */
+function rd(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function mine(){var k=myKey(),v=rd(k);
+ if(!v&&k!=='qh_emg_anon'){var a=rd('qh_emg_anon');if(a){try{localStorage.setItem(k,JSON.stringify(a));localStorage.removeItem('qh_emg_anon');localStorage.setItem('qh_emg_last',k)}catch(e){}v=a}}
+ if(!v&&k==='qh_emg_anon'){var l=null;try{l=localStorage.getItem('qh_emg_last')}catch(e){}if(l)v=rd(l)}
+ return v||{}}
+function setMine(o){var k=myKey();try{localStorage.setItem(k,JSON.stringify(o));localStorage.setItem('qh_emg_last',k)}catch(e){toast('No se pudo guardar en este celular')}}
 /* ---------- ventana de emergencias ---------- */
 function age(d){if(!d)return '';var b=new Date(d+'T00:00:00'),n=new Date(),a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return a>=0&&a<130?a+' años':''}
 /* v258: ficha personal arriba: nombre y datos a la vista, «Mi tipo de sangre» grande en la esquina superior derecha */
@@ -2638,7 +2644,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  if(d.emgwa!=null)return sendWa(+d.emgwa);
  if(d.emgedit||d.act==='emgMine'){closeModal(1);return form()}
  if(d.emgsave)return saveForm();
- if(d.emgdel){(async function(){if(await askC('¿Borrar tus datos de emergencia de este celular?')){try{localStorage.removeItem(myKey())}catch(x){}closeModal(1);toast('Datos borrados')}})();return}
+ if(d.emgdel){(async function(){if(await askC('¿Borrar tus datos de emergencia de este celular?')){try{var k0=myKey(),l0=localStorage.getItem('qh_emg_last');localStorage.removeItem(k0);if(l0){localStorage.removeItem(l0);localStorage.removeItem('qh_emg_last')}}catch(x){}closeModal(1);toast('Datos borrados')}})();return}
  if(!isAdm())return;
  if(d.emgadd){admRead();AL.push({n:'',t:'',k:'otr'});admPaint();var l=document.querySelectorAll('.emga .emr');if(l.length)l[l.length-1].querySelector('input').focus();return}
  if(d.emgdef){(async function(){if(await askC('¿Reemplazar la lista por las líneas nacionales? Los cambios no guardados se pierden.')){AL=JSON.parse(JSON.stringify(DEF));admPaint()}})();return}
