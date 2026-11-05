@@ -2916,6 +2916,18 @@ document.addEventListener('scroll',function(){if(cur&&Date.now()-t0>80)release()
 document.addEventListener('keydown',function(e){if(e.key!=='Enter'&&e.key!==' ')return;var el=e.target.closest&&e.target.closest(SEL);if(!el)return;if(dark(el))el.classList.add('qblk');el.classList.add('qpr');setTimeout(function(){el.classList.remove('qpr','qblk')},220)},true);
 })();
 </script>
+<style id="v273-botones-cuadrados">
+/* v273: botones rectos y limpios: esquinas cuadradas, texto en mayúsculas y grueso, y una franja más oscura abajo */
+.btn,.hhr,.hhr2,.plgo,.qbr1,.chip,.nwchip,.pnr{border-radius:0!important}
+.btn,.hhr,.hhr2,.plgo,.qbr1{text-transform:uppercase;font-weight:800!important;letter-spacing:.03em!important}
+.btn:not(.ghost),.hhr.hhrf,.plgo,.qbr1{box-shadow:inset 0 -4px 0 rgba(0,0,0,.22)!important}
+.btn.ghost{border-width:2px!important;box-shadow:none!important}
+.hhr.hhrf{background:#0a8f3f!important}
+.qpr:is(.btn,.hhr,.hhr2,.plgo,.qbr1){box-shadow:inset 0 -2px 0 rgba(0,0,0,.3),0 0 0 3px rgba(0,110,219,.28)!important}
+html.dark .hhr.hhrf{background:#0a8f3f!important}
+.hh2 .qw,.hh2 #qgo{border-radius:0!important}
+.hh2 #qgo{text-transform:uppercase;font-weight:800;letter-spacing:.03em;box-shadow:inset 0 -4px 0 rgba(0,0,0,.22)}
+</style>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
