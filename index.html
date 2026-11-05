@@ -3039,6 +3039,11 @@ html.dark .obi-ex[open] summary{border-bottom-color:#3b404b!important}
 html.dark .obi-ex summary i{background:#0a84ff!important;color:#fff!important}
 @media (prefers-reduced-motion:reduce){.obi-ex summary i::after{transition:none}}
 </style>
+<style id="v281-filtro-oscuro">
+/* v281: en modo oscuro el filtro elegido (Todos, Vendo, Arriendo…) se rellena de blanco con texto negro, igual que en modo claro se rellena de negro */
+html.dark :is(.chip[aria-pressed=true],.bedq button[aria-pressed=true],.pvx .fxs[aria-pressed=true],.qbt button[aria-selected=true]){background:#fff!important;border-color:#fff!important;color:#000!important}
+html.dark :is(.chip[aria-pressed=true],.bedq button[aria-pressed=true],.qbt button[aria-selected=true]) :is(.qi,svg){color:#000!important;stroke:currentColor}
+</style>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
