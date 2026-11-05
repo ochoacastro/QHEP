@@ -24,7 +24,7 @@ window.rcRender=function(){};window.rcReset=function(){};
 window.rcToken=function(id){var action=String(id||'login').replace(/[^A-Za-z0-9_\/]/g,'_');return new Promise(function(ok,no){var t=setTimeout(function(){no(new Error('rc-timeout'))},8000);try{if(!window.grecaptcha||!grecaptcha.ready)throw new Error('rc-missing');grecaptcha.ready(function(){grecaptcha.execute(window.RC_SITE,{action:action}).then(function(k){clearTimeout(t);ok(k)},function(e){clearTimeout(t);no(e)})})}catch(e){clearTimeout(t);no(e)}})};</script>
 <script>(function(){try{var t=localStorage.getItem("qh_theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})()</script>
 <title>Mi Pradera – Lo nuestro, en un solo lugar</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rubik:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#000000;--bg:#f2f4f5;--mango:#FFA800;--guava:#FF4D79;--lulo:#14B88A;--rio:#5433eb;--card:#fff}
 *{box-sizing:border-box;margin:0}
@@ -2809,6 +2809,62 @@ var pt=0;new MutationObserver(function(){if(!pt){pt=1;requestAnimationFrame(func
 /* entrada directa desde la portada: ?panel#/obituario */
 try{if(location.hash==='#/obituario')setTimeout(function(){if(typeof MODE!=='undefined'&&MODE!=='admin'){view='com';render();form()}},2500)}catch(e){}
 window.obiForm=form;
+})();
+</script>
+<style id="v269-tipografia-css">
+/* v269: tipografía nueva (Rubik: redondeada y gruesa para títulos y botones; el texto sigue en Inter) y transición «Publicando» */
+:root{--font-sf-pro-display:'Rubik','Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--font-rubik:'Rubik','Inter',system-ui,sans-serif}
+/* v270: Rubik también en todo el texto (párrafos, formularios, listas, avisos). Los códigos siguen en letra de máquina */
+:root{--font-sf-pro-text:'Rubik','Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+body{font-family:var(--font-rubik);letter-spacing:0}
+input,select,textarea,button,.qs-btn,label,small,p,li,td,th,dd,dt,summary,.muted,#toast{font-family:var(--font-rubik)}
+code,kbd,pre,.qfc code,.cdtb code,.qct code{font-family:ui-monospace,Menlo,Consolas,monospace}
+h1,h2,h3,.shead h2,.hubhero h2,.sname h2,.modal h2,.ptitle,.stn,.pvt{font-family:var(--font-rubik);font-weight:800;letter-spacing:-.015em}
+.hubhero h2{font-weight:900;letter-spacing:-.02em}
+.btn,.plgo,.hhr,.hhr2,.chip,.nwchip,.cdt b,.bzt h3,.bzt em,.emg-b b,.emg-b span,.emg-bl b,#bnav button{font-family:var(--font-rubik)}
+.btn,.hhr,.hhr2{font-weight:600;letter-spacing:.005em}
+.plgo,.qbr1{font-weight:800;letter-spacing:.03em}
+/* transición «Publicando» */
+.pfx{position:fixed;inset:0;z-index:100050;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px;background:rgba(10,11,15,.94);color:#fff;text-align:center;opacity:0;transition:opacity .25s ease;pointer-events:none}
+.pfx.on{opacity:1;pointer-events:auto}
+.pfx-t{font-family:var(--font-rubik);font-weight:900;font-size:clamp(40px,12vw,104px);line-height:1;letter-spacing:.01em;text-transform:uppercase;text-shadow:-3px 0 rgba(255,0,170,.55),3px 0 rgba(0,255,140,.45);animation:pfxGl 1.6s steps(1) infinite}
+.pfx-d{display:flex;gap:16px}
+.pfx-d i{width:22px;height:22px;border-radius:50%;background:#56e03d;opacity:.15;animation:pfxDot 1.2s infinite}
+.pfx-d i:nth-child(2){animation-delay:.2s}.pfx-d i:nth-child(3){animation-delay:.4s}
+.pfx-s{font-family:var(--font-rubik);font-weight:400;font-size:clamp(17px,4.6vw,26px);color:#8cf26f;max-width:30ch;line-height:1.3}
+.pfx.ok .pfx-t{color:#8cf26f;animation:pfxIn .45s cubic-bezier(.2,1.4,.4,1) both}
+.pfx.ok .pfx-d{display:none}
+@keyframes pfxDot{0%,100%{opacity:.15;transform:scale(.8)}35%{opacity:1;transform:scale(1)}}
+@keyframes pfxGl{0%,92%{text-shadow:-3px 0 rgba(255,0,170,.55),3px 0 rgba(0,255,140,.45);transform:none}94%{text-shadow:-7px 0 rgba(255,0,170,.7),6px 0 rgba(0,255,140,.6);transform:translateX(2px)}96%{text-shadow:4px 0 rgba(255,0,170,.6),-5px 0 rgba(0,255,140,.5);transform:translateX(-2px)}}
+@keyframes pfxIn{0%{transform:scale(.7);opacity:0}100%{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.pfx-t,.pfx.ok .pfx-t{animation:none}.pfx-d i{animation:none;opacity:1}}
+html.dark .pfx{background:rgba(10,11,15,.94)!important;color:#fff!important}html.dark .pfx-t{color:#fff!important}html.dark .pfx.ok .pfx-t,html.dark .pfx-s{color:#8cf26f!important}html.dark .pfx-d i{background:#56e03d!important}
+</style>
+<script id="v269-transicion-publicar">
+/* v269: transición «PUBLICANDO ●●●» → «¡LISTO!» al tocar Publicar (anuncio, obituario, noticia, tienda, producto, servicio,
+   inmueble o vehículo). No cambia cómo se guarda nada: escucha el botón y el aviso (toast) que la página ya muestra.
+   Si aparece un error en el formulario o un aviso de error, se cierra al instante. Si algo falla, borra este <script> y su <style>. */
+(function(){
+var SEL='[data-act="saveShop"],[data-act="saveProd"],[data-act="saveServ"],[data-act="saveAd"],[data-act="cmxSave"],[data-act="nwSave"],[data-obpub],[data-act="cmGuestRetry"]';
+var OKRE=/publicad|abierta|registrad|actualizad|guardad|renovad|agregad/i,BADRE=/no se pudo|error|permiso|espera|revisa|falta|demasiad|no est/i;
+var el=null,st=0,timer=0,poll=0,h0='';
+function ui(){if(el)return el;el=document.createElement('div');el.className='pfx';el.setAttribute('role','status');el.setAttribute('aria-live','polite');el.innerHTML='<div class="pfx-t">Publicando</div><div class="pfx-d" aria-hidden="true"><i></i><i></i><i></i></div><div class="pfx-s"></div>';document.body.appendChild(el);return el}
+function errTxt(){var e=document.querySelector('#ov #err,#ov #ob-err,#ov .err'),t=e?e.textContent.trim():'';return /^(preparando|publicando|guardando|cargando|subiendo|entrando|procesando)/i.test(t)?'':t/* los mensajes de avance no son errores */}
+function stop(){st=0;clearTimeout(timer);clearInterval(poll);if(el){el.classList.remove('on');setTimeout(function(){if(el&&!st){el.classList.remove('ok')}},300)}}
+function start(){var o=ui();o.classList.remove('ok');o.querySelector('.pfx-t').textContent='Publicando';o.querySelector('.pfx-s').textContent='';st=1;
+ requestAnimationFrame(function(){o.classList.add('on')});clearTimeout(timer);timer=setTimeout(stop,15000);
+ var ov=document.querySelector('#ov h2');h0=ov?ov.textContent:'';clearInterval(poll);
+ poll=setInterval(function(){if(!st)return clearInterval(poll);if(errTxt())return stop();var h=document.querySelector('#ov h2');if(h&&h.textContent!==h0&&!OKRE.test(h.textContent))return stop()},250)}
+function done(m){if(!st)return;st=2;clearInterval(poll);clearTimeout(timer);var o=ui();o.querySelector('.pfx-t').textContent='¡Listo!';o.querySelector('.pfx-s').textContent=line(m);o.classList.add('ok');timer=setTimeout(stop,1700)}
+function line(m){m=String(m||'');if(/obituario/i.test(m))return 'El obituario ya está en línea.';if(/noticia/i.test(m))return 'Tu noticia ya está en línea.';if(/tienda|negocio/i.test(m))return 'Tu negocio ya está en línea.';if(/agregad/i.test(m))return 'Tu producto ya está en línea.';if(/actualiz|guardad/i.test(m))return 'Los cambios ya están en línea.';return 'Tu publicación ya está en línea.'}
+/* al tocar Publicar: se espera un instante; si el formulario muestra un error, no se anima */
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest(SEL);if(!b||st)return;var e0=errTxt();/* el propio botón se desactiva al tocarlo: no se revisa «disabled» */
+ setTimeout(function(){var e1=errTxt();if(e1&&e1!==e0)return;if(!document.contains(b)&&!document.querySelector('#ov'))return;start()},120)},true);
+/* el aviso de la página dice si salió bien o mal */
+function hook(){if(typeof window.toast!=='function'||window.toast.__pfx)return;var t0=window.toast;var w=function(m){try{if(st===1){if(BADRE.test(m))stop();else if(OKRE.test(m))done(m)}}catch(x){}return t0.apply(this,arguments)};w.__pfx=1;window.toast=w}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook);else setTimeout(hook,0);
+window.addEventListener('load',hook);
+window.pubFx={start:start,done:done,stop:stop};
 })();
 </script>
 <script id="v219-modo-oscuro">
