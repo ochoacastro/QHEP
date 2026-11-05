@@ -2871,6 +2871,51 @@ window.addEventListener('load',hook);
 window.pubFx={start:start,done:done,stop:stop};
 })();
 </script>
+<style id="v272-toque-botones-css">
+/* v272: transición al presionar un botón: se rellena de color, se hunde un poco y una onda sale desde el dedo */
+.qprel{position:relative}
+.qrw{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none}
+.qrp{position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);animation:qrpGo .5s cubic-bezier(.2,.8,.3,1) forwards;pointer-events:none}
+.qrp.out{transition:opacity .3s ease;opacity:0}
+@keyframes qrpGo{to{transform:scale(1)}}
+:is(button,.btn,.chip,.nwchip,.pnr,.hhr,.hhr2,.plgo,.qbr1,a[data-act]){transition:background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .2s ease,transform .16s cubic-bezier(.23,1,.32,1),filter .15s}
+.qpr:is(button,.btn,.chip,.nwchip,.pnr,.hhr,.hhr2,.plgo,.qbr1,a[data-act]):not(.hubt){transform:scale(.96)}
+.hubt.qpr .hubi{transform:scale(.9)}
+.qpr:is(.hhr,.hhr2,.plgo,.qbr1){animation:none!important}
+/* botones de contorno o blancos: se rellenan de azul */
+.qpr:is(.btn.ghost,.chip,.nwchip,.pnr,.cdt){background:#006edb!important;border-color:#006edb!important;color:#fff!important}
+.qpr:is(.btn.ghost,.chip,.nwchip,.pnr) .qi,.qpr:is(.btn.ghost,.chip,.nwchip,.pnr) svg{color:#fff!important;stroke:currentColor}
+/* botones rellenos: se oscurecen un poco y ganan un borde de luz */
+.qpr:is(.btn:not(.ghost),.hhr,.hhr2,.plgo,.qbr1){filter:brightness(.88);box-shadow:0 0 0 3px rgba(0,110,219,.28)}
+/* botones negros: se rellenan de azul (la clase «qblk» la pone el script si el fondo es casi negro) */
+.qpr.qblk{background:#006edb!important;border-color:#006edb!important;color:#fff!important}
+html.dark .qpr:is(.btn.ghost,.chip,.nwchip,.pnr,.cdt){background:#0a84ff!important;border-color:#0a84ff!important;color:#fff!important}
+html.dark .qpr.qblk{background:#0a84ff!important;border-color:#0a84ff!important;color:#fff!important}
+html.dark .qpr:is(.btn:not(.ghost),.hhr,.hhr2,.plgo,.qbr1){box-shadow:0 0 0 3px rgba(10,132,255,.35)!important}
+@media (prefers-reduced-motion:reduce){.qrp{display:none}.qpr{transform:none!important}}
+</style>
+<script id="v272-toque-botones">
+/* v272: al presionar un botón se marca con la clase «qpr» (mínimo 220 ms, para que se vea aunque el toque sea rápido)
+   y se dibuja una onda desde el punto tocado. No cambia lo que hace ningún botón. Si algo falla, borra este <script> y su <style>. */
+(function(){
+var SEL='button,.btn,.chip,.nwchip,.pnr,.hhr,.hhr2,.plgo,.qbr1,a[data-act],[role="button"]';
+var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+var cur=null,t0=0,rp=null;
+function dark(el){try{var m=getComputedStyle(el).backgroundColor.match(/[\d.]+/g);if(!m||(m[3]!==undefined&&+m[3]<.5))return false;return (.2126*m[0]+.7152*m[1]+.0722*m[2])<40}catch(x){return false}}
+function release(){var el=cur,r=rp;cur=null;rp=null;if(!el)return;var wait=Math.max(0,220-(Date.now()-t0));
+ setTimeout(function(){el.classList.remove('qpr','qblk');if(r){r.classList.add('out');setTimeout(function(){var w=r.parentNode;if(w&&w.parentNode)w.parentNode.removeChild(w)},320)}},wait)}
+document.addEventListener('pointerdown',function(e){if(e.button>0)return;var el=e.target.closest&&e.target.closest(SEL);if(!el||el.disabled||el.getAttribute('aria-disabled')==='true'||el.closest('.pfx'))return;
+ release();cur=el;t0=Date.now();if(dark(el))el.classList.add('qblk');el.classList.add('qpr');if(RM)return;
+ try{var b=el.getBoundingClientRect();if(b.width<8||b.height<8)return;if(getComputedStyle(el).position==='static')el.classList.add('qprel');
+  var w=document.createElement('span');w.className='qrw';w.setAttribute('aria-hidden','true');var s=document.createElement('span');s.className='qrp';
+  var x=e.clientX-b.left,y=e.clientY-b.top,R=Math.ceil(Math.hypot(Math.max(x,b.width-x),Math.max(y,b.height-y)));
+  s.style.cssText='width:'+2*R+'px;height:'+2*R+'px;left:'+(x-R)+'px;top:'+(y-R)+'px';w.appendChild(s);el.insertBefore(w,el.firstChild);rp=s}catch(x){}},{passive:true,capture:true});
+['pointerup','pointercancel','dragstart'].forEach(function(n){document.addEventListener(n,release,{passive:true,capture:true})});
+document.addEventListener('scroll',function(){if(cur&&Date.now()-t0>80)release()},{passive:true,capture:true});
+/* teclado: Enter o espacio también muestran el relleno */
+document.addEventListener('keydown',function(e){if(e.key!=='Enter'&&e.key!==' ')return;var el=e.target.closest&&e.target.closest(SEL);if(!el)return;if(dark(el))el.classList.add('qblk');el.classList.add('qpr');setTimeout(function(){el.classList.remove('qpr','qblk')},220)},true);
+})();
+</script>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
