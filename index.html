@@ -2874,8 +2874,8 @@ window.pubFx={start:start,done:done,stop:stop};
 <style id="v272-toque-botones-css">
 /* v272: transición al presionar un botón: se rellena de color, se hunde un poco y una onda sale desde el dedo */
 .qprel{position:relative}
-.qrw{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none}
-.qrp{position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);animation:qrpGo .5s cubic-bezier(.2,.8,.3,1) forwards;pointer-events:none}
+.qrw{display:block;position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none}
+.qrp{display:block;position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);animation:qrpGo .5s cubic-bezier(.2,.8,.3,1) forwards;pointer-events:none}
 .qrp.out{transition:opacity .3s ease;opacity:0}
 @keyframes qrpGo{to{transform:scale(1)}}
 :is(button,.btn,.chip,.nwchip,.pnr,.hhr,.hhr2,.plgo,.qbr1,a[data-act]){transition:background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .2s ease,transform .16s cubic-bezier(.23,1,.32,1),filter .15s}
@@ -2907,9 +2907,9 @@ function release(){var el=cur,r=rp;cur=null;rp=null;if(!el)return;var wait=Math.
 document.addEventListener('pointerdown',function(e){if(e.button>0)return;var el=e.target.closest&&e.target.closest(SEL);if(!el||el.disabled||el.getAttribute('aria-disabled')==='true'||el.closest('.pfx'))return;
  release();cur=el;t0=Date.now();if(dark(el))el.classList.add('qblk');el.classList.add('qpr');if(RM)return;
  try{var b=el.getBoundingClientRect();if(b.width<8||b.height<8)return;if(getComputedStyle(el).position==='static')el.classList.add('qprel');
-  var w=document.createElement('span');w.className='qrw';w.setAttribute('aria-hidden','true');var s=document.createElement('span');s.className='qrp';
+  var w=document.createElement('q-rp');w.className='qrw';w.setAttribute('aria-hidden','true');var s=document.createElement('q-rp');s.className='qrp';
   var x=e.clientX-b.left,y=e.clientY-b.top,R=Math.ceil(Math.hypot(Math.max(x,b.width-x),Math.max(y,b.height-y)));
-  s.style.cssText='width:'+2*R+'px;height:'+2*R+'px;left:'+(x-R)+'px;top:'+(y-R)+'px';w.appendChild(s);el.insertBefore(w,el.firstChild);rp=s}catch(x){}},{passive:true,capture:true});
+  s.style.cssText='width:'+2*R+'px;height:'+2*R+'px;left:'+(x-R)+'px;top:'+(y-R)+'px';w.appendChild(s);el.appendChild(w)/* v275: al final y con etiqueta propia, para no tapar el texto que otros scripts buscan con querySelector('span') */;rp=s}catch(x){}},{passive:true,capture:true});
 ['pointerup','pointercancel','dragstart'].forEach(function(n){document.addEventListener(n,release,{passive:true,capture:true})});
 document.addEventListener('scroll',function(){if(cur&&Date.now()-t0>80)release()},{passive:true,capture:true});
 /* teclado: Enter o espacio también muestran el relleno */
@@ -2927,6 +2927,28 @@ document.addEventListener('keydown',function(e){if(e.key!=='Enter'&&e.key!==' ')
 html.dark .hhr.hhrf{background:#0a8f3f!important}
 .hh2 .qw,.hh2 #qgo{border-radius:0!important}
 .hh2 #qgo{text-transform:uppercase;font-weight:800;letter-spacing:.03em;box-shadow:inset 0 -4px 0 rgba(0,0,0,.22)}
+</style>
+<style id="v274-publicar-cuadrado">
+/* v274: «¿Qué quieres publicar?»: botones cuadrados y cada rol en un recuadro que se distingue del fondo */
+.pms{border-radius:0!important;background:#f3f5f8!important;border:1px solid #dfe4ec!important;border-left:4px solid var(--rio)!important;padding:14px!important}
+.pmb,.pubopt{border-radius:0!important}
+.pmb{background:#fff!important;border:1px solid #d3d9e3!important;color:var(--ink)!important}
+.pmg.one .pmb{text-transform:uppercase;font-weight:800;letter-spacing:.03em}
+.pmb.act{background:#006edb!important;border-color:#006edb!important;color:#fff!important;box-shadow:inset 0 -4px 0 rgba(0,0,0,.22)!important}
+.pmb.act .qi,.pmb.act svg{color:#fff!important}
+.pmok,.pmno{border-radius:0!important}
+.pubopt{background:#f3f5f8!important;border:1px solid #dfe4ec!important;border-left:4px solid #FFA800!important}
+.qpr.pmb{background:#006edb!important;border-color:#006edb!important;color:#fff!important}
+html.dark .pms{background:#1e2026!important;border-color:#2f333c!important;border-left-color:#0a84ff!important}
+html.dark .pmb{background:#2a2d35!important;border-color:#3b404b!important;color:#fff!important}
+html.dark .pmb.act,html.dark .qpr.pmb{background:#0a84ff!important;border-color:#0a84ff!important;color:#fff!important}
+html.dark .pmno{background:#2f333c!important;color:#cbd5e1!important}
+html.dark .pubopt{background:#1e2026!important;border-color:#2f333c!important;border-left-color:#FFA800!important;color:#fff!important}
+</style>
+<style id="v276-cajas-cuadradas">
+/* v276: cajas de los formularios cuadradas (campos de texto, listas, áreas de texto, «Elegir foto» y avisos) */
+input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea,.qs-btn,.fpk-btn,.note,.qhelp{border-radius:0!important}
+input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):focus,select:focus,textarea:focus{border-radius:0!important}
 </style>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
