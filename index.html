@@ -2633,7 +2633,7 @@ function sendWa(i){var m=mine(),c=(m.c||[]).filter(function(x){return x&&cel(x.t
  setTimeout(function(){if(!done){done=true;go('')}},6000);
  navigator.geolocation.getCurrentPosition(function(p){if(done)return;done=true;go('https://maps.google.com/?q='+p.coords.latitude.toFixed(6)+','+p.coords.longitude.toFixed(6))},function(){if(done)return;done=true;go('')},{enableHighAccuracy:true,timeout:5500,maximumAge:60000})}
 /* ---------- mis datos de emergencia ---------- */
-function form(){var m=mine(),c=m.c||[],ci=function(i){var x=c[i]||{};return '<fieldset class="emf"><legend>Contacto '+(i+1)+(i?' (opcional)':'')+'</legend><label for="em-n'+i+'">Nombre</label><input id="em-n'+i+'" type="text" maxlength="40" value="'+E(x.n||'')+'" placeholder="Ej: María Gómez"><label for="em-r'+i+'">Parentesco</label><select id="em-r'+i+'"><option value="">Elige…</option>'+REL.map(function(r){return '<option'+(x.r===r?' selected':'')+'>'+r+'</option>'}).join('')+'</select><label for="em-t'+i+'">Celular</label><input id="em-t'+i+'" type="tel" inputmode="numeric" maxlength="14" value="'+E(x.t||'')+'" placeholder="3001234567"></fieldset>'};
+function form(){var m=mine(),c=m.c||[],ci=function(i){var x=c[i]||{};return (i?'<details class="obi-ex emg-c2"'+(x.n||x.t?' open':'')+'><summary><span><b>Agregar un segundo contacto</b><small>Opcional · toca aquí para poner otra persona a quien avisar</small></span><i aria-hidden="true"></i></summary>':'')/* v282 */+'<fieldset class="emf"><legend>Contacto '+(i+1)+(i?' (opcional)':'')+'</legend><label for="em-n'+i+'">Nombre</label><input id="em-n'+i+'" type="text" maxlength="40" value="'+E(x.n||'')+'" placeholder="Ej: María Gómez"><label for="em-r'+i+'">Parentesco</label><select id="em-r'+i+'"><option value="">Elige…</option>'+REL.map(function(r){return '<option'+(x.r===r?' selected':'')+'>'+r+'</option>'}).join('')+'</select><label for="em-t'+i+'">Celular</label><input id="em-t'+i+'" type="tel" inputmode="numeric" maxlength="14" value="'+E(x.t||'')+'" placeholder="3001234567"></fieldset>'+(i?'</details>':'')};
  var un=(S&&S.user&&S.user.name)||'';
  modal('<h2>Datos de emergencia</h2><p class="muted">Todo es opcional. Se guarda <b>solo en este celular</b> (no se sube a internet) y aparece en el botón SOS, a la vista de quien te ayude.</p>'+
   '<fieldset class="emf"><legend>Mis datos personales</legend><label for="em-nm">Nombre completo</label><input id="em-nm" type="text" maxlength="60" value="'+E(m.nm||un)+'" placeholder="Ej: Ana María López"><label for="em-cc">Cédula (opcional)</label><input id="em-cc" type="text" inputmode="numeric" maxlength="15" value="'+E(m.cc||'')+'"><label for="em-fn">Fecha de nacimiento (opcional)</label><input id="em-fn" type="date" value="'+E(m.fn||'')+'"><label for="em-eps">EPS (opcional)</label><input id="em-eps" type="text" maxlength="40" value="'+E(m.eps||'')+'" placeholder="Ej: Nueva EPS, Emssanar, SOS"></fieldset>'+ci(0)+ci(1)+
@@ -2641,7 +2641,7 @@ function form(){var m=mine(),c=m.c||[],ci=function(i){var x=c[i]||{};return '<fi
   '<label for="em-nt">Nota médica (opcional)</label><textarea id="em-nt" rows="3" maxlength="200" placeholder="Ej: alérgico a la penicilina, diabetes, uso marcapasos">'+E(m.nt||'')+'</textarea>'+
   '<p class="err" id="em-err" role="alert"></p><div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-emgsave="1">Guardar</button>'+(m.c||m.b||m.nt||m.nm?'<button type="button" class="btn ghost" data-emgdel="1">Borrar mis datos</button>':'')+'<button type="button" class="btn ghost" data-act="close">Cancelar</button></div>')}
 function saveForm(){var c=[],er=document.getElementById('em-err');for(var i=0;i<2;i++){var n=document.getElementById('em-n'+i).value.trim(),r=document.getElementById('em-r'+i).value,t=document.getElementById('em-t'+i).value.trim();
-  if(!n&&!t)continue;if(!cel(t)){er.textContent='El celular del contacto '+(i+1)+' debe tener 10 dígitos y empezar por 3.';return}c.push({n:n.slice(0,40),r:r,t:cel(t)})}
+  if(!n&&!t)continue;if(!cel(t)){var dd=document.getElementById('em-t'+i).closest('details');if(dd)dd.open=true;/* v282 */er.textContent='El celular del contacto '+(i+1)+' debe tener 10 dígitos y empezar por 3.';return}c.push({n:n.slice(0,40),r:r,t:cel(t)})}
  var g=function(id){return document.getElementById(id).value.trim()};
  setMine({nm:g('em-nm').slice(0,60),cc:g('em-cc').replace(/[^\d.]/g,'').slice(0,15),fn:g('em-fn'),eps:g('em-eps').slice(0,40),c:c,b:g('em-b'),nt:g('em-nt').slice(0,200)});closeModal(1);toast('Datos de emergencia guardados en este celular');open()}
 /* ---------- administración ---------- */
@@ -3043,6 +3043,12 @@ html.dark .obi-ex summary i{background:#0a84ff!important;color:#fff!important}
 /* v281: en modo oscuro el filtro elegido (Todos, Vendo, Arriendo…) se rellena de blanco con texto negro, igual que en modo claro se rellena de negro */
 html.dark :is(.chip[aria-pressed=true],.bedq button[aria-pressed=true],.pvx .fxs[aria-pressed=true],.qbt button[aria-selected=true]){background:#fff!important;border-color:#fff!important;color:#000!important}
 html.dark :is(.chip[aria-pressed=true],.bedq button[aria-pressed=true],.qbt button[aria-selected=true]) :is(.qi,svg){color:#000!important;stroke:currentColor}
+</style>
+<style id="v282-contacto2-css">
+/* v282: el contacto 2 de emergencias va en el mismo desplegable con «+» del obituario (v280) */
+.emg-c2{margin:12px 0 4px!important}
+.emg-c2 fieldset.emf{border:0!important;padding:0!important;margin:10px 14px 14px!important;background:none!important;box-shadow:none!important}
+.emg-c2 legend{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
