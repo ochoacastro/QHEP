@@ -4522,8 +4522,8 @@ else if(a==='delAd'){if(await askC('¿Eliminar este anuncio?')){const x=S.ads.fi
 else if(a==='sr'){const k=b.dataset.k;clearTimeout(qt);srHide();$('#q').value='';query='';
  if(k==='prod'){view='prod';cur=b.dataset.sid;curP=id;pI=0;pQ=1}else if(k==='store'){view='store';cur=id}
  else if(k==='ad'){curAd=id;view='ad'}
- else if(k==='com'){const x=QH.COM.find(y=>y.id===id);sortBy='';zoneF='';favOnly=false;view='com';if(x){query=x.title;$('#q').value=x.title}}
- else{const x=S.services.find(y=>y.id===id);sj='';zoneF='';favOnly=false;sortBy='';view='serv';if(x){query=x.name;$('#q').value=x.name}}
+ else if(k==='com'){const x=QH.COM.find(y=>y.id===id);sortBy='';zoneF='';favOnly=false;view='com';if(x){query=x.title}/* v279 */}
+ else{const x=S.services.find(y=>y.id===id);sj='';zoneF='';favOnly=false;sortBy='';view='serv';if(x){query=x.name}/* v279 */}
  render()}
 else if(a==='more'){const g=b.closest('.grid'),n=g.querySelectorAll(':scope>.shop').length;lim+=PAGE;if(view==='home')g.innerHTML=gridHTML();else render(true);const c=document.querySelectorAll('#app .grid>.shop')[n];if(c)(c.matches('button')?c:c.querySelector('button')).focus()}
 else if(a==='legal')legalModal(v);
@@ -4688,8 +4688,8 @@ document.addEventListener('scroll',e=>{const w=e.target;if(w&&w.classList&&w.cla
 document.addEventListener('submit',e=>{const f=e.target;if(f&&f.matches&&f.matches('[data-hs]')){e.preventDefault();const v=($('#hq')||{}).value||'',q=$('#q');if(q){q.value=v;q.dispatchEvent(new Event('input'))}}});
 document.addEventListener('input',e=>{const t=e.target;if(t&&t.id==='sq'){clearTimeout(window._sqt);window._sqt=setTimeout(()=>{sq=t.value;const y=scrollY,p=t.selectionStart;render(true);scrollTo(0,y);const n=$('#sq');if(n){n.focus();try{n.setSelectionRange(p,p)}catch(_){}}},200)}else if(t&&/^(p|m)-(sizes|color)$/.test(t.id)){const x=t.id.split('-')[0],w=$('#'+x+'-stk');if(w)w.hidden=!!(csv(($('#'+x+'-sizes')||{}).value).length||csv(($('#'+x+'-color')||{}).value).length)}});
 /* v195: buscador propio de la categoria (#cq): actualiza "query", refleja el texto en #q sin disparar el desplegable global y conserva el foco */
-let cqt;document.addEventListener('input',e=>{const t=e.target;if(!t||t.id!=='cq')return;clearTimeout(cqt);const v=t.value;cqt=setTimeout(()=>{query=v;const q1=$('#q');if(q1)q1.value=v;if(view==='home'&&$('#grid')){$('#grid').innerHTML=gridHTML();return}render(true);const n=$('#cq');if(n){n.focus();try{n.setSelectionRange(v.length,v.length)}catch(x){}}},250)});
-let qt;$('#q').addEventListener('input',e=>{clearTimeout(qt);const v=e.target.value;qt=setTimeout(()=>{query=v;if(view==='store'||view==='sug'||view==='ad'||view==='prod'){view='home';return render()}if(view==='home'&&$('#grid'))$('#grid').innerHTML=gridHTML();else render(true)},250)});
+let cqt;document.addEventListener('input',e=>{const t=e.target;if(!t||t.id!=='cq')return;clearTimeout(cqt);const v=t.value;cqt=setTimeout(()=>{query=v;/* v279: el filtro de la sección ya no copia el texto al buscador de arriba */if(view==='home'&&$('#grid')){$('#grid').innerHTML=gridHTML();return}render(true);const n=$('#cq');if(n){n.focus();try{n.setSelectionRange(v.length,v.length)}catch(x){}}},250)});
+let qt;$('#q').addEventListener('input',()=>{clearTimeout(qt)/* v279: el buscador de arriba solo muestra su lista de resultados (#sr); ya no filtra la página, para que no aparezcan dos buscadores con el mismo texto. Cada sección se filtra con su propio buscador (#cq) */});
 document.addEventListener('input',e=>{const m=/^ct-[nce]-(\d+)$/.exec(e.target.id||'');if(!m)return;const i=+m[1],c=CATS[i],s=$('#ct-s-'+i);if(c&&s)s.hidden=$('#ct-n-'+i).value.trim()===c[0]&&$('#ct-c-'+i).value.toLowerCase()===c[2].toLowerCase()});
 document.addEventListener('input',e=>{if(e.target.id!=='usr-q')return;const q=e.target.value.trim().toLowerCase();document.querySelectorAll('[data-usr]').forEach(c=>{c.style.display=c.dataset.usr.includes(q)?'':'none'})});
 let pft;document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.pf;if(!k)return;clearTimeout(pft);const v=e.target.dataset.money!==undefined?e.target.value.replace(/\D/g,''):e.target.value;pft=setTimeout(()=>{adF[k]=v;const g=$('#adgrid');if(g&&ADT[view])g.innerHTML=adListHTML(view)},300)});
