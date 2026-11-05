@@ -2814,6 +2814,11 @@ window.obiForm=form;
 <style id="v269-tipografia-css">
 /* v269: tipografía nueva (Rubik: redondeada y gruesa para títulos y botones; el texto sigue en Inter) y transición «Publicando» */
 :root{--font-sf-pro-display:'Rubik','Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--font-rubik:'Rubik','Inter',system-ui,sans-serif}
+/* v270: Rubik también en todo el texto (párrafos, formularios, listas, avisos). Los códigos siguen en letra de máquina */
+:root{--font-sf-pro-text:'Rubik','Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+body{font-family:var(--font-rubik);letter-spacing:0}
+input,select,textarea,button,.qs-btn,label,small,p,li,td,th,dd,dt,summary,.muted,#toast{font-family:var(--font-rubik)}
+code,kbd,pre,.qfc code,.cdtb code,.qct code{font-family:ui-monospace,Menlo,Consolas,monospace}
 h1,h2,h3,.shead h2,.hubhero h2,.sname h2,.modal h2,.ptitle,.stn,.pvt{font-family:var(--font-rubik);font-weight:800;letter-spacing:-.015em}
 .hubhero h2{font-weight:900;letter-spacing:-.02em}
 .btn,.plgo,.hhr,.hhr2,.chip,.nwchip,.cdt b,.bzt h3,.bzt em,.emg-b b,.emg-b span,.emg-bl b,#bnav button{font-family:var(--font-rubik)}
