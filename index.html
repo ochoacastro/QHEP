@@ -3090,6 +3090,70 @@ html.dark .sgd{background:#1e2026!important;border-color:#3b404b!important;color
 html.dark .sgd summary i{background:#0a84ff!important}
 @media (prefers-reduced-motion:reduce){.sgd summary i::after{transition:none}}
 </style>
+<style id="v287-menu-css">
+/* v287: menú hamburguesa con diseño de vidrio oscuro: panel translúcido con desenfoque, opciones en mayúsculas alineadas a la derecha que entran escalonadas, destello al tocar, línea divisoria y botón «Iniciar sesión / Mi cuenta» resaltado. Solo afecta al menú (clase .mnuG). Si algo falla, borra este <style> y vuelve a poner el menú de v286. */
+.overlay:has(.mnuG){background:#05070acc;-webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);align-items:flex-start;justify-content:flex-end;padding:12px;animation:mnuFade .25s ease both}
+.overlay .modal:has(.mnuG){background:linear-gradient(160deg,#ffffff24,#ffffff0a) #1a1c21e6!important;color:#fff!important;border:1px solid #ffffff4d;border-radius:22px!important;padding:10px 12px 14px;width:min(340px,100%);max-width:340px;max-height:calc(100vh - 24px);box-shadow:0 24px 60px -12px #000b,inset 0 1px 0 #ffffff40;-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);transform-origin:top right;animation:mnuPop .34s cubic-bezier(.32,.72,0,1) both}
+.mnuG{display:flex;flex-direction:column;align-items:stretch}
+.mnuX{align-self:flex-end;display:flex;align-items:center;justify-content:center;gap:6px;width:52px;height:46px;padding:0;background:none;border:0;border-radius:12px;cursor:pointer}
+.mnuX i{display:block;width:4px;height:24px;border-radius:2px;background:#fff;animation:mnuBar .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--b)*70ms)}
+.mnuI{position:relative;overflow:hidden;display:block;width:100%;text-align:right;background:none;border:0;border-radius:14px;padding:13px 16px;color:#fff;font-family:inherit;font-weight:800;font-size:24px;line-height:1.1;letter-spacing:.02em;text-transform:uppercase;text-shadow:0 2px 0 #0007;cursor:pointer;transition:background .2s ease;animation:mnuIn .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*55ms + 90ms)}
+.mnuI::before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#ffffff47 50%,transparent 70%);transform:translateX(-120%);pointer-events:none}
+.mnuI:hover::before,.mnuI:active::before,.mnuI:focus-visible::before{transform:translateX(120%);transition:transform .6s ease}
+.mnuI:hover,.mnuI:active{background:#ffffff1f}
+.mnuI[aria-current=true]{background:#ffffff2e}
+.mnuI:focus-visible,.mnuX:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.mnuL{border:0;height:2px;margin:10px 6px;background:linear-gradient(90deg,transparent,#ffffff8c 30%,#ffffff8c 70%,transparent);animation:mnuIn .5s ease both;animation-delay:calc(var(--i)*55ms + 90ms)}
+.mnuS{background:#ffffff38;box-shadow:inset 0 1px 0 #ffffff4d}
+@keyframes mnuFade{from{opacity:0}to{opacity:1}}
+@keyframes mnuPop{from{opacity:0;transform:translateY(-10px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes mnuIn{from{opacity:0;transform:translateX(26px);filter:blur(6px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes mnuBar{from{transform:scaleY(.2);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.mnuI,.mnuL,.mnuX i,.overlay:has(.mnuG),.overlay .modal:has(.mnuG){animation:none!important}.mnuI::before{display:none}}
+</style>
+<style id="v288-menu-css">
+/* v288: menú hamburguesa lateral: la página (anuncio, encabezado, contenido y pie) se desliza y el panel de vidrio ocupa el otro lado (v289: ahora el panel va a la IZQUIERDA y la página se desplaza a la DERECHA; cambiaron left/right, translateX y el borde en las reglas de abajo). Reutiliza las clases .mnuI/.mnuL/.mnuS/.mnuX de v287. Si algo falla, borra este <style>. */
+:root{--mw:min(62vw,340px)}
+body>#annc,body>header,body>main,body>footer{transition:transform .45s cubic-bezier(.32,.72,0,1)}
+body.mnu-open{overflow:hidden}
+body.mnu-open>#annc,body.mnu-open>header,body.mnu-open>main,body.mnu-open>footer{transform:translateX(var(--mw))}
+#mnuB{position:fixed;top:0;bottom:0;left:var(--mw);right:0;z-index:59;background:#0006;animation:mnuFade .3s both}
+.mnuP{position:fixed;top:0;left:0;bottom:0;width:var(--mw);z-index:60;overflow:auto;overscroll-behavior:contain;padding:10px 10px 18px;background:linear-gradient(160deg,#ffffff24,#ffffff0a) #16181de8;color:#fff;border-right:1px solid #ffffff4d;border-radius:0 22px 22px 0;box-shadow:18px 0 50px -12px #000a,inset -1px 0 0 #ffffff33;-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);transform:translateX(-105%);transition:transform .45s cubic-bezier(.32,.72,0,1)}
+.mnuP.on{transform:none}
+.mnuP .mnuI{font-size:clamp(16px,5vw,22px);padding:11px 12px}
+.mnuLf{display:flex;flex-direction:column;gap:8px;padding:8px 4px 0;animation:mnuIn .4s cubic-bezier(.2,.8,.2,1) both}
+.mnuLf[hidden]{display:none}
+.mnuLf input{width:100%;background:#00000059;color:#fff;border:1.5px solid #ffffff73;border-radius:14px!important;padding:11px 12px;font:inherit;font-size:16px;-webkit-text-fill-color:#fff}
+.mnuLf input::placeholder{color:#ffffffa6;-webkit-text-fill-color:#ffffffa6}
+.mnuLf input:focus{outline:2px solid #fff;outline-offset:1px}
+.mnuGo{align-self:center;background:#ffffff1f;color:#fff;border:1.5px solid #ffffff8c;border-radius:12px;padding:9px 26px;font:inherit;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.mnuGo:active{background:#ffffff40}
+.mnuErr{min-height:16px;font-size:13px;font-weight:700;color:#ff6b86;text-align:center}
+.mnuLk{background:none;border:0;color:#ffffffcc;font:inherit;font-size:14px;text-align:right;padding:6px 4px;text-decoration:underline;cursor:pointer}
+.mnuGo:focus-visible,.mnuLk:focus-visible{outline:3px solid #fff;outline-offset:2px}
+</style>
+<style id="v289-menu-css">
+/* v289: (1) el menú lateral va a la izquierda y la página se desplaza hacia la derecha: textos a la izquierda y entrada desde la izquierda. (2) tema oscuro: el generador del modo oscuro (v219) convertía los fondos blancos en oscuros y las barras del menú se veían negras; aquí se fijan los colores del menú con html.dark + !important (el generador ignora las reglas que ya llevan html.dark). Si algo falla, borra este <style> y vuelve a la v288. */
+.mnuP .mnuI,.mnuP .mnuLk{text-align:left}
+.mnuP .mnuX{align-self:flex-start}
+.mnuP .mnuI,.mnuP .mnuL,.mnuP .mnuLf{animation-name:mnuInL}
+@keyframes mnuInL{from{opacity:0;transform:translateX(-26px);filter:blur(6px)}to{opacity:1;transform:none;filter:blur(0)}}
+.mnuX i{background:#fff!important}
+html.dark .mnuX i{background:#fff!important}
+html.dark .mnuI{color:#fff!important}
+html.dark .mnuI::before{background:linear-gradient(100deg,transparent 30%,#ffffff47 50%,transparent 70%)!important}
+html.dark .mnuI.mnuS{background:#ffffff38!important}
+html.dark .mnuI[aria-current=true]{background:#ffffff2e!important}
+html.dark .mnuI:hover,html.dark .mnuI:active{background:#ffffff1f!important}
+html.dark .mnuL{background:linear-gradient(90deg,transparent,#ffffff8c 30%,#ffffff8c 70%,transparent)!important}
+html.dark .mnuP{background:linear-gradient(160deg,#ffffff24,#ffffff0a) #16181de8!important;color:#fff!important;border-right-color:#ffffff4d!important}
+html.dark #mnuB{background:#0006!important}
+html.dark .mnuLf input{background:#00000059!important;color:#fff!important;border-color:#ffffff73!important}
+html.dark .mnuGo{background:#ffffff1f!important;color:#fff!important;border-color:#ffffff8c!important}
+html.dark .mnuGo:active{background:#ffffff40!important}
+html.dark .mnuLk{color:#ffffffcc!important}
+html.dark .mnuErr{color:#ff6b86!important}
+</style>
 <script id="v283-horario-dia">
 /* v283: el botón del horario dice de qué día copia («Usar el horario del Lunes en todos los días marcados»). Si algo falla, borra este <script>. */
 (function(){function upd(){var w=document.getElementById('x-hrs');if(!w)return;var b=w.querySelector('.hcopy');if(!b)return;
@@ -4318,8 +4382,13 @@ function navSync(){const n=$('#bnav');if(!n)return;const cur=view==='com'||view=
 function render(keep){navInit();navSync();if(am){try{am.remove()}catch(e){}am=null}$('#app').innerHTML=view==='store'?storeView():view==='prod'?prodView():view==='card'?cardView():view==='news'?newsView():ADT[view]?adsView(view):view==='ad'?adView():view==='serv'?servView():view==='guias'?guiasView():view==='sug'?sugView():view==='map'?mapView():view==='cats'?catsView():view==='com'?comView():view==='comp'?comPlansView():view==='planes'?planesView():view==='ficha'?fichaView():view==='admin'?admView():(MODE==='panel'?panelView():homeView());document.body.classList.toggle('instore',view==='store');document.body.classList.toggle('agegate-on',!!$('#agegate'));syncUI();$('#cc').textContent=Object.values(S.cart).reduce((a,b)=>a+b,0);keep||scrollTo(0,0);const ct=document.querySelector('.tabs [aria-current=true][data-v]');if(ct){const nv=ct.parentElement;nv.scrollLeft+=ct.getBoundingClientRect().left-nv.getBoundingClientRect().left-(nv.clientWidth-ct.offsetWidth)/2}if(view==='map')mapInit();$('#hbn').innerHTML=(view==='home'&&hubOn())?topBannerHTML():'';if(view==='home'){bnInit();hswArrows();hnegInit()}tbInit()}
 
 let opener=null;
+/* v288: menú hamburguesa (#hmb) que ya no es una ventana: abre un panel de vidrio a la izquierda y empuja la página hacia la derecha (v289: antes iba a la derecha; body.mnu-open, estilos en <style id="v288-menu-css">). Abajo: «Iniciar sesión» que despliega correo, clave, LOGIN (passLogin), Google, recuperar clave y registro; con sesión muestra «Mi cuenta». Si falla, en el handler cambia a==='hmenu' por el código viejo a==='hmenuOld'. */
+function hmShut(fast){const p=$('#mnuP');if(!p)return;const b=$('#mnuB');document.body.classList.remove('mnu-open');b&&b.remove();if(fast){p.remove();return}p.classList.remove('on');setTimeout(()=>{p.remove()},460);const h=$('#hmb');h&&h.focus&&h.focus({preventScroll:true})}
+function hmOpen(){if($('#mnuP')){hmShut();return}closeModal(1);const all=[['home','Tiendas'],['map','Mapa'],['serv','Servicios'],...MORE.map(x=>[x,ADT[x].tab]),['guias','Guías útiles'],['sug','Sugerencias'],['news','Noticias'],['com','Clasificados'],['planes','Roles']],n=all.length,items=all.map(([k,t],i)=>`<button class="mnuI" style="--i:${i}" data-act="hmtab" data-v="${k}"${curTab()===k?' aria-current="true"':''}>${esc(t)}</button>`).join(''),acct=S.user?`<button class="mnuI mnuS" style="--i:${n+1}" data-act="hmtab" data-v="panel">Mi cuenta</button>`:`<button class="mnuI mnuS" style="--i:${n+1}" data-act="mnuSign" aria-expanded="false" aria-controls="mnuLf">Iniciar sesión</button><div class="mnuLf" id="mnuLf" hidden><input id="l-id" type="email" placeholder="Correo electrónico" autocomplete="email" autocapitalize="none" aria-label="Correo electrónico"><input id="l-pw" type="password" placeholder="Contraseña" autocomplete="current-password" aria-label="Contraseña"><button type="button" class="mnuGo" data-act="doLogin">Entrar</button><div class="mnuErr" id="err" role="alert" aria-live="polite"></div><button type="button" class="mnuLk" data-act="oauth" data-v="google">Continuar con Google</button><button type="button" class="mnuLk" data-act="forgot">¿Olvidaste tu clave?</button><button type="button" class="mnuLk" data-act="regForm">Registrarme</button></div>`,p=document.createElement('aside'),b=document.createElement('div');p.id='mnuP';p.className='mnuP mnuG';p.setAttribute('role','dialog');p.setAttribute('aria-label','Menú');p.innerHTML=`<button class="mnuX" data-act="hmShut" aria-label="Cerrar menú"><i style="--b:0"></i><i style="--b:1"></i><i style="--b:2"></i></button>${items}<hr class="mnuL" style="--i:${n}">${acct}`;b.id='mnuB';b.setAttribute('data-act','hmShut');p.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.target.id==='l-id'||e.target.id==='l-pw')){e.preventDefault();passLogin()}});document.body.append(b,p);requestAnimationFrame(()=>{document.body.classList.add('mnu-open');p.classList.add('on')});const x=p.querySelector('.mnuX');x&&x.focus({preventScroll:true})}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#mnuP'))hmShut()});
 function modal(html){if(!$('#ov'))opener=document.activeElement;closeModal(1);const o=document.createElement('div');o.className='overlay';o.id='ov';o.innerHTML=`<div class="modal" role="dialog" aria-modal="true">${html}</div>`;o.addEventListener('click',e=>{if(e.target===o&&!o.dataset.lock)closeModal()});document.body.appendChild(o);const d=o.firstChild,h=d.querySelector('h2');if(h){h.id='mt';d.setAttribute('aria-labelledby','mt')}const f=o.querySelector('input')||o.querySelector('button');f&&f.focus()}
-const closeModal=keep=>{const o=$('#ov');o&&o.remove();if(!keep&&opener){const b=opener;opener=null;b.isConnected&&b.focus&&b.focus({preventScroll:true})}};
+/* v288: closeModal también cierra el menú lateral hamburguesa (hmShut(1) lo quita al instante para no duplicar los ids l-id, l-pw y err del inicio de sesión) */
+const closeModal=keep=>{hmShut(1);const o=$('#ov');o&&o.remove();if(!keep&&opener){const b=opener;opener=null;b.isConnected&&b.focus&&b.focus({preventScroll:true})}};
 let pick={cat:'',emoji:'🏪'};
 const pimgs=p=>p.imgs&&p.imgs.length?p.imgs:(p.img?[p.img]:[]);
 const avatar=(s,nd)=>(s.logo?`<img src="${s.logo}" alt="">`:esc(s.name.charAt(0).toUpperCase()))+(QH.online(s.ownerKey)&&!nd?'<i class="onl" role="img" aria-label="En línea" title="En línea"></i>':'');
@@ -4587,11 +4656,18 @@ else if(a==='rate'){const k=b.dataset.k;if(k==='prod'?S.mine.includes(cur):(k===
 else if(a==='reviews')reviewsModal(b.dataset.k,id);
 else if(a==='tab'){if(v==='news')curN='';if(v==='home')shopsOpen=true;sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render()}
 else if(a==='goPanel'){location.href=PANEL_URL}
-else if(a==='menu'){modal(`<h2>Menú</h2>${[['hub','Inicio'],['home','Tiendas'],['map','Mapa'],['serv','Servicios'],...MORE.map(k=>[k,ADT[k].tab]),['guias','Guías útiles'],['sug','Sugerencias']].map(([k,t])=>`<button class="mrow" data-act="mnuGo" data-v="${k}"${curTab()===k?' aria-current="true"':''}><span>${t}</span><b aria-hidden="true">›</b></button>`).join('')}<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>`)}
+/* v287: menú hamburguesa con diseño de vidrio oscuro (estilos en <style id="v287-menu-css">): botón de barras para cerrar, opciones .mnuI que entran escalonadas (--i), línea divisoria y botón resaltado «Iniciar sesión / Mi cuenta» (acción mnuAcc). Para volver al menú anterior de v286: <h2>Menú</h2>, botones .mrow con › y botón «Cerrar». */
+else if(a==='menu'){modal(`<div class="mnuG"><button class="mnuX" data-act="close" aria-label="Cerrar menú"><i style="--b:0"></i><i style="--b:1"></i><i style="--b:2"></i></button><h2 class="am-sr">Menú</h2>${[['hub','Inicio'],['home','Tiendas'],['map','Mapa'],['serv','Servicios'],...MORE.map(k=>[k,ADT[k].tab]),['guias','Guías útiles'],['sug','Sugerencias']].map(([k,t],i)=>`<button class="mnuI" style="--i:${i}" data-act="mnuGo" data-v="${k}"${curTab()===k?' aria-current="true"':''}>${t}</button>`).join('')}<hr class="mnuL" style="--i:9"><button class="mnuI mnuS" style="--i:10" data-act="mnuAcc">${S.user?'Mi cuenta':'Iniciar sesión'}</button></div>`)}
+/* v287: acción mnuAcc del menú: con sesión abre el perfil; sin sesión abre «Iniciar sesión» (igual que #userBtn) */
+else if(a==='mnuAcc'){closeModal(1);if(S.user)profileModal();else{after=null;planAsk=true;loginForm()}}
 else if(a==='mnuGo'){closeModal(1);if(v==='hub'){cat='';shopsOpen=false;view='home';render();return}if(v==='home')shopsOpen=true;sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render()}
 else if(a==='moretabs'){moreOpen=!moreOpen;render(true)}
 else if(a==='menuPlanes'){moreOpen=false;if(MODE==='index'){location.href=PANEL_URL+'#/accesos';return}render(true);codesModal()}
-else if(a==='hmenu'){const all=[['panel','Mi cuenta'],['home','Tiendas'],['map','Mapa'],['serv','Servicios'],...MORE.map(x=>[x,ADT[x].tab]),['guias','Guías útiles'],['sug','Sugerencias'],['news','Noticias'],['com','Clasificados'],['planes','Roles']];modal(`<div class="mhd"><h2>Menú</h2><button class="mx" data-act="close" aria-label="Cerrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20"/></svg></button></div>${all.map(([k,t])=>`<button class="mrow" data-act="hmtab" data-v="${k}"><span>${t}</span></button>`).join('')}`)}
+/* v288: hmenu abre el panel lateral hmOpen(); hmShut cierra; mnuSign despliega/oculta el inicio de sesión del panel. El menú en ventana de v287 queda como hmenuOld (ya no se usa). */
+else if(a==='hmenu'){hmOpen()}
+else if(a==='hmShut'){hmShut()}
+else if(a==='mnuSign'){const f=$('#mnuLf');if(f){f.hidden=!f.hidden;b.setAttribute('aria-expanded',String(!f.hidden));if(!f.hidden){const i=$('#l-id');i&&i.focus({preventScroll:true});f.scrollIntoView({block:'nearest',behavior:'smooth'})}}}
+else if(a==='hmenuOld'){const all=[['panel','Mi cuenta'],['home','Tiendas'],['map','Mapa'],['serv','Servicios'],...MORE.map(x=>[x,ADT[x].tab]),['guias','Guías útiles'],['sug','Sugerencias'],['news','Noticias'],['com','Clasificados'],['planes','Roles']];modal(`<div class="mhd"><h2>Menú</h2><button class="mx" data-act="close" aria-label="Cerrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20"/></svg></button></div>${all.map(([k,t])=>`<button class="mrow" data-act="hmtab" data-v="${k}"><span>${t}</span></button>`).join('')}`)}
 else if(a==='hmtab'){closeModal(1);if(v==='panel'){if(MODE==='panel'){view='home';render();scrollTo(0,0)}else location.href=PANEL_URL;return}if(v==='planes'){codesModal();return}if(v==='news')curN='';if(v==='home')shopsOpen=true;sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render();scrollTo(0,0)}
 else if(a==='near'){const st=$('#near-st');if(myLL){myLL=null;render(true)}else if(!navigator.geolocation)st.textContent='Tu navegador no permite obtener la ubicación.';else{b.disabled=true;st.textContent='Buscando tu ubicación…';navigator.geolocation.getCurrentPosition(p=>{myLL=[p.coords.latitude,p.coords.longitude];if(view==='map')render(true)},()=>{if(view!=='map')return;b.disabled=false;st.textContent='No pude obtener tu ubicación. Activa el permiso de ubicación del navegador e intenta de nuevo.'},{enableHighAccuracy:true,timeout:10000})}}
 else if(a==='pub'){QH.go(()=>v==='shop'?shopForm():v==='food'||v==='pelu'||v==='news'?pubSpecial(v):planGo(v==='shop'?'store':v==='serv'?'serv':'ad','',()=>v==='shop'?shopForm():v==='serv'?servForm():v==='inm'?inmMenu():adForm(v),v))}
