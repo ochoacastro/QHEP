@@ -3537,7 +3537,10 @@ var IV='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 17h2
 var li=function(t){return typeof qli==='function'?qli(t):'<li>'+t+'</li>'};
 function slide(cls,lbl,ic,tag,h,p,items,act,v,btn,tab,more){return '<section class="bzc '+cls+'" aria-roledescription="anuncio" aria-label="'+lbl+'"><div class="bzi" aria-hidden="true">'+ic+'</div><div class="bzt"><em>'+tag+'</em><h3>'+h+'</h3><p>'+p+'</p><ul>'+items.map(li).join('')+'</ul><div class="bzr"><button type="button" class="btn bzb" data-act="'+act+'" data-v="'+v+'">'+btn+'</button><button type="button" class="btn bzl" data-act="tab" data-v="'+tab+'">'+more+'</button></div></div></section>'}
 window.hubCar=function(){
- var L=[];var b='';try{b=bizCta()}catch(e){}if(b)L.push(b);
+ var L=[];var b='',g='';try{b=bizCta()}catch(e){}
+ /* v311: el aviso verde «Registra tu negocio gratis» va siempre (antes solo salía sin cuenta o sin tienda) */
+ try{var o0=bizSt;bizSt=function(){return 'none'};try{g=bizCta()}finally{bizSt=o0}}catch(e){}
+ if(g)L.push(g);if(b&&b!==g)L.push(b);
  L.push(slide('bzk','Publica un anuncio en los clasificados',(typeof hubIc!=='undefined'&&hubIc.mega?'<svg class="qi" viewBox="0 0 24 24" aria-hidden="true">'+hubIc.mega+'</svg>':''),'GRATIS','¿Quieres publicar un anuncio en los clasificados?','Vende, compra o avisa algo a tus vecinos de Pradera.',['1 anuncio gratis al día que dura 24 horas','Con fotos, precio y tu WhatsApp','Celulares, muebles, ropa, empleo y más'],'cmxNew','','Publicar mi anuncio','com','Ver clasificados'));/* v307 */
  L.push(slide('bzh','Arrienda o vende tu casa',IH,'INMUEBLES','¿Quieres arrendar o vender tu casa?','Publícala en Mi Pradera y que tus vecinos la vean.',['Fotos, precio y ubicación en el mapa','Te escriben directo a tu WhatsApp','Casas, apartamentos, locales y lotes'],'gdPub','inm','Publicar mi inmueble','arr','Ver inmuebles'));
  L.push(slide('bzv','Vende tu moto o carro',IV,'VEHÍCULOS','¿Vendes tu moto o tu carro?','Publícalo y llega a los compradores de Pradera.',['Fotos, precio, modelo y kilometraje','Te escriben directo a tu WhatsApp','Motos, carros, camionetas y más'],'gdPub','veh','Publicar mi vehículo','veh','Ver vehículos'));
