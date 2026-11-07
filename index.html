@@ -3513,17 +3513,18 @@ window.pLink=function(sid,p,co,sz){var v=co?vId(p,co):'',base=prodUrl(sid,p.id,v
 .bzcs>.bzc .bzt .bzr{margin-top:auto}
 .bzh{background:linear-gradient(135deg,#9a3412 0%,#ea580c 55%,#f59e0b 100%)}
 .bzv{background:linear-gradient(135deg,#1e3a8a 0%,#3730a3 55%,#6366f1 100%)}
+.bzk{background:linear-gradient(135deg,#9d174d 0%,#db2777 55%,#f472b6 100%)}/* v307 */
 .bzr{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.bzh .btn.bzb{color:#9a3412}.bzv .btn.bzb{color:#1e3a8a}
+.bzh .btn.bzb{color:#9a3412}.bzv .btn.bzb{color:#1e3a8a}.bzk .btn.bzb{color:#9d174d}
 .bzc .btn.bzl{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.85);font-weight:700;min-height:46px;padding:10px 18px}
 .bzcd{display:flex;justify-content:center;gap:8px;margin-top:10px}
 .bzcd button{width:26px;height:6px;padding:0;border:0;border-radius:0;background:#c7c7cc;cursor:pointer;transition:background .2s,width .2s}
 .bzcd button[aria-current="true"]{width:40px;background:#16a34a}
 .bzcd button::before{content:"";display:block;margin:-10px 0;height:26px}
-html.dark .bzh .btn.bzb{color:#9a3412!important}html.dark .bzv .btn.bzb{color:#1e3a8a!important}
+html.dark .bzh .btn.bzb{color:#9a3412!important}html.dark .bzv .btn.bzb{color:#1e3a8a!important}html.dark .bzk .btn.bzb{color:#9d174d!important}
 html.dark .bzc .btn.bzl{background:transparent!important;color:#fff!important;border-color:rgba(255,255,255,.85)!important}
 html.dark .bzcd button{background:#48484a!important}html.dark .bzcd button[aria-current="true"]{background:#4ade80!important}
-.bzh,.bzv,.bzc .btn.bzl,.bzcd button{border-radius:0!important}
+.bzh,.bzv,.bzk,.bzc .btn.bzl,.bzcd button{border-radius:0!important}
 @media (prefers-reduced-motion:reduce){.bzcs{scroll-behavior:auto}}
 </style>
 <script id="v306-carrusel">
@@ -3537,6 +3538,7 @@ var li=function(t){return typeof qli==='function'?qli(t):'<li>'+t+'</li>'};
 function slide(cls,lbl,ic,tag,h,p,items,act,v,btn,tab,more){return '<section class="bzc '+cls+'" aria-roledescription="anuncio" aria-label="'+lbl+'"><div class="bzi" aria-hidden="true">'+ic+'</div><div class="bzt"><em>'+tag+'</em><h3>'+h+'</h3><p>'+p+'</p><ul>'+items.map(li).join('')+'</ul><div class="bzr"><button type="button" class="btn bzb" data-act="'+act+'" data-v="'+v+'">'+btn+'</button><button type="button" class="btn bzl" data-act="tab" data-v="'+tab+'">'+more+'</button></div></div></section>'}
 window.hubCar=function(){
  var L=[];var b='';try{b=bizCta()}catch(e){}if(b)L.push(b);
+ L.push(slide('bzk','Publica un anuncio en los clasificados',(typeof hubIc!=='undefined'&&hubIc.mega?'<svg class="qi" viewBox="0 0 24 24" aria-hidden="true">'+hubIc.mega+'</svg>':''),'GRATIS','¿Quieres publicar un anuncio en los clasificados?','Vende, compra o avisa algo a tus vecinos de Pradera.',['1 anuncio gratis al día que dura 24 horas','Con fotos, precio y tu WhatsApp','Celulares, muebles, ropa, empleo y más'],'cmxNew','','Publicar mi anuncio','com','Ver clasificados'));/* v307 */
  L.push(slide('bzh','Arrienda o vende tu casa',IH,'INMUEBLES','¿Quieres arrendar o vender tu casa?','Publícala en Mi Pradera y que tus vecinos la vean.',['Fotos, precio y ubicación en el mapa','Te escriben directo a tu WhatsApp','Casas, apartamentos, locales y lotes'],'pubAsk','arr','Publicar mi inmueble','arr','Ver inmuebles'));
  L.push(slide('bzv','Vende tu moto o carro',IV,'VEHÍCULOS','¿Vendes tu moto o tu carro?','Publícalo y llega a los compradores de Pradera.',['Fotos, precio, modelo y kilometraje','Te escriben directo a tu WhatsApp','Motos, carros, camionetas y más'],'pubAsk','veh','Publicar mi vehículo','veh','Ver vehículos'));
  var d='';for(var i=0;i<L.length;i++)d+='<button type="button" data-bzdot="'+i+'" aria-label="Anuncio '+(i+1)+' de '+L.length+'"'+(i?'':' aria-current="true"')+'></button>';
