@@ -29,4 +29,5 @@ jobs:
           git config user.name "Mi Pradera (noticias)"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Noticias: páginas, archivo, RSS y sitemap actualizados"
-          git push
+          # v301: si mientras corría se fusionó algo en main, se pone al día y vuelve a intentar
+          for i in 1 2 3; do git pull --rebase origin main && git push && exit 0; sleep 5; done; exit 1
