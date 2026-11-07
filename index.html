@@ -3299,6 +3299,8 @@ function html(k){var of=k==='oemp';
   (lvl==='c'?'<label for="jb-sa">Salario mensual</label><input id="jb-sa" type="text" inputmode="numeric" data-money placeholder="Ej: 1.750.905"><div class="jobb"><label><input type="checkbox" id="jb-ac"> A convenir</label><label><input type="checkbox" id="jb-sm"> Salario mínimo</label></div>'
   :'<div class="jobr"><div><label for="jb-sa">Pago</label><input id="jb-sa" type="text" inputmode="numeric" data-money placeholder="Ej: 70.000"></div><div><label for="jb-un">Cada cuánto</label>'+sel('jb-un',UN,'Elige…')+'</div></div><div class="jobb"><label><input type="checkbox" id="jb-ac"> A convenir</label></div>')+/* v325 */
   '<label for="jb-fu">Funciones principales *</label><textarea id="jb-fu" rows="3" maxlength="160" placeholder="Ej: Preparar alimentos, mantener la cocina limpia y atender pedidos"></textarea>'+
+  /* v327: requisitos mínimos */
+  '<label for="jb-rq">Requisitos mínimos</label><textarea id="jb-rq" rows="2" maxlength="160" placeholder="'+(lvl==='c'?'Ej: Bachiller, 1 año de experiencia en ventas, manejo de Excel':'Ej: Saber manejar moto, experiencia en construcción, traer herramientas')+'"></textarea>'+
   /* v325: dónde se entregan las hojas de vida */
   '<p style="margin:14px 0 2px;font-weight:700">¿Cómo reciben las hojas de vida?</p><p class="muted" style="margin:0 0 4px;font-size:13.5px">Llena una o varias.</p>'+
   '<div class="jobb"><label><input type="checkbox" id="jb-hw"> Por WhatsApp</label></div>'+inp('jb-hwn',10,'Número, si es otro distinto al del anuncio','tel')+
@@ -3338,6 +3340,7 @@ function gen(){var w=$1('jobt');if(!w)return;var of=w.dataset.k==='oemp',adv=lvl
  if(lvl)L.push(adv?'Empleo formal':'Trabajo informal');
  if(of){if(v('jb-em'))L.push('Empresa: '+v('jb-em'));var cj=[v('jb-ct')&&(adv?'Contrato: ':'Forma de trabajo: ')+v('jb-ct'),v('jb-jo')&&'Jornada: '+v('jb-jo')].filter(Boolean);if(cj.length)L.push(cj.join(' · '));
   if(v('jb-ho'))L.push('Horario: '+v('jb-ho'));if(sa)L.push((adv?'Salario: ':'Pago: ')+sa);var va=+v('jb-va');if(va>1)L.push('Vacantes: '+va);
+  if(v('jb-rq'))L.push('Requisitos: '+v('jb-rq'))/* v327 */;
   var hv=[(ck('jb-hw')||v('jb-hwn'))?'por WhatsApp'+(v('jb-hwn').replace(/\D/g,'')?' al '+v('jb-hwn').replace(/\D/g,''):''):'',v('jb-hce')?'al correo '+v('jb-hce'):'',v('jb-hpd')?'personalmente en '+v('jb-hpd')+pdTxt():''].filter(Boolean);if(hv.length)L.push('Hojas de vida: '+hv.join(' · '))/* v325 */;}
  else{var bj=[v('jb-jo')&&'Jornada: '+v('jb-jo'),v('jb-xp')&&'Experiencia: '+v('jb-xp')].filter(Boolean);if(bj.length)L.push(bj.join(' · '));if(sa)L.push('Aspiración salarial: '+sa)}
  var fu=v('jb-fu');
@@ -3348,7 +3351,7 @@ function gen(){var w=$1('jobt');if(!w)return;var of=w.dataset.k==='oemp',adv=lvl
    if(v('jb-fl')&&fdate(v('jb-fl')))L.push('Recibe hojas de vida hasta el '+fdate(v('jb-fl')))}
   else if(ck('jb-di'))L.push('Disponibilidad inmediata')}
  /* orden: datos del puesto, funciones y luego lo demás; si no cabe en 400, se acortan las funciones y se quitan primero los datos menos importantes */
- var lab=of?'Funciones: ':'Sé hacer: ',cut=of?(L.findIndex(function(x){return /^(Vacantes|Hojas de vida|Estudios|Experiencia|Licencia|Conocimientos|Beneficios|Recibe)/.test(x)})):(L.findIndex(function(x){return /^(Estudios|Licencia|Conocimientos|Disponibilidad)/.test(x)}));if(cut<0)cut=L.length;
+ var lab=of?'Funciones: ':'Sé hacer: ',cut=of?(L.findIndex(function(x){return /^(Vacantes|Requisitos|Hojas de vida|Estudios|Experiencia|Licencia|Conocimientos|Beneficios|Recibe)/.test(x)})):(L.findIndex(function(x){return /^(Estudios|Licencia|Conocimientos|Disponibilidad)/.test(x)}));if(cut<0)cut=L.length;
  var drop=[],OPT=['Conocimientos','Recibe','Beneficios','Licencia','Vacantes','Horario','Empresa'];
  var avail=function(){return 400-L.join('\n').length-(L.length?1:0)-lab.length};
  for(var oi=0;fu&&avail()<Math.min(60,fu.length)&&oi<OPT.length;oi++){var ix=L.findIndex(function(x){return x.indexOf(OPT[oi])===0});if(ix>=0){drop.push(OPT[oi]==='Recibe'?'fecha límite':OPT[oi].toLowerCase());L.splice(ix,1);if(ix<cut)cut--}}
