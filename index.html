@@ -4383,6 +4383,49 @@ var asked=0;setInterval(function(){try{if(asked||MODE==='admin'||!S.user||docume
 /* el campo de barrio usa la lista de barrios y corregimientos (v317) */
 })();
 </script>
+<script id="v342-contacto">
+/* v342: «Escríbenos» en el pie de página: asunto (Comentario, Sugerencia, Reporte de error u Otro, que se escribe),
+   nombre opcional y mensaje. Abre el correo de la persona dirigido a contacto@mipradera.com.co con todo ya escrito.
+   Si algo falla, borra este bloque y su <style>. */
+(function(){
+var MAIL='contacto@mipradera.com.co',AS=['Comentario','Sugerencia','Reporte de error','Otro'];
+var IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16"/><path d="m22 7-10 6L2 7"/></svg>';
+function html(){return '<form class="qct" id="qct" novalidate><h2>Escríbenos</h2><p class="qct-s">¿Tienes un comentario, una sugerencia o encontraste un error? Cuéntanos y te respondemos al correo.</p>'+
+ '<fieldset><legend>Asunto</legend><div class="qct-as">'+AS.map(function(a,i){return '<label><input type="radio" name="qct-as" value="'+a+'"'+(i===0?' checked':'')+'><span>'+a+'</span></label>'}).join('')+'</div></fieldset>'+
+ '<div id="qct-ow" hidden><label for="qct-o">Escribe el asunto</label><input id="qct-o" type="text" maxlength="80" placeholder="Ej: Quiero anunciar mi negocio"></div>'+
+ '<label for="qct-n">Tu nombre (opcional)</label><input id="qct-n" type="text" maxlength="60" autocomplete="name">'+
+ '<label for="qct-m">Mensaje</label><textarea id="qct-m" rows="4" maxlength="1500" placeholder="Escribe aquí tu mensaje"></textarea>'+
+ '<p class="err" id="qct-e" role="alert"></p><button type="submit" class="btn pink qct-b">'+IC+'<span>Enviar correo</span></button>'+
+ '<p class="qct-f">Se abrirá tu aplicación de correo. También puedes escribir directamente a <a href="mailto:'+MAIL+'">'+MAIL+'</a></p></form>'}
+function paint(){var f=document.querySelector('footer');if(!f||f.querySelector('#qct'))return;var d=document.createElement('div');d.className='qctw';d.innerHTML=html();f.insertBefore(d,f.firstChild)}
+document.addEventListener('change',function(e){if(e.target&&e.target.name==='qct-as'){var w=document.getElementById('qct-ow');if(w){w.hidden=e.target.value!=='Otro';if(!w.hidden)document.getElementById('qct-o').focus()}}});
+document.addEventListener('submit',function(e){if(!e.target||e.target.id!=='qct')return;e.preventDefault();
+ var g=function(id){var x=document.getElementById(id);return x?x.value.trim():''},er=document.getElementById('qct-e'),r=document.querySelector('input[name="qct-as"]:checked'),a=r?r.value:'Comentario';
+ if(a==='Otro'){a=g('qct-o');if(a.length<3){er.textContent='Escribe el asunto.';return}}
+ var m=g('qct-m');if(m.length<5){er.textContent='Escribe tu mensaje.';return}er.textContent='';
+ var n=g('qct-n'),body=m+'\n\n'+(n?'Nombre: '+n+'\n':'')+(a==='Reporte de error'?'Página: '+location.href+'\nDispositivo: '+navigator.userAgent+'\n':'')+'— Enviado desde Mi Pradera';
+ location.href='mailto:'+MAIL+'?subject='+encodeURIComponent('Mi Pradera · '+a)+'&body='+encodeURIComponent(body);
+ try{toast('Abriendo tu correo para enviar el mensaje a '+MAIL)}catch(x){}});
+var t=0;new MutationObserver(function(){if(t)return;t=1;requestAnimationFrame(function(){t=0;paint()})}).observe(document.documentElement,{childList:true,subtree:true});paint();
+})();
+</script>
+<style id="v342-contacto-css">
+.qctw{text-align:left;max-width:520px;margin:0 auto 26px;padding:18px 16px;background:#fff;border:1px solid #d2d2d7;border-top:4px solid #0071e3;color:#1d1d1f;font-size:15px;line-height:1.45}
+.qct h2{margin:0 0 4px;font-size:20px}.qct-s{margin:0 0 10px;color:#48484a}
+.qct fieldset{border:0;margin:0;padding:0}.qct legend{font-weight:700;margin:6px 0}
+.qct-as{display:flex;flex-wrap:wrap;gap:8px}
+.qct-as label{margin:0;cursor:pointer}.qct-as input{position:absolute;opacity:0;pointer-events:none}
+.qct-as span{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border:2px solid #d2d2d7;background:#fff;font-weight:700;font-size:14px}
+.qct-as input:checked+span{border-color:#0071e3;background:#eef4ff;color:#0b4fa8}
+.qct-as input:focus-visible+span{outline:3px solid #0071e3;outline-offset:2px}
+.qct label{display:block;font-weight:700;margin:10px 0 4px}.qct input[type=text],.qct textarea{width:100%;box-sizing:border-box}
+.qct-b{display:inline-flex!important;align-items:center;gap:8px;margin-top:6px}.qct-b svg{width:20px;height:20px}
+.qct-f{margin:10px 0 0;font-size:13px;color:#6e6e73}.qct-f a{font-weight:700}
+html.dark .qctw{background:#1c1c1e!important;border-color:#3a3a3c!important;border-top-color:#0a84ff!important;color:#f5f5f7!important}
+html.dark .qct-s,html.dark .qct-f{color:#c7c7cc!important}
+html.dark .qct-as span{background:#2c2c2e!important;border-color:#48484a!important;color:#f5f5f7!important}
+html.dark .qct-as input:checked+span{background:#0a2540!important;border-color:#0a84ff!important;color:#9cc7ff!important}
+</style>
 <script id="v341-wa-flotante">
 /* v341: botón flotante de WhatsApp con el número del administrador (Administrador → Mis datos → WhatsApp).
    Abajo a la derecha; dentro de una tienda sube encima del carrito. No sale en el modo administrador ni si no hay número.
