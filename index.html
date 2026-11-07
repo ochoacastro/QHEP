@@ -3290,7 +3290,7 @@ const QH=(function(){
  function want(){const k=key(),D={};['stores','products','services','ads','ideas','reports','banners','topAds','cats','meta'].forEach(c=>D[c]={});
   const ord=o=>{if(!o._o)o._o=Date.now()};
   const uid0=(()=>{const u=auth&&auth.currentUser,e=S.user&&String(S.user.email||'').toLowerCase();return u&&!u.isAnonymous&&e&&String(u.email||'').toLowerCase()===e?u.uid:''})();
-  const own=(o,mine)=>{if(MODE==='panel'&&k&&!o.ownerKey&&mine.includes(o.id))o.ownerKey=k;if(uid0&&k&&!o.ownerUid&&o.ownerKey===k)o.ownerUid=uid0};/* v102: ownerUid solo con sesion real del mismo correo */
+  const own=(o,mine)=>{if(MODE==='panel'&&k&&!o.ownerKey&&mine.includes(o.id))o.ownerKey=k;if(uid0&&k&&o.ownerKey===k&&o.ownerUid!==uid0)o.ownerUid=uid0};/* v102: ownerUid solo con sesion real del mismo correo; v285: tambien si la cuenta interna cambio (antes la tienda quedaba bloqueada; requiere reglas v37) */
   S.stores.forEach(s=>{own(s,S.mine);ord(s);const d=clean(s);delete d.products;D.stores[s.id]=d;(s.products||[]).forEach(p=>{ord(p);const q=clean(p);q.sid=s.id;if(s.ownerKey)q.ownerKey=s.ownerKey;if(s.ownerUid)q.ownerUid=s.ownerUid;D.products[s.id+'__'+p.id]=q})});
   S.services.forEach(x=>{own(x,S.myServ);ord(x);D.services[x.id]=clean(x)});
   S.ads.forEach(x=>{own(x,S.myAds);ord(x);D.ads[x.id]=clean(x)});
