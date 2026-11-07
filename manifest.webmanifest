@@ -5,6 +5,7 @@
   "lang": "es-CO",
   "start_url": "./?source=app",
   "scope": "./",
+  "launch_handler": { "client_mode": ["navigate-existing", "auto"] },
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
