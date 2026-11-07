@@ -1681,7 +1681,7 @@ function lbl(p){var v=vias(p);return v.length>1?'Bre-B o Nequi':v.length?VN(v[0]
 window.brebRoleOn=function(){return on()&&hasP(PRO[aid()])};
 /* si cambia si se pueden pagar roles aquí, se vuelve a pintar el texto de "Mis roles" */
 function roleTxt(){var rk=window.brebRoleOn()?'1':'0';if(rk===ADMK)return;ADMK=rk;try{var cb=document.getElementById('cdbox');if(cb&&typeof cdBox==='function')cb.innerHTML=cdBox();if(view==='comp'&&!document.querySelector('.overlay'))render(true)}catch(e){}}
-window.brebOn=on;
+window.brebOn=on;window.brebPay=function(o){payOpen(o)};window.brebHas=function(u){return hasP(PRO[u])};window.brebMy=function(t){myOpen(t)};/* v320 */
 /* v233: texto de "Mis roles" y de los planes de Clasificados según se pueda pagar aquí o no */
 window.payNote=function(c){var A=PRO[aid()];
  if(!window.brebRoleOn())return c?'Pagas por Nequi o transferencia y el administrador te entrega un código de 12 caracteres. Actívalo abajo y publica hasta el número de anuncios de tu plan.':'Pago único. No se renueva solo. Pagas por Nequi o transferencia y el administrador te entrega un código.';
@@ -3949,7 +3949,7 @@ window.znOpts=function(have,sel){var g={urb:[],rur:[],otr:[]};(have||[]).forEach
  if(g.rur.length)h+='<optgroup label="Zona rural · corregimientos">'+g.rur.map(function(z){return o(z,z)}).join('')+'</optgroup>';
  if(g.otr.length)h+='<optgroup label="Otros lugares">'+g.otr.map(function(z){return o(z,z)}).join('')+'</optgroup>';return h};
 /* formularios: el campo de texto del barrio se vuelve una lista con «Otro lugar» */
-var IDS=['cm-z','x-zone','af-zone','v-zone'];
+var IDS=['cm-z','x-zone','af-zone','v-zone','ad-zone']/* v322: también la dirección de entrega */;
 function enhance(i){if(i.dataset.zn)return;i.dataset.zn='1';var L=lists(),v=i.value.trim(),hit='';
  [].concat(L.urb,L.rur).forEach(function(x){if(nm(x)===nm(v))hit=x});
  var opt=function(x){return '<option'+(hit===x?' selected':'')+'>'+E(x)+'</option>'};
@@ -4008,6 +4008,338 @@ function wrap(){if(typeof window.toast!=='function'||window.toast.__qpop)return;
 /* el aviso de «Publicando…» (pubFx) envuelve toast cuando carga la página; este va por fuera de ese */
 window.addEventListener('load',function(){setTimeout(wrap,50)});setTimeout(wrap,3000);
 window.qpopHide=hide;
+})();
+</script>
+<style id="v320-pedidos-css">
+/* v320: pedidos por WhatsApp o por la aplicación */
+.omg{display:grid;gap:10px;margin:6px 0 4px}
+.omg label{display:flex;gap:12px;align-items:flex-start;padding:14px;border:2px solid #d2d2d7;background:#fff;cursor:pointer}
+.omg input{width:22px;height:22px;flex:none;margin-top:2px}.omg b{display:block;font-size:16px}.omg small{display:block;font-size:13.5px;color:#6e6e73;line-height:1.4}
+.omg label:has(input:checked){border-color:#0071e3;box-shadow:inset 0 -4px 0 #0071e3}
+.omg label.off{opacity:.6;cursor:not-allowed}
+.ordg{margin:0 0 18px}.ordg h3{font-size:18px;margin:0 0 8px;padding:8px 10px;background:#f2f3f6;border-left:5px solid #0071e3}.ordg h3 small{font-weight:600;color:#6e6e73;font-size:13.5px}
+html.dark .ordg h3{background:#2c2c2e!important;color:#f5f5f7!important}
+.omw{margin:6px 0 0;padding:10px 12px;background:#fff7ed;color:#7c2d12;font-size:14px;border-left:4px solid #ea580c}
+.opay{margin:10px 0 6px}.opay>b{display:block;font-size:14px;margin-bottom:6px}
+.opay .ops{display:flex;flex-wrap:wrap;gap:8px}
+.opay .ops button{min-height:44px;padding:8px 14px;border:2px solid #d2d2d7;background:#fff;color:#1d1d1f;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.opay .ops button[aria-pressed=true]{border-color:#0071e3;background:#0071e3;color:#fff}
+.onote{width:100%;min-height:64px;margin:6px 0 10px;font:inherit;font-size:15px;padding:10px}
+.omode{display:block;font-size:13px;color:#6e6e73;margin:-2px 0 8px}
+.ordl{display:grid;gap:12px}
+.ordc{border:1px solid #d2d2d7;background:#fff;padding:14px}
+.ordh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.ordh b{font-size:17px}.ordh strong{font-size:18px;white-space:nowrap}
+.ordc small{display:block;color:#6e6e73;font-size:13.5px;margin-top:2px}
+.ordc ul{margin:8px 0;padding-left:18px;font-size:14.5px}
+.ordtg{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.ordtg span{font-size:12.5px;font-weight:800;padding:4px 8px;background:#eef2f7;color:#334155}
+.ordtg .n{background:#dbeafe;color:#1e3a8a}.ordtg .ok{background:#dcfce7;color:#166534}.ordtg .no{background:#fee2e2;color:#991b1b}.ordtg .w{background:#fef3c7;color:#92400e}
+.orda{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.orda .btn{min-height:42px;padding:8px 14px;font-size:14px}
+.ordf{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}.ordf button{min-height:40px;padding:6px 12px;border:2px solid #d2d2d7;background:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:#1d1d1f}
+.ordf button[aria-pressed=true]{border-color:#1d1d1f;background:#1d1d1f;color:#fff}
+html.dark .omg label,html.dark .ordc,html.dark .opay .ops button,html.dark .ordf button{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important}
+html.dark .omg label:has(input:checked),html.dark .opay .ops button[aria-pressed=true]{border-color:#0a84ff!important}
+html.dark .opay .ops button[aria-pressed=true]{background:#0a84ff!important;color:#fff!important}
+html.dark .ordf button[aria-pressed=true]{background:#f5f5f7!important;color:#1d1d1f!important}
+html.dark .omg small,html.dark .ordc small,html.dark .omode{color:#a1a1a6!important}
+html.dark .omw{background:#2a1606!important;color:#fed7aa!important}
+html.dark .ordtg span{background:#2c2c2e!important;color:#e5e5ea!important}
+.omg label,.opay .ops button,.ordc,.ordtg span,.ordf button,.omw{border-radius:0!important}
+.cg:has([data-act="order"][data-om="app"]) .qbb{display:none!important}
+</style>
+<script id="v320-pedidos">
+/* v320: cada tienda elige cómo recibe los pedidos: por WhatsApp (como antes) o por la aplicación.
+   - En el carrito el cliente elige cómo va a pagar (entre los medios que acepta la tienda) y puede dejar una nota.
+   - Por WhatsApp: el mensaje lleva la forma de pago y la nota.
+   - Por la aplicación: el pedido queda guardado (colección «pedidos», reglas v40). La tienda lo ve en Mi cuenta → Pedidos de mi
+     tienda, con quién pidió, qué pidió, el total y el medio de pago, y lo marca aceptado, pagado, enviado y entregado.
+     El cliente lo ve en Mi cuenta → Mis pedidos. Si paga con Bre-B o Nequi, sube el comprobante como los demás pagos.
+   Campo de la tienda: om = 'wa' | 'app'. Si algo falla, borra este bloque. */
+(function(){
+var PAYN={cash:'Efectivo (contra entrega)',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta (datáfono)'},PAYS_={cash:'Efectivo',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta'};
+var STN={nuevo:'Nuevo',acep:'Aceptado · preparando',env:'Enviado',ent:'Entregado',canc:'Cancelado'},PSN={pend:'Pago pendiente',ok:'Pagado',no:'No pagó'};
+var ORD={},OT=[],OF=[],uidL='',subs=[],seen=null,FT='act',sf=0;
+var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var M=function(n){try{return money(Number(n)||0)}catch(e){return '$'+n}};
+var D=function(t){try{return new Date(t).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
+function me(){try{var u=firebase.auth().currentUser;return u&&!u.isAnonymous?u:null}catch(e){return null}}
+function st(id){return S.stores.find(function(x){return x.id===id})}
+/* v321: solo las tiendas que pagan (fecha de pago vigente + 3 días de gracia) reciben pedidos por la aplicación; la versión gratis va a WhatsApp */
+function paid(s){return !!s&&(Number(s.pexp)||0)+3*864e5>Date.now()}window.ordPaid=paid;
+window.ordMode=function(s){return s&&s.om==='app'&&s.ownerUid&&paid(s)?'app':'wa'};
+function pays(s){var l=(s&&Array.isArray(s.pays)?s.pays:[]).filter(function(k){return PAYN[k]});return l.length?l:['cash']}
+function sel(sid){var s=st(sid),o=ORD[sid]||(ORD[sid]={});var l=pays(s);if(l.indexOf(o.pay)<0)o.pay=l[0];return o}
+/* ---- carrito ---- */
+window.ordFoot=function(s,t){var o=sel(s.id),app=ordMode(s)==='app',l=pays(s);
+ return (typeof adrFoot==='function'?adrFoot(s.id):'')/* v322 */+'<div class="opay" role="group" aria-label="Cómo vas a pagar"><b>¿Cómo vas a pagar?</b><div class="ops">'+l.map(function(k){return '<button type="button" data-opay="'+k+'" data-sid="'+E(s.id)+'" aria-pressed="'+(o.pay===k)+'">'+E(PAYN[k])+'</button>'}).join('')+'</div></div>'+
+  '<label class="sr1" for="on-'+E(s.id)+'">Nota para la tienda</label><textarea class="onote" id="on-'+E(s.id)+'" data-onote="'+E(s.id)+'" maxlength="300" placeholder="'+(S.user?'Nota para la tienda (opcional)':'Dirección de entrega o indicaciones (opcional)')+'">'+E(o.note||'')+'</textarea>'+
+  '<span class="omode">'+(app?'Tu pedido queda guardado en Mi cuenta → Mis pedidos y la tienda te confirma por aquí.':'Se abre WhatsApp con tu pedido listo para enviar.')+'</span>'+
+  '<button class="btn pink" style="width:100%" data-act="order" data-om="'+(app?'app':'wa')+'" data-id="'+E(s.id)+'">'+(app?'Enviar pedido':'Pedir por WhatsApp')+'</button>'};
+window.ordWaLine=function(sid){var o=sel(sid);return '\nForma de pago: '+PAYN[o.pay]+(o.note?'\nNota: '+String(o.note).slice(0,300):'')+(S.user&&typeof adrWa==='function'?adrWa(adrPick(sid)):'')/* v322 */};
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-opay]');if(!b)return;var o=sel(b.dataset.sid);o.pay=b.dataset.opay;
+ b.parentNode.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))})});
+document.addEventListener('input',function(e){var t=e.target;if(t&&t.dataset&&t.dataset.onote){sel(t.dataset.onote).note=t.value}});
+/* ---- enviar pedido por la aplicación ---- */
+function lines(s){var L=[],t=0;Object.entries(S.cart).forEach(function(kv){var k=kv[0],q=kv[1];if(k.indexOf(s.id+'|')!==0)return;var p=(s.products||[]).find(function(x){return x.id===k.split('|')[1]});if(!p)return;
+  var c=k.split('|')[3]||'',code='';try{code=c?vId(p,c):pCode(p)}catch(e){}var v='';try{v=vTx(k)}catch(e){}t+=(Number(p.price)||0)*q;L.push({pid:p.id,n:String(p.name).slice(0,80),q:q,p:Number(p.price)||0,v:String(v||'').slice(0,60),c:String(code||'').slice(0,20)})});return {L:L,t:t}}
+async function send(s){var u=me();if(!S.user||!u){try{need(function(){setTimeout(function(){send(s)},400)})}catch(e){}return}
+ if(u.uid===s.ownerUid)return toast('Esta es tu tienda: para probar un pedido entra con otra cuenta.');
+ var x=lines(s);if(!x.L.length)return;var o=sel(s.id);
+ var ad=typeof adrPick==='function'?adrPick(s.id):null;if(typeof adrForm==='function'&&!ad){return adrForm('main',function(){setTimeout(function(){send(s)},300)},true)}/* v322: la dirección es obligatoria para pedir */
+ var d={sid:s.id,sname:String(s.name).slice(0,80),to:s.ownerUid,from:u.uid,fromName:String(S.user.name||'Vecino').slice(0,60),fromWa:String(S.user.wa||'').replace(/\D/g,'').slice(0,15),items:x.L.slice(0,50),total:x.t,pay:o.pay,note:String(o.note||'').slice(0,300),st:'nuevo',pst:'pend',ts:Date.now()};if(ad&&typeof adrClean==='function')d.addr=adrClean(ad);
+ try{var r=await firebase.firestore().collection('pedidos').add(d);
+  Object.keys(S.cart).forEach(function(k){if(k.indexOf(s.id+'|')===0)delete S.cart[k]});delete ORD[s.id];try{refreshCart()}catch(e){}
+  try{document.getElementById('drawer').classList.remove('open')}catch(e){}done(s,d,r.id)}
+ catch(e){toast(e&&e.code==='permission-denied'?'No se pudo enviar el pedido: faltan publicar las reglas de Firestore v40. Avisa al administrador.':'No se pudo enviar el pedido. Revisa tu internet e inténtalo de nuevo.')}}
+function waBtn(num,txt,lab){if(!num)return '';var n=String(num).replace(/\D/g,'');n=n.length===10?'57'+n:n;return '<a class="btn ghost" target="_blank" rel="noopener" href="https://wa.me/'+n+'?text='+encodeURIComponent(txt)+'">'+lab+'</a>'}
+function payBtn(p,id){var can=(p.pay==='bre'||p.pay==='nequi')&&p.pst==='pend'&&typeof brebHas==='function'&&brebHas(p.to);return can?'<button type="button" class="btn pink" data-opaynow="'+E(id)+'">Pagar con '+(p.pay==='nequi'?'Nequi':'Bre-B')+' y subir comprobante</button>':''}
+function done(s,d,id){modal('<h2>¡Pedido enviado!</h2><p><b>'+E(s.name)+'</b> recibió tu pedido de <b>'+E(M(d.total))+'</b>. Forma de pago: <b>'+E(PAYN[d.pay])+'</b>.</p><p class="muted">Míralo en Mi cuenta → Mis pedidos. Ahí ves cuando la tienda lo acepte, lo envíe y lo entregue.</p>'+
+ ((d.pay==='bre'||d.pay==='nequi')&&!(typeof brebHas==='function'&&brebHas(d.to))?'<p class="omw">La tienda aún no registró sus datos de '+(d.pay==='nequi'?'Nequi':'Bre-B')+'. Te los dará por WhatsApp.</p>':'')+
+ '<div class="row" style="margin-top:10px">'+payBtn(d,id)+waBtn(s.wa,'Hola '+s.name+', te acabo de hacer un pedido por Mi Pradera ('+M(d.total)+', '+PAYS_[d.pay]+').','Avisar por WhatsApp')+'<button type="button" class="btn ghost" data-ordmy="1">Ver mis pedidos</button></div>')}
+addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="order"]');if(!b)return;var s=st(b.dataset.id);if(!s||ordMode(s)!=='app')return;e.preventDefault();e.stopImmediatePropagation();send(s)},true);
+/* ---- datos en vivo ---- */
+function list(sn){var a=[];sn.forEach(function(d){var x=d.data();x.id=d.id;a.push(x)});return a.sort(function(x,y){return (y.ts||0)-(x.ts||0)})}
+function listen(u){var id=u&&!u.isAnonymous?u.uid:'';if(id===uidL)return;uidL=id;subs.forEach(function(f){try{f()}catch(e){}});subs=[];OT=[];OF=[];seen=null;sf=0;if(!id)return;var c=firebase.firestore().collection('pedidos');
+ subs.push(c.where('to','==',id).onSnapshot(function(sn){OT=list(sn);var nw=OT.filter(function(p){return p.st==='nuevo'});
+  if(seen){OT.forEach(function(p){if(seen[p.id]&&seen[p.id]!=='canc'&&p.st==='canc')toast(p.fromName+' canceló su pedido de '+M(p.total)+' en '+p.sname+'.')})}
+  if(seen){var fresh=nw.filter(function(p){return !seen[p.id]});if(fresh.length)toast(fresh.length===1?'Nuevo pedido de '+fresh[0].fromName+' por '+M(fresh[0].total)+'. Míralo en Mi cuenta → Pedidos de mi tienda.':'Tienes '+fresh.length+' pedidos nuevos.')}
+  seen={};OT.forEach(function(p){seen[p.id]=p.st||1});paint()},function(){}));
+ subs.push(c.where('from','==',id).onSnapshot(function(sn){var old={};OF.forEach(function(p){old[p.id]=p});OF=list(sn);
+  /* v321: avisos al cliente cuando la tienda cambia su pedido */if(sf)OF.forEach(function(p){var o=old[p.id];if(!o)return;
+   if(o.st!==p.st&&p.st!=='nuevo'&&p.st!=='canc')toast('Tu pedido en '+p.sname+': '+({acep:'la tienda lo aceptó y lo está preparando',env:'ya va en camino',ent:'quedó entregado'}[p.st]||STN[p.st])+'.');
+   if(o.st!==p.st&&p.st==='canc'&&o.st!=='canc')toast('La tienda '+p.sname+' canceló tu pedido de '+M(p.total)+'.');
+   if(o.pst!==p.pst&&p.pst==='ok')toast(p.sname+' confirmó que recibió tu pago de '+M(p.total)+'.');
+   if(o.pst!==p.pst&&p.pst==='no')toast(p.sname+' dice que no le llegó tu pago de '+M(p.total)+'. Escríbele.')});sf=1;paint()},function(){}))}
+function start(){try{if(!window.firebase||!firebase.apps||!firebase.apps.length)return setTimeout(start,600);firebase.auth().onAuthStateChanged(listen)}catch(e){setTimeout(start,1000)}}
+start();
+function paint(){var o=document.getElementById('ordbox');if(o)o.innerHTML=o.dataset.k==='to'?toH():ofH();try{if(view==='home'&&MODE==='panel'&&!document.getElementById('ov'))render(true)}catch(e){}}
+/* ---- Mi cuenta ---- */
+window.ordMenu=function(it){var h='',ic='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>',ic2='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
+ var mine=[];try{mine=shopsMine()}catch(e){}var n=OT.filter(function(p){return p.st==='nuevo'}).length;
+ if(mine.length||OT.length)h+=it(ic2,'Pedidos de mi tienda',(OT.length?OT.length+(OT.length===1?' pedido':' pedidos'):'Aún no tienes pedidos')+(mine.some(function(s){return ordMode(s)==='app'})?'':' · actívalos en Editar tienda'),'ordTo','',n?{n:n,t:n+(n===1?' pedido nuevo':' pedidos nuevos')}:null);
+ if(OF.length)h+=it(ic,'Mis pedidos',OF.length+(OF.length===1?' pedido':' pedidos'),'ordFrom','');return h};
+function tags(p){var c=p.st==='canc'?'no':p.st==='ent'?'ok':p.st==='nuevo'?'n':'w',pc=p.pst==='ok'?'ok':p.pst==='no'?'no':'w';return '<div class="ordtg"><span class="'+c+'">'+E(STN[p.st]||p.st)+'</span><span class="'+pc+'">'+E(PSN[p.pst]||'')+'</span><span>'+E(PAYN[p.pay]||p.pay)+'</span></div>'}
+function items(p){return '<ul>'+(p.items||[]).map(function(i){return '<li>'+E(i.q)+' × '+E(i.n)+(i.v?' · '+E(i.v):'')+' — '+E(M(i.p*i.q))+(i.c?' <small style="display:inline">('+E(i.c)+')</small>':'')+'</li>'}).join('')+'</ul>'}
+function act(id,s,p,l){return '<button type="button" class="btn '+(l[1]||'ghost')+'" data-ordset="'+E(id)+'|'+s+'|'+p+'">'+l[0]+'</button>'}
+function toH(){if(!me())return '<p class="muted">Entra con tu correo y tu clave para ver los pedidos.</p>';
+ var F={act:function(p){return p.st!=='ent'&&p.st!=='canc'},nuevo:function(p){return p.st==='nuevo'},ent:function(p){return p.st==='ent'},all:function(){return true}},L=OT.filter(F[FT]||F.act);
+ var mine=[];try{mine=shopsMine()}catch(e){}var off=mine.length&&!mine.some(function(s){return ordMode(s)==='app'}),pd=mine.some(paid);
+ return (off?'<p class="omw">'+(pd?'Tus tiendas reciben los pedidos por WhatsApp. Para recibirlos aquí, abre tu tienda → Editar tienda → «¿Cómo quieres recibir los pedidos?» y elige «Por la aplicación».':'Recibir y gestionar pedidos por la aplicación es para las tiendas con el rol Comerciante. Con la versión gratis, los pedidos te llegan directo a tu WhatsApp.')+'</p>':'')+
+  '<p class="qbw">Si te pagan con Bre-B o Nequi, revisa en tu banco o en Nequi que el dinero llegó antes de marcar «Pago recibido». Los pantallazos pueden ser falsos.</p>'+
+  '<div class="ordf" role="group" aria-label="Filtrar pedidos">'+[['act','En curso ('+OT.filter(F.act).length+')'],['nuevo','Nuevos ('+OT.filter(F.nuevo).length+')'],['ent','Entregados ('+OT.filter(F.ent).length+')'],['all','Todos ('+OT.length+')']].map(function(f){return '<button type="button" data-ordf="'+f[0]+'" aria-pressed="'+(FT===f[0])+'">'+f[1]+'</button>'}).join('')+'</div>'+
+  (L.length?grp(L,function(p){var a='';
+   if(p.st==='nuevo')a+=act(p.id,'acep',p.pst,['Aceptar pedido','pink'])+act(p.id,'canc',p.pst,['Cancelar']);
+   else if(p.st==='acep')a+=act(p.id,'env',p.pst,['Marcar enviado'])+act(p.id,'ent',p.pst,['Marcar entregado','pink']);
+   else if(p.st==='env')a+=act(p.id,'ent',p.pst,['Marcar entregado','pink']);
+   if(p.st!=='canc'){if(p.pst!=='ok')a+=act(p.id,p.st,'ok',['Pago recibido','pink']);if(p.pst==='pend')a+=act(p.id,p.st,'no',['No pagó']);if(p.pst!=='pend')a+=act(p.id,p.st,'pend',['Volver a «pago pendiente»'])}
+   if((p.pay==='bre'||p.pay==='nequi')&&typeof brebMy==='function')a+='<button type="button" class="btn ghost" data-ordrecv="1">Ver comprobantes</button>';
+   a+=waBtn(p.fromWa,'Hola '+p.fromName+', te escribo de '+p.sname+' por tu pedido de Mi Pradera.','WhatsApp del cliente');
+   return '<div class="ordc"><div class="ordh"><div><b>'+E(p.fromName)+'</b><small>'+E(D(p.ts))+' · '+E(p.sname)+'</small></div><strong>'+E(M(p.total))+'</strong></div>'+tags(p)+items(p)+(p.note?'<small><b>Nota:</b> '+E(p.note)+'</small>':'')+adrH(p)+'<div class="orda">'+a+'</div></div>'}):'<p class="muted">No hay pedidos en esta lista.</p>')}
+function ofH(){if(!me())return '<p class="muted">Entra con tu correo y tu clave para ver tus pedidos.</p>';
+ return OF.length?grp(OF,function(p){var s=st(p.sid)||{},a=payBtn(p,p.id);if(p.st==='nuevo')a+='<button type="button" class="btn ghost" data-ordcanc="'+E(p.id)+'">Cancelar pedido</button>';a+=waBtn(s.wa,'Hola '+p.sname+', te escribo por mi pedido de Mi Pradera ('+M(p.total)+').','WhatsApp de la tienda');
+  return '<div class="ordc"><div class="ordh"><div><b>'+E(p.sname)+'</b><small>'+E(D(p.ts))+'</small></div><strong>'+E(M(p.total))+'</strong></div>'+tags(p)+items(p)+(p.note?'<small><b>Tu nota:</b> '+E(p.note)+'</small>':'')+adrH(p)+(a?'<div class="orda">'+a+'</div>':'')+'</div>'}):'<p class="muted">Aún no has hecho pedidos por la aplicación.</p>'}
+/* v322: dirección de entrega del pedido, con enlaces al mapa */
+function adrH(p){var a=p.addr;if(!a||!(a.dir||a.plus))return '';var m=typeof adrMaps==='function'?adrMaps(a):'';var dr=m?'https://www.google.com/maps/dir/?api=1&destination='+(a.lat!=null?a.lat+','+a.lng:encodeURIComponent([a.dir,a.zone,'Pradera, Valle del Cauca'].filter(Boolean).join(', '))):'';
+ return '<div class="oaddr"><b>Entregar en'+(a.lb&&a.lb!=='Principal'?' ('+E(a.lb)+')':'')+':</b>'+E([a.dir,a.zone].filter(Boolean).join(', '))+(a.ref?'<small>'+E(a.ref)+'</small>':'')+(a.plus?'<small>Código plus: '+E(a.plus)+'</small>':'')+((m||dr)?'<div class="orda">'+(m?'<a class="btn ghost" href="'+E(m)+'" target="_blank" rel="noopener">Ver en el mapa</a>':'')+(dr?'<a class="btn ghost" href="'+E(dr)+'" target="_blank" rel="noopener">Cómo llegar</a>':'')+'</div>':'')+'</div>'}
+/* v321: pedidos agrupados por tienda */
+function grp(L,f){var G={},o=[];L.forEach(function(p){if(!G[p.sid]){G[p.sid]=[];o.push(p.sid)}G[p.sid].push(p)});
+ return o.map(function(k){var l=G[k],n=l.filter(function(p){return p.st==='nuevo'}).length;return '<section class="ordg"><h3>'+E(l[0].sname)+' <small>'+l.length+(l.length===1?' pedido':' pedidos')+(n?' · '+n+(n===1?' nuevo':' nuevos'):'')+'</small></h3><div class="ordl">'+l.map(f).join('')+'</div></section>'}).join('')}
+function open(k){modal('<h2>'+(k==='to'?'Pedidos de mi tienda':'Mis pedidos')+'</h2><div id="ordbox" data-k="'+k+'">'+(k==='to'?toH():ofH())+'</div><div class="row" style="margin-top:12px"><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>')}
+window.ordOpen=open;window.ordDebug=function(t,f){if(t)OT=t;if(f)OF=f;paint()};/* para las pruebas */
+addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;var b;
+ if((b=t.closest('[data-act="ordTo"],[data-act="ordFrom"],[data-ordmy]'))){e.preventDefault();e.stopImmediatePropagation();closeModal(1);open(b.dataset.act==='ordTo'?'to':'from');return}
+ if((b=t.closest('[data-ordf]'))){FT=b.dataset.ordf;paint();return}
+ if((b=t.closest('[data-ordrecv]'))){closeModal(1);brebMy('recv');return}
+ if((b=t.closest('[data-ordset]'))){var z=b.dataset.ordset.split('|');if(z[1]==='canc'&&!(await askC('¿Cancelar este pedido?','Cancelar pedido')))return;
+  try{await firebase.firestore().collection('pedidos').doc(z[0]).update({st:z[1],pst:z[2],sts:Date.now()});toast(z[1]==='canc'?'Pedido cancelado':z[2]==='ok'&&b.textContent.indexOf('Pago')===0?'Pago marcado como recibido':'Pedido actualizado')}catch(x){toast('No se pudo guardar. Revisa tu internet e inténtalo de nuevo.')}return}
+ if((b=t.closest('[data-ordcanc]'))){if(!(await askC('¿Cancelar tu pedido?','Cancelar pedido')))return;try{await firebase.firestore().collection('pedidos').doc(b.dataset.ordcanc).update({st:'canc',sts:Date.now()});toast('Pedido cancelado')}catch(x){toast('No se pudo cancelar. Puede que la tienda ya lo haya aceptado.')}return}
+ if((b=t.closest('[data-opaynow]'))){var p=OF.concat(OT).find(function(x){return x.id===b.dataset.opaynow})||null;var s=p&&st(p.sid);if(!p)return;closeModal(1);brebPay({to:p.to,toName:(s&&s.name)||p.sname,amt:p.total,what:'Pedido en '+p.sname,kind:'item',item:'ped:'+p.id,wa:s&&s.wa});return}},true);
+/* ---- formulario de la tienda: cómo recibe los pedidos ---- */
+window.omRead=function(){var i=document.querySelector('input[name="x-om"]:checked');return i?{om:i.value==='app'&&!i.disabled?'app':'wa'}:{}};
+function addOm(){var g=document.getElementById('x-pays');if(!g||document.getElementById('x-om'))return;var m=document.querySelector('#ov .modal');if(!m||!m.contains(g))return;
+ var ed=!!m.querySelector('[data-act="saveEditShop"]'),s=ed?st(cur):null,can=false;try{can=MODE==='admin'||shopRole()}catch(e){}var v=can&&s&&s.om==='app'?'app':'wa';
+ g.insertAdjacentHTML('afterend','<p class="omw" id="x-pw" hidden></p><label id="x-om-l" style="display:block;margin-top:14px">¿Cómo quieres recibir los pedidos?</label><div class="omg" id="x-om" role="radiogroup" aria-labelledby="x-om-l">'+
+  '<label><input type="radio" name="x-om" value="wa"'+(v==='wa'?' checked':'')+'><span><b>Por WhatsApp</b><small>El cliente te escribe con su pedido y la forma de pago.</small></span></label>'+
+  '<label'+(can?'':' class="off"')+'><input type="radio" name="x-om" value="app"'+(v==='app'?' checked':'')+(can?'':' disabled')+'><span><b>Por la aplicación'+(can?'':' · con el rol Comerciante')+'</b><small>'+(can?'':'Disponible para las tiendas que pagan. Con la versión gratis los pedidos van directo a tu WhatsApp. ')+'El pedido queda guardado en Mi cuenta → Pedidos de mi tienda: ves quién pidió, qué pidió, el total y cómo va a pagar, y lo marcas aceptado, pagado, enviado y entregado.</small></span></label></div>');
+ warn()}
+function warn(){var w=document.getElementById('x-pw');if(!w)return;var c=[].map.call(document.querySelectorAll('#x-pays input:checked'),function(i){return i.value}),u=me();
+ var need=(c.indexOf('bre')>=0||c.indexOf('nequi')>=0)&&!(u&&typeof brebHas==='function'&&brebHas(u.uid));
+ w.hidden=!need;if(need)w.textContent='Para que te paguen con Bre-B o Nequi, después de guardar llena tus datos en Mi cuenta → Pagos Bre-B y Nequi → Cobrar.'}
+document.addEventListener('change',function(e){if(e.target&&e.target.closest&&e.target.closest('#x-pays'))warn()});
+new MutationObserver(function(){addOm()}).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+<style id="v321-notificaciones-css">
+/* v321: centro de notificaciones */
+#nfBtn{position:absolute;z-index:31;width:44px;height:44px;display:grid;place-items:center;padding:0;border:1px solid var(--line,#d2d2d7);background:#fff;color:var(--ink,#1d1d1f);cursor:pointer;border-radius:0}
+#nfBtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#nfBtn em{position:absolute;top:-8px;right:-8px;min-width:22px;height:22px;padding:0 5px;background:#d70015;color:#fff;font-style:normal;font-size:12px;font-weight:800;display:grid;place-items:center;border-radius:0}
+#nfBtn em[hidden]{display:none}
+.nfl{display:grid;gap:10px;margin:10px 0}
+.nfi{display:flex;gap:12px;align-items:flex-start;padding:12px 6px 12px 12px;border:1px solid #d2d2d7;border-left:5px solid #16a34a;background:#fff}
+.nfi.bad{border-left-color:#d70015}.nfi.new{background:#f0f7ff}
+.nfi .qi{flex:none;width:22px;height:22px;margin-top:2px;color:#16a34a}.nfi.bad .qi{color:#d70015}
+.nfi div{flex:1;min-width:0}.nfi p{margin:0;font-size:15px;line-height:1.4}.nfi small{display:block;margin-top:4px;color:#6e6e73;font-size:12.5px}
+.nfi button{flex:none;width:40px;height:40px;margin:-6px 0;border:0;background:transparent;color:inherit;font-size:20px;cursor:pointer}
+html.dark #nfBtn{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important}
+html.dark .nfi{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important}
+html.dark .nfi.new{background:#0b2545!important}html.dark .nfi small{color:#a1a1a6!important}
+.nfi,.nfi button{border-radius:0!important}
+</style>
+<script id="v321-notificaciones">
+/* v321: lista de notificaciones. Los avisos importantes (pedidos, pagos, roles, códigos, publicaciones, sesión) se guardan
+   en este dispositivo (qh_notif, máximo 60, 60 días). La campana del encabezado muestra cuántos no se han leído;
+   cada aviso se cierra con su X y hay un botón para borrarlos todos. Si algo falla, borra este bloque. */
+(function(){
+var K='qh_notif',MAX=60,KEEP=60*864e5;
+var IMP=/pedido|pago|rol |rol:|roles|código|aprob|confirm|venc|sesi[oó]n|publicad|entregad|enviad|acept|cancel|renovad|tienda en pausa|abierta otra vez|anuncio/i;
+var BAD=/no se pudo|no pudimos|error|falt|revisa|int[eé]nta|necesitas|no tienes|no puedes|venci|expir|se cerr|cancel|no le lleg|no pag/i;
+var BELL='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';
+var OK='<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';
+var WARN='<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>';
+var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function ld(){try{var l=JSON.parse(localStorage.getItem(K)||'[]');return Array.isArray(l)?l.filter(function(n){return n&&n.m&&Date.now()-(n.t||0)<KEEP}):[]}catch(e){return []}}
+function sv(l){try{localStorage.setItem(K,JSON.stringify(l.slice(0,MAX)))}catch(e){}}
+function unread(){return ld().filter(function(n){return !n.r}).length}
+window.nfAdd=function(m,bad){m=String(m||'').trim();if(!m)return;var l=ld();if(l[0]&&l[0].m===m&&Date.now()-l[0].t<8000)return;
+ l.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),m:m.slice(0,300),t:Date.now(),b:bad==null?BAD.test(m):!!bad,r:false});sv(l);badge();box()};
+function D(t){try{return new Date(t).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}catch(e){return ''}}
+function listH(){var l=ld();if(!l.length)return '<p class="muted">No tienes notificaciones. Aquí aparecen los avisos de pedidos, pagos, roles y publicaciones.</p>';
+ return '<div class="nfl">'+l.map(function(n){return '<div class="nfi'+(n.b?' bad':'')+(n.r?'':' new')+'">'+(n.b?WARN:OK)+'<div><p>'+E(n.m)+'</p><small>'+E(D(n.t))+(n.r?'':' · nueva')+'</small></div><button type="button" data-nfdel="'+E(n.id)+'" aria-label="Cerrar esta notificación">✕</button></div>'}).join('')+'</div>'}
+function box(){var b=document.getElementById('nfbox');if(b)b.innerHTML=listH();var c=document.getElementById('nfall');if(c)c.hidden=!ld().length}
+window.nfOpen=function(){var l=ld(),had=l.some(function(n){return !n.r});
+ modal('<h2>Notificaciones</h2><div id="nfbox">'+listH()+'</div><div class="row" style="margin-top:10px"><button type="button" class="btn ghost" id="nfall" data-nfall="1"'+(l.length?'':' hidden')+'>Borrar todas</button><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>');
+ if(had){sv(l.map(function(n){n.r=true;return n}));badge()}};
+window.nfMenu=function(it){var n=unread(),c=ld().length;return it(BELL.replace('<svg','<svg class="qi"'),'Notificaciones',c?(n?n+(n===1?' sin leer':' sin leer')+' · ':'')+c+(c===1?' guardada':' guardadas'):'Aún no tienes notificaciones','nfOpen','',n?{n:n,t:n+' sin leer'}:null)};
+document.addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;var b;
+ if((b=t.closest('#nfBtn,[data-act="nfOpen"]'))){e.preventDefault();e.stopImmediatePropagation();closeModal(1);nfOpen();return}
+ if((b=t.closest('[data-nfdel]'))){e.preventDefault();var id=b.dataset.nfdel;sv(ld().filter(function(n){return n.id!==id}));box();badge();return}
+ if((b=t.closest('[data-nfall]'))){e.preventDefault();if(!(await askC('¿Borrar todas las notificaciones?','Borrar todas')))return;sv([]);box();badge()}},true);
+/* campana en el encabezado, al lado del botón de modo oscuro */
+function btn(){var b=document.getElementById('nfBtn');if(b)return b;var h=document.querySelector('header');if(!h)return null;b=document.createElement('button');b.type='button';b.id='nfBtn';b.setAttribute('aria-label','Notificaciones');b.innerHTML=BELL+'<em hidden></em>';h.appendChild(b);return b}
+function place(){try{if(MODE==='admin')return;var b=btn(),h=document.querySelector('header'),r=document.getElementById('themeBtn');if(!b||!h)return;
+ if(getComputedStyle(h).position==='static')h.style.position='relative';
+ var hr=h.getBoundingClientRect(),tr=r&&r.offsetParent?r.getBoundingClientRect():null;
+ if(tr&&tr.width){b.style.top=(tr.top-hr.top+(tr.height-44)/2)+'px';b.style.left=(tr.left-hr.left-52)+'px';b.style.right='auto'}else{b.style.top='12px';b.style.right='12px';b.style.left='auto'}}catch(e){}}
+function badge(){var b=document.getElementById('nfBtn');if(!b)return;var n=unread(),em=b.querySelector('em');em.hidden=!n;em.textContent=n>99?'99+':String(n);b.setAttribute('aria-label',n?'Notificaciones, '+n+' sin leer':'Notificaciones')}
+function wrap(){if(typeof window.toast!=='function'||window.toast.__nf)return;var t0=window.toast;var w=function(m){try{var s=String(m==null?'':m);if(s&&IMP.test(s))nfAdd(s)}catch(x){}return t0.apply(this,arguments)};w.__nf=1;for(var k in t0)if(Object.prototype.hasOwnProperty.call(t0,k))w[k]=t0[k];window.toast=w}
+window.addEventListener('load',function(){setTimeout(function(){wrap();place();badge()},200)});setTimeout(function(){wrap();place();badge()},3500);
+window.addEventListener('resize',place);setInterval(function(){place();badge()},2000);
+})();
+</script>
+<style id="v322-direcciones-css">
+/* v322: direcciones de entrega */
+.admap{height:280px;margin:8px 0 6px;border:2px solid #d2d2d7;background:#e5e7eb}.admap iframe{width:100%;height:100%;border:0;display:block}
+.adconf{display:flex;gap:10px;align-items:flex-start;margin:6px 0;font-size:15px;font-weight:600}.adconf input{width:24px;height:24px;flex:none}
+.adhint{font-size:13.5px;color:#6e6e73;margin:0 0 6px}
+.adbtns{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}.adbtns .btn{min-height:42px;padding:8px 14px;font-size:14px}
+.adok{font-size:13.5px;font-weight:700;color:#166534}.adno{font-size:13.5px;font-weight:700;color:#b45309}
+.adc{border:1px solid #d2d2d7;background:#fff;padding:14px;margin:0 0 12px}
+.adc h3{font-size:16px;margin:0 0 4px;display:flex;justify-content:space-between;gap:8px}.adc h3 em{font-style:normal;font-size:12px;font-weight:800;padding:3px 8px;background:#dbeafe;color:#1e3a8a}
+.adc p{margin:2px 0;font-size:14.5px}.adc small{display:block;color:#6e6e73;font-size:13px}
+.adsel{margin:10px 0 6px}.adsel>b{display:block;font-size:14px;margin-bottom:6px}
+.adsel .ops{display:grid;gap:8px}
+.adsel .ops button{display:block;width:100%;text-align:left;min-height:48px;padding:10px 12px;border:2px solid #d2d2d7;background:#fff;color:#1d1d1f;font:inherit;font-size:14px;cursor:pointer}
+.adsel .ops button b{display:block;font-size:14.5px}.adsel .ops button small{display:block;color:#6e6e73;font-size:12.5px}
+.adsel .ops button[aria-pressed=true]{border-color:#0071e3;box-shadow:inset 0 -4px 0 #0071e3}
+.oaddr{margin:6px 0;padding:10px 12px;background:#f2f3f6;border-left:5px solid #0071e3;font-size:14px}
+.oaddr b{display:block}.oaddr .orda{margin-top:6px}
+html.dark .adc,html.dark .adsel .ops button{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important}
+html.dark .adsel .ops button[aria-pressed=true]{border-color:#0a84ff!important}
+html.dark .adc small,html.dark .adsel .ops button small,html.dark .adhint{color:#a1a1a6!important}
+html.dark .oaddr{background:#2c2c2e!important;color:#f5f5f7!important}html.dark .adok{color:#4ade80!important}
+.admap,.adc,.adsel .ops button,.oaddr,.adc h3 em{border-radius:0!important}
+</style>
+<script id="v322-direcciones">
+/* v322: DIRECCIONES DE ENTREGA.
+   - Quien tiene cuenta registra su dirección principal (obligatoria): barrio o corregimiento, dirección, indicaciones,
+     código plus (opcional, con el video de cómo sacarlo). Mientras la escribe ve el mapa de Google con el lugar
+     (por el código plus, su ubicación actual o la dirección) y confirma que es su casa.
+   - Puede guardar una segunda dirección y editar las dos cuando quiera (Mi cuenta → Mis direcciones).
+   - Al pedir, va la principal; puede elegir la segunda u «Otra dirección» solo para ese pedido.
+   - El vendedor la recibe con el pedido (por la aplicación o en el mensaje de WhatsApp) con enlaces a Google Maps.
+   Las direcciones se guardan solo en este dispositivo (qh_dir_<cuenta>) y viajan únicamente dentro de cada pedido.
+   Necesita las reglas v42 (campo addr del pedido). Si algo falla, borra este bloque. */
+(function(){
+var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function K(){var k='';try{k=QH.key()}catch(e){}return k?'qh_dir_'+k:''}
+function ld(){var k=K();if(!k)return {};try{var o=JSON.parse(localStorage.getItem(k)||'{}');return o&&typeof o==='object'?o:{}}catch(e){return {}}}
+function sv(o){var k=K();if(!k)return;try{localStorage.setItem(k,JSON.stringify(o))}catch(e){}}
+window.adrGet=function(w){return ld()[w||'main']||null};
+window.adrTxt=function(a){if(!a)return '';return [a.dir,a.zone].filter(Boolean).join(', ')+(a.ref?' ('+a.ref+')':'')};
+function gq(a){return a&&a.lat!=null?a.lat+','+a.lng:a&&a.plus?(/\s/.test(a.plus)?a.plus:a.plus+' Pradera, Valle del Cauca'):a&&a.dir?[a.dir,a.zone,'Pradera, Valle del Cauca'].filter(Boolean).join(', '):''}
+window.adrMaps=function(a){var q=gq(a);return q?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q):''};
+window.adrWa=function(a){if(!a)return '';var m=adrMaps(a);return '\nDirección de entrega: '+adrTxt(a)+(a.plus?'\nCódigo plus: '+a.plus:'')+(m?'\nUbicación en el mapa: '+m:'')};
+window.adrClean=function(a){if(!a)return null;var o={lb:String(a.lb||'').slice(0,30),zone:String(a.zone||'').slice(0,40),dir:String(a.dir||'').slice(0,120),ref:String(a.ref||'').slice(0,160),plus:String(a.plus||'').slice(0,80)};if(isFinite(a.lat)&&isFinite(a.lng)&&a.lat!=null&&a.lng!=null){o.lat=Math.round(+a.lat*1e6)/1e6;o.lng=Math.round(+a.lng*1e6)/1e6}return o};
+/* ---- formulario con mapa ---- */
+var F=null,qT=0;
+window.adrForm=function(w,done,req){var a=w==='tmp'?(F&&F.tmp)||{}:(ld()[w]||{}),main=w==='main';F={w:w,done:done,lat:a.lat,lng:a.lng,src:a.lat!=null?'old':''};
+ modal('<h2>'+(main?'Tu dirección principal':w==='alt'?'Segunda dirección de envío':'Otra dirección para este pedido')+'</h2>'+
+  (req?'<p class="omw">Para hacer pedidos necesitas registrar tu dirección. La tienda la recibe con cada pedido para saber exactamente a dónde llevarlo.</p>':'')+
+  (w!=='main'?'<label for="ad-lb">Nombre de esta dirección</label><input id="ad-lb" type="text" maxlength="30" value="'+E(a.lb||(w==='alt'?'Trabajo':''))+'" placeholder="Ej: Trabajo, Casa de mi mamá">':'')+
+  '<label for="ad-zone">Barrio o corregimiento</label><input id="ad-zone" type="text" maxlength="40" value="'+E(a.zone||'')+'" placeholder="Ej: Centro">'+
+  '<label for="ad-dir">Dirección</label><input id="ad-dir" type="text" maxlength="120" autocomplete="street-address" value="'+E(a.dir||'')+'" placeholder="Ej: Calle 5 # 3-20">'+
+  '<label for="ad-ref">Indicaciones (opcional)</label><input id="ad-ref" type="text" maxlength="160" value="'+E(a.ref||'')+'" placeholder="Ej: Casa azul de dos pisos, frente al parque">'+
+  '<label for="ad-plus">Código plus de Google Maps (opcional)</label><input id="ad-plus" type="text" maxlength="80" value="'+E(a.plus||'')+'" placeholder="Ej: CQ94+H47 Pradera, Valle del Cauca">'+
+  '<p class="adhint">Sirve en los lugares que no se encuentran fácil solo con la dirección (fincas, veredas, casas sin número).</p>'+
+  '<button type="button" class="btn ghost" data-act="plusVid" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left"><img src="'+(typeof ytThumb==='function'?ytThumb('MQ6c-4SBo9Y'):'')+'" alt="" width="72" height="54" loading="lazy" style="object-fit:cover"><span><b>Ver video:</b> cómo sacar tu código plus en Google Maps</span></button>'+
+  '<p style="margin:14px 0 0;font-weight:700">Tu ubicación en el mapa</p><p class="adhint">El mapa de Google muestra el lugar según tu código plus, tu ubicación actual o tu dirección. Revisa que sea tu casa: así la tienda sabe exactamente dónde es.</p>'+
+  '<div class="admap" id="ad-map"></div><p id="ad-st" class="adno"></p>'+
+  '<div class="adbtns"><button type="button" class="btn ghost" data-adgeo="1">Usar mi ubicación actual</button></div>'+
+  '<label class="adconf"><input type="checkbox" id="ad-conf"'+(a.dir||a.plus?' checked':'')+'><span>Sí, el mapa muestra mi casa</span></label>'+
+  (w==='tmp'&&S.user?'<label style="display:flex;gap:10px;align-items:center;margin-top:6px"><input type="checkbox" id="ad-keep" style="width:22px;height:22px"> Guardarla como mi segunda dirección</label>':'')+
+  '<p class="err" id="ad-err" role="alert"></p><div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-adsave="1">Guardar dirección</button>'+(req&&main?'':'<button type="button" class="btn ghost" data-act="close">Cancelar</button>')+'</div>');
+ if(req&&main){var ov=document.getElementById('ov');if(ov)ov.dataset.lock='1'}
+ setTimeout(gmap,60)};
+/* mapa de Google dentro del formulario (no se mueve el pin: muestra el lugar buscado) */
+function cur(){var g=function(id){var x=document.getElementById(id);return x?x.value.trim():''};return {dir:g('ad-dir'),zone:g('ad-zone'),plus:g('ad-plus'),lat:F&&F.lat,lng:F&&F.lng}}
+function gmap(){var el=document.getElementById('ad-map');if(!el||!F)return;var c=cur(),q=gq(c),st=document.getElementById('ad-st');
+ if(!q){el.innerHTML='<p class="adhint" style="padding:14px">Escribe tu dirección o tu código plus, o toca «Usar mi ubicación actual», y aquí verás el lugar.</p>';if(st){st.className='adno';st.textContent='Aún no hay ubicación para mostrar'}return}
+ var src='https://maps.google.com/maps?q='+encodeURIComponent(q)+'&z=17&output=embed',f=el.querySelector('iframe');if(f&&f.dataset.q===q)return;
+ el.innerHTML='<iframe title="Mapa de tu dirección" loading="lazy" referrerpolicy="no-referrer-when-downgrade" data-q="'+E(q)+'" src="'+E(src)+'"></iframe>';
+ if(st){st.className='adok';st.textContent=F.src==='gps'?'Mostrando tu ubicación actual. Revisa que sea tu casa.':F.src==='plus'?'Mostrando tu código plus. Revisa que sea tu casa.':F.lat!=null?'Mostrando la ubicación guardada. Revisa que sea tu casa.':'Mostrando tu dirección. Si no es exacta, agrega tu código plus o usa tu ubicación actual.'}}
+function later(){clearTimeout(qT);qT=setTimeout(gmap,900)}
+function setPin(lat,lng,why){F.lat=lat;F.lng=lng;F.src=why;var er=document.getElementById('ad-err');if(er)er.textContent='';var cf=document.getElementById('ad-conf');if(cf)cf.checked=false;gmap()}
+document.addEventListener('input',function(e){if(!F||!e.target)return;var id=e.target.id;
+ if(id==='ad-plus'){var c=null;try{c=plusLL(e.target.value)}catch(x){}if(c){var ll=Array.isArray(c)?c:[c.lat,c.lng];if(isFinite(ll[0])&&isFinite(ll[1])){setPin(ll[0],ll[1],'plus');return}}if(F.src==='plus'){F.lat=null;F.lng=null;F.src=''}later();return}
+ if(id==='ad-dir'||id==='ad-zone'){if(F.src==='old'){F.lat=null;F.lng=null;F.src=''}later()}});
+document.addEventListener('change',function(e){if(F&&e.target&&(e.target.id==='ad-zone'||e.target.classList&&e.target.classList.contains('znsel')&&document.getElementById('ad-zone'))){if(F.src==='old'){F.lat=null;F.lng=null;F.src=''}later()}});
+addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;var b;
+ if((b=t.closest('[data-adgeo]'))){e.preventDefault();if(!navigator.geolocation)return toast('Tu teléfono no permite usar la ubicación.');b.disabled=true;b.textContent='Buscando tu ubicación…';
+  navigator.geolocation.getCurrentPosition(function(p){b.disabled=false;b.textContent='Usar mi ubicación actual';setPin(Math.round(p.coords.latitude*1e6)/1e6,Math.round(p.coords.longitude*1e6)/1e6,'gps')},function(){b.disabled=false;b.textContent='Usar mi ubicación actual';toast('No se pudo obtener tu ubicación. Revisa que el permiso de ubicación esté activo, o escribe tu dirección o tu código plus.')},{enableHighAccuracy:true,timeout:15000});return}
+ if((b=t.closest('[data-adsave]'))){e.preventDefault();var g=function(id){var x=document.getElementById(id);return x?x.value.trim().replace(/\s+/g,' '):''},er=document.getElementById('ad-err');
+  var a={lb:g('ad-lb')||(F.w==='main'?'Principal':''),zone:g('ad-zone'),dir:g('ad-dir'),ref:g('ad-ref'),plus:g('ad-plus')};
+  if(a.zone.length<2)return er.textContent='Elige tu barrio o corregimiento.';if(a.dir.length<5&&!a.plus)return er.textContent='Escribe tu dirección (o tu código plus si no tienes dirección).';
+  var cf=document.getElementById('ad-conf');if(!cf||!cf.checked)return er.textContent='Revisa el mapa y marca «Sí, el mapa muestra mi casa». Si no es tu casa, agrega tu código plus o usa tu ubicación actual.';
+  if(F.lat!=null&&F.src!==''){a.lat=F.lat;a.lng=F.lng}a=adrClean(a);var w=F.w,dn=F.done;
+  if(w==='tmp'){F.tmp=a;var kp=document.getElementById('ad-keep');if(kp&&kp.checked){var o=ld();o.alt=a;sv(o)}}else{var o2=ld();o2[w]=a;sv(o2)}
+  closeModal(1);toast(w==='tmp'?'Dirección lista para este pedido':'Dirección guardada');if(typeof dn==='function')dn(a);return}
+ if((b=t.closest('[data-adedit]'))){e.preventDefault();closeModal(1);adrForm(b.dataset.adedit,function(){adrOpen()});return}
+ if((b=t.closest('[data-addel]'))){e.preventDefault();if(!(await askC('¿Borrar tu segunda dirección?','Borrar')))return;var o3=ld();delete o3.alt;sv(o3);adrOpen();return}
+ if((b=t.closest('[data-act="adrOpen"]'))){e.preventDefault();e.stopImmediatePropagation();closeModal(1);adrOpen();return}},true);
+/* ---- Mi cuenta → Mis direcciones ---- */
+function card(w,a){var m=adrMaps(a);return '<div class="adc"><h3>'+E(w==='main'?'Dirección principal':(a.lb||'Segunda dirección'))+(w==='main'?'<em>POR DEFECTO</em>':'')+'</h3><p>'+E(adrTxt(a))+'</p>'+(a.plus?'<small>Código plus: '+E(a.plus)+'</small>':'')+(a.lat!=null?'<small>Con ubicación exacta (código plus o ubicación actual)</small>':'')+
+ '<div class="orda"><button type="button" class="btn" data-adedit="'+w+'">Editar</button>'+(m?'<a class="btn ghost" href="'+E(m)+'" target="_blank" rel="noopener">Ver en el mapa</a>':'')+(w==='alt'?'<button type="button" class="btn ghost" data-addel="1">Borrar</button>':'')+'</div></div>'}
+window.adrOpen=function(){var o=ld();modal('<h2>Mis direcciones</h2><p class="muted">La tienda recibe tu dirección con cada pedido. Se guardan solo en este dispositivo.</p>'+
+ (o.main?card('main',o.main):'<div class="adc"><h3>Dirección principal</h3><p class="adno">Aún no la has registrado.</p><div class="orda"><button type="button" class="btn pink" data-adedit="main">Agregar mi dirección</button></div></div>')+
+ (o.alt?card('alt',o.alt):'<div class="adc"><h3>Segunda dirección (opcional)</h3><small>Por ejemplo tu trabajo, para no escribirla otra vez.</small><div class="orda"><button type="button" class="btn ghost" data-adedit="alt">Agregar segunda dirección</button></div></div>')+
+ '<div class="row" style="margin-top:8px"><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>')};
+window.adrMenu=function(it){var a=adrGet('main');var ic='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>';
+ return it(ic,'Mis direcciones',a?E(adrTxt(a)):'Falta registrar tu dirección','adrOpen','',a?null:{n:'!',t:'falta tu dirección'})};
+/* ---- en el carrito: a dónde se envía ---- */
+var PICK={};
+window.adrPick=function(sid){var p=PICK[sid]||'main';if(p==='tmp')return F&&F.tmp||null;return adrGet(p)||adrGet('main')};
+window.adrFoot=function(sid){if(!S.user)return '';var m=adrGet('main'),a2=adrGet('alt'),p=PICK[sid]||'main',tmp=F&&F.tmp;if(!m)return '<div class="adsel"><b>¿A dónde lo enviamos?</b><button type="button" class="btn ghost" data-adedit="main" style="width:100%">Agregar mi dirección</button></div>';
+ var op=function(k,a,t){return '<button type="button" data-adpick="'+k+'" data-sid="'+E(sid)+'" aria-pressed="'+(p===k)+'"><b>'+E(t)+'</b><small>'+E(adrTxt(a))+'</small></button>'};
+ return '<div class="adsel" role="group" aria-label="Dirección de entrega"><b>¿A dónde lo enviamos?</b><div class="ops">'+op('main',m,'Mi dirección principal')+(a2?op('alt',a2,a2.lb||'Segunda dirección'):'')+(tmp?op('tmp',tmp,'Otra dirección (solo este pedido)'):'')+
+  '<button type="button" data-adother="'+E(sid)+'"><b>'+(tmp?'Cambiar la otra dirección':'Otra dirección…')+'</b><small>Solo para este pedido</small></button></div></div>'};
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-adpick],[data-adother]');if(!b)return;var sid=b.dataset.sid||b.dataset.adother;
+ if(b.dataset.adother){adrForm('tmp',function(){PICK[sid]='tmp';try{openCart()}catch(x){}});return}
+ PICK[sid]=b.dataset.adpick;b.parentNode.querySelectorAll('[data-adpick]').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))})});
+/* ---- obligatoria: se pide al entrar si no hay dirección ---- */
+var asked=0;setInterval(function(){try{if(asked||MODE==='admin'||!S.user||document.getElementById('ov')||document.querySelector('.qtour'))return;var k=K();if(!k||adrGet('main'))return;
+ asked=1;adrForm('main',function(){toast('¡Listo! Tu dirección quedó guardada. Puedes cambiarla en Mi cuenta → Mis direcciones.')},true)}catch(e){}},2500);
+/* el campo de barrio usa la lista de barrios y corregimientos (v317) */
 })();
 </script>
 <script id="v219-modo-oscuro">
@@ -4825,7 +5157,7 @@ const pnRow=(t,sub,btns)=>`<div class="ci"><span><b>${esc(t)}</b>${sub?'<br><sma
 function nwMenuList(){const l=QH.NEWS.filter(x=>x.ownerKey===QH.key());if(typeof nwTableHTML==='function')return nwTableHTML(l);/* v302: tabla con portada, borradores y programadas */return `<div class="cg"><h3>📰 Mis noticias (${l.length})</h3><p class="muted">Tu acceso de Noticias está activo hasta el ${new Date(accEnd('news')).toLocaleDateString('es-CO')}: publica con foto y video.</p><div class="row" style="margin:14px 0 18px;gap:10px"><button class="btn pink" data-act="nwNew" style="flex:1 1 150px;text-align:center">+ Nueva noticia</button><a class="btn ghost" href="${BASE_URL}#/noticias" style="flex:1 1 130px;text-align:center;text-decoration:none;display:inline-block">Ver noticias</a></div>${l.length?l.map(n=>`<div class="ci" style="display:block;padding:14px;margin:10px 0;border:1px solid var(--line2,#c9d3ea);border-radius:14px"><div><b style="word-break:break-word">${esc(n.title)}</b><br><small class="muted">${esc(nwDate(n))}</small></div><div class="row" style="margin-top:12px;gap:10px"><button class="btn" data-act="nwEdit" data-id="${esc(n.id)}" style="flex:1 1 0;text-align:center">Editar</button><button class="btn ghost" data-act="nwDel" data-id="${esc(n.id)}" style="flex:1 1 0;text-align:center">Eliminar</button></div></div>`).join(''):'<p class="muted">Aún no has publicado noticias.</p>'}</div>`}
 function pnlMenu(){const u=S.user,ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),nf=favRows().length;QH.newsListen();nwWho();
 const it=(ic,t,sub,act,v,bd)=>`<button type="button" class="pnr" data-act="${act}"${v?` data-v="${v}"`:''}><i aria-hidden="true">${ic}${bd?`<em class="pnbd${bd.z?' z':''}">${bd.n}</em>`:''}</i><span>${t}${bd?`<span class="qh-sr"> (${bd.t})</span>`:''}<small>${sub}</small></span><b aria-hidden="true">›</b></button>`;/* v218: bd = numero en la esquina del icono */
-return `<div class="pnl">${bizCta()}${typeof gdMenu==='function'?gdMenu(it):''/* v309 */}${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.93 4.93.71.71"/><path d="M12 12v6"/></svg>','Datos de emergencia','Tu contacto de emergencia y tipo de sangre (opcional)','emgMine')/* v257 */}${typeof myCodesOpen==='function'?it('🔑','Mis códigos','Tus códigos, los días que faltan y cómo va tu pago','myCodes','',codesBadge()):''/* v236, v243: debajo de Mis datos y con número de novedades */}${it('🔓','Mis roles','Comerciante, Clasificados, Comunidad y Redactor de noticias','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas',ms.length?pnQuota('store'):null/* v244: el número solo si la sección se usa */)}${(typeof brebOn==='function'&&brebOn())?it('💳','Pagos Bre-B y Nequi','Tus datos de cobro y los pagos que envías y recibes','brebOpen','',brebBadge())/* v233; v244: debajo de Mis tiendas */:''/* v232 */}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine','',comMine().some(a=>comActive(a)&&!a.hid)?pnQuota('com'):null/* v244 */)}${typeof adTableHTML==='function'?(()=>{const mi=adMine('inmuebles'),mv2=adMine('vehiculos'),sv=p=>'<svg class="qi" viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';return it(sv(hubIc.home),'Mis inmuebles',mi.length+(mi.length===1?' inmueble':' inmuebles'),'pnl','inmuebles',mi.length?pnQuota('ad'):null)+it(sv(hubIc.car),'Mis vehículos',mv2.length+(mv2.length===1?' vehículo':' vehículos'),'pnl','vehiculos',mv2.length?pnQuota('ad'):null)})()/* v312: dos tablas */:it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios',ma.length?pnQuota('ad'):null/* v244 */)}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios',mv.length?pnQuota('serv'):null/* v244 */)}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${it('🧭','Ayuda y guías','Tutorial y guías paso a paso','helpOpen')/* v229, v230 */}${NW?nwMenuList():''}<button type="button" class="pnr" data-act="delAcct" style="border-color:#c0392b"><i aria-hidden="true">🗑️</i><span style="color:#ff6b5e">Eliminar cuenta<small>Borra tu cuenta y tus publicaciones para siempre</small></span><b aria-hidden="true">›</b></button></div>`}
+return `<div class="pnl">${bizCta()}${typeof gdMenu==='function'?gdMenu(it):''/* v309 */}${typeof nfMenu==='function'?nfMenu(it):''/* v321 */}${typeof adrMenu==='function'?adrMenu(it):''/* v322 */}${typeof ordMenu==='function'?ordMenu(it):''/* v320 */}${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.93 4.93.71.71"/><path d="M12 12v6"/></svg>','Datos de emergencia','Tu contacto de emergencia y tipo de sangre (opcional)','emgMine')/* v257 */}${typeof myCodesOpen==='function'?it('🔑','Mis códigos','Tus códigos, los días que faltan y cómo va tu pago','myCodes','',codesBadge()):''/* v236, v243: debajo de Mis datos y con número de novedades */}${it('🔓','Mis roles','Comerciante, Clasificados, Comunidad y Redactor de noticias','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas',ms.length?pnQuota('store'):null/* v244: el número solo si la sección se usa */)}${(typeof brebOn==='function'&&brebOn())?it('💳','Pagos Bre-B y Nequi','Tus datos de cobro y los pagos que envías y recibes','brebOpen','',brebBadge())/* v233; v244: debajo de Mis tiendas */:''/* v232 */}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine','',comMine().some(a=>comActive(a)&&!a.hid)?pnQuota('com'):null/* v244 */)}${typeof adTableHTML==='function'?(()=>{const mi=adMine('inmuebles'),mv2=adMine('vehiculos'),sv=p=>'<svg class="qi" viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';return it(sv(hubIc.home),'Mis inmuebles',mi.length+(mi.length===1?' inmueble':' inmuebles'),'pnl','inmuebles',mi.length?pnQuota('ad'):null)+it(sv(hubIc.car),'Mis vehículos',mv2.length+(mv2.length===1?' vehículo':' vehículos'),'pnl','vehiculos',mv2.length?pnQuota('ad'):null)})()/* v312: dos tablas */:it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios',ma.length?pnQuota('ad'):null/* v244 */)}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios',mv.length?pnQuota('serv'):null/* v244 */)}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${it('🧭','Ayuda y guías','Tutorial y guías paso a paso','helpOpen')/* v229, v230 */}${NW?nwMenuList():''}<button type="button" class="pnr" data-act="delAcct" style="border-color:#c0392b"><i aria-hidden="true">🗑️</i><span style="color:#ff6b5e">Eliminar cuenta<small>Borra tu cuenta y tus publicaciones para siempre</small></span><b aria-hidden="true">›</b></button></div>`}
 function pnlModal(v){const ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),cl='<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>';let h='';
 if(v==='plan')h='<h2>Mis roles</h2>'+planCard();
 else if(v==='tiendas'&&typeof shopTableHTML==='function')h=shopTableHTML(ms);/* v284: tabla con Ver, Editar y Eliminar */
@@ -4887,7 +5219,7 @@ const readDel=()=>{if($('#x-del').value!==DELIV[1])return{dfee:'',dcost:''};cons
 const delFeeTxt=s=>s.delivery!==DELIV[1]?'':s.dfee==='free'?' · Gratis':s.dfee==='paid'?(s.dcost?' · Costo '+money(s.dcost):' · Con costo'):'';
 const PAYS=[['cash','Efectivo'],['bre','Bre-B'],['nequi','Nequi'],['card','Tarjeta de crédito']];
 const PAYIMG={bre:'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCAAoAHYDASIAAhEBAxEB/8QAGwAAAgMBAQEAAAAAAAAAAAAAAAcDBQYEAQL/xAA+EAABAwMBBAYIAwUJAAAAAAABAgMEAAURBhITITFBUWFxkaEUFiJVgZOx0QcXMhUjNkKyJTRDRHKCweLw/8QAGQEAAgMBAAAAAAAAAAAAAAAAAwQBAgUG/8QAMBEAAQQBAwIDBgYDAAAAAAAAAQIDBBEABSExEkETYZEGUYGhsfAUFSIyccHR4fH/2gAMAwEAAhEDEQA/AMHpqwM3tt8qlqZW0oeyEBWQenn2VdeoTPvFz5Q+9U2iJnot8Q2o4RISWz38x5jzq61vNuVvlR3Ykt5ph1BGyg4AUDx8iK6UBPRZGYk13UPzH8Oy70hQsWB8Rx5HPFaCbKfYuK9rtZGPrWbvlhl2VxPpGytpZwh1HI9nYa7bJqK7m6Rm1SXH0uOJQptfHIJwe6tZrnd+rr23jO8Rsd+ftmhmu2VTL1GFMbZkLCwv/nuGLGimJpaxWuXYor8qE246sK2lqJyfaI66ns2j7ezGC50ffvr4qCidlHUAB9aEVgY277RxWlLSoG0mu2/PG/li0ord3WzwJ10FntMJplbYC5Unid0OhIGeJP8A7pq0Rp/TlpZT6Yhk5/xJTnFXw5eAqingO2Sv2hYQhJKFdStwNrrsee/riwopnydLWK6xiuCG2if0vRl5TntGcHypdXKC9bZzsSSAHGlYOORHQR2EVLbyXNhzjen6sxOJSiwocg85LY4LdyujEN54spdJSFhOeOOFbH8u2PeTvyR96wcd5ceQ2+2cLbWFpPaDmmrqOVIe0wqfbH1tLCEPhTZ4lHSPA+VKTFupWkIVQO2ZutvzWZDSWHOlK9uBV3/B9/yym/Ltj3m58kfeqm96Jm26OuTGeTKZQMrATsrSOvHTVYNTXtKgf2lI4das00bDKdn2WLJmJCXHW8rGMA9uO0cfjSz7sqLSlKBGJTJOraZ0uvOBaSaqv9DEvRUj+zvnN3+jaOz3Z4UVsg2M7IGxeTWxDrlxioYOHS6nYPUcimleHrY002btuC2VHY3yNoZ7OFYfQkP0i9b9Q9mOgq/3HgPqfCrjWdrul0mMJhxi4w03wIWke0Tx5nsFGRYQTnJ6sWpGotsrX0BIJJuufP09csoVx000+DEcgtOngFJb2T44ri13bpsqIJTTwXFYG0pgJwR1qz0/8Vm2tJXpxYSYobB5qW4nA863s4IgaceQ+vbS1FLZUf5js7PmaGSe+IvpZhSmnIzviKJog0r59si0Z/DkIdiv6jS+ut4nzJzzjkp4DbIShKyEpGeAAFMHRn8OQe5X9RpXSP7w7/rP1oQG+P6K2hc+UpQsg/2cYf4eNf2VIkqJU48+QpROSQAMfU19XrSDt3uLkt24qSFcEI3OQhPQBxrj/DicgxpMBSgHEr3qAekEAHwwPGvNTWS+G4OybW/IdYdO1u0PkFs9Ixnl3Usqw4d6xBzxW9WdAdDZPBIFVttv97Zb6b005YpDrgnKebcThTe62RnoPPv8arNSuQYesYMm4oSWDGO8Cm9sE+0Bw8K57Vpq+yW3Fz7lKhnH7tO9KyT2gHgPOsxf2JES5uRZUz0txnCS5tFWOnHHvqqEBbhtV41CipkTllcgLV0kHpFbEVyNts2cu+6UXEfQhlorU2oJAibJzjhxxw76tNKjc6RjKuBTugypStscA3knj8KVsOOuXLZjN/rdWED4nFNfUsOU5p5cC1M7xSghoJCgMIHPn3DxpaU0lHS2Dye/bAatCZi+FFSs/rUCSo8AbeVc/LOJM/RqVApFuBHI+j/9asrmhd6sq02ee2gOggOJG0FDpTnopd+qF+P+QV8xH3rd6Ls0mzW1xuYpO9dc2yhJyEcMc+ulpTbTSQtDlkducW1KNEjIS8xI61gigSFYq5LDkaQ4w+kocbUUqSegiirLVjrb2o562SCje4yOkgAHzBordbUVICj3Gd3HcLjKFqFEgH1GS6e1D+xGnkJiJeU6oEqKynAA5cqt/X1z3cj5x+1FFGC1AVeJv6RCfcLjiLJ8z/nA69dx7NubB7XT9qo71qGdeAEPqS2yDkNNjAz1nrooqpJPOSxpUKOvrbbAPxP1yxs2sV2u3MwxCQ6Gs4UXCM5JPLHbWZcVtrUvGNok4ooqKw7ENhha3G00Vbnnf7vPuNIeivofjuKbdQcpWk4INayJr6W22Ey4bLyh/OlRQT8OIooqqm0r5GVlQI0uvGQDXr6jI7hryc+0W4bDcXPDbBK1DuzwHhWTUpS1FSiVKJySTkk0UVCG0o/aMmLCjxAQymr++c7bLcBa7kzNLIeLRJCCrAzjGfOtX+Yjnuxv5x+1FFUcjtum1i8FK0uJLWFvIsjbk/0cPzEc92N/OP2rgueublMZUzHQ3FSoYKmySvHYTyoooaYUdJsJwLeh6e2oKS0L87P1OZaiiims1s//2Q==',nequi:'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAA4ADgDASIAAhEBAxEB/8QAGwAAAgIDAQAAAAAAAAAAAAAAAAcGCAIDBAH/xAAvEAACAQMBBgQGAgMAAAAAAAABAgMABAURBgcSITFBUWFxgRMUIjKRoUJSI4Kx/8QAGgEAAgMBAQAAAAAAAAAAAAAAAwQCBQYAAf/EACwRAAEDAwEFBwUAAAAAAAAAAAEAAgMEESESBTFBUXEGExQiYYHBIzJC4fH/2gAMAwEAAhEDEQA/AH/WLusaM7MFVRqSTyArhzGbx+CsjdZC4EUeuijTVmPgB3NIXePvmvr9ZMRg0NnAeU0zaGVh/XwXz6mpMYXmwRfDymIygY5ndfl/FPdod61vhLpnaS3W3B+iNgTLKPEAHlUMyW/abL629ipxMZ5cbkO7f7dF/HvSQlmknlaWWRpJGOrO51J9Sawp4wMIsAo7PDqWTvJLSHkRj2Cs7sFvDknnTHZm6+Msp0t7piOv9WPn2PtTVB1FUVtb25s24reZ4/EA8j7U992u+Z7mKLDZ+P4lwg4YblDoZAOxB6sP369V307h9uU3tKoppPrsbo5jh1HzhPOiuHHZayyiFrSdZCPuXoy+oopcgg2Kr2Pa8amm4SV355ibH5u3QknW1Hy69gSx4m/Q/VIZmLsWYksTqSe5p/bycOdqbq9jlIW6gkZbZj/HTlw+h/7zpCTQyW8zwzIUkRirK3UEdRVjFHoaPVEi2t45giGBHi3z7rXRRRRERFeozI4dGKsp1BB0IPjXlFcuVg9y20oz2SeG7kCX1tAeLt8cHTmPPlqR70UutgbS+VreTGiT5+afWEx/dqOQ9uvtRSE51PVhD2fZFCxzZGs1+axNt/L0srGbQbJrk5mu7WRYrhh9SsPpfz8jSM3mbEXduGygtHjuIx/nAGokUfyB6Ejv5elWbrVPbw3ULQzxJLGw0KOoIPtXsdQ5o0nIWcNE1s3fxHS7jyPVUSopvbzd1MeDyRvcQDFYXLEpG3NY36lNeoHcfjtSpu7G5spOC4iZD2J6H0NNska/crp1NK2MTW8p48P0eq562QQS3VxHBBG0k0jBURRqWJ6AViiNI6oilmYgKqjUk+Ap27rth1scvZzXiB71zxsOohQc+EeZ5an2qZwCVXVNU2AAfkcAJm7vNhIdksPAbgJJkmiCyOOYjHdV9+p70VNqKqibm6YlmfK7U83KKKKK8Q1xZbF2uYxk9jeJxwyrofEHsR5g86QOd2PyeOv5MfcY+W5jLaRukJdJR2I07+XaiipArQbBrZYpHQjLXA4Kkey+5gWMK5aQrDkH5x20vNYQfPs350pibNbMth5ZLm4lSSdl4AE6KO/M9TRRUzM8t03ws3UU8UtUalw83puHQKSUUUUJEX//2Q=='};
-const readPays=()=>({pays:[...document.querySelectorAll('#x-pays input:checked')].map(i=>i.value).filter(v=>PAYS.some(p=>p[0]===v))});
+const readPays=()=>({pays:[...document.querySelectorAll('#x-pays input:checked')].map(i=>i.value).filter(v=>PAYS.some(p=>p[0]===v)),...(typeof omRead==='function'?omRead():{})/* v320: cómo recibe los pedidos */});
 const paysTxt=s=>(s.pays||[]).map(k=>(PAYS.find(p=>p[0]===k)||[])[1]).filter(Boolean).join(' · ');
 const DIAS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const hhmm=t=>{if(!t)return'';const[h,m]=t.split(':').map(Number);return (h%12||12)+':'+String(m).padStart(2,'0')+' '+(h<12?'a. m.':'p. m.')};
@@ -5400,7 +5732,7 @@ function resize(file,max=360,q=.7,local){/* v213: local=1 no sube a R2 (foto de 
 function cartHTML(){const groups={};Object.entries(S.cart).forEach(([k,q])=>{const[sid,pid]=k.split('|'),s=S.stores.find(x=>x.id===sid),p=s&&s.products.find(x=>x.id===pid);if(p)(groups[sid]=groups[sid]||{s,items:[]}).items.push({p,q,k})});
 const gs=Object.values(groups);let h=`<div class="row" style="justify-content:space-between;align-items:center"><h2>Tu carrito</h2><button class="btn ghost" data-act="closeCart">Cerrar</button></div>`;
 if(!gs.length)return h+`<div class="empty">Tu carrito está vacío.</div>`;
-return h+gs.map(g=>{const t=g.items.reduce((a,i)=>a+i.p.price*i.q,0);return `<div class="cg"><h3>${esc(g.s.name)}</h3>${g.items.map(i=>`<div class="ci"><span>${esc(i.p.name)}${vTx(i.k)?`<br><small>${esc(vTx(i.k))}</small>`:''}<br><small>${money(i.p.price)}</small></span><span class="qty"><button data-act="dec" data-k="${i.k}" aria-label="Quitar uno">−</button> ${i.q} <button data-act="inc" data-k="${i.k}" aria-label="Agregar uno">+</button></span></div>`).join('')}<div class="ci"><b>Total</b><b>${money(t)}</b></div><button class="btn pink" style="width:100%" data-act="order" data-id="${g.s.id}">Pedir por WhatsApp</button></div>`}).join('')}
+return h+gs.map(g=>{const t=g.items.reduce((a,i)=>a+i.p.price*i.q,0);return `<div class="cg"><h3>${esc(g.s.name)}</h3>${g.items.map(i=>`<div class="ci"><span>${esc(i.p.name)}${vTx(i.k)?`<br><small>${esc(vTx(i.k))}</small>`:''}<br><small>${money(i.p.price)}</small></span><span class="qty"><button data-act="dec" data-k="${i.k}" aria-label="Quitar uno">−</button> ${i.q} <button data-act="inc" data-k="${i.k}" aria-label="Agregar uno">+</button></span></div>`).join('')}<div class="ci"><b>Total</b><b>${money(t)}</b></div>${typeof ordFoot==='function'?ordFoot(g.s,t)/* v320 */:`<button class="btn pink" style="width:100%" data-act="order" data-id="${g.s.id}">Pedir por WhatsApp</button>`}</div>`}).join('')}
 function openCart(){$('#drawer').innerHTML=cartHTML();$('#drawer').classList.add('open')}
 const refreshCart=()=>{$('#cc').textContent=Object.values(S.cart).reduce((a,b)=>a+b,0);$('#drawer').innerHTML=cartHTML();save()};
 
@@ -5667,7 +5999,7 @@ else if(a==='pstar'){rt.n=+v;document.querySelectorAll('#f-stars .star').forEach
 else if(a==='saveRate'){if(!rt.n)return $('#err').textContent='Elige de 1 a 5 estrellas.';const o=rateTarget(rt.k,rt.id);if(!o)return closeModal();o.rates=o.rates||[];const r={u:DEV,a:myUid(),n:rt.n,name:$('#r-name').value.trim(),txt:$('#r-txt').value.trim(),ts:Date.now()},i=o.rates.findIndex(isMyRate);if(i>=0)o.rates[i]=r;else o.rates.push(r);save();closeModal();const y=scrollY;render();scrollTo(0,y);toast('¡Gracias por tu calificación!')}
 else if(a==='order'){const s=S.stores.find(x=>x.id===id);if(!s.wa)return toast('Esta tienda aún no tiene WhatsApp registrado');
  let t=0,l=Object.entries(S.cart).filter(([k])=>k.startsWith(id+'|')).map(([k,q])=>{const p=s.products.find(x=>x.id===k.split('|')[1]);t+=p.price*q;return `• ${q} x ${p.name}${vTx(k)?' - '+vTx(k):''} (${money(p.price*q)})\n   ${(c=>(c?'ID: '+vId(p,c):'Código: '+pCode(p))+(skuOf(p,c)?' · SKU: '+skuOf(p,c):''))(k.split('|')[3])}\n   ${pLink(s.id,p,k.split('|')[3]||'',k.split('|')[2]||'')/* v305: con foto si la página del producto ya existe */}`});
- const num=s.wa.length===10?'57'+s.wa:s.wa;window.open(`https://wa.me/${num}?text=${encodeURIComponent(`Hola ${s.name}, vi su tienda en Mi Pradera y quiero pedir:\n${l.join('\n')}\nTotal: ${money(t)}`)}`,'_blank');
+ const num=s.wa.length===10?'57'+s.wa:s.wa;window.open(`https://wa.me/${num}?text=${encodeURIComponent(`Hola ${s.name}, vi su tienda en Mi Pradera y quiero pedir:\n${l.join('\n')}\nTotal: ${money(t)}${typeof ordWaLine==='function'?ordWaLine(id):''/* v320 */}`)}`,'_blank');
  Object.keys(S.cart).forEach(k=>k.startsWith(id+'|')&&delete S.cart[k]);refreshCart()}
 });
 $('#cartBtn').onclick=openCart;$('#userBtn').onclick=()=>{if(S.user)profileModal();else{after=null;planAsk=true;loginForm()}};$('#home').onclick=()=>{if(MODE!=='index'){location.href=BASE_URL;return}view='home';cat='';shopsOpen=false;render()};
