@@ -4283,6 +4283,10 @@ html.dark .adsel .ops button[aria-pressed=true]{border-color:#0a84ff!important}
 html.dark .adc small,html.dark .adsel .ops button small,html.dark .adhint{color:#a1a1a6!important}
 html.dark .oaddr{background:#2c2c2e!important;color:#f5f5f7!important}html.dark .adok{color:#4ade80!important}
 .admap,.adc,.adsel .ops button,.oaddr,.adc h3 em{border-radius:0!important}
+/* v333: secciones del formulario (datos personales / negocio) */
+.adsh{font-size:17px;margin:18px 0 2px;padding-top:12px;border-top:1px solid #d2d2d7}.adsh small{font-size:13px;font-weight:600;color:#6e6e73}
+.adbiz{margin:16px 0 4px;padding:2px 14px 12px;background:#f2f3f6;border-left:5px solid #0071e3}.adbiz .adsh{border-top:0;padding-top:8px;margin-top:8px}
+html.dark .adsh{border-color:#3a3a3c!important}html.dark .adbiz{background:#2c2c2e!important;color:#f5f5f7!important}
 </style>
 <script id="v322-direcciones">
 /* v322: DIRECCIONES DE ENTREGA.
@@ -4308,9 +4312,9 @@ window.adrClean=function(a){if(!a)return null;var o={lb:String(a.lb||'').slice(0
 /* ---- formulario con mapa ---- */
 var F=null,qT=0;
 window.adrForm=function(w,done,req){var a=w==='tmp'?(F&&F.tmp)||{}:(ld()[w]||{}),main=w==='main',P=ld()/* v332 */;F={w:w,done:done,lat:a.lat,lng:a.lng,src:a.lat!=null?'old':''};
- modal('<h2>'+(main?'Tu dirección principal':w==='alt'?'Segunda dirección de envío':'Otra dirección para este pedido')+'</h2>'+
+ modal('<h2>'+(main?'Tus datos personales'/* v333 */:w==='alt'?'Segunda dirección de envío':'Otra dirección para este pedido')+'</h2>'+
   (req?'<p class="omw">Para hacer pedidos necesitas registrar tu dirección. La tienda la recibe con cada pedido para saber exactamente a dónde llevarlo.</p>':'')+
-  (main?'<label for="ad-tel">Tu teléfono / WhatsApp</label><input id="ad-tel" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" value="'+E(P.tel||'')+'" placeholder="Ej: 3001234567">':'')+/* v332: teléfono (dato personal) */
+  (main?'<h3 class="adsh">Tu teléfono</h3><label for="ad-tel">Teléfono o WhatsApp</label><input id="ad-tel" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" value="'+E(P.tel||'')+'" placeholder="Ej: 3001234567"><p class="adhint">La tienda te escribe aquí si necesita algo de tu pedido.</p><h3 class="adsh">Tu dirección principal</h3>':'')+/* v332: teléfono (dato personal); v333: separado por secciones */
   (w!=='main'?'<label for="ad-lb">Nombre de esta dirección</label><input id="ad-lb" type="text" maxlength="30" value="'+E(a.lb||(w==='alt'?'Trabajo':''))+'" placeholder="Ej: Trabajo, Casa de mi mamá">':'')+
   '<label for="ad-zone">Barrio o corregimiento</label><input id="ad-zone" type="text" maxlength="40" value="'+E(a.zone||'')+'" placeholder="Ej: Centro">'+
   '<label for="ad-dir">Dirección</label><input id="ad-dir" type="text" maxlength="120" autocomplete="street-address" value="'+E(a.dir||'')+'" placeholder="Ej: Calle 5 # 3-20">'+
@@ -4322,9 +4326,9 @@ window.adrForm=function(w,done,req){var a=w==='tmp'?(F&&F.tmp)||{}:(ld()[w]||{})
   '<div class="admap" id="ad-map"></div><p id="ad-st" class="adno"></p>'+
   '<div class="adbtns"><button type="button" class="btn ghost" data-adgeo="1">Usar mi ubicación actual</button></div>'+
   '<label class="adconf"><input type="checkbox" id="ad-conf"'+(a.dir||a.plus?' checked':'')+'><span>Sí, el mapa muestra mi casa</span></label>'+
-  (main?'<label class="adconf"><input type="checkbox" id="ad-biz"'+(P.biz?' checked':'')+'><span>Este teléfono y esta dirección también son de mi negocio</span></label><div id="ad-bizx"'+(P.biz?'':' hidden')+'><p class="adhint">Cuando registres tu tienda aparecerán ya llenos y no tendrás que escribirlos otra vez.</p><div id="ad-t2w"'+(P.tel2?'':' hidden')+'><label for="ad-tel2">Otro teléfono del negocio (opcional)</label><input id="ad-tel2" type="tel" inputmode="tel" maxlength="20" value="'+E(P.tel2||'')+'" placeholder="Ej: 3157654321"></div><button type="button" class="btn ghost" data-w2="ad"'+(P.tel2?' hidden':'')+'>+ Agregar otro teléfono del negocio</button></div>':'')+/* v332 */
+  (main?'<div class="adbiz"><h3 class="adsh">¿Tienes un negocio? <small>(opcional)</small></h3><p class="adhint">Si tu negocio usa este mismo teléfono y esta dirección, márcalo y al registrar tu tienda ya aparecerán llenos.</p><label class="adconf"><input type="checkbox" id="ad-biz"'+(P.biz?' checked':'')+'><span>Usar este teléfono y esta dirección para mi negocio</span></label><div id="ad-bizx"'+(P.biz?'':' hidden')+'><div id="ad-t2w"'+(P.tel2?'':' hidden')+'><label for="ad-tel2">Otro teléfono del negocio (opcional)</label><input id="ad-tel2" type="tel" inputmode="tel" maxlength="20" value="'+E(P.tel2||'')+'" placeholder="Ej: 3157654321"></div><button type="button" class="btn ghost" data-w2="ad"'+(P.tel2?' hidden':'')+'>+ Agregar otro teléfono del negocio</button></div></div>':'')+/* v332; v333: recuadro aparte para el negocio */
   (w==='tmp'&&S.user?'<label style="display:flex;gap:10px;align-items:center;margin-top:6px"><input type="checkbox" id="ad-keep" style="width:22px;height:22px"> Guardarla como mi segunda dirección</label>':'')+
-  '<p class="err" id="ad-err" role="alert"></p><div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-adsave="1">Guardar dirección</button>'+(req&&main?'':'<button type="button" class="btn ghost" data-act="close">Cancelar</button>')+'</div>');
+  '<p class="err" id="ad-err" role="alert"></p><div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-adsave="1">'+(main?'Guardar mis datos':'Guardar dirección')/* v333 */+'</button>'+(req&&main?'':'<button type="button" class="btn ghost" data-act="close">Cancelar</button>')+'</div>');
  if(req&&main){var ov=document.getElementById('ov');if(ov)ov.dataset.lock='1'}
  setTimeout(gmap,60)};
 /* mapa de Google dentro del formulario (no se mueve el pin: muestra el lugar buscado) */
