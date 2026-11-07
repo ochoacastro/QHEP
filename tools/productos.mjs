@@ -62,7 +62,7 @@ const S = {}; for (const s of stores) { const id = s.id || s._doc; if (okId(id) 
 let n = 0;
 for (const p of prods) {
   const sid = p.sid, s = S[sid]; if (!s || !okId(p.id) || !p.name) continue;
-  const base = SITE + 'p/' + sid + '/' + p.id, go = SITE + '#/p/' + encodeURIComponent(sid) + '/' + encodeURIComponent(p.id), main0 = pimgs(p)[0];
+  const base = SITE + 'p/' + sid + '/' + p.id, go = SITE + '?producto=' + encodeURIComponent(sid) + '/' + encodeURIComponent(p.id)/* v304: formato sin «#» */, main0 = pimgs(p)[0];
   const desc = (p.out ? 'Agotado. ' : '') + 'Vendido por ' + s.name + ' en Mi Pradera, Pradera (Valle del Cauca).';
   put(path.join(OUT, sid, p.id + '.html'), page({ title: p.name + ' – ' + money(p.price), desc, url: base + '.html', img: imgUrl(main0, sid + '-' + p.id), go, name: p.name, price: p.price, store: s.name }));
   n++;
@@ -70,7 +70,7 @@ for (const p of prods) {
   for (const c of csv(p.color)) {
     const ci = (Array.isArray(p.cimgs) ? p.cimgs : []).find(x => x && x.c === c), im = ci && (ci.i || (Array.isArray(ci.g) && ci.g[0])); if (!im) continue;
     const v = vId(p, c);
-    put(path.join(OUT, sid, p.id + '-' + v + '.html'), page({ title: p.name + ' (' + c + ') – ' + money(p.price), desc, url: base + '-' + v + '.html', img: imgUrl(im, sid + '-' + p.id + '-' + v), go: go + '?v=' + v, name: p.name, price: p.price, store: s.name, color: c }));
+    put(path.join(OUT, sid, p.id + '-' + v + '.html'), page({ title: p.name + ' (' + c + ') – ' + money(p.price), desc, url: base + '-' + v + '.html', img: imgUrl(im, sid + '-' + p.id + '-' + v), go: go + '&v=' + v, name: p.name, price: p.price, store: s.name, color: c }));
     n++
   }
 }
