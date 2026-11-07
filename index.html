@@ -3270,7 +3270,9 @@ html.dark .jobt .jobok{color:#86efac!important}
    La plantilla llena sola el título, la descripción, el precio (salario) y el texto del aviso. No cambia cómo se guarda el anuncio
    (no hacen falta reglas nuevas). Si algo falla, borra este <script> y su <style>. */
 (function(){
-var CT=['Término indefinido','Término fijo','Obra o labor','Prestación de servicios','Por días','Temporal o por temporada','Aprendizaje (SENA)'],
+var CT=['Término indefinido','Término fijo','Obra o labor','Prestación de servicios','Aprendizaje (SENA)'],/* v325: formal */
+ CTI=['Por días','Por horas','Por obra o trabajo','Temporal o por temporada','Prestación de servicios'],/* v325: informal */
+ UN=['por día','por semana','por quincena','por mes','por obra'],
  JO=['Tiempo completo','Medio tiempo','Por turnos','Fines de semana','Por días','Nocturna'],
  ED=['No se requieren estudios','Primaria','Bachiller','Técnico','Tecnólogo','Profesional','Especialización o posgrado'],
  EX=['Sin experiencia','6 meses','1 año','2 años','3 años o más','5 años o más'],
@@ -3284,14 +3286,21 @@ function inp(id,ml,ph,t){return '<input id="'+id+'" type="'+(t||'text')+'" maxle
 function html(k){var of=k==='oemp';
  return '<div class="jobt" id="jobt" data-k="'+k+'"><h3>'+(of?'Plantilla de oferta de empleo':'Plantilla para buscar empleo')+'</h3>'+
  '<p class="muted" style="margin:0;font-size:13.5px">'+(of?'Llena estos datos y el anuncio se escribe solo, ordenado como en los portales de empleo.':'Cuenta qué trabajo buscas y qué sabes hacer. El anuncio se escribe solo.')+'</p>'+
- '<div class="jobl" role="group" aria-label="Tipo de plantilla"><button type="button" data-jobl="b" aria-pressed="'+(lvl==='b')+'">Básica</button><button type="button" data-jobl="c" aria-pressed="'+(lvl==='c')+'">Completa (con estudios)</button></div>'+
+ '<div class="jobl" role="group" aria-label="Tipo de empleo"><button type="button" data-jobl="b" aria-pressed="'+(lvl==='b')+'">Informal</button><button type="button" data-jobl="c" aria-pressed="'+(lvl==='c')+'">Formal</button></div>'+
+ '<p class="muted" style="margin:6px 0 0;font-size:13.5px">'+(lvl==='c'?'Formal: con contrato laboral, salario mensual, prestaciones y estudios.':'Informal: oficios y trabajos por días, por horas o por obra, sin contrato laboral.')+'</p>'+/* v325 */
  (of?
   '<label for="jb-cg">Cargo o puesto *</label>'+inp('jb-cg',50,'Ej: Auxiliar de cocina, Vendedor de mostrador')+
   '<label for="jb-em">Empresa o negocio (opcional)</label>'+inp('jb-em',40,'Ej: Panadería La Espiga')+
-  '<div class="jobr"><div><label for="jb-ct">Tipo de contrato</label>'+sel('jb-ct',CT)+'</div><div><label for="jb-jo">Jornada</label>'+sel('jb-jo',JO)+'</div></div>'+
+  '<div class="jobr"><div><label for="jb-ct">'+(lvl==='c'?'Tipo de contrato':'Forma de trabajo')+'</label>'+sel('jb-ct',lvl==='c'?CT:CTI)+'</div><div><label for="jb-jo">Jornada</label>'+sel('jb-jo',JO)+'</div></div>'+
   '<div class="jobr"><div><label for="jb-ho">Horario</label>'+inp('jb-ho',40,'Ej: Lunes a sábado, 7 a.m. a 4 p.m.')+'</div><div><label for="jb-va">Vacantes</label>'+inp('jb-va',3,'1','number')+'</div></div>'+
-  '<label for="jb-sa">Salario mensual</label><input id="jb-sa" type="text" inputmode="numeric" data-money placeholder="Ej: 1.423.500"><div class="jobb"><label><input type="checkbox" id="jb-ac"> A convenir</label><label><input type="checkbox" id="jb-sm"> Salario mínimo</label></div>'+
-  '<label for="jb-fu">Funciones principales *</label><textarea id="jb-fu" rows="3" maxlength="160" placeholder="Ej: Preparar alimentos, mantener la cocina limpia y atender pedidos"></textarea>'
+  (lvl==='c'?'<label for="jb-sa">Salario mensual</label><input id="jb-sa" type="text" inputmode="numeric" data-money placeholder="Ej: 1.750.905"><div class="jobb"><label><input type="checkbox" id="jb-ac"> A convenir</label><label><input type="checkbox" id="jb-sm"> Salario mínimo</label></div>'
+  :'<div class="jobr"><div><label for="jb-sa">Pago</label><input id="jb-sa" type="text" inputmode="numeric" data-money placeholder="Ej: 70.000"></div><div><label for="jb-un">Cada cuánto</label>'+sel('jb-un',UN,'Elige…')+'</div></div><div class="jobb"><label><input type="checkbox" id="jb-ac"> A convenir</label></div>')+/* v325 */
+  '<label for="jb-fu">Funciones principales *</label><textarea id="jb-fu" rows="3" maxlength="160" placeholder="Ej: Preparar alimentos, mantener la cocina limpia y atender pedidos"></textarea>'+
+  /* v325: dónde se entregan las hojas de vida */
+  '<p style="margin:14px 0 2px;font-weight:700">¿Cómo reciben las hojas de vida?</p><p class="muted" style="margin:0 0 4px;font-size:13.5px">Llena una o varias.</p>'+
+  '<div class="jobb"><label><input type="checkbox" id="jb-hw"> Por WhatsApp</label></div>'+inp('jb-hwn',10,'Número, si es otro distinto al del anuncio','tel')+
+  '<label for="jb-hce">Por correo</label>'+inp('jb-hce',60,'Ej: empleos@miempresa.com','email')+
+  '<label for="jb-hpd">Personalmente en</label>'+inp('jb-hpd',80,'Ej: Calle 5 # 3-20, de lunes a viernes de 8 a 12')
  :
   '<label for="jb-cg">Cargo u oficio que buscas *</label>'+inp('jb-cg',50,'Ej: Mesero, conductor, auxiliar contable')+
   '<div class="jobr"><div><label for="jb-jo">Jornada que buscas</label>'+sel('jb-jo',JO)+'</div><div><label for="jb-xp">Experiencia</label>'+sel('jb-xp',EX)+'</div></div>'+
@@ -3312,9 +3321,11 @@ function fdate(s){try{var d=new Date(s+'T12:00:00');if(isNaN(d))return '';return
 function money(s){var n=Number(String(s).replace(/\D/g,''));return n?'$'+n.toLocaleString('es-CO'):''}
 /* arma título, descripción y salario a partir de la plantilla */
 function gen(){var w=$1('jobt');if(!w)return;var of=w.dataset.k==='oemp',adv=lvl==='c',cg=v('jb-cg');
- var L=[],sa=ck('jb-ac')?'a convenir':ck('jb-sm')?'salario mínimo':money(v('jb-sa'));
- if(of){if(v('jb-em'))L.push('Empresa: '+v('jb-em'));var cj=[v('jb-ct')&&'Contrato: '+v('jb-ct'),v('jb-jo')&&'Jornada: '+v('jb-jo')].filter(Boolean);if(cj.length)L.push(cj.join(' · '));
-  if(v('jb-ho'))L.push('Horario: '+v('jb-ho'));if(sa)L.push('Salario: '+sa);var va=+v('jb-va');if(va>1)L.push('Vacantes: '+va);}
+ var L=[],sa=ck('jb-ac')?'a convenir':ck('jb-sm')?'salario mínimo':money(v('jb-sa'));if(sa&&!adv&&sa!=='a convenir'&&v('jb-un'))sa+=' '+v('jb-un');/* v325 */
+ L.push(adv?'Empleo formal':'Trabajo informal');
+ if(of){if(v('jb-em'))L.push('Empresa: '+v('jb-em'));var cj=[v('jb-ct')&&(adv?'Contrato: ':'Forma de trabajo: ')+v('jb-ct'),v('jb-jo')&&'Jornada: '+v('jb-jo')].filter(Boolean);if(cj.length)L.push(cj.join(' · '));
+  if(v('jb-ho'))L.push('Horario: '+v('jb-ho'));if(sa)L.push((adv?'Salario: ':'Pago: ')+sa);var va=+v('jb-va');if(va>1)L.push('Vacantes: '+va);
+  var hv=[(ck('jb-hw')||v('jb-hwn'))?'por WhatsApp'+(v('jb-hwn').replace(/\D/g,'')?' al '+v('jb-hwn').replace(/\D/g,''):''):'',v('jb-hce')?'al correo '+v('jb-hce'):'',v('jb-hpd')?'personalmente en '+v('jb-hpd'):''].filter(Boolean);if(hv.length)L.push('Hojas de vida: '+hv.join(' · '))/* v325 */;}
  else{var bj=[v('jb-jo')&&'Jornada: '+v('jb-jo'),v('jb-xp')&&'Experiencia: '+v('jb-xp')].filter(Boolean);if(bj.length)L.push(bj.join(' · '));if(sa)L.push('Aspiración salarial: '+sa)}
  var fu=v('jb-fu');
  if(adv){var es=[v('jb-ed')&&v('jb-ed')!==ED[0]?v('jb-ed'):'',v('jb-ti')].filter(Boolean).join(' en ').replace(/^(Técnico|Tecnólogo|Profesional) en \1/,'$1');
@@ -3324,7 +3335,7 @@ function gen(){var w=$1('jobt');if(!w)return;var of=w.dataset.k==='oemp',adv=lvl
    if(v('jb-fl')&&fdate(v('jb-fl')))L.push('Recibe hojas de vida hasta el '+fdate(v('jb-fl')))}
   else if(ck('jb-di'))L.push('Disponibilidad inmediata')}
  /* orden: datos del puesto, funciones y luego lo demás; si no cabe en 400, se acortan las funciones y se quitan primero los datos menos importantes */
- var lab=of?'Funciones: ':'Sé hacer: ',cut=of?(L.findIndex(function(x){return /^(Vacantes|Estudios|Experiencia|Licencia|Conocimientos|Beneficios|Recibe)/.test(x)})):(L.findIndex(function(x){return /^(Estudios|Licencia|Conocimientos|Disponibilidad)/.test(x)}));if(cut<0)cut=L.length;
+ var lab=of?'Funciones: ':'Sé hacer: ',cut=of?(L.findIndex(function(x){return /^(Vacantes|Hojas de vida|Estudios|Experiencia|Licencia|Conocimientos|Beneficios|Recibe)/.test(x)})):(L.findIndex(function(x){return /^(Estudios|Licencia|Conocimientos|Disponibilidad)/.test(x)}));if(cut<0)cut=L.length;
  var drop=[],OPT=['Conocimientos','Recibe','Beneficios','Licencia','Vacantes','Horario','Empresa'];
  var avail=function(){return 400-L.join('\n').length-(L.length?1:0)-lab.length};
  for(var oi=0;fu&&avail()<Math.min(60,fu.length)&&oi<OPT.length;oi++){var ix=L.findIndex(function(x){return x.indexOf(OPT[oi])===0});if(ix>=0){drop.push(OPT[oi]==='Recibe'?'fecha límite':OPT[oi].toLowerCase());L.splice(ix,1);if(ix<cut)cut--}}
@@ -3345,8 +3356,11 @@ document.addEventListener('change',function(e){var t=e.target;if(!t)return;
  else if(t.id==='cm-op'||t.id==='cm-cat')setTimeout(sync,0);
  if(t.closest&&t.closest('#jobt')){if(t.id==='jb-ac'&&t.checked){var s=$1('jb-sm');if(s)s.checked=false}if(t.id==='jb-sm'&&t.checked){var a=$1('jb-ac');if(a)a.checked=false}gen()}},true);
 document.addEventListener('input',function(e){if(e.target&&e.target.closest&&e.target.closest('#jobt'))gen()},true);
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-jobl]');if(!b)return;e.preventDefault();lvl=b.dataset.jobl;
- [].forEach.call(document.querySelectorAll('#jobt [data-jobl]'),function(x){x.setAttribute('aria-pressed',String(x.dataset.jobl===lvl))});var a=document.querySelector('#jobt .jobadv');if(a)a.hidden=lvl!=='c';gen()});
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-jobl]');if(!b)return;e.preventDefault();if(lvl===b.dataset.jobl)return;lvl=b.dataset.jobl;
+ /* v325: informal y formal tienen campos distintos: se vuelve a armar la plantilla conservando lo escrito */
+ var w=$1('jobt'),keep={};if(w){[].forEach.call(w.querySelectorAll('input[id],select[id],textarea[id]'),function(x){keep[x.id]=x.type==='checkbox'?x.checked:x.value});[].forEach.call(w.querySelectorAll('[data-jbb]'),function(x){keep['b'+x.dataset.jbb]=x.checked});var k=w.dataset.k;w.insertAdjacentHTML('beforebegin',html(k));w.remove();
+  var n=$1('jobt');Object.keys(keep).forEach(function(id){var x=id.charAt(0)==='b'&&/^b\d+$/.test(id)?n.querySelector('[data-jbb="'+id.slice(1)+'"]'):$1(id);if(!x)return;if(x.type==='checkbox')x.checked=keep[id];else if(x.tagName!=='SELECT'||[].some.call(x.options,function(o){return o.value===keep[id]||o.text===keep[id]}))x.value=keep[id]});
+  try{var f=$1(b.dataset.jobl==='c'?'jb-ed':'jb-cg');if(!f){}}catch(x){}var nb=n.querySelector('[data-jobl="'+lvl+'"]');if(nb)nb.focus()}gen()});
 new MutationObserver(function(){if($1('cm-t')&&$1('cm-op'))sync()}).observe(document.documentElement,{childList:true,subtree:true});
 window.jobGen=gen;
 })();
@@ -4350,6 +4364,30 @@ window.comErr=function(e,que){var u=null;try{u=QH.authCur()}catch(x){}
  if(!u||u.isAnonymous)return toast('Tu sesión se cerró: entra de nuevo con tu correo y tu clave para '+que+' el anuncio.');
  if(e&&e.code==='permission-denied')return toast('No se pudo '+que+': Firebase no te reconoce como dueño de este anuncio. Cierra sesión y vuelve a entrar; si sigue igual, avisa al administrador.');
  toast('No se pudo '+que+'. Revisa tu internet e inténtalo de nuevo.')};
+</script>
+<script id="v324-boton-empleo">
+/* v324: botones «Empleo informal» y «Empleo formal» (v325) al lado de «Publicar obituario» (Avisos de la comunidad y Clasificados).
+   Abre el formulario de Clasificados con «Ofrezco empleo», la categoría Empleo y la plantilla de empleo (v288) ya elegidos.
+   Desde la portada pasa al panel y allí se completa solo. Si algo falla, borra este bloque. */
+(function(){
+var IC='<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="7"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>';
+var K='qh_emp_go';
+function paint(){var l=document.querySelectorAll('[data-obi]');for(var i=0;i<l.length;i++){var b=l[i];if(b.closest('.modal'))continue;var nx=b.nextElementSibling;if(nx&&nx.hasAttribute&&nx.hasAttribute('data-empb'))continue;
+ b.insertAdjacentHTML('afterend','<button type="button" class="btn ghost obi-b emp-b" data-empb="b">'+IC+'Empleo informal</button><button type="button" class="btn ghost obi-b emp-b" data-empb="c">'+IC+'Empleo formal</button>')}}
+var pt=0;new MutationObserver(function(){if(!pt){pt=1;requestAnimationFrame(function(){pt=0;paint();fill()})}}).observe(document.documentElement,{childList:true,subtree:true});
+function want(){try{return sessionStorage.getItem(K)||''}catch(e){return ''}}
+function done(){try{sessionStorage.removeItem(K)}catch(e){}}
+function fill(){var lv=want();if(!lv)return;var op=document.getElementById('cm-op');if(!op)return;done();
+ op.value='oemp';op.dispatchEvent(new Event('change',{bubbles:true}));
+ setTimeout(function(){var c=document.getElementById('cm-cat');if(c&&c.value!=='emp'&&[].some.call(c.options,function(o){return o.value==='emp'})){c.value='emp';c.dispatchEvent(new Event('change',{bubbles:true}))}
+  var t=document.querySelector('#ov [data-act="cmxPick"][data-v="txt"]');if(t)t.click();
+  setTimeout(function(){var l=document.querySelector('#jobt [data-jobl="'+(lv==='c'?'c':'b')+'"]');if(l&&l.getAttribute('aria-pressed')!=='true')l.click();try{if(typeof cmStep==='function')cmStep(2)}catch(x){}var j=document.getElementById('jobt');if(j)j.scrollIntoView({block:'start'})},120)},150)}
+addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-empb]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();
+ try{sessionStorage.setItem(K,b.dataset.empb==='c'?'c':'b')}catch(x){}
+ if(typeof MODE!=='undefined'&&MODE==='index'){location.href=PANEL_URL+'#/clasificado';return}
+ if(typeof MODE!=='undefined'&&MODE==='admin'){done();return toast('Los anuncios se publican desde el panel de vendedores')}
+ try{closeModal(1)}catch(x){}if(typeof comForm==='function')comForm();setTimeout(fill,80)},true);
+})();
 </script>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
