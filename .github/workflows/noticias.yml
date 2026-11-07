@@ -20,15 +20,11 @@ jobs:
           node-version: '20'
       - name: Crear páginas de noticias
         run: node tools/noticias.mjs
-      # v291: páginas de productos (foto, nombre y precio para la vista previa al compartir en WhatsApp)
-      - name: Crear páginas de productos
-        run: node tools/productos.mjs
-        continue-on-error: true
       - name: Guardar cambios
         run: |
-          git add -A noticias sitemap.xml p
+          git add -A noticias sitemap.xml
           if git diff --cached --quiet; then echo "Sin cambios"; exit 0; fi
           git config user.name "Mi Pradera (noticias)"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Noticias y productos: páginas, archivo, RSS y sitemap actualizados"
+          git commit -m "Noticias: páginas, archivo, RSS y sitemap actualizados"
           git push
