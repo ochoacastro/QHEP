@@ -4383,6 +4383,78 @@ var asked=0;setInterval(function(){try{if(asked||MODE==='admin'||!S.user||docume
 /* el campo de barrio usa la lista de barrios y corregimientos (v317) */
 })();
 </script>
+<script id="v338-insignias">
+/* v338: insignias sin emoji. «Vecino verificado»: sello verde con chulo (dibujo SVG). Casero y Destacado con iconos de línea. */
+window.VFI={
+ seal:'<svg class="vfs" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m8.5 12.2 2.4 2.4 4.6-4.8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v12h14V9"/><path d="M10 21v-6h4v6"/></svg>',
+ star:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>'};
+</script>
+<style id="v338-insignias-css">
+.vf.vfb,.banner .vf.vfb{display:inline-flex!important;align-items:center;gap:5px;background:#ECFDF3!important;color:#065F46!important;border:1px solid #34D399;padding:2px 9px 2px 3px!important;font-size:12.5px;font-weight:800;letter-spacing:.01em;line-height:1.5;white-space:nowrap;border-radius:0!important;vertical-align:middle}
+.vf.vfb .vfs{width:18px;height:18px;flex:none;color:#059669}
+.vf.vfi{display:inline-flex!important;align-items:center;gap:5px;color:#fff!important;white-space:nowrap;vertical-align:middle}
+.vf.vfi svg{width:14px;height:14px;flex:none}
+html.dark .vf.vfb{filter:none!important;background:#052e1f!important;color:#6EE7B7!important;border-color:#10B981!important}
+html.dark .vf.vfb .vfs{color:#10B981}
+</style>
+<script id="v337-ficha-tienda">
+/* v337: la información de la tienda (página de la tienda) en una ficha ordenada: encabezado con nombre, descripción,
+   etiquetas, sellos y calificación; luego filas con icono (ubicación, horario con estado abierto/cerrado, teléfono,
+   domicilios y medios de pago). La página de la tienda llama a shopInfo(s): no borres este bloque. */
+(function(){
+var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var SV=function(d){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>'};
+var IC={pin:SV('<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>'),
+ clock:SV('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
+ phone:SV('<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>'),
+ truck:SV('<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>'),
+ card:SV('<rect width="20" height="14" x="2" y="5" rx="0"/><path d="M2 10h20"/>')};
+function row(ic,lb,val,extra){return '<div class="si-r"><span class="si-i">'+ic+'</span><div class="si-v"><div class="si-l">'+lb+(extra||'')+'</div>'+val+'</div></div>'}
+function txt(h){var d=document.createElement('div');d.innerHTML=h||'';return d.textContent.replace(/^[\s·•]+/,'').trim()}
+window.shopInfo=function(s){var o='<div class="sinfo">';
+ o+='<div class="si-hd"><h3>'+E(s.name)+'</h3>'+(s.desc?'<p>'+E(s.desc)+'</p>':'')+
+  ((s.tags||[]).length?'<div class="si-tags">'+s.tags.map(function(t){return '<span>#'+E(t)+'</span>'}).join('')+'</div>':'')+
+  '<div class="si-bd">'+badge(s)+' '+rateLine(s)+'</div>'+socHTML(s)+'</div>';
+ var rows='';
+ if(s.addr||s.zone)rows+=row(IC.pin,'Ubicación','<div class="si-t">'+E(s.addr||s.zone)+'</div>'+(s.addr&&s.zone?'<small>Barrio '+E(s.zone)+'</small>':''));
+ var ht=hoursTxt(s);if(ht){var st=txt(openBadge(s)),on=/abierto/i.test(st);
+  var L=String(ht).split(' · ').map(function(x){var k=x.indexOf(': ');return k>0?'<li><b>'+E(x.slice(0,k))+'</b><span>'+E(x.slice(k+2))+'</span></li>':'<li><span>'+E(x)+'</span></li>'}).join('');
+  rows+=row(IC.clock,'Horario','<ul class="si-h">'+L+'</ul>',st?'<em class="si-st '+(on?'on':'off')+'">'+E(st)+'</em>':'')}
+ if(s.wa2)rows+=row(IC.phone,'Otro teléfono','<a class="si-t" href="tel:'+E(s.wa2)+'">'+E(s.wa2)+'</a>');
+ if(s.delivery)rows+=row(IC.truck,'Domicilios','<div class="si-t">'+E(s.delivery)+E(delFeeTxt(s))+'</div>');
+ var pt=paysTxt(s);if(pt)rows+=row(IC.card,'Medios de pago','<div class="si-pay">'+pt.split(' · ').map(function(x){return '<span>'+E(x)+'</span>'}).join('')+'</div>');
+ if(rows)o+='<div class="si-rows">'+rows+'</div>';
+ if(s.hidden)o+='<p class="si-hid">Oculta por el administrador</p>';
+ return o+'</div>'};
+})();
+</script>
+<style id="v337-ficha-css">
+.banner.promo.sinfo-b{display:block;padding:0;background:#fff;border:1px solid #d2d2d7;border-top:4px solid var(--c,#0071e3);border-radius:0!important;color:var(--ink,#1d1d1f)}
+.sinfo{width:100%}
+.sinfo-b>:not(.sinfo){margin-left:16px!important;margin-right:16px!important;width:auto!important;box-sizing:border-box}.sinfo-b>:last-child:not(.sinfo){margin-bottom:16px!important}.sinfo-b>.acts{padding-top:14px;border-top:1px solid #e5e5ea}html.dark .sinfo-b>.acts{border-color:#3a3a3c!important}
+.si-hd{padding:16px 16px 14px;border-bottom:1px solid #e5e5ea}
+.si-hd h3{margin:0;font-size:20px;line-height:1.25}
+.si-hd p{margin:4px 0 0;font-size:15px;color:#48484a}
+.si-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.si-tags span{font-size:12.5px;font-weight:700;padding:3px 8px;background:#f2f3f6;color:#3a3a3c}
+.si-bd{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;font-size:14px}.si-bd .vf{margin:0}
+.si-hd .soc{margin-top:10px}
+.si-rows{padding:2px 16px}
+.si-r{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e5e5ea}.si-r:last-child{border-bottom:0}
+.si-i{flex:none;width:36px;height:36px;display:grid;place-items:center;background:#eef4ff;color:#0071e3}.si-i svg{width:20px;height:20px}
+.si-v{min-width:0;flex:1}
+.si-l{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#6e6e73;margin:1px 0 3px}
+.si-t{font-size:15.5px;font-weight:600;color:inherit}a.si-t{color:#0071e3;text-decoration:none}
+.si-v small{display:block;font-size:13.5px;color:#6e6e73;margin-top:1px}
+.si-st{font-style:normal;font-size:11.5px;letter-spacing:0;text-transform:none;padding:2px 8px;font-weight:800}.si-st.on{background:#dcfce7;color:#166534}.si-st.off{background:#fee2e2;color:#991b1b}
+.si-h{list-style:none;margin:0;padding:0;display:grid;gap:4px}.si-h li{display:grid;grid-template-columns:minmax(76px,auto) 1fr;gap:10px;font-size:14.5px}.si-h b{font-weight:700}.si-h span{color:#3a3a3c}
+.si-pay{display:flex;flex-wrap:wrap;gap:6px}.si-pay span{font-size:13.5px;font-weight:700;padding:4px 10px;border:1px solid #d2d2d7}
+.si-hid{margin:0;padding:10px 16px;background:#fee2e2;color:#991b1b;font-weight:800}
+html.dark .banner.promo.sinfo-b{background:#1c1c1e!important;border-color:#3a3a3c!important;color:#f5f5f7!important}
+html.dark .si-hd,html.dark .si-r{border-color:#3a3a3c!important}html.dark .si-hd p,html.dark .si-h span{color:#d1d1d6!important}
+html.dark .si-tags span{background:#2c2c2e!important;color:#e5e5ea!important}html.dark .si-i{background:#0a2540!important;color:#64a8ff!important}
+html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64a8ff!important}
+</style>
 <script id="v335-admin-tienda">
 /* v335: el administrador edita los datos de contacto de las tiendas de cada usuario (Usuarios → tarjeta de la persona):
    teléfono / WhatsApp, otro teléfono, barrio o corregimiento, dirección y código plus de Google Maps (con él se ubica en el mapa).
@@ -4889,7 +4961,7 @@ const ageGate=s=>{const bet=ageKind(s)==='bet';return `<section class="agegate" 
 const vis=o=>!o.hidden&&(!expired(o)||adm||S.mine.includes(o.id)||S.myServ.includes(o.id)||S.myAds.includes(o.id));
 /* v120 — destacado automático (fexp = fecha de fin). v208: solo con el rol Comerciante de 6 meses o más (acc.mercF); no se vende aparte. El admin puede destacar a mano */
 const isFeat=o=>!!(o.feat||(o.fexp||0)>Date.now());
-const badge=o=>(o.kind==='casero'?'<span class="vf" style="background:#0F766E">🏠 Casero</span>':'')+(isFeat(o)?'<span class="vf" style="background:#B45309">★ Destacado</span>':'')+(o.verified?'<span class="vf">✓ Vecino verificado</span>':'');
+const badge=o=>(o.kind==='casero'?'<span class="vf vfi" style="background:#0F766E">'+(window.VFI?VFI.home:'')+'Casero</span>'/* v338: sin emoji */:'')+(isFeat(o)?'<span class="vf vfi" style="background:#B45309">'+(window.VFI?VFI.star:'')+'Destacado</span>':'')+(o.verified?'<span class="vf vfb" title="Vecino verificado por Mi Pradera">'+(window.VFI?VFI.seal:'')+'<span>Vecino verificado</span></span>'/* v338: insignia */:'');
 const featFirst=l=>l.filter(isFeat).concat(l.filter(o=>!isFeat(o)));
 const featEnd=()=>{const p=S.plan;return p&&p.acc?Number(p.acc.mercF)||0:0};
 const paidEnd=(k,type,cat)=>{if(!S.plan)return 0;const e=featEnd();return e>Date.now()?e:0};
@@ -5290,7 +5362,7 @@ return `<div class="stsw"><div class="ctop stb"><button class="rb" data-act="hom
 <div class="sname" style="--c:${c[2]}"><span class="lgc"><span class="lg2">${avatar(s,1)}</span>${QH.online(s.ownerKey)?'<span class="lgo">En línea</span>':''}</span><h2>${esc(s.name)}</h2></div>
 <div class="icard"><div><span>Horario</span><b>${esc(ob||hoursTxt(s)||'—')}</b></div><div>${sm==='rec'?`<span>${myLL&&hasPin(s)?'Distancia':'Barrio'}</span><b>${esc(myLL&&hasPin(s)?kmTxt(kmTo(s)):s.zone||'—')}</b>`:`<span>Domicilios</span><b>${dl}</b>`}</div><div><span>Calificación ★</span><b>${rr.length?avg(rr).toFixed(1)+' <small>('+rr.length+')</small>':'Nueva'}</b></div></div>
 
-<div class="banner promo" style="--c:${c[2]}"><div><div>${esc(s.name)}</div><div>${esc(s.desc)}</div>${(s.tags||[]).length?`<div class="tg">${s.tags.map(t=>'#'+esc(t)).join(' ')}</div>`:''}${socHTML(s)}${s.zone?`<div>Barrio: ${esc(s.zone)}</div>`:''}${hoursTxt(s)?`<div>Horario: ${esc(hoursTxt(s))} ${openBadge(s)}</div>`:''}${s.addr?`<div>Dirección: ${esc(s.addr)}</div>`:''}${s.wa2?`<div>Otro teléfono: <a href="tel:${esc(s.wa2)}">${esc(s.wa2)}</a></div>`:''}${s.delivery?`<div>Domicilios: ${esc(s.delivery)}${delFeeTxt(s)}</div>`:''}${paysTxt(s)?`<div>Pagos: ${esc(paysTxt(s))}</div>`:''}<div>${badge(s)} ${rateLine(s)}</div>${s.hidden?'<div><b>Oculta por el administrador</b></div>':''}</div>${mine?planNote(s):''}${mine&&!shopPaid(s)&&!(Number(s.pexp)>0)?`<div class="shpb"><b>Registro básico gratis</b><span>Tu negocio ya aparece con su nombre, logo, dirección, teléfono y descripción. Para subir <b>imagen de portada</b> y <b>productos</b> con fotos y precios, activa el rol Comerciante.</span><button type="button" class="btn pink" data-act="shopPro">Ver el rol Comerciante</button></div>`:''}<div class="acts acts-grid">${mine?`<button class="btn" data-act="addProd">${shopPaid(s)?'':QIC.lock+' '}+ Producto</button><button class="btn ghost" data-act="mcats">Categorías</button><button class="btn ghost" data-act="chLogo">Logo</button><button class="btn ghost" data-act="chCover">${shopPaid(s)?'':QIC.lock+' '}Imagen de portada</button>${s.cover?'<button class="btn ghost" data-act="delCover">Quitar portada</button>':''}<button class="btn ghost" data-act="editShop">Editar tienda</button><button class="btn ghost" data-act="delShop">Eliminar tienda</button>`:`<button class="btn ghost" data-act="rate" data-k="store" data-id="${s.id}">★ Calificar</button>`}<button class="btn" data-act="reviews" data-k="store" data-id="${s.id}">Opiniones</button><button class="btn" data-act="card" data-id="${s.id}">Tarjeta digital</button>${mine?'':`<button class="btn ghost" data-act="report" data-k="store" data-id="${s.id}">Reportar</button>`}${s.addr||s.plus||hasPin(s)?`<button class="btn ghost" data-act="showloc" data-id="${s.id}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;margin-right:4px"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Ver ubicación</span></button>`:''}</div></div>
+<div class="banner promo sinfo-b" style="--c:${c[2]}">${shopInfo(s)/* v337: ficha de la tienda organizada */}${mine?planNote(s):''}${mine&&!shopPaid(s)&&!(Number(s.pexp)>0)?`<div class="shpb"><b>Registro básico gratis</b><span>Tu negocio ya aparece con su nombre, logo, dirección, teléfono y descripción. Para subir <b>imagen de portada</b> y <b>productos</b> con fotos y precios, activa el rol Comerciante.</span><button type="button" class="btn pink" data-act="shopPro">Ver el rol Comerciante</button></div>`:''}<div class="acts acts-grid">${mine?`<button class="btn" data-act="addProd">${shopPaid(s)?'':QIC.lock+' '}+ Producto</button><button class="btn ghost" data-act="mcats">Categorías</button><button class="btn ghost" data-act="chLogo">Logo</button><button class="btn ghost" data-act="chCover">${shopPaid(s)?'':QIC.lock+' '}Imagen de portada</button>${s.cover?'<button class="btn ghost" data-act="delCover">Quitar portada</button>':''}<button class="btn ghost" data-act="editShop">Editar tienda</button><button class="btn ghost" data-act="delShop">Eliminar tienda</button>`:`<button class="btn ghost" data-act="rate" data-k="store" data-id="${s.id}">★ Calificar</button>`}<button class="btn" data-act="reviews" data-k="store" data-id="${s.id}">Opiniones</button><button class="btn" data-act="card" data-id="${s.id}">Tarjeta digital</button>${mine?'':`<button class="btn ghost" data-act="report" data-k="store" data-id="${s.id}">Reportar</button>`}${s.addr||s.plus||hasPin(s)?`<button class="btn ghost" data-act="showloc" data-id="${s.id}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;margin-right:4px"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Ver ubicación</span></button>`:''}</div></div>
 ${rr.length?`<h3 class="ptitle rvt">Calificación y opiniones</h3><div class="rvrow">${rr.slice(-3).reverse().map(x=>`<div class="rvc"><div class="rvh"><span class="rva">${esc((x.name||'Vecino').charAt(0).toUpperCase())}</span><div><b>${esc(x.name||'Vecino')}</b>${x.ts?`<small>${new Date(x.ts).toLocaleDateString('es-CO')}</small>`:''}</div>${starsHTML(x.n)}</div>${x.txt?`<p>"${esc(x.txt)}"</p>`:''}</div>`).join('')}</div>`:''}<div id="smap">${mapHTML(s)/* v284: siempre visible */}</div>${crumb(s)}${sectioned(s)?'':`<h3 class="ptitle">${li?'Publicaciones':'Productos'}</h3>`}<div class="${sectioned(s)?'psecs':'grid pgrid'}" style="--c:${c[2]}">${shown(s).length?prodList(s,p=>FASH.includes(s.cat)?fxCard(s,p,mine):`<div class="prod">${mine?`<button class="x" data-act="delProd" data-id="${p.id}" aria-label="Quitar ${esc(p.name)}">✕</button><button class="x" style="right:42px" data-act="editProd" data-id="${p.id}" aria-label="Editar ${esc(p.name)}">✎</button>`:''}<div class="pic">${gal(p).length?`<button class="zoom" data-act="prod" data-id="${p.id}" aria-label="Ver ${esc(p.name)}"><img src="${lbSrc(gal(p)[0])}" alt="${esc(p.name)}">${isYt(gal(p)[0])?'<span class="play big" aria-hidden="true">▶</span>':''}${gal(p).length>1?`<span class="cnt">${pimgs(p).length?pimgs(p).length+(pimgs(p).length===1?' foto':' fotos'):''}${p.video?(pimgs(p).length?' · ':'')+'▶ video':''}</span>`:''}<span class="zi" aria-hidden="true">Ampliar</span></button>`:'<span class="nop">Sin foto</span>'}${cardOv(s,p,null)}</div><h3><button class="plink" data-act="prod" data-id="${p.id}">${esc(p.name)}</button></h3><div class="price">${pOld(p)}${money(p.price)}${s.cat==='Arriendos'?' <small>/ mes</small>':''}</div>${p.vtype?`<div class="meta">${esc(p.vtype)} · ${esc(p.fuel)}</div>`:''}${p.d?`<div class="muted">${esc(p.d)}</div>`:''}${LISTING.includes(s.cat)?`<button class="btn pink" data-act="ask" data-id="${p.id}">Consultar por WhatsApp</button>`:`${p.out?'<span class="soldout">Agotado</span>':`<button class="plus" data-act="add" data-id="${p.id}" aria-label="Agregar ${esc(p.name)} al carrito">+</button>`}`}</div>`):`<div class="empty">${mine?'Tu tienda aún no tiene publicaciones. Agrega la primera con el botón "+ Producto".':(sq.trim()?'No encontramos «'+esc(sq.trim())+'» en esta tienda.':'Esta tienda aún no tiene publicaciones.')}</div>`}</div>`}
 /* ===== v163: NOTICIAS — blog local; publican quienes tengan el acceso "news" activado por código ===== */
 /* v250: cada noticia tiene su página propia (noticias/<titulo>-<id>.html, la crea la acción «Noticias» de GitHub cada hora; mientras tanto 404.html lleva a #/nw/<id>) */
