@@ -73,7 +73,8 @@ const head = (title, d, url, img, extra = '') => `<!doctype html>
 <style>${CSS}</style></head><body><header><a href="/"><img src="/icon-192.png" alt="" width="44" height="44"></a><a href="/">Mi Pradera</a><nav><a href="/noticias/">Noticias</a></nav></header>`;
 const foot = `<footer>Mi Pradera · Lo nuestro, en un solo lugar · <a href="/noticias/feed.xml">RSS</a> · <a href="/privacidad.html">Privacidad</a></footer></body></html>\n`;
 
-const all = (await load()).filter(n => n && /^[A-Za-z0-9_]+$/.test(n.id || '') && n.title && n.ts).sort((a, b) => b.ts - a.ts);
+// v302: las noticias programadas (pub en el futuro) no se publican hasta su hora
+const all = (await load()).filter(n => n && /^[A-Za-z0-9_]+$/.test(n.id || '') && n.title && n.ts && !((Number(n.pub) || 0) > Date.now())).sort((a, b) => b.ts - a.ts);
 const page = n => 'noticias/' + slug(n.title) + '-' + n.id + '.html';
 for (const n of all) { n.url = SITE + page(n); n.cover = imgUrl(n.img, n.id); n.gal = (Array.isArray(n.imgs) ? n.imgs : []).map((u, i) => imgUrl(u, n.id + '-' + (i + 1))).filter(Boolean) }
 for (const n of all) {
