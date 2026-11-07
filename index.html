@@ -3114,6 +3114,11 @@ html.dark .sgd summary i{background:#0a84ff!important}
 .mst .msta .btn{width:100%;min-height:36px!important;margin:0!important;padding:6px 10px!important;font-size:12.5px!important;text-decoration:none;display:flex;align-items:center;justify-content:center}
 .mst .msta .mstd{color:#c0392b!important;border-color:#c0392b!important}
 .mstx{margin:10px 0 0;font-size:13px}
+.msnew{width:100%;margin:0 0 10px!important;min-height:48px}
+.mst .msti{display:grid;place-items:center;width:52px;height:52px;margin:0 0 8px;border:1px solid #dfe4ec;background:#fff;overflow:hidden}
+.mst .msti img{width:100%;height:100%;object-fit:contain}
+.mst .msti b{display:block;font-size:22px;font-weight:800;color:var(--rio,#0071e3)}
+html.dark .mst .msti{border-color:#3b404b!important;background:#fff!important}
 html.dark .mst th{border-bottom-color:#fff!important}
 html.dark .mst td{border-bottom-color:#2f333c!important}
 html.dark .mst .msta .mstd{color:#ff6b5e!important;border-color:#ff6b5e!important}
@@ -3125,11 +3130,12 @@ html.dark .mst .msts.ok{background:#14532d!important;color:#bbf7d0!important}htm
 (function(){
 function E(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function st(s){if(s.hidden)return '<span class="msts adm">Oculta por el administrador</span>';try{if(typeof shopLive==='function'&&!shopLive(s))return '<span class="msts off">Plan vencido: productos ocultos</span>'}catch(e){}return '<span class="msts ok">Visible</span>'}
-window.shopTableHTML=function(ms){var h='<h2>Mis tiendas ('+ms.length+')</h2>';
+window.shopTableHTML=function(ms){var h='<h2>Mis tiendas ('+ms.length+')</h2><button type="button" class="btn pink msnew" data-pn="1" data-act="pub" data-v="shop">+ Nueva tienda</button>'/* v292 */;
  if(!ms.length)return h+'<p class="muted">Aún no tienes tienda.</p>';
  return h+'<div class="mstw"><table class="mst"><thead><tr><th scope="col">Tienda</th><th scope="col">Productos</th><th scope="col">Acciones</th></tr></thead><tbody>'+
   ms.map(function(s){var n=(s.products||[]).length,u='';try{u=storeUrl(s.id)}catch(e){u='#'}
-   return '<tr><td><b>'+E(s.name)+'</b><small>'+E(s.cat||'')+'</small>'+st(s)+'</td><td class="mstn">'+n+'</td><td><div class="msta"><a class="btn ghost" href="'+E(u)+'" target="_blank" rel="noopener">Ver</a><button type="button" class="btn" data-pn="1" data-act="open" data-id="'+E(s.id)+'">Editar</button><button type="button" class="btn ghost mstd" data-shopdel="'+E(s.id)+'">Eliminar</button></div></td></tr>'}).join('')+
+   var lg=s.logo&&/^(https:|data:image\/)/.test(s.logo)?'<img src="'+E(s.logo)+'" alt="" loading="lazy">':'<b>'+E(String(s.name||'?').charAt(0).toUpperCase())+'</b>';/* v292: logo de la tienda */
+   return '<tr><td><span class="msti" aria-hidden="true">'+lg+'</span><b>'+E(s.name)+'</b><small>'+E(s.cat||'')+'</small>'+st(s)+'</td><td class="mstn">'+n+'</td><td><div class="msta"><a class="btn ghost" href="'+E(u)+'" target="_blank" rel="noopener">Ver</a><button type="button" class="btn" data-pn="1" data-act="open" data-id="'+E(s.id)+'">Editar</button><button type="button" class="btn ghost mstd" data-shopdel="'+E(s.id)+'">Eliminar</button></div></td></tr>'}).join('')+
   '</tbody></table></div><p class="muted mstx">Al eliminar una tienda se borran también todos sus productos. No se puede deshacer.</p>'};
 document.addEventListener('click',async function(e){var b=e.target.closest&&e.target.closest('[data-shopdel]');if(!b)return;e.preventDefault();var id=b.getAttribute('data-shopdel');
  try{var s=S.stores.find(function(x){return x.id===id});if(!s||!S.mine.includes(id))return;
