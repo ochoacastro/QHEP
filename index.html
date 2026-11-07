@@ -3387,6 +3387,20 @@ document.addEventListener('click',async function(e){var b=e.target.closest&&e.ta
  try{await navigator.clipboard.writeText(tx+' '+u);toast('Enlace copiado: pégalo en tus redes')}catch(x){toast(u)}});
 })();
 </script>
+<style id="v298-negocios-oscuro">
+/* v298: tarjetas de «Negocios» de la portada: que se distingan del fondo (sobre todo en modo oscuro) */
+.hnegc{border:1px solid #dfe4ec!important}
+html.dark .hnegc{background:#1e2026!important;border-color:#3b404b!important;box-shadow:none!important}
+html.dark .hnegp{background:#2f333c!important;color:#fff!important}
+html.dark .hnegp:has(img){background:#fff!important}
+html.dark .hnegp b{color:#fff!important}
+html.dark .hnegt strong{color:#fff!important}
+html.dark .hnegt span{color:#cbd5e1!important}
+html.dark .hnegt small{color:#94a3b8!important}
+html.dark .hnegn{background:#2f333c!important;color:#fff!important;border:1px solid #4b5160!important;box-shadow:none!important}
+html.dark .hnegb{background:#fff!important;color:#000!important}
+html.dark .hnegl{color:#4da3ff!important}
+</style>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
