@@ -3338,6 +3338,31 @@ new MutationObserver(function(){if($1('cm-t')&&$1('cm-op'))sync()}).observe(docu
 window.jobGen=gen;
 })();
 </script>
+<style id="v290-roles-css">
+/* v290: ventana de Roles: primero solo los roles en cuadros; al tocar uno aparecen sus planes */
+.cdtg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 12px}
+.cdti{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:128px;padding:14px 8px;border:2px solid #d3d9e3;background:#fff;color:var(--ink,#111);font:inherit;text-align:center;cursor:pointer;border-radius:0}
+.cdti i{font-style:normal;display:grid;place-items:center;width:52px;height:52px;background:var(--rio,#0071e3);color:#fff}
+.cdti i .qi,.cdti i svg{width:28px;height:28px;color:#fff;stroke:currentColor}
+.cdti b{font-family:var(--font-rubik);font-weight:800;font-size:15.5px;line-height:1.2}
+.cdti small{font-size:12px;line-height:1.25;padding:2px 6px;background:#eef1f5;color:#475569;font-weight:700}
+.cdti small.on{background:#DCFCE7;color:#166534}
+.cdti[aria-pressed=true]{border-color:var(--rio,#0071e3);box-shadow:inset 0 -5px 0 var(--rio,#0071e3)}
+.cdth{text-align:center;margin:4px 0 2px;font-size:14px}
+html.dark .cdti{background:#1e2026!important;border-color:#3b404b!important;color:#fff!important}
+html.dark .cdti[aria-pressed=true]{border-color:#0a84ff!important;box-shadow:inset 0 -5px 0 #0a84ff!important}
+html.dark .cdti i{background:#0a84ff!important}
+html.dark .cdti small{background:#2f333c!important;color:#cbd5e1!important}
+html.dark .cdti small.on{background:#14532d!important;color:#bbf7d0!important}
+</style>
+<script id="v290-roles">
+/* v290: cuadros de roles para la ventana «Roles» (cdBox). Si algo falla, borra este <script> y su <style>: vuelven las pestañas. */
+window.cdTilesHTML=function(tabs){var fd=function(t){return new Date(t).toLocaleDateString('es-CO')},now=Date.now();
+ return '<div class="cdtg" role="group" aria-label="Roles">'+tabs.map(function(u){var ic=u==='com'?'📢':(typeof USES==='object'&&USES[u]&&USES[u].ico)||'🔓',n=(typeof CD_SH==='object'&&CD_SH[u])||u,st='',on=false;
+  try{if(u==='com'){var t=typeof comTiers==='function'?comTiers():[];on=t.length>0;st=on?'Plan activo':'Gratis: 1 al día'}else{var e=accEnd(u);on=e>now;st=on?'Activo hasta el '+fd(e):'Sin activar'}}catch(x){st=''}
+  var sel=!!window.cdPick&&u===cdU;
+  return '<button type="button" class="cdti" data-act="cdTab" data-v="'+u+'" aria-pressed="'+sel+'"><i aria-hidden="true">'+ic+'</i><b>'+n+'</b>'+(st?'<small class="'+(on?'on':'')+'">'+st+'</small>':'')+'</button>'}).join('')+'</div>'};
+</script>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
@@ -3774,7 +3799,8 @@ let cdU='',cdM=1;
 const CD_SH={store:'Tienda',serv:'Servicios',car:'Automóvil',home:'Casa',com:'Clasificados',news:'Redactor de noticias',food:'Comidas',pelu:'Peluquerías',merc:'Comerciante',comu:'Comunidad'};
 /* v206: una pestaña por rol; los tipos de negocio (tienda, comidas…) abren la pestaña Comerciante */
 function cdBox(){setTimeout(cdSubInit,0);const fd2=t=>new Date(t).toLocaleDateString('es-CO'),tabs=['merc','com','comu','news'];if(MERC.includes(cdU))cdU='merc';if(!tabs.includes(cdU))cdU=tabs[0];
- const sub=`<div class="plsw"><button type="button" class="plar l" data-act="cdScr" data-d="-1" aria-label="Ver tipos anteriores" hidden>‹</button><div class="plsub" role="tablist" aria-label="Tipo de acceso">${tabs.map(u=>`<button type="button" role="tab" class="plsb${u===cdU?' on':''}" aria-selected="${u===cdU}" data-act="cdTab" data-v="${u}">${CD_SH[u]}</button>`).join('')}</div><button type="button" class="plar r" data-act="cdScr" data-d="1" aria-label="Ver más tipos" hidden>›</button></div>`;
+ const sub=typeof cdTilesHTML==='function'?cdTilesHTML(tabs)/* v290: cuadros de roles */:`<div class="plsw"><button type="button" class="plar l" data-act="cdScr" data-d="-1" aria-label="Ver tipos anteriores" hidden>‹</button><div class="plsub" role="tablist" aria-label="Tipo de acceso">${tabs.map(u=>`<button type="button" role="tab" class="plsb${u===cdU?' on':''}" aria-selected="${u===cdU}" data-act="cdTab" data-v="${u}">${CD_SH[u]}</button>`).join('')}</div><button type="button" class="plar r" data-act="cdScr" data-d="1" aria-label="Ver más tipos" hidden>›</button></div>`;
+ if(typeof cdTilesHTML==='function'&&!window.cdPick)return sub+'<p class="muted cdth">Toca un rol para ver sus planes y precios.</p>';/* v290: primero solo los roles */
  if(cdU==='com'){const cur=comCur(),all=['free'].concat(COM_USES);if(cmSel!=='free'&&!COM_USES.includes(cmSel))cmSel='free';
   const card=u=>`<button type="button" class="plo cm${u===cmSel?' on':''}" role="radio" aria-checked="${u===cmSel}" data-act="cmxSel" data-v="${u}"><span class="plr"></span><span class="plb"><b>${u==='free'?'Gratis':COMU[u].n}</b>${u===cur?'<em class="plbadge">PLAN ACTUAL</em>':''}<small>${u==='free'?'1 anuncio al día · dura 24 horas':'Anuncia '+COM_DAYS[u]+' anuncios al día durante '+COM_DAYS[u]+' días'}</small></span><span class="plp">${u==='free'?'Gratis':money(comPrice(u))}<small>${u==='free'?'/ día':'/ '+COM_DAYS[u]+' días'}</small></span></button>`;
   return `${sub}<h2 class="plh">📢 Clasificados</h2><p class="plmut">Anuncios clasificados de tus vecinos.${comTiers().length?' Plan activo: '+comTiers().map(u=>COMU[u].n+' hasta el '+fd2(accEnd(u))).join(' · ')+'.':''}</p><div role="radiogroup" aria-label="Planes">${all.map(card).join('')}</div><div class="plsum"><b>Pago del plan</b><b id="cm-up">${cmSel==='free'?money(0):money(comPrice(cmSel))}</b></div><p class="plnote">${typeof payNote==='function'?payNote(0):'Pago único. No se renueva solo. Pagas por Nequi o transferencia y el administrador te entrega un código.'/* v233 */}</p><button type="button" class="plgo" id="cm-go" data-act="cmxGo"${cmSel==='free'?' disabled':''}>${cmSel===cur?'RENOVAR':'CONTINUAR'}</button>`}
@@ -3801,7 +3827,7 @@ const PUBASK={arr:'¿Deseas publicar un arriendo?',casa:'¿Deseas vender una pro
 const comAvail=()=>{if(accOn('comu'))return 999;/* v206: rol Comunidad = avisos sin límite */let n=comFreeWait()?0:1;comTiers().forEach(u=>{n+=Math.max(0,COM_DAYS[u]-comUsed(u))});return n};
 function comAvailTxt(){if(accOn('comu'))return 'Rol Comunidad activo: avisos comunitarios sin límite';const n=comAvail(),w=comFreeWait();return 'Anuncios disponibles: '+n+(n?'':(w?' · gratis de nuevo en '+w+' h':' · mira los planes'))}
 function pubRun(v){if(v==='com'){if(MODE==='index'){location.href=PANEL_URL+'#/comunidad';return}if(MODE==='admin')return toast('Los anuncios se publican desde el panel de vendedores');if(!S.user)return comForm();if(!comAvail())return codesModal('com');return need(()=>comForm())}if(v==='serv')return QH.go(()=>planGo('serv','',servForm));if(v==='food'||v==='pelu'||v==='news')return QH.go(()=>pubSpecial(v));if(v==='shop')return QH.go(()=>shopForm())/* v252: registrar el negocio es gratis */;QH.go(()=>planGo(v==='shop'?'store':'ad','',()=>v==='shop'?shopForm():v==='inm'?inmMenu():adForm(v),v))}
-function codesModal(u,pv,np){if(!S.user)return need(()=>codesModal(u,pv,np));if(u)cdU=u;modal(`<div class="cdwin"><h2>Roles</h2>${pv&&PUBLBL[pv]?`<p class="muted">Costo para publicar ${PUBLBL[pv]}</p>`:''}${codesCard()}<div class="row" style="margin-top:12px">${pv&&!np?`<button class="btn pink" data-act="pubGo" data-v="${pv}">Publicar ahora</button>`:''}<button class="btn ghost" data-act="close">Cerrar</button></div></div>`)}
+function codesModal(u,pv,np){if(!S.user)return need(()=>codesModal(u,pv,np));if(u)cdU=u;window.cdPick=!!u;/* v290 */modal(`<div class="cdwin"><h2>Roles</h2>${pv&&PUBLBL[pv]?`<p class="muted">Costo para publicar ${PUBLBL[pv]}</p>`:''}${codesCard()}<div class="row" style="margin-top:12px">${pv&&!np?`<button class="btn pink" data-act="pubGo" data-v="${pv}">Publicar ahora</button>`:''}<button class="btn ghost" data-act="close">Cerrar</button></div></div>`)}
 /* v203: página #/planes = "Accesos" (estado de cada acceso + activar código) */
 function planesView(){if(!S.user)return `<div class="shead"><h2>Roles</h2></div><div class="cg"><p class="muted">Entra a tu cuenta para ver y activar tus roles.</p><button class="btn pink" data-act="pLogin">Entrar</button></div>`;
  return `<div class="shead"><div><h2>Roles</h2><p class="muted">Activa o renueva cada rol con su código.</p></div><button class="btn ghost" data-act="home">← Volver a mi cuenta</button></div>${planCard()}${codesCard()}`}
@@ -4871,7 +4897,7 @@ else if(a==='doLogin'){passLogin()}else if(a==='forgot'){forgotForm()}else if(a=
 else if(a==='oauth'){oauthIn(v)}
 else if(a==='verifyCode'){verifyCode()}
 else if(a==='resendCode'){if(PEND)issueCode(PEND.name,PEND.ch,PEND.to,true)}
-else if(a==='cdTab'){cdU=b.dataset.v;const x=$('#cdbox');if(x){x.innerHTML=cdBox();const f=x.querySelector('[data-act="cdTab"][data-v="'+cdU+'"]');if(f)f.focus()}}
+else if(a==='cdTab'){window.cdPick=!(window.cdPick&&cdU===b.dataset.v);cdU=b.dataset.v;const x=$('#cdbox');if(x){x.innerHTML=cdBox();const f=x.querySelector('[data-act="cdTab"][data-v="'+cdU+'"]');if(f)f.focus({preventScroll:true});const h=x.querySelector('.plh');if(h&&window.cdPick)setTimeout(()=>h.scrollIntoView({behavior:'smooth',block:'start'}),50)}}/* v290: tocar el mismo rol oculta su plan */
 else if(a==='pubAsk'){need(()=>{let ex;if(v==='com')ex=!comAvail();else{const m=(v==='shop'&&(accOn('food')||accOn('pelu')))?'':planMsg(v==='shop'?'store':v==='serv'?'serv':'ad','',v);ex=!!m&&!/preparando/.test(m)}if(ex){if(['arr','casa','veh','serv'].includes(v))roleAsk();else codesModal(PUBUSE[v],v,1)}else if(['arr','casa','veh','serv'].includes(v)){const t=document.createElement('button');t.hidden=true;t.dataset.act='pub';t.dataset.v=v==='serv'?'serv':v==='veh'?'veh':'inm';document.body.appendChild(t);t.click();t.remove()}/* v286: desde su sección va directo a su formulario */else pubMenu()})}
 else if(a==='pubGo'){closeModal(1);pubRun(v)}
 else if(a==='catPlans'){catPlansModal()}
