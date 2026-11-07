@@ -52,28 +52,29 @@ function page({ title, desc, url, img, go, name, price, store, color }) {
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="${esc(url)}"><link rel="icon" href="/icon-192.png">
 <meta property="og:type" content="product"><meta property="og:site_name" content="Mi Pradera"><meta property="og:locale" content="es_CO"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${esc(url)}"><meta property="og:image" content="${esc(img || SITE + 'og-image.png')}"><meta name="twitter:card" content="summary_large_image">
 <style>${CSS}</style>
-<script>location.replace(${JSON.stringify(go)})</script>
+<script>(function(){var q=location.search.slice(1);location.replace(${JSON.stringify(go)}+(q?(${JSON.stringify(go)}.indexOf('?')<0?'?':'&')+q:''))})()</script>
 </head><body><main><div class="card">${img ? `<img src="${esc(img)}" alt="${esc(name)}">` : ''}<div class="in"><h1>${esc(name)}${color ? ' · ' + esc(color) : ''}</h1><p class="pr">${esc(money(price))}</p><p class="by">Vendido por ${esc(store)} en Mi Pradera</p><a class="btn" href="${esc(go)}">Ver el producto</a></div></div></main></body></html>
 `
 }
 const [stores, prods] = await Promise.all([load('stores', 'STORES_JSON'), load('products', 'PRODUCTS_JSON')]);
 const now = Date.now(), live = s => !s.hidden && !s.age && (!('pexp' in s) || (Number(s.pexp) || 0) + GRACE > now);
 const S = {}; for (const s of stores) { const id = s.id || s._doc; if (okId(id) && live(s)) S[id] = s }
-let n = 0;
+let n = 0; const LIST = [];/* v305: lista de páginas creadas (la página la usa para el enlace del pedido) */
 for (const p of prods) {
   const sid = p.sid, s = S[sid]; if (!s || !okId(p.id) || !p.name) continue;
   const base = SITE + 'p/' + sid + '/' + p.id, go = SITE + '?producto=' + encodeURIComponent(sid) + '/' + encodeURIComponent(p.id)/* v304: formato sin «#» */, main0 = pimgs(p)[0];
   const desc = (p.out ? 'Agotado. ' : '') + 'Vendido por ' + s.name + ' en Mi Pradera, Pradera (Valle del Cauca).';
-  put(path.join(OUT, sid, p.id + '.html'), page({ title: p.name + ' – ' + money(p.price), desc, url: base + '.html', img: imgUrl(main0, sid + '-' + p.id), go, name: p.name, price: p.price, store: s.name }));
+  LIST.push(sid + '/' + p.id); put(path.join(OUT, sid, p.id + '.html'), page({ title: p.name + ' – ' + money(p.price), desc, url: base + '.html', img: imgUrl(main0, sid + '-' + p.id), go, name: p.name, price: p.price, store: s.name }));
   n++;
   // una página por color que tenga su propia foto
   for (const c of csv(p.color)) {
     const ci = (Array.isArray(p.cimgs) ? p.cimgs : []).find(x => x && x.c === c), im = ci && (ci.i || (Array.isArray(ci.g) && ci.g[0])); if (!im) continue;
     const v = vId(p, c);
-    put(path.join(OUT, sid, p.id + '-' + v + '.html'), page({ title: p.name + ' (' + c + ') – ' + money(p.price), desc, url: base + '-' + v + '.html', img: imgUrl(im, sid + '-' + p.id + '-' + v), go: go + '&v=' + v, name: p.name, price: p.price, store: s.name, color: c }));
+    LIST.push(sid + '/' + p.id + '-' + v); put(path.join(OUT, sid, p.id + '-' + v + '.html'), page({ title: p.name + ' (' + c + ') – ' + money(p.price), desc, url: base + '-' + v + '.html', img: imgUrl(im, sid + '-' + p.id + '-' + v), go: go + '&v=' + v, name: p.name, price: p.price, store: s.name, color: c }));
     n++
   }
 }
+put(path.join(OUT, 'lista.json'), JSON.stringify(LIST.sort()));
 // borra páginas y fotos de productos que ya no existen o que ya no están a la vista
 function sweep(dir) { if (!fs.existsSync(dir)) return; for (const f of fs.readdirSync(dir)) { const fp = path.resolve(dir, f), st = fs.statSync(fp); if (st.isDirectory()) { sweep(fp); if (!fs.readdirSync(fp).length) fs.rmdirSync(fp) } else if (!written.has(fp) && /\.(html|jpg|png|webp)$/.test(f)) { fs.unlinkSync(fp); console.log('borrada', path.relative(ROOT, fp)) } } }
 sweep(OUT);
