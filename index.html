@@ -3862,6 +3862,60 @@ addEventListener('click',function(e){var t=e.target;if(!t.closest)return;
  var u=limAd(a.type);if(!u)return;e.preventDefault();e.stopImmediatePropagation();limModal(u)},true);
 })();
 </script>
+<style id="v316-noticias-inicio-css">
+/* v316: carrusel de noticias en el inicio */
+.nwc{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain;padding-bottom:2px}
+.nwc::-webkit-scrollbar{display:none}
+.nwcc{flex:0 0 86%;max-width:420px;scroll-snap-align:start;display:flex;flex-direction:column;padding:0;border:1px solid #d2d2d7;background:#fff;color:#1d1d1f;font:inherit;text-align:left;cursor:pointer;overflow:hidden}
+.nwcc .nwci{position:relative;display:block;aspect-ratio:16/9;background:#0b2f22;overflow:hidden}
+.nwcc .nwci img{width:100%;height:100%;object-fit:cover;display:block}
+.nwcc .nwci .qi{position:absolute;inset:0;margin:auto;width:44px;height:44px;color:#fff;opacity:.85}
+.nwcc .nwct2{position:absolute;left:10px;top:10px;padding:3px 8px;background:#0B7A5C;color:#fff;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.nwcc .nwcb{display:flex;flex-direction:column;gap:4px;padding:12px 14px 14px}
+.nwcc b{font-size:17px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.nwcc small{font-size:13px;color:#6e6e73}
+.nwcd{display:flex;justify-content:center;gap:8px;margin-top:10px}
+.nwcd button{width:22px;height:6px;padding:0;border:0;border-radius:0;background:#c7c7cc;cursor:pointer}
+.nwcd button[aria-current="true"]{width:36px;background:#0B7A5C}
+.nwcd button::before{content:"";display:block;margin:-10px 0;height:26px}
+.nwc0{display:flex;gap:12px;align-items:center;padding:14px 16px;border:1px dashed #b5b5bb;background:#fff}
+.nwc0 .qi{flex:none;width:30px;height:30px;color:#0B7A5C}.nwc0 p{margin:0;font-size:15px}
+html.dark .nwcc,html.dark .nwc0{background:#1c1c1e!important;border-color:#3a3a3c!important;color:#f5f5f7!important}
+html.dark .nwcc small{color:#a1a1a6!important}
+html.dark .nwcd button{background:#48484a!important}html.dark .nwcd button[aria-current="true"]{background:#34d399!important}
+.nwcc,.nwcc .nwct2,.nwc0,.nwcd button{border-radius:0!important}
+@media (min-width:900px){.nwcc{flex-basis:calc((100% - 24px)/3)}}
+@media (prefers-reduced-motion:reduce){.nwc{scroll-behavior:auto}}
+</style>
+<script id="v316-noticias-inicio">
+/* v316: en el inicio, carrusel con las noticias más recientes (foto, categoría, titular y fecha).
+   Se desliza con el dedo o con las barritas y avanza solo cada 6 segundos. Si no hay noticias, muestra un aviso.
+   Si algo falla, borra este bloque y quita ${typeof hubNwCar...} de hubView. */
+(function(){
+var MAX=8,lastN=-1;
+window.hubNwCar=function(){try{QH.newsListen()}catch(e){}
+ var l=(QH.NEWS||[]).slice(0,MAX);lastN=(QH.NEWS||[]).length;
+ var head='<div class="hubph"><h2>Noticias de Pradera</h2><button class="btn ghost" data-act="miniTab" data-v="news">Ver todas ›</button></div>';
+ if(!l.length)return '<section class="hubp" aria-label="Noticias de Pradera">'+head+'<div class="nwc0">'+QIC.news+'<p>Aquí aparecen las noticias de Pradera apenas se publiquen.</p></div></section>';
+ var cards=l.map(function(n){var c=typeof nwCatOf==='function'?nwCatOf(n.cat):null,im=n.img||(Array.isArray(n.imgs)&&n.imgs[0])||'';
+  return '<button type="button" class="nwcc" data-act="nwOpen" data-id="'+esc(n.id)+'"><span class="nwci">'+(im?'<img src="'+esc(im)+'" alt="" loading="lazy">':QIC.news)+(c?'<span class="nwct2">'+esc(c[2])+'</span>':'')+'</span><span class="nwcb"><b>'+esc(n.title||'Noticia')+'</b><small>'+esc(typeof nwDate==='function'?nwDate(n):'')+(n.author?' · '+esc(n.author):'')+'</small></span></button>'}).join('');
+ var d='';if(l.length>1)for(var i=0;i<l.length;i++)d+='<button type="button" data-nwdot="'+i+'" aria-label="Noticia '+(i+1)+' de '+l.length+'"'+(i?'':' aria-current="true"')+'></button>';
+ return '<section class="hubp" aria-label="Noticias de Pradera">'+head+'<div class="nwc" tabindex="0" aria-roledescription="carrusel">'+cards+'</div>'+(d?'<div class="nwcd">'+d+'</div>':'')+'</section>'};
+function card(s){var c=s.querySelector('.nwcc');return c?c.offsetWidth+12:s.clientWidth}
+function idx(s){return Math.round(s.scrollLeft/Math.max(1,card(s)))}
+function dots(s){var w=s.parentNode.querySelector('.nwcd');if(!w)return;var k=idx(s);if(s.scrollLeft+s.clientWidth>=s.scrollWidth-4)k=w.children.length-1;[].forEach.call(w.children,function(b,i){b.setAttribute('aria-current',i===k?'true':'false')})}
+function go(s,k){var n=s.children.length;if(!n)return;k=(k+n)%n;s.scrollTo({left:k*card(s),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
+var hold=0;
+document.addEventListener('scroll',function(e){var s=e.target;if(s&&s.classList&&s.classList.contains('nwc'))dots(s)},true);
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-nwdot]');if(!b)return;hold=Date.now()+20000;go(b.closest('section').querySelector('.nwc'),+b.dataset.nwdot)});
+['pointerdown','touchstart','focusin'].forEach(function(t){document.addEventListener(t,function(e){if(e.target.closest&&e.target.closest('.nwc'))hold=Date.now()+20000},{passive:true})});
+setInterval(function(){
+ /* cuando llegan noticias nuevas, el inicio se actualiza solo */
+ try{if(view==='home'&&!document.getElementById('ov')&&lastN>=0&&(QH.NEWS||[]).length!==lastN&&document.querySelector('[aria-label="Noticias de Pradera"]'))render(true)}catch(e){}
+ if(Date.now()<hold||document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches)return;var s=document.querySelector('.nwc');if(!s||s.matches(':hover')||s.children.length<2)return;var r=s.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;
+ var k=idx(s)+1;if(s.scrollLeft+s.clientWidth>=s.scrollWidth-4)k=0;go(s,k)},6000);
+})();
+</script>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
@@ -4544,7 +4598,7 @@ document.head.insertAdjacentHTML('beforeend','<style>.hneed{display:flex;align-i
 /* v211: "Explora Pradera" en la portada: mapa de tiendas y guías útiles (cada guía abre su sección) */
 const GUIAS_H=[['🧱','Dónde comprar materiales de construcción'],['🏍️','Motos usadas'],['🔧','Servicios de reparación'],['🏷️','Ofertas de la semana'],['🏡','Casas en venta y arriendo']];
 const hubExp=()=>{const n=S.stores.filter(s=>vis(s)&&hasPin(s)).length;return `<section class="hubp" aria-label="Explora Pradera"><div class="hubph"><h2>🧭 Explora Pradera</h2></div><div class="hexp"><div class="hexc"><h3>📍 Mapa de tiendas</h3><button type="button" class="hexmap" data-act="tab" data-v="map">${hubSvg(hubIc.pin)}<span><b>${n?n+(n===1?' tienda':' tiendas')+' en el mapa':'Ver el mapa de Pradera'}</b>Encuentra tiendas cerca de ti y cómo llegar</span></button></div><div class="hexc"><h3>📘 Guías útiles</h3><div class="hexl">${GUIAS_H.map(([i,t],k)=>`<button type="button" data-act="guiaGo" data-v="${k}"><span aria-hidden="true">${i}</span>${t}</button>`).join('')}</div></div></div></section>`};
-function hubView(){return `<section class="hub"><h1 class="sr1">Mi Pradera</h1><div class="hubhero hh2"><h2>¿Qué hay en <em>Pradera</em>?</h2><p>Compra, arrienda y contrata directamente con tus vecinos</p><div class="hubsrch" id="hubsrch"></div>${hubSug()}<button class="hhr${bizSt()==='none'?' hhrf':''}" id="hhr" data-act="${bizSt()==='none'?'newShop':'goPanel'}">${bizSt()==='none'?'Registra tu negocio gratis':'Mi cuenta'}</button><button class="hhr2" id="hhr2" data-act="cmxNew"${S.user?' hidden':''}>Publicar anuncio clasificado gratis</button><button class="hhl" data-act="hubStores" data-v="">Ver todos los negocios →</button></div><div class="hubg hubg2" role="group" aria-label="Categorías principales">${HUB.map(hubTile).join('')}</div>${typeof hubCar==='function'?hubCar():bizCta()}${hubCom()}${hubExp()}${hubNeg()}${bannersHTML()}${hubSwipe()}${midAd()}${hubAdGroup('Inmuebles en arriendo','arr')}${hubAdGroup('Inmuebles en venta','casa')}${hubAdGroup('Vehículos en venta','veh')}</section>`}
+function hubView(){return `<section class="hub"><h1 class="sr1">Mi Pradera</h1><div class="hubhero hh2"><h2>¿Qué hay en <em>Pradera</em>?</h2><p>Compra, arrienda y contrata directamente con tus vecinos</p><div class="hubsrch" id="hubsrch"></div>${hubSug()}<button class="hhr${bizSt()==='none'?' hhrf':''}" id="hhr" data-act="${bizSt()==='none'?'newShop':'goPanel'}">${bizSt()==='none'?'Registra tu negocio gratis':'Mi cuenta'}</button><button class="hhr2" id="hhr2" data-act="cmxNew"${S.user?' hidden':''}>Publicar anuncio clasificado gratis</button><button class="hhl" data-act="hubStores" data-v="">Ver todos los negocios →</button></div><div class="hubg hubg2" role="group" aria-label="Categorías principales">${HUB.map(hubTile).join('')}</div>${typeof hubCar==='function'?hubCar():bizCta()}${typeof hubNwCar==='function'?hubNwCar():''/* v316 */}${hubCom()}${hubExp()}${hubNeg()}${bannersHTML()}${hubSwipe()}${midAd()}${hubAdGroup('Inmuebles en arriendo','arr')}${hubAdGroup('Inmuebles en venta','casa')}${hubAdGroup('Vehículos en venta','veh')}</section>`}
 function homeView(){if(hubOn())return hubView();return `${menuBar()}${hubBar()}${catSearch('Buscar en '+catTitle())}<section class="hero"><h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Mi Pradera</h1>${topBannerHTML(cat==='@super'?'super':'tiendas')}</section>
 ${cat==='@comidas'||cat==='@pelu'||COMIDAS.includes(cat)||PELU.includes(cat)?'':mlHTML()}
 ${toolsHTML('store')}${subHTML()}<div class="grid" id="grid">${gridHTML()}</div>`}
