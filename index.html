@@ -3114,6 +3114,7 @@ html.dark .sgd summary i{background:#0a84ff!important}
 .mst .msta .btn{width:100%;min-height:36px!important;margin:0!important;padding:6px 10px!important;font-size:12.5px!important;text-decoration:none;display:flex;align-items:center;justify-content:center}
 .mst .msta .mstd{color:#c0392b!important;border-color:#c0392b!important}
 .mstx{margin:10px 0 0;font-size:13px}
+.mst .mstu{margin-top:6px!important;font-size:11.5px!important;word-break:break-all;opacity:.8!important;color:var(--rio,#0071e3)}
 .msnew{width:100%;margin:0 0 10px!important;min-height:48px}
 .mst .msti{display:grid;place-items:center;width:52px;height:52px;margin:0 0 8px;border:1px solid #dfe4ec;background:#fff;overflow:hidden}
 .mst .msti img{width:100%;height:100%;object-fit:contain}
@@ -3135,7 +3136,7 @@ window.shopTableHTML=function(ms){var h='<h2>Mis tiendas ('+ms.length+')</h2><bu
  return h+'<div class="mstw"><table class="mst"><thead><tr><th scope="col">Tienda</th><th scope="col">Productos</th><th scope="col">Acciones</th></tr></thead><tbody>'+
   ms.map(function(s){var n=(s.products||[]).length,u='';try{u=storeUrl(s.id)}catch(e){u='#'}
    var lg=s.logo&&/^(https:|data:image\/)/.test(s.logo)?'<img src="'+E(s.logo)+'" alt="" loading="lazy">':'<b>'+E(String(s.name||'?').charAt(0).toUpperCase())+'</b>';/* v292: logo de la tienda */
-   return '<tr><td><span class="msti" aria-hidden="true">'+lg+'</span><b>'+E(s.name)+'</b><small>'+E(s.cat||'')+'</small>'+st(s)+'</td><td class="mstn">'+n+'</td><td><div class="msta"><a class="btn ghost" href="'+E(u)+'" target="_blank" rel="noopener">Ver</a><button type="button" class="btn" data-pn="1" data-act="open" data-id="'+E(s.id)+'">Editar</button><button type="button" class="btn ghost mstd" data-shopdel="'+E(s.id)+'">Eliminar</button></div></td></tr>'}).join('')+
+   return '<tr><td><span class="msti" aria-hidden="true">'+lg+'</span><b>'+E(s.name)+'</b><small>'+E(s.cat||'')+'</small>'+st(s)+'<small class="mstu">'+E(u)+'</small></td><td class="mstn">'+n+'</td><td><div class="msta"><a class="btn ghost" href="'+E(u)+'" target="_blank" rel="noopener">Ver</a><button type="button" class="btn ghost" data-stshare="'+E(s.id)+'">Compartir</button><button type="button" class="btn" data-pn="1" data-act="open" data-id="'+E(s.id)+'">Editar</button><button type="button" class="btn ghost mstd" data-shopdel="'+E(s.id)+'">Eliminar</button></div></td></tr>'}).join('')+
   '</tbody></table></div><p class="muted mstx">Al eliminar una tienda se borran también todos sus productos. No se puede deshacer.</p>'};
 document.addEventListener('click',async function(e){var b=e.target.closest&&e.target.closest('[data-shopdel]');if(!b)return;e.preventDefault();var id=b.getAttribute('data-shopdel');
  try{var s=S.stores.find(function(x){return x.id===id});if(!s||!S.mine.includes(id))return;
@@ -3368,6 +3369,23 @@ window.cdTilesHTML=function(tabs){var fd=function(t){return new Date(t).toLocale
   try{if(u==='com'){var t=typeof comTiers==='function'?comTiers():[];on=t.length>0;st=on?'Plan activo':'Gratis: 1 al día'}else{var e=accEnd(u);on=e>now;st=on?'Activo hasta el '+fd(e):'Sin activar'}}catch(x){st=''}
   var sel=!!window.cdPick&&u===cdU;
   return '<button type="button" class="cdti" data-act="cdTab" data-v="'+u+'" aria-pressed="'+sel+'"><i aria-hidden="true">'+ic+'</i><b>'+n+'</b>'+(st?'<small class="'+(on?'on':'')+'">'+st+'</small>':'')+'</button>'}).join('')+'</div>'};
+</script>
+<script id="v297-enlace-tienda">
+/* v297: enlaces con el nombre de la tienda: #/t/<nombre>-<id> y #/p/<nombre>-<id>/<producto>.
+   El id va al final para que dos tiendas con el mismo nombre no se confundan; los enlaces viejos (#/t/<id>) siguen funcionando.
+   Además, «Compartir» de cada tienda en Mis tiendas. Si algo falla, borra este <script> (y vuelve storeUrl/prodUrl/route a usar el id). */
+(function(){
+function slug(t){return String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40).replace(/-+$/,'')}
+function byId(id){try{return S.stores.find(function(x){return x.id===id})}catch(e){return null}}
+window.stRefId=function(id){var s=byId(id),n=s?slug(s.name):'';return n?n+'-'+encodeURIComponent(id):encodeURIComponent(id)};
+window.stFind=function(ref){ref=String(ref||'').split('?')[0];var s=byId(ref);if(s)return s;
+ var i=ref.lastIndexOf('-');if(i>0){s=byId(ref.slice(i+1));if(s)return s}
+ var l=S.stores.filter(function(x){return slug(x.name)===ref});return l.length===1?l[0]:null};
+document.addEventListener('click',async function(e){var b=e.target.closest&&e.target.closest('[data-stshare]');if(!b)return;e.preventDefault();var id=b.getAttribute('data-stshare'),s=byId(id);if(!s)return;
+ var u=storeUrl(id),tx='Visita '+s.name+' en Mi Pradera'+(s.cat?' ('+s.cat+')':'')+'. Mira sus productos y escríbenos por WhatsApp:';
+ try{if(navigator.share){await navigator.share({title:s.name+' – Mi Pradera',text:tx,url:u});return}}catch(x){if(x&&x.name==='AbortError')return}
+ try{await navigator.clipboard.writeText(tx+' '+u);toast('Enlace copiado: pégalo en tus redes')}catch(x){toast(u)}});
+})();
 </script>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
@@ -3906,10 +3924,10 @@ else return null;return {k,id,t,sub,u}}).filter(Boolean);
 const need=f=>{if(S.user)f();else{after=f;loginForm()}};
 const zonesOf=l=>[...new Set(l.map(x=>(x.zone||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
 const toolsHTML=k=>`<div class="tools"><label for="t-sort">Ordenar</label><select id="t-sort" data-sel="sort"><option value="">Más recientes</option><option value="rate"${sortBy==='rate'?' selected':''}>Mejor calificadas</option><option value="az"${sortBy==='az'?' selected':''}>A – Z</option></select><label for="t-zone">Barrio</label><select id="t-zone" data-sel="zone"><option value="">Todos</option>${zonesOf(k==='store'?S.stores:S.services).map(z=>`<option${zoneF===z?' selected':''}>${esc(z)}</option>`).join('')}</select><button class="chip" data-act="favf" aria-pressed="${favOnly}">Solo favoritos</button></div>`;
-const storeUrl=id=>BASE_URL+'#/t/'+encodeURIComponent(id);const cardUrl=id=>BASE_URL+'#/n/'+encodeURIComponent(id);
+const storeUrl=id=>BASE_URL+'#/t/'+stRefId(id);/* v297: con el nombre de la tienda */const cardUrl=id=>BASE_URL+'#/n/'+encodeURIComponent(id);
 const adUrl=id=>BASE_URL+'#/a/'+encodeURIComponent(id);
 const pCode=p=>'QHP-'+String(p.id).toUpperCase();
-const prodUrl=(sid,pid,v,t)=>BASE_URL+'#/p/'+encodeURIComponent(sid)+'/'+encodeURIComponent(pid)+(v||t?'?'+[v?'v='+v:'',t?'t='+encodeURIComponent(t):''].filter(Boolean).join('&'):'');/* v296: el enlace lleva el color (v) y la talla (t) */
+const prodUrl=(sid,pid,v,t)=>BASE_URL+'#/p/'+stRefId(sid)+'/'+encodeURIComponent(pid)+(v||t?'?'+[v?'v='+v:'',t?'t='+encodeURIComponent(t):''].filter(Boolean).join('&'):'');/* v296: el enlace lleva el color (v) y la talla (t) */
 /* ---- v9: paginación, vencimiento de anuncios, avisos y textos legales ---- */
 const PAGE=12,AD_DAYS=60,AD_MS=AD_DAYS*864e5;let lim=PAGE,limKey='';
 const site=()=>S.site||{};
@@ -4440,16 +4458,16 @@ const grp=(t,k,l)=>l.length?`<div class="cg"><h3>${t} (${l.length})</h3>${l.map(
 const rows=grp('Tiendas','store',S.stores)+grp('Servicios','serv',S.services)+grp('Anuncios','ad',S.ads)+comAdm();body=(rows||'<div class="empty">Todavía no hay tiendas, servicios ni anuncios.</div>')+newsAdm()}
 return `<div class="shead"><h2>Panel de administrador</h2><button class="btn ghost" data-act="admOut">Salir del modo administrador</button></div><nav class="tabs admg" aria-label="Secciones del administrador">${typeof brebPagHTML==='function'?T('pag','Pagos'+(brebAdmPend()?' ('+brebAdmPend()+')':'')):''/* v238 */}${T('rep','Reportes ('+pend+')')}${T('cod','Códigos')}${T('usr','Usuarios ('+QH.plans().length+')')}${T('sug','Sugerencias ('+S.ideas.length+')')}${T('ver','Publicaciones ('+(S.stores.length+S.services.length+S.ads.length)+')')}${T('cfg','Mis datos')}${T('cat','Categorías')}${T('srv','Servicios')}${T('pub','Publicidad')}${T('alm','Almacenamiento')}${T('emg','Emergencias')/* v257 */}</nav>${QH.legacyCard()}${body}`}
 function syncUI(){const u=$('#ut');if(u)u.textContent=S.user?S.user.name.split(' ')[0]:'Iniciar sesión';{const ub=$('#userBtn');if(ub){let im=ub.querySelector('.uph');const sv=ub.querySelector('svg'),d=S.user&&S.user.img;if(d){if(!im){im=document.createElement('img');im.className='uph';im.alt='';ub.insertBefore(im,ub.firstChild)}im.src=d;im.style.display='';if(sv)sv.style.display='none'}else{if(im)im.style.display='none';if(sv)sv.style.display=''}}}const rb=$('#regBtn');if(rb)rb.style.display=S.user?'none':'';const hb=$('#hhr');if(hb){const bn=bizSt()==='none';/* v253 */hb.dataset.act=bn?'newShop':'goPanel';hb.textContent=bn?'Registra tu negocio gratis':'Mi cuenta';hb.classList.toggle('hhrf',bn)}{const h2=$('#hhr2');if(h2)h2.hidden=!!S.user/* v255 */}
-const s=(view==='store'||view==='prod')&&S.stores.find(x=>x.id===cur),pr=view==='prod'&&s&&s.products.find(x=>x.id===curP),ad=view==='ad'&&S.ads.find(x=>x.id===curAd),nwx=view==='news'&&!!curN&&QH.NEWS.find(x=>x.id===curN),h=view==='prod'?'#/p/'+encodeURIComponent(cur)+'/'+encodeURIComponent(curP):view==='store'?'#/t/'+encodeURIComponent(cur):view==='card'?'#/n/'+encodeURIComponent(cur):view==='news'?(curN?'#/nw/'+encodeURIComponent(curN):'#/noticias'):view==='ad'?'#/a/'+encodeURIComponent(curAd):ADT[view]?'#/'+ADT[view].slug:view==='serv'?'#/servicios':view==='map'?'#/mapa':view==='cats'?'#/categorias':view==='sug'?'#/sugerencias':view==='guias'?'#/guias':view==='com'||view==='comp'?'#/comunidad':view==='planes'?'#/planes':view==='admin'?'#/admin':'#/';
+const s=(view==='store'||view==='prod')&&S.stores.find(x=>x.id===cur),pr=view==='prod'&&s&&s.products.find(x=>x.id===curP),ad=view==='ad'&&S.ads.find(x=>x.id===curAd),nwx=view==='news'&&!!curN&&QH.NEWS.find(x=>x.id===curN),h=view==='prod'?'#/p/'+stRefId(cur)+'/'+encodeURIComponent(curP):view==='store'?'#/t/'+stRefId(cur):view==='card'?'#/n/'+encodeURIComponent(cur):view==='news'?(curN?'#/nw/'+encodeURIComponent(curN):'#/noticias'):view==='ad'?'#/a/'+encodeURIComponent(curAd):ADT[view]?'#/'+ADT[view].slug:view==='serv'?'#/servicios':view==='map'?'#/mapa':view==='cats'?'#/categorias':view==='sug'?'#/sugerencias':view==='guias'?'#/guias':view==='com'||view==='comp'?'#/comunidad':view==='planes'?'#/planes':view==='admin'?'#/admin':'#/';
 if(location.hash!==h){try{history.replaceState(null,'',h)}catch(e){}}
 document.title=MODE!=='index'?TITLE:pr?pr.name+' – '+s.name+' – Mi Pradera':s?s.name+' – Mi Pradera':ad?ad.title+' – Mi Pradera':nwx?nwx.title+' – Noticias de Mi Pradera':view==='news'?'Noticias de Pradera – Mi Pradera':'Mi Pradera – Lo nuestro, en un solo lugar';
 const m=document.querySelector('meta[name=description]');if(m)m.content=pr?pr.name+' en '+s.name+' – Mi Pradera.':s?s.name+' en Mi Pradera: '+s.desc:ad?ad.title+' en Mi Pradera.':nwx?nwPlain(nwx.text).replace(/\s+/g,' ').slice(0,155):'Compra, arrienda y contrata con vecinos de Pradera. Lo nuestro, en un solo lugar.'}
 function route(){const h=decodeURIComponent(location.hash||''),mn=h.match(/^#\/n\/(.+)$/),m=h.match(/^#\/t\/(.+)$/),ma=h.match(/^#\/a\/(.+)$/),mp=h.match(/^#\/p\/([^\/]+)\/(.+)$/);
-if(mp){const s=S.stores.find(x=>x.id===mp[1]),p=s&&s.products.find(x=>x.id===mp[2].split('?')[0]);if(s&&p&&vis(s)){view='prod';cur=s.id;curP=p.id;pI=0;pQ=1;{const qs=new URLSearchParams(mp[2].split('?')[1]||''),vq=qs.get('v')||'',tq=qs.get('t')||'',c=vq&&csv(p.color).find(c=>vId(p,c)===vq),z=tq&&csv(p.sizes).find(z=>z===tq);if(c||z)pSel[p.id]=Object.assign({},pSel[p.id],c?{co:c}:{},z?{sz:z}:{})}/* v296: también la talla *//* v291: el enlace de una variación abre ese color */}else{view='home';toast('Ese producto no está disponible en este dispositivo')}}
+if(mp){const s=S.stores.find(x=>x.id===mp[1])||stFind(mp[1]),p=s&&s.products.find(x=>x.id===mp[2].split('?')[0]);if(s&&p&&vis(s)){view='prod';cur=s.id;curP=p.id;pI=0;pQ=1;{const qs=new URLSearchParams(mp[2].split('?')[1]||''),vq=qs.get('v')||'',tq=qs.get('t')||'',c=vq&&csv(p.color).find(c=>vId(p,c)===vq),z=tq&&csv(p.sizes).find(z=>z===tq);if(c||z)pSel[p.id]=Object.assign({},pSel[p.id],c?{co:c}:{},z?{sz:z}:{})}/* v296: también la talla *//* v291: el enlace de una variación abre ese color */}else{view='home';toast('Ese producto no está disponible en este dispositivo')}}
 else if(/^#\/nw\/.+/.test(h)){curN=h.slice(5);view='news'}
 else if(h==='#/noticias'){curN='';view='news'}
 else if(mn){const s=S.stores.find(x=>x.id===mn[1]);if(s&&vis(s)){view='card';cur=s.id}else{view='home';toast('Esa tarjeta no está disponible en este dispositivo')}}
-else if(m){const s=S.stores.find(x=>x.id===m[1]);if(s&&vis(s)){view='store';cur=s.id}else{view='home';toast('Esa tienda no está disponible en este dispositivo')}}
+else if(m){const s=stFind(m[1]);if(s&&vis(s)){view='store';cur=s.id}else{view='home';toast('Esa tienda no está disponible en este dispositivo')}}
 else if(ma){const a=S.ads.find(x=>x.id===ma[1]);if(a&&vis(a)){view='ad';curAd=a.id}else{view='home';toast('Ese anuncio venció o no está disponible en este dispositivo')}}
 else if(h==='#/servicios')view='serv';else if(h==='#/mapa')view='map';else if(h==='#/categorias')view='cats';else if(h==='#/sugerencias')view='sug';else if(h==='#/guias')view='guias';else if(h==='#/comunidad')view='com';else if(h==='#/planes'&&MODE==='panel')view='planes';else view=Object.keys(ADT).find(k=>'#/'+ADT[k].slug===h)||'home';render()}
 const THIS_Y=new Date().getFullYear(),MODS=['Por horas','Por días','Tiempo completo','Por trabajo u obra'],MATS=['Las pone el cliente','Las pongo yo','A convenir'];
