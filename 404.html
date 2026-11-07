@@ -7,7 +7,9 @@
 <title>Página no encontrada – Mi Pradera</title>
 <link rel="icon" href="/icon-192.png">
 <script>/* v250: si la página de una noticia todavía no se ha creado (se crea cada hora), abre la noticia dentro de Mi Pradera */
-(function(){var m=location.pathname.match(/^\/noticias\/(?:[a-z0-9-]*-)?([A-Za-z0-9_]+)(?:\.html)?\/?$/);if(m&&m[1]!=='index')location.replace('/#/nw/'+m[1])})();</script>
+(function(){var m=location.pathname.match(/^\/noticias\/(?:[a-z0-9-]*-)?([A-Za-z0-9_]+)(?:\.html)?\/?$/);if(m&&m[1]!=='index')location.replace('/#/nw/'+m[1])})();
+/* v291: si la página de un producto todavía no se ha creado (se crea cada hora), abre el producto (y su color) dentro de Mi Pradera */
+(function(){var m=location.pathname.match(/^\/p\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_]+?)(?:-(\d{7}))?(?:\.html)?\/?$/);if(m)location.replace('/#/p/'+m[1]+'/'+m[2]+(m[3]?'?v='+m[3]:''))})();</script>
 <style>
 :root{--bg:#f5f5f7;--ink:#1d1d1f;--muted:#707070;--blue:#0071e3;--link:#0066cc;color-scheme:light dark}
 @media (prefers-color-scheme:dark){:root{--bg:#000;--ink:#f5f5f7;--muted:#a1a1a6;--link:#2997ff}.logo{filter:invert(1)}}
