@@ -3137,7 +3137,11 @@ document.addEventListener('click',async function(e){var b=e.target.closest&&e.ta
   S.stores=S.stores.filter(function(x){return x.id!==id});S.mine=S.mine.filter(function(x){return x!==id});Object.keys(S.cart).forEach(function(k){if(k.indexOf(id+'|')===0)delete S.cart[k]});
   save();if(view==='store'&&cur===id)view='home';render();pnlModal('tiendas');toast('Tienda eliminada')}catch(x){try{toast('No se pudo eliminar. Intenta de nuevo.')}catch(y){}}});
 /* video: si el enlace no es de Shorts, se preguntan las medidas a YouTube y, si es más alto que ancho, se muestra vertical */
-window.ytVert=function(y){try{if(!/^https?:$/.test(location.protocol))return;fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+y)).then(function(r){return r.json()}).then(function(j){if(j&&j.height>j.width&&document.getElementById('lb')&&lb&&lb.l&&lb.l.indexOf('yt:'+y)>=0&&!lb.v){lb.v=1;lbRender()}}).catch(function(){})}catch(e){}};
+window.ytVert=function(y){try{if(!/^https?:$/.test(location.protocol)||!/^[\w-]{6,20}$/.test(y))return;var done=0,set=function(){if(done)return;done=1;if(document.getElementById('lb')&&lb&&lb.l&&lb.l.indexOf('yt:'+y)>=0&&!lb.v){lb.v=1;lbRender()}};
+ /* v289: 1) la miniatura vertical que YouTube crea para los Shorts (oardefault) — no depende de permisos de otros sitios */
+ var im=new Image();im.onload=function(){if(im.naturalHeight>im.naturalWidth)set()};im.src='https://i.ytimg.com/vi/'+y+'/oardefault.jpg';
+ /* 2) las medidas que da YouTube preguntando con el enlace de Shorts (con el enlace normal responde horizontal aunque sea un Short) */
+ ['https://www.youtube.com/shorts/','https://www.youtube.com/watch?v='].forEach(function(u){fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent(u+y)).then(function(r){return r.json()}).then(function(j){if(j&&j.height>j.width)set()}).catch(function(){})})}catch(e){}};
 })();
 </script>
 <style id="v286-crear-tienda-css">
@@ -4749,7 +4753,7 @@ else if(a==='nwSave'){nwSave(b)}
 else if(a==='nwDel'){const n=QH.NEWS.find(x=>x.id===id);if(!n||!(adm||n.ownerKey===QH.key())||!await askC('¿Eliminar esta noticia?'))return;QH.newsDel(id).then(()=>{toast('Noticia eliminada');if(curN===id)curN='';render(true)},()=>toast('No se pudo eliminar'))}
 else if(a==='nwShare'){const n=QH.NEWS.find(x=>x.id===id);if(n)shTxt(n.title+' — Noticias de Mi Pradera',newsUrl(id))}
 else if(a==='nwZoom'){const n=QH.NEWS.find(x=>x.id===id);if(n&&n.img)lbOpen([n.img],0,n.title)}
-else if(a==='nwVid'){const n=QH.NEWS.find(x=>x.id===id);if(!n||!n.link)return;const y=ytId(n.link);if(y&&/^https?:$/.test(location.protocol))lbOpen(['yt:'+y],0,n.title,/youtube\.com\/shorts\//i.test(n.link));else window.open(n.link,'_blank','noopener,noreferrer')}
+else if(a==='nwVid'){const n=QH.NEWS.find(x=>x.id===id);if(!n||!n.link)return;const y=ytId(n.link);if(y&&/^https?:$/.test(location.protocol))lbOpen(['yt:'+y],0,n.title,/youtube\.com\/shorts\//i.test(n.link));if(typeof ytVert==='function')ytVert(y)/* v289 */;else window.open(n.link,'_blank','noopener,noreferrer')}
 else if(a==='prod'){cur=b.dataset.sid||cur;curP=id;pI=0;pQ=1;view='prod';render()}
 else if(a==='pimg'){pI=+b.dataset.i||0;render(true)}
 else if(a==='pimgn'){const s=S.stores.find(x=>x.id===cur),p=s&&s.products.find(x=>x.id===curP);if(p){const n=galC(p,(pSel[p.id]||{}).co).filter(m=>!isYt(m)).length;if(n>1){pI=(Math.min(pI,n-1)+(+b.dataset.d)+n)%n;render(true)}}}
@@ -5204,7 +5208,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-act^
  else if(a==='cmxFt'){cmFOpen=!cmFOpen;render(true)}
  else if(a==='cmxClr'){cmF={...CMF0};query='';const q=$('#cq');if(q)q.value='';render(true)}
  else if(a==='cmxRmImg'){cmf.imgs.splice(+b.dataset.i,1);cmf.img=cmf.imgs[0]||'';cmf.pv='';const p=$('#cm-prev');if(p)p.innerHTML=cmImgsHTML()}
- else if(a==='cmxVid'){if(!ad||!ad.link)return;const y=ytId(ad.link);const em=cmEmbed(ad.link),https=/^https?:$/.test(location.protocol);if(y&&https){const sh=/youtube\.com\/shorts\//i.test(ad.link);lbOpen(['yt:'+y],0,ad.title,sh);if(!sh)try{fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+y)).then(r=>r.json()).then(j=>{if(j&&j.height>j.width&&$('#lb')&&lb.l[0]==='yt:'+y&&!lb.v){lb.v=1;lbRender()}}).catch(()=>{})}catch(e){}}else window.open(ad.link,'_blank','noopener,noreferrer')}
+ else if(a==='cmxVid'){if(!ad||!ad.link)return;const y=ytId(ad.link);const em=cmEmbed(ad.link),https=/^https?:$/.test(location.protocol);if(y&&https){const sh=/youtube\.com\/shorts\//i.test(ad.link);lbOpen(['yt:'+y],0,ad.title,sh);if(!sh&&typeof ytVert==='function')ytVert(y)/* v289 */;if(!sh)try{fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+y)).then(r=>r.json()).then(j=>{if(j&&j.height>j.width&&$('#lb')&&lb.l[0]==='yt:'+y&&!lb.v){lb.v=1;lbRender()}}).catch(()=>{})}catch(e){}}else window.open(ad.link,'_blank','noopener,noreferrer')}
  else if(a==='cmxPick'){const ce=cmCheck1();if(ce){$('#err').textContent=ce;return}const m=b.dataset.v;cmf.mode=m;document.querySelectorAll('.cmpn').forEach(x=>{x.style.display=x.dataset.m===m?'':'none'});const lw=$('#cm-lw');if(lw)lw.style.display=m==='vid'?'none':'';document.querySelectorAll('.cwz-ty').forEach(x=>x.classList.toggle('on',x.dataset.v===m));cmStep(2)}
  else if(a==='cmxNext'){const m=cmCheck2();if(m){$('#err').textContent=m;return}cmStep(3)}
  else if(a==='cmxBackStep'){cmStep(Math.max(1,(cmf.step||2)-1))}
