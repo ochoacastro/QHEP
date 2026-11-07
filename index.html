@@ -4383,6 +4383,21 @@ var asked=0;setInterval(function(){try{if(asked||MODE==='admin'||!S.user||docume
 /* el campo de barrio usa la lista de barrios y corregimientos (v317) */
 })();
 </script>
+<script id="v338-insignias">
+/* v338: insignias sin emoji. «Vecino verificado»: sello verde con chulo (dibujo SVG). Casero y Destacado con iconos de línea. */
+window.VFI={
+ seal:'<svg class="vfs" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m8.5 12.2 2.4 2.4 4.6-4.8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v12h14V9"/><path d="M10 21v-6h4v6"/></svg>',
+ star:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>'};
+</script>
+<style id="v338-insignias-css">
+.vf.vfb,.banner .vf.vfb{display:inline-flex!important;align-items:center;gap:5px;background:#ECFDF3!important;color:#065F46!important;border:1px solid #34D399;padding:2px 9px 2px 3px!important;font-size:12.5px;font-weight:800;letter-spacing:.01em;line-height:1.5;white-space:nowrap;border-radius:0!important;vertical-align:middle}
+.vf.vfb .vfs{width:18px;height:18px;flex:none;color:#059669}
+.vf.vfi{display:inline-flex!important;align-items:center;gap:5px;color:#fff!important;white-space:nowrap;vertical-align:middle}
+.vf.vfi svg{width:14px;height:14px;flex:none}
+html.dark .vf.vfb{filter:none!important;background:#052e1f!important;color:#6EE7B7!important;border-color:#10B981!important}
+html.dark .vf.vfb .vfs{color:#10B981}
+</style>
 <script id="v337-ficha-tienda">
 /* v337: la información de la tienda (página de la tienda) en una ficha ordenada: encabezado con nombre, descripción,
    etiquetas, sellos y calificación; luego filas con icono (ubicación, horario con estado abierto/cerrado, teléfono,
@@ -4946,7 +4961,7 @@ const ageGate=s=>{const bet=ageKind(s)==='bet';return `<section class="agegate" 
 const vis=o=>!o.hidden&&(!expired(o)||adm||S.mine.includes(o.id)||S.myServ.includes(o.id)||S.myAds.includes(o.id));
 /* v120 — destacado automático (fexp = fecha de fin). v208: solo con el rol Comerciante de 6 meses o más (acc.mercF); no se vende aparte. El admin puede destacar a mano */
 const isFeat=o=>!!(o.feat||(o.fexp||0)>Date.now());
-const badge=o=>(o.kind==='casero'?'<span class="vf" style="background:#0F766E">🏠 Casero</span>':'')+(isFeat(o)?'<span class="vf" style="background:#B45309">★ Destacado</span>':'')+(o.verified?'<span class="vf">✓ Vecino verificado</span>':'');
+const badge=o=>(o.kind==='casero'?'<span class="vf vfi" style="background:#0F766E">'+(window.VFI?VFI.home:'')+'Casero</span>'/* v338: sin emoji */:'')+(isFeat(o)?'<span class="vf vfi" style="background:#B45309">'+(window.VFI?VFI.star:'')+'Destacado</span>':'')+(o.verified?'<span class="vf vfb" title="Vecino verificado por Mi Pradera">'+(window.VFI?VFI.seal:'')+'<span>Vecino verificado</span></span>'/* v338: insignia */:'');
 const featFirst=l=>l.filter(isFeat).concat(l.filter(o=>!isFeat(o)));
 const featEnd=()=>{const p=S.plan;return p&&p.acc?Number(p.acc.mercF)||0:0};
 const paidEnd=(k,type,cat)=>{if(!S.plan)return 0;const e=featEnd();return e>Date.now()?e:0};
