@@ -4342,6 +4342,15 @@ var asked=0;setInterval(function(){try{if(asked||MODE==='admin'||!S.user||docume
 /* el campo de barrio usa la lista de barrios y corregimientos (v317) */
 })();
 </script>
+<script id="v323-clasificados-dueno">
+/* v323: cuando Firebase no deja eliminar, ocultar o renovar un clasificado, se dice la causa real (sesión cerrada o
+   cuenta distinta) en vez de «faltan las reglas». Con las reglas v43 el dueño se reconoce también por su correo o celular. */
+window.comErr=function(e,que){var u=null;try{u=QH.authCur()}catch(x){}
+ if(e&&e.m)return toast(e.m);
+ if(!u||u.isAnonymous)return toast('Tu sesión se cerró: entra de nuevo con tu correo y tu clave para '+que+' el anuncio.');
+ if(e&&e.code==='permission-denied')return toast('No se pudo '+que+': Firebase no te reconoce como dueño de este anuncio. Cierra sesión y vuelve a entrar; si sigue igual, avisa al administrador.');
+ toast('No se pudo '+que+'. Revisa tu internet e inténtalo de nuevo.')};
+</script>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
@@ -6228,16 +6237,16 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-act^
  else if(a==='cmxEdit'){if(ad&&ad.ownerKey===QH.key())comForm(ad)}
  else if(a==='cmxSave')comSave(b)
  else if(a==='cmxMine'){comMineModal()}
- else if(a==='cmxHide'){if(!ad||ad.ownerKey!==QH.key())return;const nh=!ad.hid;b.disabled=true;QH.comPut(Object.assign({},ad,{hid:nh,ed:Date.now()})).then(()=>{toast(nh?'Anuncio oculto: ya no se ve en Clasificados':'Anuncio visible en Clasificados');comMineModal()},e=>{b.disabled=false;toast(e&&e.code==='permission-denied'?'No se pudo: falta publicar las reglas de Firestore v8':'No se pudo cambiar. Revisa tu internet.')})}
+ else if(a==='cmxHide'){if(!ad||ad.ownerKey!==QH.key())return;const nh=!ad.hid;b.disabled=true;QH.comPut(Object.assign({},ad,{hid:nh,ed:Date.now()})).then(()=>{toast(nh?'Anuncio oculto: ya no se ve en Clasificados':'Anuncio visible en Clasificados');comMineModal()},e=>{b.disabled=false;comErr(e,'cambiar')/* v323 */})}
  else if(a==='cmxRenew'){if(!ad||ad.ownerKey!==QH.key())return;const pl=ad.pl,now=Date.now();
   if(pl==='free'){if(comMine().some(z=>z.pl==='free'&&z.id!==ad.id&&now-(z.ts||0)<DAY))return toast('Ya usaste tu anuncio gratis de hoy. Intenta mañana o activa un plan.')}
   else if(pl==='obi'){if(comMine().some(z=>z.pl==='obi'&&z.id!==ad.id&&now-(z.ts||0)<DAY))return toast('Hoy ya publicaste otro obituario. Intenta mañana.')}/* v265 */
   else if(!accOn(pl))return toast('Tu plan ya no está activo. Compra un plan para renovar.');
   else if(pl!=='comu'&&!comActive(ad)&&comUsed(pl)>=COM_DAYS[pl])return toast('Ya usas todos los anuncios de tu plan.');
-  b.disabled=true;QH.comPut(Object.assign({},ad,{ts:now,exp:now+(pl==='free'?1:pl==='obi'?3:pl==='comu'?30:COM_DAYS[pl])*DAY,hid:false,ed:now})).then(()=>{toast('Anuncio renovado y visible');comMineModal()},e=>{b.disabled=false;toast(e&&e.code==='permission-denied'?'No se pudo: falta publicar las reglas de Firestore v8':'No se pudo renovar. Revisa tu internet.')})}
- else if(a==='cmxDelMine'){if(!ad||ad.ownerKey!==QH.key()||!await askC('¿Eliminar este anuncio?'))return;QH.comDel(id).then(()=>{toast('Anuncio eliminado');comMineModal()},()=>toast('No se pudo eliminar'))}
- else if(a==='cmxDel'){if(!ad||ad.ownerKey!==QH.key()||!await askC('¿Eliminar este anuncio?'))return;QH.comDel(id).then(()=>toast('Anuncio eliminado'),()=>toast('No se pudo eliminar'))}
- else if(a==='cmxAdmDel'){if(!adm||!ad||!await askC('¿Eliminar este anuncio de Clasificados?'))return;QH.comDel(id).then(()=>toast('Anuncio eliminado'),()=>toast('No se pudo eliminar'))}
+  b.disabled=true;QH.comPut(Object.assign({},ad,{ts:now,exp:now+(pl==='free'?1:pl==='obi'?3:pl==='comu'?30:COM_DAYS[pl])*DAY,hid:false,ed:now})).then(()=>{toast('Anuncio renovado y visible');comMineModal()},e=>{b.disabled=false;comErr(e,'renovar')/* v323 */})}
+ else if(a==='cmxDelMine'){if(!ad||ad.ownerKey!==QH.key()||!await askC('¿Eliminar este anuncio?'))return;QH.comDel(id).then(()=>{toast('Anuncio eliminado');comMineModal()},e=>comErr(e,'eliminar'))/* v323 */}
+ else if(a==='cmxDel'){if(!ad||ad.ownerKey!==QH.key()||!await askC('¿Eliminar este anuncio?'))return;QH.comDel(id).then(()=>toast('Anuncio eliminado'),e=>comErr(e,'eliminar'))/* v323 */}
+ else if(a==='cmxAdmDel'){if(!adm||!ad||!await askC('¿Eliminar este anuncio de Clasificados?'))return;QH.comDel(id).then(()=>toast('Anuncio eliminado'),e=>comErr(e,'eliminar'))/* v323 */}
  else if(a==='cmxWa'){if(ad)waOpen(ad.wa,'Hola, vi tu anuncio «'+ad.title+'» en Clasificados de Mi Pradera.')}
  else if(a==='cmxShare'){if(ad)shTxt(ad.title+' — anuncio en Clasificados, Mi Pradera',BASE_URL+'#/c/'+encodeURIComponent(ad.id))}
  else if(a==='cmxPlans'){closeModal(1);if(MODE==='index'&&!S.user){location.href=PANEL_URL+'#/comunidad';return}cmSel=comCur();view='comp';render()}
