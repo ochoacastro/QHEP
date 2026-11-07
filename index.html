@@ -3970,6 +3970,46 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
   S.site=Object.assign({},S.site,{zonas:z});save();render(true);toast(b.dataset.znreset?'Lista inicial restaurada':'Barrios y corregimientos guardados')}catch(x){if(er)er.textContent='No se pudo guardar. Intenta de nuevo.'}});
 })();
 </script>
+<style id="v318-avisos-css">
+/* v318: los avisos (toast) se muestran como ventana con X para leerlos bien */
+#toast{display:none!important}
+#qpop{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,24px);z-index:100002;display:flex;align-items:flex-start;gap:12px;width:min(440px,calc(100vw - 32px));padding:16px 8px 16px 16px;background:#fff;color:#1d1d1f;border:1px solid #d2d2d7;border-left:6px solid #16a34a;box-shadow:0 18px 40px -12px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .2s,transform .25s}
+#qpop.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#qpop.bad{border-left-color:#d70015}
+#qpop .qi{flex:none;width:24px;height:24px;margin-top:1px;color:#16a34a}#qpop.bad .qi{color:#d70015}
+#qpop p{flex:1;margin:0;font-size:16px;line-height:1.45;font-weight:500;white-space:pre-line}
+#qpop button{flex:none;display:grid;place-items:center;width:44px;height:44px;margin:-10px 0 -10px;border:0;background:transparent;color:#1d1d1f;font:inherit;font-size:22px;cursor:pointer}
+#qpop button:focus-visible{outline:2px solid #0071e3}
+html.dark #qpop{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important;border-left-color:#22c55e!important}
+html.dark #qpop.bad{border-left-color:#ff453a!important}html.dark #qpop button{color:#f5f5f7!important}
+#qpop,#qpop button{border-radius:0!important}
+@media (min-width:900px){#qpop{bottom:28px}}
+@media (prefers-reduced-motion:reduce){#qpop{transition:none}}
+</style>
+<script id="v318-avisos">
+/* v318: todos los avisos de la página (toast) salen como una ventana con un botón X para cerrarla.
+   Los avisos de error o largos se quedan hasta que la persona los cierre; los cortos de «listo» se cierran solos a los 5 s.
+   Si algo falla, borra este bloque: vuelven los avisos de antes. */
+(function(){
+var BAD=/no se pudo|no pudimos|error|falt|revisa|int[eé]nta|necesitas|no tienes|no puedes|venci|expir|se cerr|demasiad|incorrect|no es v[aá]lid|primero|ya usaste|en pausa/i;
+var OK='<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';
+var WARN='<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>';
+var t=0,prev=null;
+function el(){var p=document.getElementById('qpop');if(p)return p;p=document.createElement('div');p.id='qpop';p.innerHTML='<span></span><p></p><button type="button" aria-label="Cerrar aviso">✕</button>';document.body.appendChild(p);
+ p.querySelector('button').addEventListener('click',function(){hide(true)});return p}
+function hide(f){var p=document.getElementById('qpop');clearTimeout(t);if(!p)return;p.classList.remove('on');p.removeAttribute('role');if(f&&prev&&prev.isConnected&&prev.focus)try{prev.focus({preventScroll:true})}catch(e){}prev=null}
+function show(m){m=String(m==null?'':m).trim();if(!m)return;var p=el(),bad=BAD.test(m);
+ p.classList.toggle('bad',bad);p.querySelector('span').innerHTML=bad?WARN:OK;p.querySelector('p').textContent=m;
+ p.setAttribute('role',bad?'alert':'status');p.classList.add('on');clearTimeout(t);
+ if(!bad&&m.length<=70)t=setTimeout(function(){hide(false)},5000)}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var p=document.getElementById('qpop');if(p&&p.classList.contains('on')&&!document.getElementById('ov')){hide(true)}}});
+function wrap(){if(typeof window.toast!=='function'||window.toast.__qpop)return;var t0=window.toast;var w=function(m){try{show(m)}catch(x){}return t0.apply(this,arguments)};w.__qpop=1;
+ for(var k in t0)if(Object.prototype.hasOwnProperty.call(t0,k))w[k]=t0[k];window.toast=w}
+/* el aviso de «Publicando…» (pubFx) envuelve toast cuando carga la página; este va por fuera de ese */
+window.addEventListener('load',function(){setTimeout(wrap,50)});setTimeout(wrap,3000);
+window.qpopHide=hide;
+})();
+</script>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
@@ -4258,7 +4298,7 @@ const QH=(function(){
  let planK='',planUn=null,acctBusy=false;
  async function acctEnsure(){const k=key(),u=S.user;if(!k||!u||acctBusy)return;acctBusy=true;await authP;const r=ref('plans',k),now=Date.now();
   try{await db.runTransaction(async t=>{const s=await t.get(r);if(s.exists)return;t.set(r,{k,name:u.name||'',wa:u.wa||'',email:u.email||'',plan:'free',trial:false,paid:false,start:now,end:now+3650*DAY,featSlots:0,ts:now,...(auth.currentUser?{uid:auth.currentUser.uid}:{})})})}catch(e){planErr(e)}acctBusy=false}
- function planErr(e){S.planErr=(e&&e.code)||'error';if(!$('#ov'))render(true);else toast(S.planErr==='permission-denied'?'No se pudo crear tu cuenta: faltan publicar las reglas de Firestore para "plans". Avisa al administrador.':'No se pudo continuar ('+S.planErr+'). Revisa tu internet e inténtalo de nuevo.')}
+ function planErr(e){S.planErr=(e&&e.code)||'error';/* v318: si Firebase cerró la sesión (quedó como visitante) no es culpa de las reglas: se pide entrar de nuevo */if(S.planErr==='permission-denied'&&S.user&&auth&&auth.currentUser&&auth.currentUser.isAnonymous){S.planErr='';S.user=null;S.plan=null;planK='';if(planUn){try{planUn()}catch(x){}planUn=null}derive();save();syncUI();closeModal(1);toast('Tu sesión se cerró. Entra de nuevo con tu correo y tu clave para continuar.');if(MODE==='panel'){render();loginForm()}return}if(!$('#ov'))render(true);else toast(S.planErr==='permission-denied'?'No se pudo crear tu cuenta: faltan publicar las reglas de Firestore para "plans". Avisa al administrador.':'No se pudo continuar ('+S.planErr+'). Revisa tu internet e inténtalo de nuevo.')}
  function planListen(){if(MODE==='admin'||!ready)return;const k=key();
   if(!k){if(planUn)planUn();planUn=null;planK='';S.plan=null;return}
   if(planK===k)return;planK=k;if(planUn)planUn();
