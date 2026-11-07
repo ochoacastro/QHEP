@@ -4705,7 +4705,7 @@ const QH=(function(){
   return D}
  /* ---- qué puede escribir cada archivo ---- */
  function how(c,nd,od){const k=key();
-  if(MODE==='admin')return'set';
+  if(MODE==='admin')return adm?'set':null;/* v336: sin la sesión de administrador no se intenta guardar (lo pendiente se guarda al entrar) */
   if(MODE==='panel'){
    if(c==='stores'||c==='products'||c==='services'||c==='ads'){const o=(nd||od).ownerKey;return k&&o===k&&(!od||!nd||od.ownerKey===k)?'set':null}
    if(c==='cats')return nd&&!od?'set':null;
@@ -4749,7 +4749,7 @@ const QH=(function(){
    const o={},L={};snap.forEach(d=>{const x=d.data();o[d.id]=x;L[d.id]={j:sj(x),d:x}});RAW[c]=o;LAST[c]=L;
    if(first){first=false;done();return}
    if(ready&&!same(c)){rebuild();sched()}
-  },e=>{if(!ready)fail(e);else if(c==='reports'){repL=false}else wfail(e)})}
+  },e=>{if(!ready)fail(e);else if(c==='reports'){repL=false}else if(c==='plans'){plL=false/* v336: se vuelve a escuchar al entrar */}else if(!(e&&e.code==='permission-denied'))wfail(e)/* v336: una lectura negada no es «guardar» */})}
  function fail(e){failed=true;hideSplash();const c=(e&&e.code)||'';
   $('#app').innerHTML=`<div class="cg"><h2>No pudimos conectar con la base de datos</h2><p class="muted">${esc(c==='permission-denied'?'Faltan publicar las reglas de seguridad de Firestore (ver LEEME).':c==='timeout'||c==='unavailable'?'Revisa tu conexión a internet e inténtalo de nuevo.':'Ocurrió un error ('+(c||e)+').')}</p><button class="btn pink" onclick="location.reload()">Reintentar</button></div>`}
  let plL=false;
