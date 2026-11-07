@@ -3,7 +3,9 @@
 name: Noticias
 on:
   schedule:
-    - cron: '17 * * * *'
+    # v301: cada 10 minutos (con «cada hora» GitHub la estaba corriendo cada 4 a 6 horas y las noticias nuevas
+    # se compartían sin su titular ni su imagen). Cada ejecución dura unos segundos.
+    - cron: '*/10 * * * *'
   workflow_dispatch:
 permissions:
   contents: write
@@ -27,4 +29,5 @@ jobs:
           git config user.name "Mi Pradera (noticias)"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Noticias: páginas, archivo, RSS y sitemap actualizados"
-          git push
+          # v301: si mientras corría se fusionó algo en main, se pone al día y vuelve a intentar
+          for i in 1 2 3; do git pull --rebase origin main && git push && exit 0; sleep 5; done; exit 1
