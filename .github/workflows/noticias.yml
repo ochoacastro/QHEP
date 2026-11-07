@@ -6,6 +6,10 @@ on:
     # v301: cada 10 minutos (con «cada hora» GitHub la estaba corriendo cada 4 a 6 horas y las noticias nuevas
     # se compartían sin su titular ni su imagen). Cada ejecución dura unos segundos.
     - cron: '*/10 * * * *'
+  # v315: GitHub no siempre cumple el horario (el 7 de noviembre pasó 7 horas sin correrla); también corre
+  # cada vez que se integra un cambio en main. Lo que esta acción sube (con GITHUB_TOKEN) no la vuelve a disparar.
+  push:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: write
