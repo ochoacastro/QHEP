@@ -3401,6 +3401,15 @@ html.dark .hnegn{background:#2f333c!important;color:#fff!important;border:1px so
 html.dark .hnegb{background:#fff!important;color:#000!important}
 html.dark .hnegl{color:#4da3ff!important}
 </style>
+<script id="v299-abrir-enlace">
+/* v299: al abrir un enlace de tienda o producto, si los datos todavía no han llegado (celular lento o datos guardados viejos),
+   espera y vuelve a intentar durante 15 s en vez de mandar al inicio. Si algo falla, borra este <script>. */
+(function(){var T0=Date.now(),pend='',tm=0,said=0;
+window.rtWait=function(){if(Date.now()-T0>15000){pend='';return false}
+ pend=location.hash;if(!said){said=1;try{toast('Abriendo…')}catch(e){}}
+ clearTimeout(tm);tm=setTimeout(function(){if(!pend)return;try{if(location.hash!==pend)history.replaceState(null,'',pend);route()}catch(e){}},700);return true};
+})();
+</script>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
@@ -4477,11 +4486,11 @@ if(location.hash!==h){try{history.replaceState(null,'',h)}catch(e){}}
 document.title=MODE!=='index'?TITLE:pr?pr.name+' – '+s.name+' – Mi Pradera':s?s.name+' – Mi Pradera':ad?ad.title+' – Mi Pradera':nwx?nwx.title+' – Noticias de Mi Pradera':view==='news'?'Noticias de Pradera – Mi Pradera':'Mi Pradera – Lo nuestro, en un solo lugar';
 const m=document.querySelector('meta[name=description]');if(m)m.content=pr?pr.name+' en '+s.name+' – Mi Pradera.':s?s.name+' en Mi Pradera: '+s.desc:ad?ad.title+' en Mi Pradera.':nwx?nwPlain(nwx.text).replace(/\s+/g,' ').slice(0,155):'Compra, arrienda y contrata con vecinos de Pradera. Lo nuestro, en un solo lugar.'}
 function route(){const h=decodeURIComponent(location.hash||''),mn=h.match(/^#\/n\/(.+)$/),m=h.match(/^#\/t\/(.+)$/),ma=h.match(/^#\/a\/(.+)$/),mp=h.match(/^#\/p\/([^\/]+)\/(.+)$/);
-if(mp){const s=S.stores.find(x=>x.id===mp[1])||stFind(mp[1]),p=s&&s.products.find(x=>x.id===mp[2].split('?')[0]);if(s&&p&&vis(s)){view='prod';cur=s.id;curP=p.id;pI=0;pQ=1;{const qs=new URLSearchParams(mp[2].split('?')[1]||''),vq=qs.get('v')||'',tq=qs.get('t')||'',c=vq&&csv(p.color).find(c=>vId(p,c)===vq),z=tq&&csv(p.sizes).find(z=>z===tq);if(c||z)pSel[p.id]=Object.assign({},pSel[p.id],c?{co:c}:{},z?{sz:z}:{})}/* v296: también la talla *//* v291: el enlace de una variación abre ese color */}else{view='home';toast('Ese producto no está disponible en este dispositivo')}}
+if(mp){const s=S.stores.find(x=>x.id===mp[1])||stFind(mp[1]),p=s&&s.products.find(x=>x.id===mp[2].split('?')[0]);if(s&&p&&vis(s)){view='prod';cur=s.id;curP=p.id;pI=0;pQ=1;{const qs=new URLSearchParams(mp[2].split('?')[1]||''),vq=qs.get('v')||'',tq=qs.get('t')||'',c=vq&&csv(p.color).find(c=>vId(p,c)===vq),z=tq&&csv(p.sizes).find(z=>z===tq);if(c||z)pSel[p.id]=Object.assign({},pSel[p.id],c?{co:c}:{},z?{sz:z}:{})}/* v296: también la talla *//* v291: el enlace de una variación abre ese color */}else if(typeof rtWait==='function'&&rtWait())return;/* v299 */else if(s&&vis(s)){view='store';cur=s.id;toast('Ese producto ya no está disponible. Te mostramos la tienda.')}else{view='home';toast('Ese producto no está disponible en este dispositivo')}}
 else if(/^#\/nw\/.+/.test(h)){curN=h.slice(5);view='news'}
 else if(h==='#/noticias'){curN='';view='news'}
 else if(mn){const s=S.stores.find(x=>x.id===mn[1]);if(s&&vis(s)){view='card';cur=s.id}else{view='home';toast('Esa tarjeta no está disponible en este dispositivo')}}
-else if(m){const s=stFind(m[1]);if(s&&vis(s)){view='store';cur=s.id}else{view='home';toast('Esa tienda no está disponible en este dispositivo')}}
+else if(m){const s=stFind(m[1]);if(s&&vis(s)){view='store';cur=s.id}else if(typeof rtWait==='function'&&rtWait())return;/* v299: espera a que lleguen las tiendas */else{view='home';toast('Esa tienda no está disponible en este dispositivo')}}
 else if(ma){const a=S.ads.find(x=>x.id===ma[1]);if(a&&vis(a)){view='ad';curAd=a.id}else{view='home';toast('Ese anuncio venció o no está disponible en este dispositivo')}}
 else if(h==='#/servicios')view='serv';else if(h==='#/mapa')view='map';else if(h==='#/categorias')view='cats';else if(h==='#/sugerencias')view='sug';else if(h==='#/guias')view='guias';else if(h==='#/comunidad')view='com';else if(h==='#/planes'&&MODE==='panel')view='planes';else view=Object.keys(ADT).find(k=>'#/'+ADT[k].slug===h)||'home';render()}
 const THIS_Y=new Date().getFullYear(),MODS=['Por horas','Por días','Tiempo completo','Por trabajo u obra'],MATS=['Las pone el cliente','Las pongo yo','A convenir'];
