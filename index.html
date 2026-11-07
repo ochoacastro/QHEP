@@ -4139,7 +4139,7 @@ function ofH(){if(!me())return '<p class="muted">Entra con tu correo y tu clave 
  return OF.length?grp(OF,function(p){var s=st(p.sid)||{},a=payBtn(p,p.id);if(p.st==='nuevo')a+='<button type="button" class="btn ghost" data-ordcanc="'+E(p.id)+'">Cancelar pedido</button>';a+=waBtn(s.wa,'Hola '+p.sname+', te escribo por mi pedido de Mi Pradera ('+M(p.total)+').','WhatsApp de la tienda');
   return '<div class="ordc"><div class="ordh"><div><b>'+E(p.sname)+'</b><small>'+E(D(p.ts))+'</small></div><strong>'+E(M(p.total))+'</strong></div>'+tags(p)+items(p)+(p.note?'<small><b>Tu nota:</b> '+E(p.note)+'</small>':'')+adrH(p)+(a?'<div class="orda">'+a+'</div>':'')+'</div>'}):'<p class="muted">Aún no has hecho pedidos por la aplicación.</p>'}
 /* v322: dirección de entrega del pedido, con enlaces al mapa */
-function adrH(p){var a=p.addr;if(!a||!(a.dir||a.plus))return '';var m=typeof adrMaps==='function'?adrMaps(a):'';var dr=a.lat!=null?'https://www.google.com/maps/dir/?api=1&destination='+a.lat+','+a.lng:'';
+function adrH(p){var a=p.addr;if(!a||!(a.dir||a.plus))return '';var m=typeof adrMaps==='function'?adrMaps(a):'';var dr=m?'https://www.google.com/maps/dir/?api=1&destination='+(a.lat!=null?a.lat+','+a.lng:encodeURIComponent([a.dir,a.zone,'Pradera, Valle del Cauca'].filter(Boolean).join(', '))):'';
  return '<div class="oaddr"><b>Entregar en'+(a.lb&&a.lb!=='Principal'?' ('+E(a.lb)+')':'')+':</b>'+E([a.dir,a.zone].filter(Boolean).join(', '))+(a.ref?'<small>'+E(a.ref)+'</small>':'')+(a.plus?'<small>Código plus: '+E(a.plus)+'</small>':'')+((m||dr)?'<div class="orda">'+(m?'<a class="btn ghost" href="'+E(m)+'" target="_blank" rel="noopener">Ver en el mapa</a>':'')+(dr?'<a class="btn ghost" href="'+E(dr)+'" target="_blank" rel="noopener">Cómo llegar</a>':'')+'</div>':'')+'</div>'}
 /* v321: pedidos agrupados por tienda */
 function grp(L,f){var G={},o=[];L.forEach(function(p){if(!G[p.sid]){G[p.sid]=[];o.push(p.sid)}G[p.sid].push(p)});
@@ -4229,7 +4229,8 @@ window.addEventListener('resize',place);setInterval(function(){place();badge()},
 </script>
 <style id="v322-direcciones-css">
 /* v322: direcciones de entrega */
-.admap{height:260px;margin:8px 0 6px;border:2px solid #d2d2d7;background:#e5e7eb}
+.admap{height:280px;margin:8px 0 6px;border:2px solid #d2d2d7;background:#e5e7eb}.admap iframe{width:100%;height:100%;border:0;display:block}
+.adconf{display:flex;gap:10px;align-items:flex-start;margin:6px 0;font-size:15px;font-weight:600}.adconf input{width:24px;height:24px;flex:none}
 .adhint{font-size:13.5px;color:#6e6e73;margin:0 0 6px}
 .adbtns{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}.adbtns .btn{min-height:42px;padding:8px 14px;font-size:14px}
 .adok{font-size:13.5px;font-weight:700;color:#166534}.adno{font-size:13.5px;font-weight:700;color:#b45309}
@@ -4252,7 +4253,8 @@ html.dark .oaddr{background:#2c2c2e!important;color:#f5f5f7!important}html.dark 
 <script id="v322-direcciones">
 /* v322: DIRECCIONES DE ENTREGA.
    - Quien tiene cuenta registra su dirección principal (obligatoria): barrio o corregimiento, dirección, indicaciones,
-     código plus (opcional, con el video de cómo sacarlo) y el punto en el mapa, que se ve mientras la escribe.
+     código plus (opcional, con el video de cómo sacarlo). Mientras la escribe ve el mapa de Google con el lugar
+     (por el código plus, su ubicación actual o la dirección) y confirma que es su casa.
    - Puede guardar una segunda dirección y editar las dos cuando quiera (Mi cuenta → Mis direcciones).
    - Al pedir, va la principal; puede elegir la segunda u «Otra dirección» solo para ese pedido.
    - El vendedor la recibe con el pedido (por la aplicación o en el mensaje de WhatsApp) con enlaces a Google Maps.
@@ -4265,12 +4267,13 @@ function ld(){var k=K();if(!k)return {};try{var o=JSON.parse(localStorage.getIte
 function sv(o){var k=K();if(!k)return;try{localStorage.setItem(k,JSON.stringify(o))}catch(e){}}
 window.adrGet=function(w){return ld()[w||'main']||null};
 window.adrTxt=function(a){if(!a)return '';return [a.dir,a.zone].filter(Boolean).join(', ')+(a.ref?' ('+a.ref+')':'')};
-window.adrMaps=function(a){return a&&a.lat!=null?'https://www.google.com/maps/search/?api=1&query='+a.lat+','+a.lng:a&&a.plus?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(/\s/.test(a.plus)?a.plus:a.plus+' Pradera, Valle del Cauca'):''};
+function gq(a){return a&&a.lat!=null?a.lat+','+a.lng:a&&a.plus?(/\s/.test(a.plus)?a.plus:a.plus+' Pradera, Valle del Cauca'):a&&a.dir?[a.dir,a.zone,'Pradera, Valle del Cauca'].filter(Boolean).join(', '):''}
+window.adrMaps=function(a){var q=gq(a);return q?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q):''};
 window.adrWa=function(a){if(!a)return '';var m=adrMaps(a);return '\nDirección de entrega: '+adrTxt(a)+(a.plus?'\nCódigo plus: '+a.plus:'')+(m?'\nUbicación en el mapa: '+m:'')};
 window.adrClean=function(a){if(!a)return null;var o={lb:String(a.lb||'').slice(0,30),zone:String(a.zone||'').slice(0,40),dir:String(a.dir||'').slice(0,120),ref:String(a.ref||'').slice(0,160),plus:String(a.plus||'').slice(0,80)};if(isFinite(a.lat)&&isFinite(a.lng)&&a.lat!=null&&a.lng!=null){o.lat=Math.round(+a.lat*1e6)/1e6;o.lng=Math.round(+a.lng*1e6)/1e6}return o};
 /* ---- formulario con mapa ---- */
-var F=null,mp=null,mk=null;
-window.adrForm=function(w,done,req){var a=w==='tmp'?(F&&F.tmp)||{}:(ld()[w]||{}),main=w==='main';F={w:w,done:done,lat:a.lat,lng:a.lng,pin:a.lat!=null};
+var F=null,qT=0;
+window.adrForm=function(w,done,req){var a=w==='tmp'?(F&&F.tmp)||{}:(ld()[w]||{}),main=w==='main';F={w:w,done:done,lat:a.lat,lng:a.lng,src:a.lat!=null?'old':''};
  modal('<h2>'+(main?'Tu dirección principal':w==='alt'?'Segunda dirección de envío':'Otra dirección para este pedido')+'</h2>'+
   (req?'<p class="omw">Para hacer pedidos necesitas registrar tu dirección. La tienda la recibe con cada pedido para saber exactamente a dónde llevarlo.</p>':'')+
   (w!=='main'?'<label for="ad-lb">Nombre de esta dirección</label><input id="ad-lb" type="text" maxlength="30" value="'+E(a.lb||(w==='alt'?'Trabajo':''))+'" placeholder="Ej: Trabajo, Casa de mi mamá">':'')+
@@ -4280,35 +4283,42 @@ window.adrForm=function(w,done,req){var a=w==='tmp'?(F&&F.tmp)||{}:(ld()[w]||{})
   '<label for="ad-plus">Código plus de Google Maps (opcional)</label><input id="ad-plus" type="text" maxlength="80" value="'+E(a.plus||'')+'" placeholder="Ej: CQ94+H47 Pradera, Valle del Cauca">'+
   '<p class="adhint">Sirve en los lugares que no se encuentran fácil solo con la dirección (fincas, veredas, casas sin número).</p>'+
   '<button type="button" class="btn ghost" data-act="plusVid" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left"><img src="'+(typeof ytThumb==='function'?ytThumb('MQ6c-4SBo9Y'):'')+'" alt="" width="72" height="54" loading="lazy" style="object-fit:cover"><span><b>Ver video:</b> cómo sacar tu código plus en Google Maps</span></button>'+
-  '<p style="margin:14px 0 0;font-weight:700">Tu ubicación en el mapa</p><p class="adhint">Toca el mapa o arrastra el pin hasta tu casa. Así la tienda sabe exactamente dónde es.</p>'+
-  '<div class="admap" id="ad-map" role="application" aria-label="Mapa para marcar tu dirección"></div><p id="ad-st" class="'+(F.pin?'adok':'adno')+'">'+(F.pin?'Ubicación marcada':'Aún no has marcado tu ubicación')+'</p>'+
+  '<p style="margin:14px 0 0;font-weight:700">Tu ubicación en el mapa</p><p class="adhint">El mapa de Google muestra el lugar según tu código plus, tu ubicación actual o tu dirección. Revisa que sea tu casa: así la tienda sabe exactamente dónde es.</p>'+
+  '<div class="admap" id="ad-map"></div><p id="ad-st" class="adno"></p>'+
   '<div class="adbtns"><button type="button" class="btn ghost" data-adgeo="1">Usar mi ubicación actual</button></div>'+
+  '<label class="adconf"><input type="checkbox" id="ad-conf"'+(a.dir||a.plus?' checked':'')+'><span>Sí, el mapa muestra mi casa</span></label>'+
   (w==='tmp'&&S.user?'<label style="display:flex;gap:10px;align-items:center;margin-top:6px"><input type="checkbox" id="ad-keep" style="width:22px;height:22px"> Guardarla como mi segunda dirección</label>':'')+
   '<p class="err" id="ad-err" role="alert"></p><div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-adsave="1">Guardar dirección</button>'+(req&&main?'':'<button type="button" class="btn ghost" data-act="close">Cancelar</button>')+'</div>');
  if(req&&main){var ov=document.getElementById('ov');if(ov)ov.dataset.lock='1'}
- setTimeout(mapOn,60)};
-function setPin(lat,lng,why){F.lat=lat;F.lng=lng;F.pin=true;if(mk)mk.setLatLng([lat,lng]);else if(mp&&window.L)mk=L.marker([lat,lng],{draggable:true}).addTo(mp).on('dragend',function(){var p=mk.getLatLng();setPin(p.lat,p.lng,'mapa')});
- var er=document.getElementById('ad-err');if(er)er.textContent='';var s=document.getElementById('ad-st');if(s){s.className='adok';s.textContent='Ubicación marcada'+(why==='plus'?' con el código plus':why==='gps'?' con tu ubicación actual':'')+'. Revisa que sea tu casa.'}}
-async function mapOn(){var el=document.getElementById('ad-map');if(!el)return;try{await loadLeaflet()}catch(e){el.innerHTML='<p class="adhint" style="padding:12px">No se pudo cargar el mapa. Revisa tu conexión.</p>';return}
- if(!document.getElementById('ad-map'))return;mk=null;var c=F.pin?[F.lat,F.lng]:(typeof PRADERA!=='undefined'?PRADERA:[3.4189,-76.2433]);
- mp=L.map(el).setView(c,F.pin?17:14);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(mp);
- if(F.pin)setPin(F.lat,F.lng);mp.on('click',function(e){setPin(e.latlng.lat,e.latlng.lng,'mapa')});setTimeout(function(){try{mp.invalidateSize()}catch(e){}},200)}
-document.addEventListener('input',function(e){if(!e.target||e.target.id!=='ad-plus'||!F)return;var c=null;try{c=plusLL(e.target.value)}catch(x){}if(c){var ll=Array.isArray(c)?c:[c.lat,c.lng];if(isFinite(ll[0])&&isFinite(ll[1])){setPin(ll[0],ll[1],'plus');if(mp)mp.setView(ll,17)}}});
+ setTimeout(gmap,60)};
+/* mapa de Google dentro del formulario (no se mueve el pin: muestra el lugar buscado) */
+function cur(){var g=function(id){var x=document.getElementById(id);return x?x.value.trim():''};return {dir:g('ad-dir'),zone:g('ad-zone'),plus:g('ad-plus'),lat:F&&F.lat,lng:F&&F.lng}}
+function gmap(){var el=document.getElementById('ad-map');if(!el||!F)return;var c=cur(),q=gq(c),st=document.getElementById('ad-st');
+ if(!q){el.innerHTML='<p class="adhint" style="padding:14px">Escribe tu dirección o tu código plus, o toca «Usar mi ubicación actual», y aquí verás el lugar.</p>';if(st){st.className='adno';st.textContent='Aún no hay ubicación para mostrar'}return}
+ var src='https://maps.google.com/maps?q='+encodeURIComponent(q)+'&z=17&output=embed',f=el.querySelector('iframe');if(f&&f.dataset.q===q)return;
+ el.innerHTML='<iframe title="Mapa de tu dirección" loading="lazy" referrerpolicy="no-referrer-when-downgrade" data-q="'+E(q)+'" src="'+E(src)+'"></iframe>';
+ if(st){st.className='adok';st.textContent=F.src==='gps'?'Mostrando tu ubicación actual. Revisa que sea tu casa.':F.src==='plus'?'Mostrando tu código plus. Revisa que sea tu casa.':F.lat!=null?'Mostrando la ubicación guardada. Revisa que sea tu casa.':'Mostrando tu dirección. Si no es exacta, agrega tu código plus o usa tu ubicación actual.'}}
+function later(){clearTimeout(qT);qT=setTimeout(gmap,900)}
+function setPin(lat,lng,why){F.lat=lat;F.lng=lng;F.src=why;var er=document.getElementById('ad-err');if(er)er.textContent='';var cf=document.getElementById('ad-conf');if(cf)cf.checked=false;gmap()}
+document.addEventListener('input',function(e){if(!F||!e.target)return;var id=e.target.id;
+ if(id==='ad-plus'){var c=null;try{c=plusLL(e.target.value)}catch(x){}if(c){var ll=Array.isArray(c)?c:[c.lat,c.lng];if(isFinite(ll[0])&&isFinite(ll[1])){setPin(ll[0],ll[1],'plus');return}}if(F.src==='plus'){F.lat=null;F.lng=null;F.src=''}later();return}
+ if(id==='ad-dir'||id==='ad-zone'){if(F.src==='old'){F.lat=null;F.lng=null;F.src=''}later()}});
+document.addEventListener('change',function(e){if(F&&e.target&&(e.target.id==='ad-zone'||e.target.classList&&e.target.classList.contains('znsel')&&document.getElementById('ad-zone'))){if(F.src==='old'){F.lat=null;F.lng=null;F.src=''}later()}});
 addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;var b;
  if((b=t.closest('[data-adgeo]'))){e.preventDefault();if(!navigator.geolocation)return toast('Tu teléfono no permite usar la ubicación.');b.disabled=true;b.textContent='Buscando tu ubicación…';
-  navigator.geolocation.getCurrentPosition(function(p){b.disabled=false;b.textContent='Usar mi ubicación actual';setPin(p.coords.latitude,p.coords.longitude,'gps');if(mp)mp.setView([p.coords.latitude,p.coords.longitude],17)},function(){b.disabled=false;b.textContent='Usar mi ubicación actual';toast('No se pudo obtener tu ubicación. Revisa que el permiso de ubicación esté activo, o marca el punto en el mapa.')},{enableHighAccuracy:true,timeout:15000});return}
+  navigator.geolocation.getCurrentPosition(function(p){b.disabled=false;b.textContent='Usar mi ubicación actual';setPin(Math.round(p.coords.latitude*1e6)/1e6,Math.round(p.coords.longitude*1e6)/1e6,'gps')},function(){b.disabled=false;b.textContent='Usar mi ubicación actual';toast('No se pudo obtener tu ubicación. Revisa que el permiso de ubicación esté activo, o escribe tu dirección o tu código plus.')},{enableHighAccuracy:true,timeout:15000});return}
  if((b=t.closest('[data-adsave]'))){e.preventDefault();var g=function(id){var x=document.getElementById(id);return x?x.value.trim().replace(/\s+/g,' '):''},er=document.getElementById('ad-err');
   var a={lb:g('ad-lb')||(F.w==='main'?'Principal':''),zone:g('ad-zone'),dir:g('ad-dir'),ref:g('ad-ref'),plus:g('ad-plus')};
   if(a.zone.length<2)return er.textContent='Elige tu barrio o corregimiento.';if(a.dir.length<5&&!a.plus)return er.textContent='Escribe tu dirección (o tu código plus si no tienes dirección).';
-  if(!F.pin)return er.textContent='Marca tu casa en el mapa: tócalo, usa tu ubicación actual o escribe tu código plus.';
-  a.lat=F.lat;a.lng=F.lng;a=adrClean(a);var w=F.w,dn=F.done;
+  var cf=document.getElementById('ad-conf');if(!cf||!cf.checked)return er.textContent='Revisa el mapa y marca «Sí, el mapa muestra mi casa». Si no es tu casa, agrega tu código plus o usa tu ubicación actual.';
+  if(F.lat!=null&&F.src!==''){a.lat=F.lat;a.lng=F.lng}a=adrClean(a);var w=F.w,dn=F.done;
   if(w==='tmp'){F.tmp=a;var kp=document.getElementById('ad-keep');if(kp&&kp.checked){var o=ld();o.alt=a;sv(o)}}else{var o2=ld();o2[w]=a;sv(o2)}
   closeModal(1);toast(w==='tmp'?'Dirección lista para este pedido':'Dirección guardada');if(typeof dn==='function')dn(a);return}
  if((b=t.closest('[data-adedit]'))){e.preventDefault();closeModal(1);adrForm(b.dataset.adedit,function(){adrOpen()});return}
  if((b=t.closest('[data-addel]'))){e.preventDefault();if(!(await askC('¿Borrar tu segunda dirección?','Borrar')))return;var o3=ld();delete o3.alt;sv(o3);adrOpen();return}
  if((b=t.closest('[data-act="adrOpen"]'))){e.preventDefault();e.stopImmediatePropagation();closeModal(1);adrOpen();return}},true);
 /* ---- Mi cuenta → Mis direcciones ---- */
-function card(w,a){var m=adrMaps(a);return '<div class="adc"><h3>'+E(w==='main'?'Dirección principal':(a.lb||'Segunda dirección'))+(w==='main'?'<em>POR DEFECTO</em>':'')+'</h3><p>'+E(adrTxt(a))+'</p>'+(a.plus?'<small>Código plus: '+E(a.plus)+'</small>':'')+(a.lat!=null?'<small>Ubicación marcada en el mapa</small>':'')+
+function card(w,a){var m=adrMaps(a);return '<div class="adc"><h3>'+E(w==='main'?'Dirección principal':(a.lb||'Segunda dirección'))+(w==='main'?'<em>POR DEFECTO</em>':'')+'</h3><p>'+E(adrTxt(a))+'</p>'+(a.plus?'<small>Código plus: '+E(a.plus)+'</small>':'')+(a.lat!=null?'<small>Con ubicación exacta (código plus o ubicación actual)</small>':'')+
  '<div class="orda"><button type="button" class="btn" data-adedit="'+w+'">Editar</button>'+(m?'<a class="btn ghost" href="'+E(m)+'" target="_blank" rel="noopener">Ver en el mapa</a>':'')+(w==='alt'?'<button type="button" class="btn ghost" data-addel="1">Borrar</button>':'')+'</div></div>'}
 window.adrOpen=function(){var o=ld();modal('<h2>Mis direcciones</h2><p class="muted">La tienda recibe tu dirección con cada pedido. Se guardan solo en este dispositivo.</p>'+
  (o.main?card('main',o.main):'<div class="adc"><h3>Dirección principal</h3><p class="adno">Aún no la has registrado.</p><div class="orda"><button type="button" class="btn pink" data-adedit="main">Agregar mi dirección</button></div></div>')+
