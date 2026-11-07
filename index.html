@@ -3140,6 +3140,12 @@ document.addEventListener('click',async function(e){var b=e.target.closest&&e.ta
 window.ytVert=function(y){try{if(!/^https?:$/.test(location.protocol))return;fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+y)).then(function(r){return r.json()}).then(function(j){if(j&&j.height>j.width&&document.getElementById('lb')&&lb&&lb.l&&lb.l.indexOf('yt:'+y)>=0&&!lb.v){lb.v=1;lbRender()}}).catch(function(){})}catch(e){}};
 })();
 </script>
+<style id="v286-crear-tienda-css">
+/* v286: «¿Qué quieres publicar?»: texto bajo «Crear tienda» con enlaces a Servicios, Inmuebles y Vehículos */
+.pmx{margin:10px 0 0;font-size:13.5px;line-height:1.5}
+.pmx button{background:none;border:0;padding:4px 2px;min-height:32px;color:var(--color-sapphire,#06c);font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:.18em;cursor:pointer}
+html.dark .pmx button{color:#4da3ff!important}
+</style>
 <script id="v219-modo-oscuro">
 /* v219: MODO OSCURO DE VERDAD. Antes se invertian los colores de toda la pagina (filter:invert) y luego se volvian a invertir
    las imagenes; esa doble inversion no es exacta y cambiaba los colores intensos de las fotos (p. ej. el rosado salia morado).
@@ -4321,7 +4327,7 @@ function pubMenu(){const now=Date.now(),fd=t=>new Date(t).toLocaleDateString('es
  head=(ic,t,badge,d)=>`<div class="pmh"><b>${ic} ${t}</b>${badge}</div><p class="muted pmd">${d}</p>`,
  btn=(act,v,ic,t,x)=>`<button type="button" class="pmb${x?' act':''}" data-act="${act}" data-v="${v}"><span aria-hidden="true">${ic}</span>${t}</button>`;
  modal(`<h2>¿Qué quieres publicar?</h2><p class="muted" style="margin-top:-4px">Elige según tu rol. Puedes tener varios.</p>
-<section class="pms" aria-label="Rol Comerciante">${head('🏪','Comerciante',stE(mEnd),'Para negocios. Se activa con código de 1, 3, 6, 9 meses o 1 año (6 meses o más incluyen ★ destacado).')}<div class="pmg">${btn('pub','shop','🛍️','Tienda')}${btn('pub','food','🍽️','Comidas')}${btn('pub','pelu','💈','Peluquería')}${btn('pub','serv','🛠️','Servicio')}${btn('pub','inm','🏠','Inmueble')}${btn('pub','veh','🚗','Vehículo')}</div>${mOn?'':`<div class="pmg one" style="margin-top:8px">${btn('cdOpen','merc','🔓','Activar rol Comerciante',1)}</div>`}</section>
+<section class="pms" aria-label="Rol Comerciante">${head('🏪','Comerciante',stE(mEnd),'Para negocios. Se activa con código de 1, 3, 6, 9 meses o 1 año (6 meses o más incluyen ★ destacado).')}<div class="pmg one">${btn('pub','shop','🏪','Crear tienda',1)}</div><p class="muted pmx">Adentro eliges qué tipo de negocio es (tienda, comidas, peluquería…). ¿Vas a ofrecer un servicio, un inmueble o un vehículo? Publícalo desde su sección: <button type="button" data-qgo="serv">Servicios</button> · <button type="button" data-qgo="arr">Inmuebles</button> · <button type="button" data-qgo="veh">Vehículos</button></p>${''/* v286: un solo botón «Crear tienda» */}${mOn?'':`<div class="pmg one" style="margin-top:8px">${btn('cdOpen','merc','🔓','Activar rol Comerciante',1)}</div>`}</section>
 <section class="pms" aria-label="Clasificados">${head('📢','Clasificados','',esc(comAvailTxt())+'. Para personas: vende, compra, arrienda, busca empleo…')}<div class="pmg one">${btn('pubGo','com','📢','Publicar un clasificado',1)}${btn('cdOpen','com','🎟️','Paquetes de 3, 7, 15 y 30 días')}</div></section>
 <section class="pms" aria-label="Rol Comunidad">${head('🤝','Comunidad',stE(accEnd('comu')),'Avisos de juntas, iglesias, fundaciones, objetos perdidos… Gratis por 1 año con código.')}<div class="pmg one">${accOn('comu')?btn('pubGo','com','🤝','Publicar un aviso comunitario',1):btn('cdOpen','comu','🔓','Activar rol Comunidad')}</div></section>
 <section class="pms" aria-label="Rol Redactor de noticias">${head('📰','Redactor de noticias',stE(accEnd('news')),'Publica noticias con foto y video. Gratis por 1 año con código.')}<div class="pmg one">${accOn('news')?btn('pub','news','📰','Publicar una noticia',1):btn('cdOpen','news','🔓','Activar rol Redactor')}</div></section>
@@ -4673,7 +4679,7 @@ else if(a==='oauth'){oauthIn(v)}
 else if(a==='verifyCode'){verifyCode()}
 else if(a==='resendCode'){if(PEND)issueCode(PEND.name,PEND.ch,PEND.to,true)}
 else if(a==='cdTab'){cdU=b.dataset.v;const x=$('#cdbox');if(x){x.innerHTML=cdBox();const f=x.querySelector('[data-act="cdTab"][data-v="'+cdU+'"]');if(f)f.focus()}}
-else if(a==='pubAsk'){need(()=>{let ex;if(v==='com')ex=!comAvail();else{const m=(v==='shop'&&(accOn('food')||accOn('pelu')))?'':planMsg(v==='shop'?'store':v==='serv'?'serv':'ad','',v);ex=!!m&&!/preparando/.test(m)}if(ex){if(['arr','casa','veh','serv'].includes(v))roleAsk();else codesModal(PUBUSE[v],v,1)}else pubMenu()})}
+else if(a==='pubAsk'){need(()=>{let ex;if(v==='com')ex=!comAvail();else{const m=(v==='shop'&&(accOn('food')||accOn('pelu')))?'':planMsg(v==='shop'?'store':v==='serv'?'serv':'ad','',v);ex=!!m&&!/preparando/.test(m)}if(ex){if(['arr','casa','veh','serv'].includes(v))roleAsk();else codesModal(PUBUSE[v],v,1)}else if(['arr','casa','veh','serv'].includes(v)){const t=document.createElement('button');t.hidden=true;t.dataset.act='pub';t.dataset.v=v==='serv'?'serv':v==='veh'?'veh':'inm';document.body.appendChild(t);t.click();t.remove()}/* v286: desde su sección va directo a su formulario */else pubMenu()})}
 else if(a==='pubGo'){closeModal(1);pubRun(v)}
 else if(a==='catPlans'){catPlansModal()}
 else if(a==='cdOpen'){closeModal(1);codesModal(v)}
