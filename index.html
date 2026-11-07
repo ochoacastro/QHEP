@@ -3308,7 +3308,8 @@ function html(k){var of=k==='oemp';
   '<label for="jb-hpd">Personalmente en (dirección)</label>'+inp('jb-hpd',80,'Ej: Calle 5 # 3-20, oficina 2')+
   /* v326: en persona hay que decir qué días y en qué horario */
   '<p style="margin:8px 0 2px;font-weight:700;font-size:14.5px">Días para entregarla en persona</p><div class="jobb">'+DIAS.map(function(d,i){return '<label><input type="checkbox" data-jbd="'+i+'"> '+d+'</label>'}).join('')+'</div>'+
-  '<div class="jobr"><div><label for="jb-hh1">Desde</label><input id="jb-hh1" type="time" value=""></div><div><label for="jb-hh2">Hasta</label><input id="jb-hh2" type="time" value=""></div></div>'
+  '<div class="jobr"><div><label for="jb-hh1">Desde</label><input id="jb-hh1" type="time" value=""></div><div><label for="jb-hh2">Hasta</label><input id="jb-hh2" type="time" value=""></div></div>'+
+  '<label for="jb-hpq">Preguntar por (opcional)</label>'+inp('jb-hpq',50,'Ej: Marta, la administradora')/* v328 */
  :
   '<label for="jb-cg">Cargo u oficio que buscas *</label>'+inp('jb-cg',50,'Ej: Mesero, conductor, auxiliar contable')+
   '<div class="jobr"><div><label for="jb-jo">Jornada que buscas</label>'+sel('jb-jo',JO)+'</div><div><label for="jb-xp">Experiencia</label>'+sel('jb-xp',EX)+'</div></div>'+
@@ -3341,7 +3342,7 @@ function gen(){var w=$1('jobt');if(!w)return;var of=w.dataset.k==='oemp',adv=lvl
  if(of){if(v('jb-em'))L.push('Empresa: '+v('jb-em'));var cj=[v('jb-ct')&&(adv?'Contrato: ':'Forma de trabajo: ')+v('jb-ct'),v('jb-jo')&&'Jornada: '+v('jb-jo')].filter(Boolean);if(cj.length)L.push(cj.join(' · '));
   if(v('jb-ho'))L.push('Horario: '+v('jb-ho'));if(sa)L.push((adv?'Salario: ':'Pago: ')+sa);var va=+v('jb-va');if(va>1)L.push('Vacantes: '+va);
   if(v('jb-rq'))L.push('Requisitos: '+v('jb-rq'))/* v327 */;
-  var hv=[(ck('jb-hw')||v('jb-hwn'))?'por WhatsApp'+(v('jb-hwn').replace(/\D/g,'')?' al '+v('jb-hwn').replace(/\D/g,''):''):'',v('jb-hce')?'al correo '+v('jb-hce'):'',v('jb-hpd')?'personalmente en '+v('jb-hpd')+pdTxt():''].filter(Boolean);if(hv.length)L.push('Hojas de vida: '+hv.join(' · '))/* v325 */;}
+  var hv=[(ck('jb-hw')||v('jb-hwn'))?'por WhatsApp'+(v('jb-hwn').replace(/\D/g,'')?' al '+v('jb-hwn').replace(/\D/g,''):''):'',v('jb-hce')?'al correo '+v('jb-hce'):'',v('jb-hpd')?'personalmente en '+v('jb-hpd')+pdTxt()+(v('jb-hpq')?', preguntar por '+v('jb-hpq'):''):''].filter(Boolean);if(hv.length)L.push('Hojas de vida: '+hv.join(' · '))/* v325 */;}
  else{var bj=[v('jb-jo')&&'Jornada: '+v('jb-jo'),v('jb-xp')&&'Experiencia: '+v('jb-xp')].filter(Boolean);if(bj.length)L.push(bj.join(' · '));if(sa)L.push('Aspiración salarial: '+sa)}
  var fu=v('jb-fu');
  if(adv){var es=[v('jb-ed')&&v('jb-ed')!==ED[0]?v('jb-ed'):'',v('jb-ti')].filter(Boolean).join(' en ').replace(/^(Técnico|Tecnólogo|Profesional) en \1/,'$1');
@@ -3374,8 +3375,8 @@ document.addEventListener('change',function(e){var t=e.target;if(!t)return;
 document.addEventListener('input',function(e){if(e.target&&e.target.closest&&e.target.closest('#jobt'))gen()},true);
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-jobl]');if(!b)return;e.preventDefault();if(lvl===b.dataset.jobl)return;lvl=b.dataset.jobl;
  /* v325: informal y formal tienen campos distintos: se vuelve a armar la plantilla conservando lo escrito */
- var w=$1('jobt'),keep={};if(w){[].forEach.call(w.querySelectorAll('input[id],select[id],textarea[id]'),function(x){keep[x.id]=x.type==='checkbox'?x.checked:x.value});[].forEach.call(w.querySelectorAll('[data-jbb]'),function(x){keep['b'+x.dataset.jbb]=x.checked});var k=w.dataset.k;w.insertAdjacentHTML('beforebegin',html(k));w.remove();
-  var n=$1('jobt');Object.keys(keep).forEach(function(id){var x=id.charAt(0)==='b'&&/^b\d+$/.test(id)?n.querySelector('[data-jbb="'+id.slice(1)+'"]'):$1(id);if(!x)return;if(x.type==='checkbox')x.checked=keep[id];else if(x.tagName!=='SELECT'||[].some.call(x.options,function(o){return o.value===keep[id]||o.text===keep[id]}))x.value=keep[id]});
+ var w=$1('jobt'),keep={};if(w){[].forEach.call(w.querySelectorAll('input[id],select[id],textarea[id]'),function(x){keep[x.id]=x.type==='checkbox'?x.checked:x.value});[].forEach.call(w.querySelectorAll('[data-jbb]'),function(x){keep['b'+x.dataset.jbb]=x.checked});[].forEach.call(w.querySelectorAll('[data-jbd]'),function(x){keep['d'+x.dataset.jbd]=x.checked})/* v328: también los días */;var k=w.dataset.k;w.insertAdjacentHTML('beforebegin',html(k));w.remove();
+  var n=$1('jobt');Object.keys(keep).forEach(function(id){var x=/^b\d+$/.test(id)?n.querySelector('[data-jbb="'+id.slice(1)+'"]'):/^d\d+$/.test(id)?n.querySelector('[data-jbd="'+id.slice(1)+'"]'):$1(id);if(!x)return;if(x.type==='checkbox')x.checked=keep[id];else if(x.tagName!=='SELECT'||[].some.call(x.options,function(o){return o.value===keep[id]||o.text===keep[id]}))x.value=keep[id]});
   try{var f=$1(b.dataset.jobl==='c'?'jb-ed':'jb-cg');if(!f){}}catch(x){}var nb=n.querySelector('[data-jobl="'+lvl+'"]');if(nb)nb.focus()}gen()});
 new MutationObserver(function(){if($1('cm-t')&&$1('cm-op'))sync()}).observe(document.documentElement,{childList:true,subtree:true});
 window.jobGen=gen;
