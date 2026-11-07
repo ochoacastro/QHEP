@@ -4016,6 +4016,9 @@ window.qpopHide=hide;
 .omg label{display:flex;gap:12px;align-items:flex-start;padding:14px;border:2px solid #d2d2d7;background:#fff;cursor:pointer}
 .omg input{width:22px;height:22px;flex:none;margin-top:2px}.omg b{display:block;font-size:16px}.omg small{display:block;font-size:13.5px;color:#6e6e73;line-height:1.4}
 .omg label:has(input:checked){border-color:#0071e3;box-shadow:inset 0 -4px 0 #0071e3}
+.omg label.off{opacity:.6;cursor:not-allowed}
+.ordg{margin:0 0 18px}.ordg h3{font-size:18px;margin:0 0 8px;padding:8px 10px;background:#f2f3f6;border-left:5px solid #0071e3}.ordg h3 small{font-weight:600;color:#6e6e73;font-size:13.5px}
+html.dark .ordg h3{background:#2c2c2e!important;color:#f5f5f7!important}
 .omw{margin:6px 0 0;padding:10px 12px;background:#fff7ed;color:#7c2d12;font-size:14px;border-left:4px solid #ea580c}
 .opay{margin:10px 0 6px}.opay>b{display:block;font-size:14px;margin-bottom:6px}
 .opay .ops{display:flex;flex-wrap:wrap;gap:8px}
@@ -4055,13 +4058,15 @@ html.dark .ordtg span{background:#2c2c2e!important;color:#e5e5ea!important}
 (function(){
 var PAYN={cash:'Efectivo (contra entrega)',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta (datáfono)'},PAYS_={cash:'Efectivo',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta'};
 var STN={nuevo:'Nuevo',acep:'Aceptado · preparando',env:'Enviado',ent:'Entregado',canc:'Cancelado'},PSN={pend:'Pago pendiente',ok:'Pagado',no:'No pagó'};
-var ORD={},OT=[],OF=[],uidL='',subs=[],seen=null,FT='act';
+var ORD={},OT=[],OF=[],uidL='',subs=[],seen=null,FT='act',sf=0;
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 var M=function(n){try{return money(Number(n)||0)}catch(e){return '$'+n}};
 var D=function(t){try{return new Date(t).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
 function me(){try{var u=firebase.auth().currentUser;return u&&!u.isAnonymous?u:null}catch(e){return null}}
 function st(id){return S.stores.find(function(x){return x.id===id})}
-window.ordMode=function(s){return s&&s.om==='app'&&s.ownerUid?'app':'wa'};
+/* v321: solo las tiendas que pagan (fecha de pago vigente + 3 días de gracia) reciben pedidos por la aplicación; la versión gratis va a WhatsApp */
+function paid(s){return !!s&&(Number(s.pexp)||0)+3*864e5>Date.now()}window.ordPaid=paid;
+window.ordMode=function(s){return s&&s.om==='app'&&s.ownerUid&&paid(s)?'app':'wa'};
 function pays(s){var l=(s&&Array.isArray(s.pays)?s.pays:[]).filter(function(k){return PAYN[k]});return l.length?l:['cash']}
 function sel(sid){var s=st(sid),o=ORD[sid]||(ORD[sid]={});var l=pays(s);if(l.indexOf(o.pay)<0)o.pay=l[0];return o}
 /* ---- carrito ---- */
@@ -4093,11 +4098,17 @@ function done(s,d,id){modal('<h2>¡Pedido enviado!</h2><p><b>'+E(s.name)+'</b> r
 addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="order"]');if(!b)return;var s=st(b.dataset.id);if(!s||ordMode(s)!=='app')return;e.preventDefault();e.stopImmediatePropagation();send(s)},true);
 /* ---- datos en vivo ---- */
 function list(sn){var a=[];sn.forEach(function(d){var x=d.data();x.id=d.id;a.push(x)});return a.sort(function(x,y){return (y.ts||0)-(x.ts||0)})}
-function listen(u){var id=u&&!u.isAnonymous?u.uid:'';if(id===uidL)return;uidL=id;subs.forEach(function(f){try{f()}catch(e){}});subs=[];OT=[];OF=[];seen=null;if(!id)return;var c=firebase.firestore().collection('pedidos');
+function listen(u){var id=u&&!u.isAnonymous?u.uid:'';if(id===uidL)return;uidL=id;subs.forEach(function(f){try{f()}catch(e){}});subs=[];OT=[];OF=[];seen=null;sf=0;if(!id)return;var c=firebase.firestore().collection('pedidos');
  subs.push(c.where('to','==',id).onSnapshot(function(sn){OT=list(sn);var nw=OT.filter(function(p){return p.st==='nuevo'});
+  if(seen){OT.forEach(function(p){if(seen[p.id]&&seen[p.id]!=='canc'&&p.st==='canc')toast(p.fromName+' canceló su pedido de '+M(p.total)+' en '+p.sname+'.')})}
   if(seen){var fresh=nw.filter(function(p){return !seen[p.id]});if(fresh.length)toast(fresh.length===1?'Nuevo pedido de '+fresh[0].fromName+' por '+M(fresh[0].total)+'. Míralo en Mi cuenta → Pedidos de mi tienda.':'Tienes '+fresh.length+' pedidos nuevos.')}
-  seen={};OT.forEach(function(p){seen[p.id]=1});paint()},function(){}));
- subs.push(c.where('from','==',id).onSnapshot(function(sn){OF=list(sn);paint()},function(){}))}
+  seen={};OT.forEach(function(p){seen[p.id]=p.st||1});paint()},function(){}));
+ subs.push(c.where('from','==',id).onSnapshot(function(sn){var old={};OF.forEach(function(p){old[p.id]=p});OF=list(sn);
+  /* v321: avisos al cliente cuando la tienda cambia su pedido */if(sf)OF.forEach(function(p){var o=old[p.id];if(!o)return;
+   if(o.st!==p.st&&p.st!=='nuevo'&&p.st!=='canc')toast('Tu pedido en '+p.sname+': '+({acep:'la tienda lo aceptó y lo está preparando',env:'ya va en camino',ent:'quedó entregado'}[p.st]||STN[p.st])+'.');
+   if(o.st!==p.st&&p.st==='canc'&&o.st!=='canc')toast('La tienda '+p.sname+' canceló tu pedido de '+M(p.total)+'.');
+   if(o.pst!==p.pst&&p.pst==='ok')toast(p.sname+' confirmó que recibió tu pago de '+M(p.total)+'.');
+   if(o.pst!==p.pst&&p.pst==='no')toast(p.sname+' dice que no le llegó tu pago de '+M(p.total)+'. Escríbele.')});sf=1;paint()},function(){}))}
 function start(){try{if(!window.firebase||!firebase.apps||!firebase.apps.length)return setTimeout(start,600);firebase.auth().onAuthStateChanged(listen)}catch(e){setTimeout(start,1000)}}
 start();
 function paint(){var o=document.getElementById('ordbox');if(o)o.innerHTML=o.dataset.k==='to'?toH():ofH();try{if(view==='home'&&MODE==='panel'&&!document.getElementById('ov'))render(true)}catch(e){}}
@@ -4111,21 +4122,24 @@ function items(p){return '<ul>'+(p.items||[]).map(function(i){return '<li>'+E(i.
 function act(id,s,p,l){return '<button type="button" class="btn '+(l[1]||'ghost')+'" data-ordset="'+E(id)+'|'+s+'|'+p+'">'+l[0]+'</button>'}
 function toH(){if(!me())return '<p class="muted">Entra con tu correo y tu clave para ver los pedidos.</p>';
  var F={act:function(p){return p.st!=='ent'&&p.st!=='canc'},nuevo:function(p){return p.st==='nuevo'},ent:function(p){return p.st==='ent'},all:function(){return true}},L=OT.filter(F[FT]||F.act);
- var mine=[];try{mine=shopsMine()}catch(e){}var off=mine.length&&!mine.some(function(s){return ordMode(s)==='app'});
- return (off?'<p class="omw">Tus tiendas reciben los pedidos por WhatsApp. Para recibirlos aquí, abre tu tienda → Editar tienda → «¿Cómo quieres recibir los pedidos?» y elige «Por la aplicación».</p>':'')+
+ var mine=[];try{mine=shopsMine()}catch(e){}var off=mine.length&&!mine.some(function(s){return ordMode(s)==='app'}),pd=mine.some(paid);
+ return (off?'<p class="omw">'+(pd?'Tus tiendas reciben los pedidos por WhatsApp. Para recibirlos aquí, abre tu tienda → Editar tienda → «¿Cómo quieres recibir los pedidos?» y elige «Por la aplicación».':'Recibir y gestionar pedidos por la aplicación es para las tiendas con el rol Comerciante. Con la versión gratis, los pedidos te llegan directo a tu WhatsApp.')+'</p>':'')+
   '<p class="qbw">Si te pagan con Bre-B o Nequi, revisa en tu banco o en Nequi que el dinero llegó antes de marcar «Pago recibido». Los pantallazos pueden ser falsos.</p>'+
   '<div class="ordf" role="group" aria-label="Filtrar pedidos">'+[['act','En curso ('+OT.filter(F.act).length+')'],['nuevo','Nuevos ('+OT.filter(F.nuevo).length+')'],['ent','Entregados ('+OT.filter(F.ent).length+')'],['all','Todos ('+OT.length+')']].map(function(f){return '<button type="button" data-ordf="'+f[0]+'" aria-pressed="'+(FT===f[0])+'">'+f[1]+'</button>'}).join('')+'</div>'+
-  (L.length?'<div class="ordl">'+L.map(function(p){var a='';
+  (L.length?grp(L,function(p){var a='';
    if(p.st==='nuevo')a+=act(p.id,'acep',p.pst,['Aceptar pedido','pink'])+act(p.id,'canc',p.pst,['Cancelar']);
    else if(p.st==='acep')a+=act(p.id,'env',p.pst,['Marcar enviado'])+act(p.id,'ent',p.pst,['Marcar entregado','pink']);
    else if(p.st==='env')a+=act(p.id,'ent',p.pst,['Marcar entregado','pink']);
    if(p.st!=='canc'){if(p.pst!=='ok')a+=act(p.id,p.st,'ok',['Pago recibido','pink']);if(p.pst==='pend')a+=act(p.id,p.st,'no',['No pagó']);if(p.pst!=='pend')a+=act(p.id,p.st,'pend',['Volver a «pago pendiente»'])}
    if((p.pay==='bre'||p.pay==='nequi')&&typeof brebMy==='function')a+='<button type="button" class="btn ghost" data-ordrecv="1">Ver comprobantes</button>';
    a+=waBtn(p.fromWa,'Hola '+p.fromName+', te escribo de '+p.sname+' por tu pedido de Mi Pradera.','WhatsApp del cliente');
-   return '<div class="ordc"><div class="ordh"><div><b>'+E(p.fromName)+'</b><small>'+E(D(p.ts))+' · '+E(p.sname)+'</small></div><strong>'+E(M(p.total))+'</strong></div>'+tags(p)+items(p)+(p.note?'<small><b>Nota:</b> '+E(p.note)+'</small>':'')+'<div class="orda">'+a+'</div></div>'}).join('')+'</div>':'<p class="muted">No hay pedidos en esta lista.</p>')}
+   return '<div class="ordc"><div class="ordh"><div><b>'+E(p.fromName)+'</b><small>'+E(D(p.ts))+' · '+E(p.sname)+'</small></div><strong>'+E(M(p.total))+'</strong></div>'+tags(p)+items(p)+(p.note?'<small><b>Nota:</b> '+E(p.note)+'</small>':'')+'<div class="orda">'+a+'</div></div>'}):'<p class="muted">No hay pedidos en esta lista.</p>')}
 function ofH(){if(!me())return '<p class="muted">Entra con tu correo y tu clave para ver tus pedidos.</p>';
- return OF.length?'<div class="ordl">'+OF.map(function(p){var s=st(p.sid)||{},a=payBtn(p,p.id);if(p.st==='nuevo')a+='<button type="button" class="btn ghost" data-ordcanc="'+E(p.id)+'">Cancelar pedido</button>';a+=waBtn(s.wa,'Hola '+p.sname+', te escribo por mi pedido de Mi Pradera ('+M(p.total)+').','WhatsApp de la tienda');
-  return '<div class="ordc"><div class="ordh"><div><b>'+E(p.sname)+'</b><small>'+E(D(p.ts))+'</small></div><strong>'+E(M(p.total))+'</strong></div>'+tags(p)+items(p)+(p.note?'<small><b>Tu nota:</b> '+E(p.note)+'</small>':'')+(a?'<div class="orda">'+a+'</div>':'')+'</div>'}).join('')+'</div>':'<p class="muted">Aún no has hecho pedidos por la aplicación.</p>'}
+ return OF.length?grp(OF,function(p){var s=st(p.sid)||{},a=payBtn(p,p.id);if(p.st==='nuevo')a+='<button type="button" class="btn ghost" data-ordcanc="'+E(p.id)+'">Cancelar pedido</button>';a+=waBtn(s.wa,'Hola '+p.sname+', te escribo por mi pedido de Mi Pradera ('+M(p.total)+').','WhatsApp de la tienda');
+  return '<div class="ordc"><div class="ordh"><div><b>'+E(p.sname)+'</b><small>'+E(D(p.ts))+'</small></div><strong>'+E(M(p.total))+'</strong></div>'+tags(p)+items(p)+(p.note?'<small><b>Tu nota:</b> '+E(p.note)+'</small>':'')+(a?'<div class="orda">'+a+'</div>':'')+'</div>'}):'<p class="muted">Aún no has hecho pedidos por la aplicación.</p>'}
+/* v321: pedidos agrupados por tienda */
+function grp(L,f){var G={},o=[];L.forEach(function(p){if(!G[p.sid]){G[p.sid]=[];o.push(p.sid)}G[p.sid].push(p)});
+ return o.map(function(k){var l=G[k],n=l.filter(function(p){return p.st==='nuevo'}).length;return '<section class="ordg"><h3>'+E(l[0].sname)+' <small>'+l.length+(l.length===1?' pedido':' pedidos')+(n?' · '+n+(n===1?' nuevo':' nuevos'):'')+'</small></h3><div class="ordl">'+l.map(f).join('')+'</div></section>'}).join('')}
 function open(k){modal('<h2>'+(k==='to'?'Pedidos de mi tienda':'Mis pedidos')+'</h2><div id="ordbox" data-k="'+k+'">'+(k==='to'?toH():ofH())+'</div><div class="row" style="margin-top:12px"><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>')}
 window.ordOpen=open;window.ordDebug=function(t,f){if(t)OT=t;if(f)OF=f;paint()};/* para las pruebas */
 addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;var b;
@@ -4137,18 +4151,76 @@ addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;v
  if((b=t.closest('[data-ordcanc]'))){if(!(await askC('¿Cancelar tu pedido?','Cancelar pedido')))return;try{await firebase.firestore().collection('pedidos').doc(b.dataset.ordcanc).update({st:'canc',sts:Date.now()});toast('Pedido cancelado')}catch(x){toast('No se pudo cancelar. Puede que la tienda ya lo haya aceptado.')}return}
  if((b=t.closest('[data-opaynow]'))){var p=OF.concat(OT).find(function(x){return x.id===b.dataset.opaynow})||null;var s=p&&st(p.sid);if(!p)return;closeModal(1);brebPay({to:p.to,toName:(s&&s.name)||p.sname,amt:p.total,what:'Pedido en '+p.sname,kind:'item',item:'ped:'+p.id,wa:s&&s.wa});return}},true);
 /* ---- formulario de la tienda: cómo recibe los pedidos ---- */
-window.omRead=function(){var i=document.querySelector('input[name="x-om"]:checked');return i?{om:i.value==='app'?'app':'wa'}:{}};
+window.omRead=function(){var i=document.querySelector('input[name="x-om"]:checked');return i?{om:i.value==='app'&&!i.disabled?'app':'wa'}:{}};
 function addOm(){var g=document.getElementById('x-pays');if(!g||document.getElementById('x-om'))return;var m=document.querySelector('#ov .modal');if(!m||!m.contains(g))return;
- var ed=!!m.querySelector('[data-act="saveEditShop"]'),s=ed?st(cur):null,v=s&&s.om==='app'?'app':'wa';
+ var ed=!!m.querySelector('[data-act="saveEditShop"]'),s=ed?st(cur):null,can=false;try{can=MODE==='admin'||shopRole()}catch(e){}var v=can&&s&&s.om==='app'?'app':'wa';
  g.insertAdjacentHTML('afterend','<p class="omw" id="x-pw" hidden></p><label id="x-om-l" style="display:block;margin-top:14px">¿Cómo quieres recibir los pedidos?</label><div class="omg" id="x-om" role="radiogroup" aria-labelledby="x-om-l">'+
   '<label><input type="radio" name="x-om" value="wa"'+(v==='wa'?' checked':'')+'><span><b>Por WhatsApp</b><small>El cliente te escribe con su pedido y la forma de pago.</small></span></label>'+
-  '<label><input type="radio" name="x-om" value="app"'+(v==='app'?' checked':'')+'><span><b>Por la aplicación</b><small>El pedido queda guardado en Mi cuenta → Pedidos de mi tienda: ves quién pidió, qué pidió, el total y cómo va a pagar, y lo marcas aceptado, pagado, enviado y entregado.</small></span></label></div>');
+  '<label'+(can?'':' class="off"')+'><input type="radio" name="x-om" value="app"'+(v==='app'?' checked':'')+(can?'':' disabled')+'><span><b>Por la aplicación'+(can?'':' · con el rol Comerciante')+'</b><small>'+(can?'':'Disponible para las tiendas que pagan. Con la versión gratis los pedidos van directo a tu WhatsApp. ')+'El pedido queda guardado en Mi cuenta → Pedidos de mi tienda: ves quién pidió, qué pidió, el total y cómo va a pagar, y lo marcas aceptado, pagado, enviado y entregado.</small></span></label></div>');
  warn()}
 function warn(){var w=document.getElementById('x-pw');if(!w)return;var c=[].map.call(document.querySelectorAll('#x-pays input:checked'),function(i){return i.value}),u=me();
  var need=(c.indexOf('bre')>=0||c.indexOf('nequi')>=0)&&!(u&&typeof brebHas==='function'&&brebHas(u.uid));
  w.hidden=!need;if(need)w.textContent='Para que te paguen con Bre-B o Nequi, después de guardar llena tus datos en Mi cuenta → Pagos Bre-B y Nequi → Cobrar.'}
 document.addEventListener('change',function(e){if(e.target&&e.target.closest&&e.target.closest('#x-pays'))warn()});
 new MutationObserver(function(){addOm()}).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+<style id="v321-notificaciones-css">
+/* v321: centro de notificaciones */
+#nfBtn{position:absolute;z-index:31;width:44px;height:44px;display:grid;place-items:center;padding:0;border:1px solid var(--line,#d2d2d7);background:#fff;color:var(--ink,#1d1d1f);cursor:pointer;border-radius:0}
+#nfBtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#nfBtn em{position:absolute;top:-8px;right:-8px;min-width:22px;height:22px;padding:0 5px;background:#d70015;color:#fff;font-style:normal;font-size:12px;font-weight:800;display:grid;place-items:center;border-radius:0}
+#nfBtn em[hidden]{display:none}
+.nfl{display:grid;gap:10px;margin:10px 0}
+.nfi{display:flex;gap:12px;align-items:flex-start;padding:12px 6px 12px 12px;border:1px solid #d2d2d7;border-left:5px solid #16a34a;background:#fff}
+.nfi.bad{border-left-color:#d70015}.nfi.new{background:#f0f7ff}
+.nfi .qi{flex:none;width:22px;height:22px;margin-top:2px;color:#16a34a}.nfi.bad .qi{color:#d70015}
+.nfi div{flex:1;min-width:0}.nfi p{margin:0;font-size:15px;line-height:1.4}.nfi small{display:block;margin-top:4px;color:#6e6e73;font-size:12.5px}
+.nfi button{flex:none;width:40px;height:40px;margin:-6px 0;border:0;background:transparent;color:inherit;font-size:20px;cursor:pointer}
+html.dark #nfBtn{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important}
+html.dark .nfi{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important}
+html.dark .nfi.new{background:#0b2545!important}html.dark .nfi small{color:#a1a1a6!important}
+.nfi,.nfi button{border-radius:0!important}
+</style>
+<script id="v321-notificaciones">
+/* v321: lista de notificaciones. Los avisos importantes (pedidos, pagos, roles, códigos, publicaciones, sesión) se guardan
+   en este dispositivo (qh_notif, máximo 60, 60 días). La campana del encabezado muestra cuántos no se han leído;
+   cada aviso se cierra con su X y hay un botón para borrarlos todos. Si algo falla, borra este bloque. */
+(function(){
+var K='qh_notif',MAX=60,KEEP=60*864e5;
+var IMP=/pedido|pago|rol |rol:|roles|código|aprob|confirm|venc|sesi[oó]n|publicad|entregad|enviad|acept|cancel|renovad|tienda en pausa|abierta otra vez|anuncio/i;
+var BAD=/no se pudo|no pudimos|error|falt|revisa|int[eé]nta|necesitas|no tienes|no puedes|venci|expir|se cerr|cancel|no le lleg|no pag/i;
+var BELL='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';
+var OK='<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';
+var WARN='<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>';
+var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function ld(){try{var l=JSON.parse(localStorage.getItem(K)||'[]');return Array.isArray(l)?l.filter(function(n){return n&&n.m&&Date.now()-(n.t||0)<KEEP}):[]}catch(e){return []}}
+function sv(l){try{localStorage.setItem(K,JSON.stringify(l.slice(0,MAX)))}catch(e){}}
+function unread(){return ld().filter(function(n){return !n.r}).length}
+window.nfAdd=function(m,bad){m=String(m||'').trim();if(!m)return;var l=ld();if(l[0]&&l[0].m===m&&Date.now()-l[0].t<8000)return;
+ l.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),m:m.slice(0,300),t:Date.now(),b:bad==null?BAD.test(m):!!bad,r:false});sv(l);badge();box()};
+function D(t){try{return new Date(t).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}catch(e){return ''}}
+function listH(){var l=ld();if(!l.length)return '<p class="muted">No tienes notificaciones. Aquí aparecen los avisos de pedidos, pagos, roles y publicaciones.</p>';
+ return '<div class="nfl">'+l.map(function(n){return '<div class="nfi'+(n.b?' bad':'')+(n.r?'':' new')+'">'+(n.b?WARN:OK)+'<div><p>'+E(n.m)+'</p><small>'+E(D(n.t))+(n.r?'':' · nueva')+'</small></div><button type="button" data-nfdel="'+E(n.id)+'" aria-label="Cerrar esta notificación">✕</button></div>'}).join('')+'</div>'}
+function box(){var b=document.getElementById('nfbox');if(b)b.innerHTML=listH();var c=document.getElementById('nfall');if(c)c.hidden=!ld().length}
+window.nfOpen=function(){var l=ld(),had=l.some(function(n){return !n.r});
+ modal('<h2>Notificaciones</h2><div id="nfbox">'+listH()+'</div><div class="row" style="margin-top:10px"><button type="button" class="btn ghost" id="nfall" data-nfall="1"'+(l.length?'':' hidden')+'>Borrar todas</button><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>');
+ if(had){sv(l.map(function(n){n.r=true;return n}));badge()}};
+window.nfMenu=function(it){var n=unread(),c=ld().length;return it(BELL.replace('<svg','<svg class="qi"'),'Notificaciones',c?(n?n+(n===1?' sin leer':' sin leer')+' · ':'')+c+(c===1?' guardada':' guardadas'):'Aún no tienes notificaciones','nfOpen','',n?{n:n,t:n+' sin leer'}:null)};
+document.addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;var b;
+ if((b=t.closest('#nfBtn,[data-act="nfOpen"]'))){e.preventDefault();e.stopImmediatePropagation();closeModal(1);nfOpen();return}
+ if((b=t.closest('[data-nfdel]'))){e.preventDefault();var id=b.dataset.nfdel;sv(ld().filter(function(n){return n.id!==id}));box();badge();return}
+ if((b=t.closest('[data-nfall]'))){e.preventDefault();if(!(await askC('¿Borrar todas las notificaciones?','Borrar todas')))return;sv([]);box();badge()}},true);
+/* campana en el encabezado, al lado del botón de modo oscuro */
+function btn(){var b=document.getElementById('nfBtn');if(b)return b;var h=document.querySelector('header');if(!h)return null;b=document.createElement('button');b.type='button';b.id='nfBtn';b.setAttribute('aria-label','Notificaciones');b.innerHTML=BELL+'<em hidden></em>';h.appendChild(b);return b}
+function place(){try{if(MODE==='admin')return;var b=btn(),h=document.querySelector('header'),r=document.getElementById('themeBtn');if(!b||!h)return;
+ if(getComputedStyle(h).position==='static')h.style.position='relative';
+ var hr=h.getBoundingClientRect(),tr=r&&r.offsetParent?r.getBoundingClientRect():null;
+ if(tr&&tr.width){b.style.top=(tr.top-hr.top+(tr.height-44)/2)+'px';b.style.left=(tr.left-hr.left-52)+'px';b.style.right='auto'}else{b.style.top='12px';b.style.right='12px';b.style.left='auto'}}catch(e){}}
+function badge(){var b=document.getElementById('nfBtn');if(!b)return;var n=unread(),em=b.querySelector('em');em.hidden=!n;em.textContent=n>99?'99+':String(n);b.setAttribute('aria-label',n?'Notificaciones, '+n+' sin leer':'Notificaciones')}
+function wrap(){if(typeof window.toast!=='function'||window.toast.__nf)return;var t0=window.toast;var w=function(m){try{var s=String(m==null?'':m);if(s&&IMP.test(s))nfAdd(s)}catch(x){}return t0.apply(this,arguments)};w.__nf=1;for(var k in t0)if(Object.prototype.hasOwnProperty.call(t0,k))w[k]=t0[k];window.toast=w}
+window.addEventListener('load',function(){setTimeout(function(){wrap();place();badge()},200)});setTimeout(function(){wrap();place();badge()},3500);
+window.addEventListener('resize',place);setInterval(function(){place();badge()},2000);
 })();
 </script>
 <script id="v219-modo-oscuro">
@@ -4966,7 +5038,7 @@ const pnRow=(t,sub,btns)=>`<div class="ci"><span><b>${esc(t)}</b>${sub?'<br><sma
 function nwMenuList(){const l=QH.NEWS.filter(x=>x.ownerKey===QH.key());if(typeof nwTableHTML==='function')return nwTableHTML(l);/* v302: tabla con portada, borradores y programadas */return `<div class="cg"><h3>📰 Mis noticias (${l.length})</h3><p class="muted">Tu acceso de Noticias está activo hasta el ${new Date(accEnd('news')).toLocaleDateString('es-CO')}: publica con foto y video.</p><div class="row" style="margin:14px 0 18px;gap:10px"><button class="btn pink" data-act="nwNew" style="flex:1 1 150px;text-align:center">+ Nueva noticia</button><a class="btn ghost" href="${BASE_URL}#/noticias" style="flex:1 1 130px;text-align:center;text-decoration:none;display:inline-block">Ver noticias</a></div>${l.length?l.map(n=>`<div class="ci" style="display:block;padding:14px;margin:10px 0;border:1px solid var(--line2,#c9d3ea);border-radius:14px"><div><b style="word-break:break-word">${esc(n.title)}</b><br><small class="muted">${esc(nwDate(n))}</small></div><div class="row" style="margin-top:12px;gap:10px"><button class="btn" data-act="nwEdit" data-id="${esc(n.id)}" style="flex:1 1 0;text-align:center">Editar</button><button class="btn ghost" data-act="nwDel" data-id="${esc(n.id)}" style="flex:1 1 0;text-align:center">Eliminar</button></div></div>`).join(''):'<p class="muted">Aún no has publicado noticias.</p>'}</div>`}
 function pnlMenu(){const u=S.user,ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),nf=favRows().length;QH.newsListen();nwWho();
 const it=(ic,t,sub,act,v,bd)=>`<button type="button" class="pnr" data-act="${act}"${v?` data-v="${v}"`:''}><i aria-hidden="true">${ic}${bd?`<em class="pnbd${bd.z?' z':''}">${bd.n}</em>`:''}</i><span>${t}${bd?`<span class="qh-sr"> (${bd.t})</span>`:''}<small>${sub}</small></span><b aria-hidden="true">›</b></button>`;/* v218: bd = numero en la esquina del icono */
-return `<div class="pnl">${bizCta()}${typeof gdMenu==='function'?gdMenu(it):''/* v309 */}${typeof ordMenu==='function'?ordMenu(it):''/* v320 */}${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.93 4.93.71.71"/><path d="M12 12v6"/></svg>','Datos de emergencia','Tu contacto de emergencia y tipo de sangre (opcional)','emgMine')/* v257 */}${typeof myCodesOpen==='function'?it('🔑','Mis códigos','Tus códigos, los días que faltan y cómo va tu pago','myCodes','',codesBadge()):''/* v236, v243: debajo de Mis datos y con número de novedades */}${it('🔓','Mis roles','Comerciante, Clasificados, Comunidad y Redactor de noticias','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas',ms.length?pnQuota('store'):null/* v244: el número solo si la sección se usa */)}${(typeof brebOn==='function'&&brebOn())?it('💳','Pagos Bre-B y Nequi','Tus datos de cobro y los pagos que envías y recibes','brebOpen','',brebBadge())/* v233; v244: debajo de Mis tiendas */:''/* v232 */}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine','',comMine().some(a=>comActive(a)&&!a.hid)?pnQuota('com'):null/* v244 */)}${typeof adTableHTML==='function'?(()=>{const mi=adMine('inmuebles'),mv2=adMine('vehiculos'),sv=p=>'<svg class="qi" viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';return it(sv(hubIc.home),'Mis inmuebles',mi.length+(mi.length===1?' inmueble':' inmuebles'),'pnl','inmuebles',mi.length?pnQuota('ad'):null)+it(sv(hubIc.car),'Mis vehículos',mv2.length+(mv2.length===1?' vehículo':' vehículos'),'pnl','vehiculos',mv2.length?pnQuota('ad'):null)})()/* v312: dos tablas */:it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios',ma.length?pnQuota('ad'):null/* v244 */)}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios',mv.length?pnQuota('serv'):null/* v244 */)}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${it('🧭','Ayuda y guías','Tutorial y guías paso a paso','helpOpen')/* v229, v230 */}${NW?nwMenuList():''}<button type="button" class="pnr" data-act="delAcct" style="border-color:#c0392b"><i aria-hidden="true">🗑️</i><span style="color:#ff6b5e">Eliminar cuenta<small>Borra tu cuenta y tus publicaciones para siempre</small></span><b aria-hidden="true">›</b></button></div>`}
+return `<div class="pnl">${bizCta()}${typeof gdMenu==='function'?gdMenu(it):''/* v309 */}${typeof nfMenu==='function'?nfMenu(it):''/* v321 */}${typeof ordMenu==='function'?ordMenu(it):''/* v320 */}${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.93 4.93.71.71"/><path d="M12 12v6"/></svg>','Datos de emergencia','Tu contacto de emergencia y tipo de sangre (opcional)','emgMine')/* v257 */}${typeof myCodesOpen==='function'?it('🔑','Mis códigos','Tus códigos, los días que faltan y cómo va tu pago','myCodes','',codesBadge()):''/* v236, v243: debajo de Mis datos y con número de novedades */}${it('🔓','Mis roles','Comerciante, Clasificados, Comunidad y Redactor de noticias','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas',ms.length?pnQuota('store'):null/* v244: el número solo si la sección se usa */)}${(typeof brebOn==='function'&&brebOn())?it('💳','Pagos Bre-B y Nequi','Tus datos de cobro y los pagos que envías y recibes','brebOpen','',brebBadge())/* v233; v244: debajo de Mis tiendas */:''/* v232 */}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine','',comMine().some(a=>comActive(a)&&!a.hid)?pnQuota('com'):null/* v244 */)}${typeof adTableHTML==='function'?(()=>{const mi=adMine('inmuebles'),mv2=adMine('vehiculos'),sv=p=>'<svg class="qi" viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';return it(sv(hubIc.home),'Mis inmuebles',mi.length+(mi.length===1?' inmueble':' inmuebles'),'pnl','inmuebles',mi.length?pnQuota('ad'):null)+it(sv(hubIc.car),'Mis vehículos',mv2.length+(mv2.length===1?' vehículo':' vehículos'),'pnl','vehiculos',mv2.length?pnQuota('ad'):null)})()/* v312: dos tablas */:it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios',ma.length?pnQuota('ad'):null/* v244 */)}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios',mv.length?pnQuota('serv'):null/* v244 */)}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${it('🧭','Ayuda y guías','Tutorial y guías paso a paso','helpOpen')/* v229, v230 */}${NW?nwMenuList():''}<button type="button" class="pnr" data-act="delAcct" style="border-color:#c0392b"><i aria-hidden="true">🗑️</i><span style="color:#ff6b5e">Eliminar cuenta<small>Borra tu cuenta y tus publicaciones para siempre</small></span><b aria-hidden="true">›</b></button></div>`}
 function pnlModal(v){const ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),cl='<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>';let h='';
 if(v==='plan')h='<h2>Mis roles</h2>'+planCard();
 else if(v==='tiendas'&&typeof shopTableHTML==='function')h=shopTableHTML(ms);/* v284: tabla con Ver, Editar y Eliminar */
