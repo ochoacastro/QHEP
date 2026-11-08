@@ -4351,6 +4351,11 @@ html.dark .adsh{border-color:#3a3a3c!important}html.dark .adbiz{background:#2c2c
 <script id="v346-telefono">
 /* v346: los teléfonos de Colombia se guardan con 10 dígitos, sin el indicativo 57 (si alguien escribe +57 315…, queda 315…).
    WhatsApp agrega el 57 solo al abrir el chat. La usan la dirección principal, la tienda nueva, editar tienda y el administrador. */
+/* v362: al eliminar la cuenta se borra también lo que quedó guardado en este teléfono: dirección y teléfono (qh_dir_), datos de
+   emergencia (qh_emg_), borradores, notificaciones, avisos vistos y preferencias de esa cuenta. Así, si se registra otra vez, empieza de cero. */
+window.wipeLocal=function(k){try{var del=[],i,n;for(i=0;i<localStorage.length;i++){n=localStorage.key(i);if(!n)continue;
+ if((k&&n.indexOf(k)>=0)||/^qh_(pseen|cseen)_/.test(n)||['qh_notif','qh_gdr','qh_cmg','qh_ct_last'].indexOf(n)>=0)del.push(n)}
+ del.forEach(function(x){try{localStorage.removeItem(x)}catch(e){}})}catch(e){}};
 window.telCO=function(v){var d=String(v==null?'':v).replace(/\D/g,'');if(d.length===12&&d.slice(0,2)==='57')d=d.slice(2);else if(d.length===13&&d.slice(0,3)==='057')d=d.slice(3);return d.slice(0,15)};
 /* v348: el teléfono de «Tu dirección principal» y el de «Mis datos» son el mismo: al guardar uno se actualiza el otro.
    Quien ya lo había guardado solo en la dirección lo ve también en Mis datos al abrir la página. */
@@ -5317,7 +5322,7 @@ const QH=(function(){
  function planErr(e){S.planErr=(e&&e.code)||'error';/* v318: si Firebase cerró la sesión (quedó como visitante) no es culpa de las reglas: se pide entrar de nuevo */if(S.planErr==='permission-denied'&&S.user&&auth&&auth.currentUser&&auth.currentUser.isAnonymous){S.planErr='';S.user=null;S.plan=null;planK='';if(planUn){try{planUn()}catch(x){}planUn=null}derive();save();syncUI();closeModal(1);toast('Tu sesión se cerró. Entra de nuevo con tu correo y tu clave para continuar.');if(MODE==='panel'){render();loginForm()}return}if(!$('#ov'))render(true);else toast(S.planErr==='permission-denied'?'No se pudo crear tu cuenta: faltan publicar las reglas de Firestore para "plans". Avisa al administrador.':'No se pudo continuar ('+S.planErr+'). Revisa tu internet e inténtalo de nuevo.')}
  /* v334: CIERRE DE SESIÓN CUANDO EL ADMINISTRADOR ELIMINA EL PERFIL. Cierra también la sesión de Firebase (correo y clave),
     no solo la del dispositivo. planGone() confirma con el servidor; se revisa al volver a la app y cada 5 minutos. */
- function acctOut(){if(!S.user)return;planAsk=false;try{presBeat(0)}catch(e){}S.user=null;S.plan=null;planK='';if(planUn){try{planUn()}catch(x){}planUn=null}
+ function acctOut(){if(!S.user)return;try{wipeLocal(key())}catch(e){}/* v362: la cuenta fue eliminada: se borra lo guardado en el teléfono */planAsk=false;try{presBeat(0)}catch(e){}S.user=null;S.plan=null;planK='';if(planUn){try{planUn()}catch(x){}planUn=null}
   try{const cu=auth&&auth.currentUser;if(cu&&!cu.isAnonymous)auth.signOut()}catch(e){}derive();save();closeModal(1);syncUI();toast('Tu cuenta fue eliminada por el administrador. Se cerró tu sesión.');if(MODE==='panel')render()}
  async function planGone(){const k=key();if(!ready||!db||!k||!S.user||!S.user.pl||MODE==='admin')return;try{const s=await ref('plans',k).get({source:'server'});if(!s.exists&&S.user&&key()===k)acctOut()}catch(e){}}
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')planGone()});setInterval(()=>{if(document.visibilityState==='visible')planGone()},3e5);
@@ -5839,7 +5844,7 @@ let st='inicio';try{const k=QH.key();QH.newsListen();try{QH.presBeat(0)}catch(e)
  st='plan';try{await QH.planWipe(k)}catch(e){console.warn('delAcct plan',e)}try{localStorage.removeItem('qh_plskip_'+k)}catch(e){}
  st='acceso';let left=false;for(const x of extra.concat([QH.authCur()])){if(!x||x.isAnonymous)continue;try{await x.delete()}catch(e){left=true}}
  try{QH.authOut()}catch(e){}
- st='limpieza';S.user=null;S.favs=[];S.myIdeas=[];QH.derive();save();closeModal();syncUI();toast(left?'Datos eliminados. Para cerrar del todo tu acceso, vuelve a entrar y repite «Eliminar cuenta».':'Cuenta eliminada');if(MODE==='panel')render()
+ st='limpieza';try{wipeLocal(k)}catch(e){}/* v362 */S.user=null;S.favs=[];S.myIdeas=[];QH.derive();save();closeModal();syncUI();toast(left?'Datos eliminados. Para cerrar del todo tu acceso, vuelve a entrar y repite «Eliminar cuenta».':'Cuenta eliminada');if(MODE==='panel')render()
 }catch(e){console.error('delAcct',st,e);b.disabled=false;err.textContent='No se pudo eliminar todo (paso: '+st+' · '+((e&&(e.code||e.message))||'error')+'). Revisa tu internet e inténtalo de nuevo.'}}
 /* v167: MI CUENTA como menú — cada sección se abre en su propia ventana (data-pn cierra la ventana antes de ejecutar la acción) */
 const pnRow=(t,sub,btns)=>`<div class="ci"><span><b>${esc(t)}</b>${sub?'<br><small class="muted">'+esc(sub)+'</small>':''}</span><span class="row">${btns}</span></div>`,pnNone=t=>`<p class="muted">${t}</p>`;
