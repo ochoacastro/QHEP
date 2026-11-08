@@ -64,7 +64,7 @@ async function handle(m, env) {
   if (r.status === 404) return reply(env, from, 'No encontramos ese código o ya se usó. Vuelve a Mi Pradera y toca «Verificar mi celular» otra vez.');
   if (!r.ok) throw new Error('firestore get ' + r.status);
   const d = (await r.json()).fields || {};
-  const wa = str(d.wa), k = str(d.k), ts = Number((d.ts && (d.ts.integerValue || d.ts.doubleValue)) || 0);
+  const wa = str(d.wa), k = str(d.k), ts = d.ts && d.ts.timestampValue ? Date.parse(d.ts.timestampValue) : Number((d.ts && (d.ts.integerValue || d.ts.doubleValue)) || 0);
 
   if (!wa || !k || Date.now() - ts > MAX_AGE) {
     await fetch(`${base}/celcod/${code}`, { method: 'DELETE', headers: H });
