@@ -26,9 +26,14 @@ jobs:
           node-version: '20'
       - name: Crear páginas de noticias
         run: node tools/noticias.mjs
+        # v379: si existe el secreto FB_SA, lee Firestore identificado (necesario si se activa App Check obligatorio)
+        env:
+          FB_SA: ${{ secrets.FB_SA }}
       # v304: páginas de productos (foto, nombre y precio para la vista previa al compartir en WhatsApp)
       - name: Crear páginas de productos
         run: node tools/productos.mjs
+        env:
+          FB_SA: ${{ secrets.FB_SA }}
         continue-on-error: true
       - name: Guardar cambios
         run: |
