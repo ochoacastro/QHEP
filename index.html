@@ -1462,7 +1462,7 @@ function tourAdmHTML(){return '<div class="cg" style="margin-top:14px"><h3>Tutor
 document.addEventListener('change',function(e){if(!e.target||e.target.id!=='tour-on')return;try{S.site=Object.assign({},S.site,{tour:!!e.target.checked});save();toast(e.target.checked?'El tutorial se mostrará a los usuarios nuevos':'El tutorial ya no se mostrará automáticamente')}catch(x){}});
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="tourOpen"]');if(!b)return;e.preventDefault();e.stopPropagation();try{if(document.querySelector('.overlay')&&typeof closeModal==='function')closeModal(1)}catch(x){}setTimeout(tourOpen,150)},true);
 /* se abre solo una vez, cuando la persona ya inicio sesion y no hay otra ventana abierta */
-(function(){var shown=false;setInterval(function(){try{if(shown||(typeof MODE!=='undefined'&&MODE==='admin')||!S||!S.user||!tourOn())return;var k=tourKey();if(!k)return;
+(function(){var shown=false;setInterval(function(){try{if(shown||(typeof MODE!=='undefined'&&MODE==='admin')||!S||!S.user||!tourOn())return;try{if(localStorage.getItem('qh_pend_order')||sessionStorage.getItem('qh_buying'))return}catch(x){}/* v363: el recorrido no tapa una compra; sale en la próxima visita */var k=tourKey();if(!k)return;
  if(localStorage.getItem(k)){shown=true;return}if(document.querySelector('.overlay,.qtour,.qhb'))return;shown=true;setTimeout(tourOpen,800)}catch(e){}},2000)})();
 </script>
 <style id="v230-guias-css">
@@ -4798,6 +4798,23 @@ addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[
 document.head.insertAdjacentHTML('beforeend','<style id="v335-css">.admsh{margin:4px 0 8px}.admsh>b{display:block;margin-bottom:6px}.admsr{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line2,#d2d2d7)}.admsr span{min-width:0}.admsr small{display:block;opacity:.75;overflow-wrap:anywhere}.admsr .btn{flex:none;min-height:40px;padding:6px 12px;font-size:14px;display:inline-flex;gap:6px;align-items:center}</style>');
 })();
 </script>
+<script id="v363-pedido-pendiente">
+/* v363: si alguien se registra para pedir por WhatsApp, apenas tiene cuenta, teléfono y dirección se le abre el carrito
+   con el botón «Pedir por WhatsApp» resaltado. El pendiente (qh_pend_order) dura 24 horas y sobrevive si sale a verificar el correo. */
+(function(){
+function pend(){try{return JSON.parse(localStorage.getItem('qh_pend_order')||'null')}catch(e){return null}}
+function clr(){try{localStorage.removeItem('qh_pend_order')}catch(e){}}
+setInterval(function(){try{var P=pend();if(!P)return;if(Date.now()-(P.ts||0)>864e5||MODE==='admin')return clr();
+ if(!Object.keys(S.cart||{}).some(function(k){return k.indexOf(P.sid+'|')===0}))return clr();
+ if(!S.user||document.getElementById('ov')||document.querySelector('.qtour'))return;
+ var ad=typeof adrGet==='function'?adrGet('main'):null,tl=typeof telCO==='function'?telCO(S.user.wa||''):'';
+ if(!ad||tl.length<7){if(typeof adrForm==='function')adrForm('main',null,true);return}
+ clr();try{sessionStorage.setItem('qh_buying','1')}catch(e){}try{openCart()}catch(e){return}
+ setTimeout(function(){var b=document.querySelector('#drawer [data-act="order"][data-id="'+P.sid+'"]');if(b){b.scrollIntoView({block:'center',behavior:'smooth'});b.classList.add('ordgo')}},450);
+ try{toast('¡Listo, ya tienes tu cuenta! Toca «Pedir por WhatsApp» para enviar tu pedido.')}catch(e){}}catch(e){}},1500);
+document.head.insertAdjacentHTML('beforeend','<style id="v363-css">.ordgo{animation:ordgo 1s ease-in-out 4;box-shadow:0 0 0 4px rgba(22,163,74,.55)}@keyframes ordgo{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}</style>');
+})();
+</script>
 <script id="v361-verificar-celular">
 /* v361: «Verificar mi celular» en Mis datos. Firebase envía un SMS con un código de 6 números al celular de la cuenta;
    al escribirlo, el número queda unido a la cuenta (Firebase Authentication: currentUser.phoneNumber) y se muestra «Verificado».
@@ -5457,7 +5474,7 @@ const roleSkipped=()=>{try{return localStorage.getItem(roleSkipKey())==='1'}catc
 const roleSkip=()=>{try{localStorage.setItem(roleSkipKey(),'1')}catch(e){}};
 const anyRole=()=>ACC_ALL.some(accOn)||comTiers().length>0;
 let roleShown=false;
-function roleWelcome(){if(roleShown||MODE==='admin'||!S.user||!S.plan||anyRole()||roleSkipped()||$('#ov'))return;roleShown=true;
+function roleWelcome(){if(roleShown||MODE==='admin'||!S.user||!S.plan||anyRole()||roleSkipped()||$('#ov'))return;try{if(localStorage.getItem('qh_pend_order'))return}catch(e){}/* v363: no interrumpe una compra */roleShown=true;
  modal(`<h2>¡Bienvenido, ${esc(String(S.user.name||'').split(' ')[0])}!</h2><p class="muted">¿Qué quieres hacer en Mi Pradera? Elige un rol para publicar, o sigue sin rol: puedes ver todo, guardar favoritos, calificar, dejar sugerencias y publicar 1 clasificado gratis al día, sin ningún código.</p><div class="pubmenu"><button class="pubopt buyer" data-act="roleBuyer"><b><svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> Soy comprador</b><span>Solo quiero comprar: pedir en las tiendas, contratar servicios y ver clasificados. Gratis, sin código.</span></button>${CATPL.map(([u,e,t,d])=>`<button class="pubopt" data-act="roleWel" data-v="${u}"><b>${e} ${t}</b><span>${d}</span></button>`).join('')}</div><button type="button" class="btn ghost" style="width:100%;margin-top:10px" data-act="roleSkip">Omitir por ahora</button>`)}
 /* v207: inmuebles, vehículos y servicios: si es negocio, rol Comerciante; si es una persona, Clasificados (gratis 1 anuncio al día) */
 function roleAsk(){modal(`<h2>¿Publicas como negocio o como persona?</h2><div class="pubmenu"><button class="pubopt" data-act="cdOpen" data-v="merc"><b>🏪 Soy negocio</b><span>Inmobiliaria, concesionario, profesional o comercio: activa el rol Comerciante (1, 3, 6, 9 meses o 1 año).</span></button><button class="pubopt" data-act="pubGo" data-v="com"><b>📢 Soy persona</b><span>Publica en Clasificados: gratis 1 anuncio al día, o paquetes de 3, 7, 15 y 30 días.</span></button></div><button class="btn ghost" data-act="close">Cancelar</button>`)}
@@ -6697,11 +6714,11 @@ else if(a==='saveRate'){if(!rt.n)return $('#err').textContent='Elige de 1 a 5 es
 else if(a==='order'){const s=S.stores.find(x=>x.id===id);if(!s.wa)return toast('Esta tienda aún no tiene WhatsApp registrado');
  /* v356: para pedir por WhatsApp hay que tener cuenta, teléfono y dirección: así la tienda sabe quién pide y a dónde llevarlo */
  const again=()=>setTimeout(()=>{const bb=document.querySelector('[data-act="order"][data-id="'+id+'"]');if(bb)bb.click();else{try{openCart()}catch(e){}}},400);
- if(!S.user){toast('Para enviar tu pedido crea tu cuenta gratis (o entra si ya tienes una): así la tienda sabe quién eres y a dónde llevarlo.');after=again;return regForm()/* v360: directo a «Registrarme» */}
- const ad0=typeof adrPick==='function'?adrPick(id):null,tl0=typeof telCO==='function'?telCO(S.user.wa||''):String(S.user.wa||'');if(typeof adrForm==='function'&&(!ad0||tl0.length<7)){closeModal(1);return adrForm('main',again,true)}
+ if(!S.user){toast('Para enviar tu pedido crea tu cuenta gratis (o entra si ya tienes una): así la tienda sabe quién eres y a dónde llevarlo.');try{localStorage.setItem('qh_pend_order',JSON.stringify({sid:id,ts:Date.now()}))}catch(e){}/* v363: pedido pendiente: al tener cuenta y dirección se abre el carrito */return regForm()/* v360: directo a «Registrarme» */}
+ const ad0=typeof adrPick==='function'?adrPick(id):null,tl0=typeof telCO==='function'?telCO(S.user.wa||''):String(S.user.wa||'');if(typeof adrForm==='function'&&(!ad0||tl0.length<7)){closeModal(1);try{localStorage.setItem('qh_pend_order',JSON.stringify({sid:id,ts:Date.now()}))}catch(e){}return adrForm('main',null,true)}
  let t=0,l=Object.entries(S.cart).filter(([k])=>k.startsWith(id+'|')).map(([k,q])=>{const p=s.products.find(x=>x.id===k.split('|')[1]);t+=p.price*q;return `• ${q} x ${p.name}${vTx(k)?' - '+vTx(k):''} (${money(p.price*q)})\n   ${(c=>(c?'ID: '+vId(p,c):'Código: '+pCode(p))+(skuOf(p,c)?' · SKU: '+skuOf(p,c):''))(k.split('|')[3])}\n   ${pLink(s.id,p,k.split('|')[3]||'',k.split('|')[2]||'')/* v305: con foto si la página del producto ya existe */}`});
  const num=s.wa.length===10?'57'+s.wa:s.wa;window.open(`https://wa.me/${num}?text=${encodeURIComponent(`Hola ${s.name}, vi su tienda en Mi Pradera y quiero pedir:\n${l.join('\n')}\nTotal: ${money(t)}${typeof ordWaLine==='function'?ordWaLine(id):''/* v320 */}`)}`,'_blank');
- Object.keys(S.cart).forEach(k=>k.startsWith(id+'|')&&delete S.cart[k]);refreshCart()}
+ Object.keys(S.cart).forEach(k=>k.startsWith(id+'|')&&delete S.cart[k]);refreshCart();try{localStorage.removeItem('qh_pend_order')}catch(e){}/* v363 */}
 });
 $('#cartBtn').onclick=openCart;$('#userBtn').onclick=()=>{if(S.user)profileModal();else{after=null;planAsk=true;loginForm()}};$('#home').onclick=()=>{if(MODE!=='index'){location.href=BASE_URL;return}view='home';cat='';shopsOpen=false;render()};
 const norm=t=>String(t??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
