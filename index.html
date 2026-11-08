@@ -1439,7 +1439,7 @@ var TOUR=[
  ['tour/paso4.webp','Habla directo con el vendedor','Escríbele por WhatsApp, sin intermediarios ni comisiones.'],
  ['tour/paso5.webp','Publica gratis','Toca «Publicar» para poner un clasificado (uno gratis cada día) o registrar tu negocio.'],
  ['tour/paso6.webp','Todo lo tuyo en Mi cuenta','Ahí ves tus publicaciones. El número azul te dice cuántas puedes publicar hoy o cuántos días te quedan.']];
-function tourOn(){try{var s=typeof site==='function'?site():(S&&S.site)||{};return s.tour!==false}catch(e){return true}}
+function tourOn(){return false/* v366: se quitó el tutorial de bienvenida con fotos */}
 function tourKey(){try{var k=(typeof QH==='object'&&QH.key&&QH.key())||(S&&S.user&&(S.user.email||S.user.wa))||'';return k?'qh_tour_'+k:''}catch(e){return ''}}
 function tourOpen(L,title){if(document.querySelector('.qtour'))return;/* v230: tambien muestra las guias (L = lista de pasos) */L=Array.isArray(L)?L:TOUR;var isT=L===TOUR,i=0,n=L.length,last=document.activeElement;
  var ov=document.createElement('div');ov.className='qtour';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label',title||'Tutorial de Mi Pradera');
@@ -1456,7 +1456,8 @@ function tourOpen(L,title){if(document.querySelector('.qtour'))return;/* v230: t
  var x0=null;tr.addEventListener('touchstart',function(e){x0=e.touches[0].clientX},{passive:true});tr.addEventListener('touchend',function(e){if(x0==null)return;var d=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(d)>45)go(i+(d<0?1:-1))},{passive:true});
  document.addEventListener('keydown',kd,true);go(0);try{next.focus()}catch(e){}}
 /* tarjeta en Administrar → Mis datos */
-function tourAdmHTML(){return '<div class="cg" style="margin-top:14px"><h3>Tutorial de bienvenida</h3><p class="muted">Una guía corta de 6 pasos con imágenes que aparece la primera vez que alguien inicia sesión. También se puede volver a ver desde Mi cuenta → «Ayuda y guías».</p>'+
+function tourAdmHTML(){return typeof helpAdmHTML==='function'?helpAdmHTML():''/* v366: sin tarjeta del tutorial con fotos */}
+function tourAdmOld(){return '<div class="cg" style="margin-top:14px"><h3>Tutorial de bienvenida</h3><p class="muted">Una guía corta de 6 pasos con imágenes que aparece la primera vez que alguien inicia sesión. También se puede volver a ver desde Mi cuenta → «Ayuda y guías».</p>'+
  '<label class="chk"><input type="checkbox" id="tour-on"'+(tourOn()?' checked':'')+'> Mostrar el tutorial a los usuarios la primera vez que inician sesión</label>'+
  '<div class="row" style="margin-top:10px"><button type="button" class="btn ghost" data-act="tourOpen">Ver el tutorial</button></div></div>'+(typeof helpAdmHTML==='function'?helpAdmHTML():'')}
 document.addEventListener('change',function(e){if(!e.target||e.target.id!=='tour-on')return;try{S.site=Object.assign({},S.site,{tour:!!e.target.checked});save();toast(e.target.checked?'El tutorial se mostrará a los usuarios nuevos':'El tutorial ya no se mostrará automáticamente')}catch(x){}});
@@ -1520,8 +1521,7 @@ function helpSite(){try{return (typeof site==='function'?site():(S&&S.site))||{}
 function helpOn(){return helpSite().help!==false}
 function guideOn(g){var off=helpSite().helpOff;return helpOn()&&!(Array.isArray(off)&&off.indexOf(g.id)>-1)}
 function guideOpen(id){var g=GUIDES.find(function(x){return x.id===id});if(!g)return;tourOpen(g.s.map(function(x){return ['guias/'+x[0]+'.webp',x[1],x[2]]}),g.t)}
-function helpOpen(){var l=GUIDES.filter(guideOn);try{modal('<h2>Ayuda y guías</h2><p class="muted">Elige qué quieres aprender. Cada guía tiene pocos pasos, con imágenes.</p><div class="qhl">'+
- '<button type="button" data-act="tourOpen"><i>🧭</i><span><b>Tutorial de bienvenida</b><small>Lo básico de Mi Pradera en 6 pasos</small></span></button>'+
+function helpOpen(){var l=GUIDES.filter(function(g){return guideOn(g)&&g.id!=='ins'})/* v366: sin guías de fotos */;try{modal('<h2>Ayuda y guías</h2><p class="muted">Elige qué quieres aprender. Cada guía te acompaña paso a paso en la página.</p><div class="qhl">'+
  l.map(function(g){return '<button type="button" data-guide="'+g.id+'"><i>'+g.ic+'</i><span><b>'+g.t+'</b><small>'+g.d+'</small></span></button>'}).join('')+
  '</div><div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>')}catch(e){}}
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-guide],[data-act="helpOpen"]');if(!b)return;e.preventDefault();e.stopPropagation();
@@ -1535,9 +1535,9 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  new MutationObserver(function(){if(!pend){pend=true;(window.requestAnimationFrame||setTimeout)(put)}}).observe(document.documentElement,{childList:true,subtree:true})})();
 /* tarjeta en Administrar → Mis datos (debajo del tutorial) */
 function helpAdmHTML(){var s=helpSite(),off=Array.isArray(s.helpOff)?s.helpOff:[];
- return '<div class="cg" style="margin-top:14px"><h3>Guías paso a paso</h3><p class="muted">Guías cortas con imágenes para publicar un clasificado, crear una tienda, redactar noticias y más. Se abren desde Mi cuenta → «Ayuda y guías» y desde el botón «¿Cómo se hace?» de cada formulario.</p>'+
+ return '<div class="cg" style="margin-top:14px"><h3>Guías paso a paso</h3><p class="muted">Guías que acompañan paso a paso en la página para publicar un clasificado, crear una tienda, redactar noticias y más. Se abren desde Mi cuenta → «Ayuda y guías» y desde el botón «¿Cómo se hace?» de cada formulario.</p>'+
  '<label class="chk"><input type="checkbox" id="help-on"'+(helpOn()?' checked':'')+'> Mostrar el centro de ayuda y los botones «¿Cómo se hace?»</label><div class="qhg">'+
- GUIDES.map(function(g){return '<div class="catrow" style="align-items:center"><label class="chk" style="flex:1;margin:0"><input type="checkbox" data-helpg="'+g.id+'"'+(off.indexOf(g.id)<0?' checked':'')+'> '+g.t+'</label><button type="button" class="btn ghost" data-guide="'+g.id+'" style="padding:6px 14px">Ver</button></div>'}).join('')+'</div></div>'}
+ GUIDES.filter(function(g){return g.id!=='ins'}).map(function(g){return '<div class="catrow" style="align-items:center"><label class="chk" style="flex:1;margin:0"><input type="checkbox" data-helpg="'+g.id+'"'+(off.indexOf(g.id)<0?' checked':'')+'> '+g.t+'</label></div>'}).join('')/* v366: sin «Ver» (abría las fotos) */+'</div></div>'}
 document.addEventListener('change',function(e){var t=e.target;if(!t)return;try{
  if(t.id==='help-on'){S.site=Object.assign({},S.site,{help:!!t.checked});save();toast(t.checked?'Centro de ayuda activado':'Centro de ayuda oculto')}
  else if(t.dataset&&t.dataset.helpg){var off=(Array.isArray((S.site||{}).helpOff)?S.site.helpOff:[]).filter(function(x){return x!==t.dataset.helpg});if(!t.checked)off.push(t.dataset.helpg);S.site=Object.assign({},S.site,{helpOff:off});save();toast(t.checked?'Guía visible':'Guía oculta')}}catch(x){}});
@@ -2311,7 +2311,7 @@ window.addEventListener('click',function(e){var b=e.target.closest&&e.target.clo
 try{if(typeof GUIDES!=='undefined'&&!GUIDES.some(function(g){return g.id==='vid'})){var i=GUIDES.findIndex(function(g){return g.id==='cla'});GUIDES.splice(i+1,0,{id:'vid',ic:'🎬',t:'Publicar con video',d:'YouTube, TikTok, Facebook, Instagram o Drive',f:'',s:[]})}}catch(e){}
 /* elegir modo en Ayuda y guías, y lista de redes debajo del campo del enlace */
 var pend=false;new MutationObserver(function(){if(pend)return;pend=true;(window.requestAnimationFrame||setTimeout)(function(){pend=false;
- var l=$1('#ov .qhl');if(l&&!l.previousElementSibling||l&&!l.previousElementSibling.classList.contains('qcm')){var d=document.createElement('div');d.className='qcm';d.setAttribute('role','group');d.setAttribute('aria-label','Cómo ver las guías');d.innerHTML='<button type="button" data-qcm="0" aria-pressed="'+!MODE_IMG+'">Hazlo conmigo</button><button type="button" data-qcm="1" aria-pressed="'+MODE_IMG+'">Con imágenes</button>';l.parentNode.insertBefore(d,l)}
+ /* v366: se quitó el selector «Hazlo conmigo / Con imágenes»; las guías siempre son interactivas */
  ['#cm-v','#nw-v'].forEach(function(s){var el=$1(s);if(!el||el.dataset.qnet)return;el.dataset.qnet=1;var d=document.createElement('div');d.innerHTML='<p class="qnets">▶ <b>YouTube</b> se ve dentro de la página · ↗ <b>TikTok, Facebook, Instagram y Google Drive</b> se abren en su app. Para copiar el enlace: en la red social toca <b>Compartir → Copiar enlace</b>.</p><p class="qnet-st" aria-live="polite"></p>';el.insertAdjacentElement('afterend',d);
   var st=d.querySelector('.qnet-st'),u=function(){var n=net(el.value);st.textContent=n?n.t:'';st.className='qnet-st'+(n?(n.ok?' ok':' bad'):'')};el.addEventListener('input',u);u()})})}).observe(document.documentElement,{childList:true,subtree:true});
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-qcm]');if(!b)return;MODE_IMG=b.dataset.qcm==='1';b.parentNode.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)})});
