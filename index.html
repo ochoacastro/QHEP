@@ -4937,7 +4937,7 @@ async function done(u){var em=W.em,pw=W.pw,d=dnRead(u);clearInterval(W.iv);try{a
  if(document.getElementById('rw'))closeModal();syncUI();toast('¡Listo! Tu correo quedó confirmado y ya entraste.');var f=after;after=null;f&&f();if(MODE==='panel')render()}
 window.regDirect=async function(R){var err=document.getElementById('err'),b=document.getElementById('reg-go');
  try{await rcToken('rc-login')}catch(e){if(err)err.textContent='No se pudo verificar reCAPTCHA. Recarga la página e inténtalo de nuevo.';return}
- if(b)b.disabled=true;if(err)err.textContent='Creando tu cuenta…';stop();var a,c=null;
+ if(b)b.disabled=true;if(typeof telFree==='function'&&!(await telFree(R.phone))){if(b)b.disabled=false;if(err)err.textContent='Ese celular ya está registrado en otra cuenta. Entra con tu correo o usa otro número.';return}/* v371 */if(err)err.textContent='Creando tu cuenta…';stop();var a,c=null;
  try{a=await authB();c=await a.createUserWithEmailAndPassword(R.email,R.pw);await c.user.updateProfile({displayName:JSON.stringify({n:R.name,e:R.email,w:R.phone})});a.languageCode='es';try{await c.user.sendEmailVerification()}catch(x){}}
  catch(e){if(c){try{await c.user.delete()}catch(x){}}try{a&&a.signOut()}catch(x){}try{rcReset('rc-login')}catch(x){}if(b)b.disabled=false;var m=regErr(e);
   if(e&&e.code==='auth/email-already-in-use'){REG=null;closeModal();loginForm();toast(m);return}if(err)err.textContent=m;return}
@@ -5039,6 +5039,31 @@ function tidy(){var h=document.querySelector('.hub');document.documentElement.cl
   b.addEventListener('click',function(){var o=w.classList.toggle('qcl-h');b.setAttribute('aria-expanded',String(!o));b.querySelector('span').textContent=o?'+':'−';if(!o){var f=w.querySelector('input,select,textarea');f&&f.focus()}});
   w.parentNode.insertBefore(b,w)}}
 var t=0;new MutationObserver(function(){if(t)return;t=1;requestAnimationFrame(function(){t=0;tidy()})}).observe(document.documentElement,{childList:true,subtree:true});tidy();
+})();
+</script>
+<script id="v371-una-cuenta">
+/* v371: UN CORREO Y UN CELULAR POR PERSONA.
+   - La ficha (plans/{k}) de quien tiene correo siempre usa la llave del correo (ver key()). Antes, quien se registraba con
+     correo y clave y luego entraba con Google quedaba con dos fichas: una por el correo y otra por el celular.
+   - Registro de celulares: tels/{celular} = {uid, k}. Al registrarse, al cambiar el celular (planProf) y al entrar se reserva
+     el número; si ya es de otra cuenta, no se deja usar. Al eliminar la cuenta se libera. Necesita las reglas v48.
+   - Al eliminar a una persona desde el panel, su celular también queda libre. Si algo falla, borra este bloque. */
+(function(){
+function fs(){return firebase.firestore()}
+function me(){try{var u=firebase.auth().currentUser;return u&&!u.isAnonymous?u:null}catch(e){return null}}
+function T(n){return fs().collection('tels').doc(String(n))}
+function ok10(n){return /^3[0-9]{9}$/.test(String(n||''))}
+window.telFree=async function(n){n=telCO(n||'');if(!ok10(n))return true;try{var d=await T(n).get();if(!d.exists)return true;var u=me();return !!u&&d.data().uid===u.uid}catch(e){return true}};
+window.telRelease=async function(n){n=telCO(n||'');var u=me();if(!ok10(n)||!u)return;try{var d=await T(n).get();if(d.exists&&d.data().uid===u.uid)await T(n).delete()}catch(e){}};
+window.telClaim=async function(n,old){n=telCO(n||'');var u=me();if(!ok10(n)||!u)return true;
+ try{var d=await T(n).get();if(d.exists&&d.data().uid!==u.uid)return false;
+  if(!d.exists)await T(n).set({uid:u.uid,k:QH.key()||'',ts:firebase.firestore.FieldValue.serverTimestamp()});
+  if(old){old=telCO(old);if(ok10(old)&&old!==n)telRelease(old)}return true}catch(e){return true}};
+/* al entrar: reserva el celular de las cuentas que ya existían */
+var done={};setInterval(function(){try{if(!S.user||MODE==='admin')return;var n=telCO(S.user.wa||''),u=me();if(!ok10(n)||!u||done[u.uid+n])return;done[u.uid+n]=1;
+ telClaim(n).then(function(ok){if(!ok)S.user.telDup=1})}catch(e){}},4000);
+/* al eliminar a una persona desde el panel, también se libera su celular */
+(function wrap(){if(typeof QH==='undefined'||!QH.planDel)return setTimeout(wrap,300);if(QH.planDel.v371)return;var pd=QH.planDel;QH.planDel=function(k){try{var p=(QH.plans()||[]).find(function(x){return x.k===k}),n=p&&telCO(p.wa||'');if(p&&ok10(n))T(n).get().then(function(d){if(d.exists&&(!p.uid||d.data().uid===p.uid||d.data().k===k))T(n).delete()}).catch(function(){})}catch(e){}return pd(k)};QH.planDel.v371=1})();
 })();
 </script>
 <script id="v358-direccion-admin">
@@ -5375,7 +5400,7 @@ const QH=(function(){
  const clean=o=>JSON.parse(JSON.stringify(o));
  const slug=n=>String(n).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'x';
  const waKey=w=>sha256('wa:'+String(w||'').replace(/\D/g,'').slice(-10));
- const key=()=>{const u=S.user;if(!u)return'';if(!u.k)u.k=u.pw&&u.email?sha256('mail:'+u.email.toLowerCase()):u.wa?waKey(u.wa):u.email?sha256('mail:'+u.email.toLowerCase()):'';return u.k};
+ const key=()=>{const u=S.user;if(!u)return'';if(!u.k)u.k=u.email?sha256('mail:'+u.email.toLowerCase()):u.wa?waKey(u.wa):''/* v371: con correo, la ficha siempre va por el correo (antes, entrar con Google creaba otra ficha por el celular) */;return u.k};
  /* ---- lo que la app tiene ahora, en forma de documentos ---- */
  function want(){const k=key(),D={};['stores','products','services','ads','ideas','reports','banners','topAds','cats','meta'].forEach(c=>D[c]={});
   const ord=o=>{if(!o._o)o._o=Date.now()};
@@ -5531,7 +5556,7 @@ const QH=(function(){
   planUn=ref('plans',k).onSnapshot(s=>{if(!s.exists){S.plan=null;if(S.user&&S.user.pl){if(s.metadata.fromCache)planGone();else acctOut();return}/* v334: perfil eliminado → se cierra la sesión (si el aviso viene del caché, se confirma con el servidor) */if(MODE==='panel'||planAsk){planAsk=false;acctEnsure()}return}
    S.plan=s.data();setTimeout(()=>{try{pexpSync()}catch(e){}},300)/* v263: al renovar, la tienda vuelve a verse completa enseguida */;if(S.user){/* v261: completa lo que falte con la ficha del plan */let ch=0;const P=S.plan;if(!S.user.wa&&P.wa){S.user.wa=String(P.wa);ch=1}if(S.user.nm0&&P.name){S.user.name=String(P.name).slice(0,30);delete S.user.nm0;ch=1}if(ch){save();syncUI()}}if(S.user&&S.user.ach){/* v210: se quitó el ingreso con código: esas sesiones se cierran y piden correo y clave */S.user=null;S.plan=null;derive();save();closeModal();syncUI();toast('El ingreso con código ya no existe. Entra con tu correo y tu clave.');if(MODE==='panel'){render();loginForm()}return}if(S.user&&!S.user.pl){S.user.pl=1;save()}planAsk=false;S.planErr='';
    const w=planWait;planWait=null;if(w)w();else{if(!$('#ov'))render(true);setTimeout(roleWelcome,600)}},e=>planErr(e))}
- const planProf=(n,w)=>{const k=key();if(!k||!S.plan)return;if(S.plan.name===n&&(S.plan.wa||'')===w)return;ref('plans',k).update({name:String(n).slice(0,40),wa:String(w).slice(0,15)}).catch(()=>{})/* v261: necesita reglas v34; si no, el perfil igual queda en la cuenta */};
+ const planProf=(n,w)=>{const k=key();if(!k||!S.plan)return;if(S.plan.name===n&&(S.plan.wa||'')===w)return;const old=S.plan.wa||'',go=()=>ref('plans',k).update({name:String(n).slice(0,40),wa:String(w).slice(0,15)}).catch(()=>{});if(w&&w!==old&&typeof telClaim==='function'){telClaim(w,old).then(ok=>{if(ok)return go();toast('Ese celular ya está registrado en otra cuenta de Mi Pradera. Usa otro número.');if(S.user){S.user.wa=old;save();try{syncUI()}catch(e){}}})}else go()/* v371: un celular por cuenta */ /* v261: necesita reglas v34; si no, el perfil igual queda en la cuenta */};
  const token=async()=>{try{await authP;const u=auth&&auth.currentUser;return u?await u.getIdToken():''}catch(e){return ''}};
  /* v104: Clasificados — coleccion community/<id>; listener propio, fuera del diff de want()/flush() */
  const COM=[];let comUn=null;
@@ -6040,7 +6065,7 @@ let st='inicio';try{const k=QH.key();QH.newsListen();try{QH.presBeat(0)}catch(e)
  const mine=x=>x.ownerKey===k||S.mine.includes(x.id)||S.myServ.includes(x.id)||S.myAds.includes(x.id);
  S.stores=S.stores.filter(x=>!mine(x));S.services=S.services.filter(x=>!mine(x));S.ads=S.ads.filter(x=>!mine(x));S.ideas=S.ideas.filter(x=>!S.myIdeas.includes(x.id));
  S.mine=[];S.myServ=[];S.myAds=[];st='guardando';save();await QH.push();await new Promise(r=>setTimeout(r,1200));await QH.push();
- st='plan';try{await QH.planWipe(k)}catch(e){console.warn('delAcct plan',e)}try{localStorage.removeItem('qh_plskip_'+k)}catch(e){}
+ try{if(typeof telRelease==='function'&&S.user&&S.user.wa)await telRelease(telCO(S.user.wa))}catch(e){}/* v371: libera el celular */st='plan';try{await QH.planWipe(k)}catch(e){console.warn('delAcct plan',e)}try{localStorage.removeItem('qh_plskip_'+k)}catch(e){}
  st='acceso';let left=false;for(const x of extra.concat([QH.authCur()])){if(!x||x.isAnonymous)continue;try{await x.delete()}catch(e){left=true}}
  try{QH.authOut()}catch(e){}
  st='limpieza';try{wipeLocal(k)}catch(e){}/* v362 */S.user=null;S.favs=[];S.myIdeas=[];QH.derive();save();closeModal();syncUI();toast(left?'Datos eliminados. Para cerrar del todo tu acceso, vuelve a entrar y repite «Eliminar cuenta».':'Cuenta eliminada');if(MODE==='panel')render()
