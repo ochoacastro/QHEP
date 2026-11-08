@@ -4315,6 +4315,11 @@ html.dark .oaddr{background:#2c2c2e!important;color:#f5f5f7!important}html.dark 
 .adbiz{margin:16px 0 4px;padding:2px 14px 12px;background:#f2f3f6;border-left:5px solid #0071e3}.adbiz .adsh{border-top:0;padding-top:8px;margin-top:8px}
 html.dark .adsh{border-color:#3a3a3c!important}html.dark .adbiz{background:#2c2c2e!important;color:#f5f5f7!important}
 </style>
+<script id="v346-telefono">
+/* v346: los teléfonos de Colombia se guardan con 10 dígitos, sin el indicativo 57 (si alguien escribe +57 315…, queda 315…).
+   WhatsApp agrega el 57 solo al abrir el chat. La usan la dirección principal, la tienda nueva, editar tienda y el administrador. */
+window.telCO=function(v){var d=String(v==null?'':v).replace(/\D/g,'');if(d.length===12&&d.slice(0,2)==='57')d=d.slice(2);else if(d.length===13&&d.slice(0,3)==='057')d=d.slice(3);return d.slice(0,15)};
+</script>
 <script id="v322-direcciones">
 /* v322: DIRECCIONES DE ENTREGA.
    - Quien tiene cuenta registra su dirección principal (obligatoria): barrio o corregimiento, dirección, indicaciones,
@@ -4376,7 +4381,7 @@ addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;v
   navigator.geolocation.getCurrentPosition(function(p){b.disabled=false;b.textContent='Usar mi ubicación actual';setPin(Math.round(p.coords.latitude*1e6)/1e6,Math.round(p.coords.longitude*1e6)/1e6,'gps')},function(){b.disabled=false;b.textContent='Usar mi ubicación actual';toast('No se pudo obtener tu ubicación. Revisa que el permiso de ubicación esté activo, o escribe tu dirección o tu código plus.')},{enableHighAccuracy:true,timeout:15000});return}
  if((b=t.closest('[data-adsave]'))){e.preventDefault();var g=function(id){var x=document.getElementById(id);return x?x.value.trim().replace(/\s+/g,' '):''},er=document.getElementById('ad-err');
   var a={lb:g('ad-lb')||(F.w==='main'?'Principal':''),zone:g('ad-zone'),dir:g('ad-dir'),ref:g('ad-ref'),plus:g('ad-plus')};
-  var tl='',bz=false,t2='';if(F.w==='main'){tl=g('ad-tel').replace(/\D/g,'').slice(0,15);if(tl.length<7)return er.textContent='Escribe tu teléfono o WhatsApp.';bz=!!(document.getElementById('ad-biz')||{}).checked;t2=bz?g('ad-tel2').replace(/\D/g,'').slice(0,15):'';if(t2&&t2.length<7)return er.textContent='El otro teléfono del negocio está incompleto.'}/* v332 */
+  var tl='',bz=false,t2='';if(F.w==='main'){tl=telCO(g('ad-tel'))/* v346 */;if(tl.length<7)return er.textContent='Escribe tu teléfono o WhatsApp.';bz=!!(document.getElementById('ad-biz')||{}).checked;t2=bz?telCO(g('ad-tel2')):'';if(t2&&t2.length<7)return er.textContent='El otro teléfono del negocio está incompleto.'}/* v332 */
   if(a.zone.length<2)return er.textContent='Elige tu barrio o corregimiento.';if(a.dir.length<5&&!a.plus)return er.textContent='Escribe tu dirección (o tu código plus si no tienes dirección).';
   var cf=document.getElementById('ad-conf');if(!cf||!cf.checked)return er.textContent='Revisa el mapa y marca «Sí, el mapa muestra mi casa». Si no es tu casa, agrega tu código plus o usa tu ubicación actual.';
   if(F.lat!=null&&F.src!==''){a.lat=F.lat;a.lng=F.lng}a=adrClean(a);var w=F.w,dn=F.done;
@@ -4739,7 +4744,7 @@ addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[
  var id=b.dataset.admshop||b.dataset.admshopsave,s=(S.stores||[]).find(function(x){return x.id===id});if(!s)return toast('No se encontró la tienda.');
  if(b.dataset.admshop)return form(s);
  var g=function(i){var x=document.getElementById(i);return x?x.value.trim().replace(/\s+/g,' '):''},er=document.getElementById('err');
- var wa=g('as-wa').replace(/\D/g,''),wa2=g('as-wa2').replace(/\D/g,''),pl=g('as-plus');
+ var wa=telCO(g('as-wa')),wa2=telCO(g('as-wa2'))/* v346 */,pl=g('as-plus');
  if(wa.length<7)return er.textContent='Escribe el teléfono o WhatsApp del negocio.';if(wa2&&wa2.length<7)return er.textContent='El otro teléfono está incompleto.';
  var c=pl?ll(pl):null;if(pl&&!c)return er.textContent='El código plus no es válido. Cópialo de Google Maps (ej: CQ94+H47 Pradera, Valle del Cauca).';
  s.wa=wa.slice(0,15);s.wa2=wa2.slice(0,15);s.zone=g('x-zone').slice(0,40);s.addr=g('as-addr').slice(0,100);s.plus=pl.slice(0,80);if(c){s.lat=c[0];s.lng=c[1]}
@@ -4758,7 +4763,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  if(w){w.hidden=false;b.hidden=true;var i=w.querySelector('input');if(i)i.focus()}});
 function set(id,v){var i=document.getElementById(id);if(!i||!v||i.value.trim())return 0;i.value=v;i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}));return 1}
 function fill(){var w=document.getElementById('f-wa');if(!w||w.dataset.qp)return;w.dataset.qp='1';var o=ld();if(!o.biz)return;var a=o.main||{},n=0;
- n+=set('f-wa',o.tel);if(set('f-wa2',o.tel2)){n++;var w2=document.getElementById('f-w2w');if(w2)w2.hidden=false;var b=document.querySelector('[data-w2="f"]');if(b)b.hidden=true}
+ n+=set('f-wa',telCO(o.tel));if(set('f-wa2',telCO(o.tel2)))/* v346 */{n++;var w2=document.getElementById('f-w2w');if(w2)w2.hidden=false;var b=document.querySelector('[data-w2="f"]');if(b)b.hidden=true}
  n+=set('x-addr',a.dir);n+=set('x-zone',a.zone);n+=set('x-plus',a.plus);if(a.lat!=null){set('x-lat',String(a.lat));set('x-lng',String(a.lng))}
  if(n)w.insertAdjacentHTML('beforebegin','<p class="adhint" style="margin:4px 0 6px">Tomamos tu teléfono y tu dirección de Mi cuenta (los marcaste como también de tu negocio). Puedes cambiarlos aquí.</p>')}
 var t=0;new MutationObserver(function(){if(!t){t=1;requestAnimationFrame(function(){t=0;fill()})}}).observe(document.documentElement,{childList:true,subtree:true});
@@ -6328,7 +6333,7 @@ else if(a==='pcat'){pick.cat=v;document.querySelectorAll('#f-cats .chip').forEac
 else if(a==='pcatnew'){pick.cat='__new';document.querySelectorAll('#f-cats .chip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.act==='pcatnew'));const nw=$('#f-newcat-w');if(nw){nw.hidden=false;$('#f-newcat').focus()}}
 else if(a==='saveShop'){/* v252: registro básico gratis (sin rol); portada y productos piden Comerciante */const n=$('#f-name').value.trim(),err=$('#err'),dsc=($('#f-desc')||{value:''}).value.trim();if(!n)return err.textContent='Ponle un nombre a tu tienda.';if(dsc.length<3)return err.textContent='Escribe una descripción corta de tu negocio.';if($('#f-wa').value.replace(/\D/g,'').length<7)return err.textContent='Escribe el teléfono o WhatsApp de tu negocio.';if(pick.cat==='__new'){const nn=$('#f-newcat').value.trim().replace(/\s+/g,' ');if(!nn)return err.textContent='Escribe el nombre de tu categoría.';const ex=CATS.find(c=>c[0].toLowerCase()===nn.toLowerCase());if(ex)pick.cat=ex[0];else{const PAL=['#C2410C','#0F766E','#6D28D9','#BE185D','#4D7C0F','#0369A1','#B45309','#9F1239'],k=CATS.findIndex(c=>c[0]==='Otros'),row=[nn,'',PAL[CATS.length%PAL.length]];if(k>=0)CATS.splice(k,0,row);else CATS.push(row);saveCats();pick.cat=nn}}if(!pick.cat)return err.textContent='Elige una categoría para tu tienda.';
  if(!shopRole()&&shopsMine().length)return err.textContent='La versión gratis incluye 1 tienda. Activa el rol Comerciante para tener más.';
- const lf=$('#f-img').files[0],logo=lf?await resize(lf,240,.8):'';let au='';try{const cu=QH.authCur();au=cu&&!cu.isAnonymous?cu.uid:''}catch(e){}const s={id:(!shopRole()&&au)?'b'+au:'s'+uid(),name:n,cat:pick.cat,logo,emoji:pick.emoji,...(pick.kind==='casero'?{kind:'casero'}:{}),desc:dsc,owner:$('#f-owner').value.trim()||'Vecino',wa:$('#f-wa').value.replace(/\D/g,''),wa2:($('#f-wa2')||{value:''}).value.replace(/\D/g,'').slice(0,15)/* v332 */,zone:$('#x-zone').value.trim(),age:$('#x-age').value,...readHours(),delivery:$('#x-del').value,...readDel(),...readPays(),tags:parseTags($('#x-tags').value),social:readSocial(),products:[]};
+ const lf=$('#f-img').files[0],logo=lf?await resize(lf,240,.8):'';let au='';try{const cu=QH.authCur();au=cu&&!cu.isAnonymous?cu.uid:''}catch(e){}const s={id:(!shopRole()&&au)?'b'+au:'s'+uid(),name:n,cat:pick.cat,logo,emoji:pick.emoji,...(pick.kind==='casero'?{kind:'casero'}:{}),desc:dsc,owner:$('#f-owner').value.trim()||'Vecino',wa:telCO($('#f-wa').value),wa2:telCO(($('#f-wa2')||{value:''}).value)/* v346 *//* v332 */,zone:$('#x-zone').value.trim(),age:$('#x-age').value,...readHours(),delivery:$('#x-del').value,...readDel(),...readPays(),tags:parseTags($('#x-tags').value),social:readSocial(),products:[]};
  S.stores.unshift(s);S.mine.push(s.id);save();closeModal();cat='';view='store';cur=s.id;render();toast(shopPaid(s)?'Tu tienda ya está abierta':'¡Tu negocio ya está registrado gratis!')}
 else if(a==='addProd'){if(!shopLock('productos'))planGo('prod',cur,prodForm)}
 else if(a==='shopPro'){closeModal(1);codesModal('merc')}
@@ -6454,7 +6459,7 @@ else if(a==='saveReport'){const k=b.dataset.k;if(S.reports.some(r=>!r.done&&r.u=
 else if(a==='reply')replyForm(b.dataset.k,id,b.dataset.u);
 else if(a==='saveReply'){const k=b.dataset.k,o=rateTarget(k,id),r=o&&(o.rates||[]).find(x=>x.u===b.dataset.u);if(!r)return closeModal();const t=$('#rr-t').value.trim();if(t)r.reply=t;else delete r.reply;save();reviewsModal(k,id)}
 else if(a==='editShop')editShop();
-else if(a==='saveEditShop'){const s=S.stores.find(x=>x.id===cur),n=$('#e-name').value.trim(),err=$('#err');if(!s)return closeModal();if(!n)return err.textContent='Ponle un nombre a tu tienda.';s.name=n;if($('#e-kind').value==='casero')s.kind='casero';else delete s.kind;s.desc=$('#e-desc').value.trim()||s.desc;s.zone=$('#x-zone').value.trim();s.age=$('#x-age').value;{const h=readHours();Object.assign(s,h);if(h.days.length||h.open||h.close)delete s.hours}s.delivery=$('#x-del').value;Object.assign(s,readDel(),readPays());s.tags=parseTags($('#x-tags').value);s.social=readSocial();s.wa=$('#e-wa').value.replace(/\D/g,'');s.wa2=($('#e-wa2')||{value:''}).value.replace(/\D/g,'').slice(0,15)/* v332 */;save();closeModal();const y=scrollY;render();scrollTo(0,y);toast('Tienda actualizada')}
+else if(a==='saveEditShop'){const s=S.stores.find(x=>x.id===cur),n=$('#e-name').value.trim(),err=$('#err');if(!s)return closeModal();if(!n)return err.textContent='Ponle un nombre a tu tienda.';s.name=n;if($('#e-kind').value==='casero')s.kind='casero';else delete s.kind;s.desc=$('#e-desc').value.trim()||s.desc;s.zone=$('#x-zone').value.trim();s.age=$('#x-age').value;{const h=readHours();Object.assign(s,h);if(h.days.length||h.open||h.close)delete s.hours}s.delivery=$('#x-del').value;Object.assign(s,readDel(),readPays());s.tags=parseTags($('#x-tags').value);s.social=readSocial();s.wa=telCO($('#e-wa').value);s.wa2=telCO(($('#e-wa2')||{value:''}).value)/* v346 *//* v332 */;save();closeModal();const y=scrollY;render();scrollTo(0,y);toast('Tienda actualizada')}
 else if(a==='editProd')editForm(id);
 else if(a==='rmimg'){ed.imgs.splice(+b.dataset.i,1);$('#m-imgs').innerHTML=edImgs()}
 else if(a==='mvimg'){const i=+b.dataset.i,j=i+(+b.dataset.d);if(j<0||j>=ed.imgs.length)return;[ed.imgs[i],ed.imgs[j]]=[ed.imgs[j],ed.imgs[i]];$('#m-imgs').innerHTML=edImgs()}
