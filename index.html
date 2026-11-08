@@ -3564,6 +3564,20 @@ window.pLink=function(sid,p,co,sz){var v=co?vId(p,co):'',base=prodUrl(sid,p.id,v
  if(L.has(k)){if(v)q.push('v='+v);if(sz)q.push('talla='+encodeURIComponent(sz));return location.origin+'/p/'+k+'.html'+(q.length?'?'+q.join('&'):'')}}catch(e){}return base};
 })();
 </script>
+<style id="v350-barras-css">
+/* v350: el carrusel de publicidad (arriba del inicio) usa barras en vez de puntos, igual que el carrusel verde (v306) */
+html body .bnd{background:none!important;padding:0!important;gap:8px;margin-top:10px}
+html body .bnd i{width:26px;height:6px;border-radius:0!important;background:#c7c7cc!important;transition:width .2s,background .2s;cursor:pointer;position:relative}
+html body .bnd i::before{content:"";position:absolute;left:0;right:0;top:-10px;bottom:-10px}
+html body .bnd i.on{width:40px;background:#16a34a!important}
+html.dark body .bnd i{background:#48484a!important}html.dark body .bnd i.on{background:#4ade80!important}
+@media (prefers-reduced-motion:reduce){html body .bnd i{transition:none}}
+</style>
+<script id="v350-barras">
+/* v350: tocar una barra lleva a ese anuncio (el carrusel sigue avanzando solo cada 5 segundos, como antes) */
+document.addEventListener('click',function(e){var i=e.target.closest&&e.target.closest('#bnd i');if(!i)return;var d=i.parentNode,t=document.getElementById('bnt');if(!t||t.children.length<2)return;
+ var k=[].indexOf.call(d.children,i),st=t.children[1].offsetLeft-t.children[0].offsetLeft;try{bnLast=Date.now()}catch(x){}t.scrollTo({left:k*st,behavior:'smooth'})});
+</script>
 <style id="v306-carrusel-css">
 /* v306: carrusel del inicio (registro gratis, inmuebles y vehículos) */
 .bzcar{margin:16px 0}
