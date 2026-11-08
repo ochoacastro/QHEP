@@ -5,6 +5,7 @@
 // .github/workflows/noticias.yml cada hora; también se puede correr a mano:  node tools/productos.mjs
 // Prueba sin internet: STORES_JSON=tiendas.json PRODUCTS_JSON=productos.json node tools/productos.mjs
 import fs from 'fs'; import path from 'path';
+import { authHeaders } from './fs-auth.mjs'; // v379: lectura identificada si existe el secreto FB_SA
 const SITE = 'https://mipradera.com.co/', PROJECT = 'qhep-b812f', ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const OUT = path.join(ROOT, 'p'), IMG = path.join(OUT, 'img'), GRACE = 3 * 864e5;
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -24,7 +25,7 @@ async function load(coll, env) {
   const L = []; let tok = '';
   do {
     const u = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/${coll}?pageSize=300${tok ? '&pageToken=' + encodeURIComponent(tok) : ''}`;
-    const r = await fetch(u); if (!r.ok) throw new Error('Firestore respondió ' + r.status + ': ' + (await r.text()).slice(0, 300));
+    const r = await fetch(u, { headers: await authHeaders() }); if (!r.ok) throw new Error('Firestore respondió ' + r.status + ': ' + (await r.text()).slice(0, 300));
     const j = await r.json(); for (const d of j.documents || []) { const o = {}; for (const [k, x] of Object.entries(d.fields || {})) o[k] = val(x); o._doc = d.name.split('/').pop(); L.push(o) }
     tok = j.nextPageToken || ''
   } while (tok);
