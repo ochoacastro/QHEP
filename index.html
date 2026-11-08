@@ -4762,7 +4762,7 @@ document.addEventListener('change',function(e){if(e.target&&e.target.id==='ad-bi
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-w2]');if(!b)return;e.preventDefault();var p=b.dataset.w2,w=document.getElementById(p==='ad'?'ad-t2w':p+'-w2w');
  if(w){w.hidden=false;b.hidden=true;var i=w.querySelector('input');if(i)i.focus()}});
 function set(id,v){var i=document.getElementById(id);if(!i||!v||i.value.trim())return 0;i.value=v;i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}));return 1}
-function fill(){var w=document.getElementById('f-wa');if(!w||w.dataset.qp)return;w.dataset.qp='1';var o=ld();if(!o.biz)return;var a=o.main||{},n=0;
+function fill(){var w=document.getElementById('f-wa');if(!w||w.dataset.qp)return;w.dataset.qp='1';try{set('f-owner',String((S.user&&S.user.name)||(S.plan&&S.plan.name)||'').trim().slice(0,30))}catch(e){}/* v347: tu nombre de la cuenta */var o=ld();if(!o.biz)return;var a=o.main||{},n=0;
  n+=set('f-wa',telCO(o.tel));if(set('f-wa2',telCO(o.tel2)))/* v346 */{n++;var w2=document.getElementById('f-w2w');if(w2)w2.hidden=false;var b=document.querySelector('[data-w2="f"]');if(b)b.hidden=true}
  n+=set('x-addr',a.dir);n+=set('x-zone',a.zone);n+=set('x-plus',a.plus);if(a.lat!=null){set('x-lat',String(a.lat));set('x-lng',String(a.lng))}
  if(n)w.insertAdjacentHTML('beforebegin','<p class="adhint" style="margin:4px 0 6px">Tomamos tu teléfono y tu dirección de Mi cuenta (los marcaste como también de tu negocio). Puedes cambiarlos aquí.</p>')}
