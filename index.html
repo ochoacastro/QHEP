@@ -4166,7 +4166,7 @@ window.ordFoot=function(s,t){var o=sel(s.id),app=ordMode(s)==='app',l=pays(s);
   '<label class="sr1" for="on-'+E(s.id)+'">Nota para la tienda</label><textarea class="onote" id="on-'+E(s.id)+'" data-onote="'+E(s.id)+'" maxlength="300" placeholder="'+(S.user?'Nota para la tienda (opcional)':'Dirección de entrega o indicaciones (opcional)')+'">'+E(o.note||'')+'</textarea>'+
   '<span class="omode">'+(app?'Tu pedido queda guardado en Mi cuenta → Mis pedidos y la tienda te confirma por aquí.':'Se abre WhatsApp con tu pedido listo para enviar.')+'</span>'+
   '<button class="btn pink" style="width:100%" data-act="order" data-om="'+(app?'app':'wa')+'" data-id="'+E(s.id)+'">'+(app?'Enviar pedido':'Pedir por WhatsApp')+'</button>'};
-window.ordWaLine=function(sid){var o=sel(sid);return '\nForma de pago: '+PAYN[o.pay]+(o.note?'\nNota: '+String(o.note).slice(0,300):'')+(S.user&&typeof adrWa==='function'?adrWa(adrPick(sid)):'')/* v322 */};
+window.ordWaLine=function(sid){var o=sel(sid);return (S.user?'\n\nCliente: '+String(S.user.name||'').slice(0,60)+(S.user.wa?'\nTeléfono: '+String(S.user.wa).replace(/\D/g,'').slice(0,15):''):'')/* v356 */+'\nForma de pago: '+PAYN[o.pay]+(o.note?'\nNota: '+String(o.note).slice(0,300):'')+(S.user&&typeof adrWa==='function'?adrWa(adrPick(sid)):'')/* v322 */};
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-opay]');if(!b)return;var o=sel(b.dataset.sid);o.pay=b.dataset.opay;
  b.parentNode.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))})});
 document.addEventListener('input',function(e){var t=e.target;if(t&&t.dataset&&t.dataset.onote){sel(t.dataset.onote).note=t.value}});
@@ -4335,6 +4335,7 @@ window.addEventListener('resize',place);setInterval(function(){place();badge()},
 .adsel .ops button[aria-pressed=true]{border-color:#0071e3;box-shadow:inset 0 -4px 0 #0071e3}
 .oaddr{margin:6px 0;padding:10px 12px;background:#f2f3f6;border-left:5px solid #0071e3;font-size:14px}
 .oaddr b{display:block}.oaddr .orda{margin-top:6px}
+.adtk{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 4px;font-size:18px}.adtk b{font-size:22px}.adtk .btn{min-height:40px;padding:6px 14px;font-size:14px}/* v357 */
 .omap{margin-top:8px}.omap summary{cursor:pointer;font-weight:700;min-height:36px;display:flex;align-items:center}.omap iframe{display:block;width:100%;height:220px;border:0;margin-top:6px;background:#e5e7eb}.omap small{display:block;color:#6e6e73;margin-top:4px}/* v351 */
 html.dark .adc,html.dark .adsel .ops button{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important}
 html.dark .adsel .ops button[aria-pressed=true]{border-color:#0a84ff!important}
@@ -4382,9 +4383,11 @@ window.adrClean=function(a){if(!a)return null;var o={lb:String(a.lb||'').slice(0
 /* ---- formulario con mapa ---- */
 var F=null,qT=0;
 window.adrForm=function(w,done,req){var a=w==='tmp'?(F&&F.tmp)||{}:(ld()[w]||{}),main=w==='main',P=ld()/* v332 */;F={w:w,done:done,lat:a.lat,lng:a.lng,src:a.lat!=null?'old':''};
- modal('<h2>'+(main?'Tus datos personales'/* v333 */:w==='alt'?'Segunda dirección de envío':'Otra dirección para este pedido')+'</h2>'+
+ modal('<h2>'+(main?((typeof telCO==='function'?telCO(P.tel||(S.user&&S.user.wa)||''):'').length>=10?'Tu dirección principal':'Tus datos personales')/* v333; v357 */:w==='alt'?'Segunda dirección de envío':'Otra dirección para este pedido')+'</h2>'+
   (req?'<p class="omw">Para hacer pedidos necesitas registrar tu dirección. La tienda la recibe con cada pedido para saber exactamente a dónde llevarlo.</p>':'')+
-  (main?'<h3 class="adsh">Tu teléfono</h3><label for="ad-tel">Teléfono o WhatsApp</label><input id="ad-tel" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" value="'+E(P.tel||(S.user&&S.user.wa)||'')+'" placeholder="Ej: 3001234567"><p class="adhint">La tienda te escribe aquí si necesita algo de tu pedido.</p><h3 class="adsh">Tu dirección principal</h3>':'')+/* v332: teléfono (dato personal); v333: separado por secciones */
+  (main?(function(){var kt=typeof telCO==='function'?telCO(P.tel||(S.user&&S.user.wa)||''):String(P.tel||'');var inp='<label for="ad-tel">Teléfono o WhatsApp</label><input id="ad-tel" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" value="'+E(kt)+'" placeholder="Ej: 3001234567"><p class="adhint">La tienda te escribe aquí si necesita algo de tu pedido.</p>';
+   /* v357: si ya tenemos tu teléfono (del registro o de Mis datos) no se vuelve a pedir: solo se muestra, con «Cambiar» */
+   return '<h3 class="adsh">Tu teléfono</h3>'+(kt.length>=10?'<p class="adtk" id="ad-telk"><b>'+E(kt)+'</b><button type="button" class="btn ghost" data-adtelc="1">Cambiar</button></p><div id="ad-telw" hidden>'+inp+'</div>':inp)+'<h3 class="adsh">Tu dirección principal</h3>'})():'')+/* v332: teléfono (dato personal); v333: separado por secciones */
   (w!=='main'?'<label for="ad-lb">Nombre de esta dirección</label><input id="ad-lb" type="text" maxlength="30" value="'+E(a.lb||(w==='alt'?'Trabajo':''))+'" placeholder="Ej: Trabajo, Casa de mi mamá">':'')+
   '<label for="ad-zone">Barrio o corregimiento</label><input id="ad-zone" type="text" maxlength="40" value="'+E(a.zone||'')+'" placeholder="Ej: Centro">'+
   '<label for="ad-dir">Dirección</label><input id="ad-dir" type="text" maxlength="120" autocomplete="street-address" value="'+E(a.dir||'')+'" placeholder="Ej: Calle 5 # 3-20">'+
@@ -4425,6 +4428,7 @@ addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;v
   if(F.lat!=null&&F.src!==''){a.lat=F.lat;a.lng=F.lng}a=adrClean(a);var w=F.w,dn=F.done;
   if(w==='tmp'){F.tmp=a;var kp=document.getElementById('ad-keep');if(kp&&kp.checked){var o=ld();o.alt=a;sv(o)}}else{var o2=ld();o2[w]=a;if(w==='main'){o2.tel=tl;o2.biz=bz;o2.tel2=t2;setTimeout(function(){try{waSync(tl)}catch(e){}},0)/* v348: también en Mis datos */}/* v332 */sv(o2)}
   closeModal(1);toast(w==='tmp'?'Dirección lista para este pedido':'Dirección guardada');if(typeof dn==='function')dn(a);return}
+ if((b=t.closest('[data-adtelc]'))){e.preventDefault();var tw=document.getElementById('ad-telw'),tk=document.getElementById('ad-telk');if(tw)tw.hidden=false;if(tk)tk.hidden=true;var ti=document.getElementById('ad-tel');if(ti){ti.focus();ti.select()}return}/* v357 */
  if((b=t.closest('[data-adedit]'))){e.preventDefault();closeModal(1);adrForm(b.dataset.adedit,function(){adrOpen()});return}
  if((b=t.closest('[data-addel]'))){e.preventDefault();if(!(await askC('¿Borrar tu segunda dirección?','Borrar')))return;var o3=ld();delete o3.alt;sv(o3);adrOpen();return}
  if((b=t.closest('[data-act="adrOpen"]'))){e.preventDefault();e.stopImmediatePropagation();closeModal(1);adrOpen();return}},true);
@@ -6593,6 +6597,10 @@ else if(a==='chLogo'){const i=document.createElement('input');i.type='file';i.ac
 else if(a==='pstar'){rt.n=+v;document.querySelectorAll('#f-stars .star').forEach(x=>x.classList.toggle('on',+x.dataset.v<=rt.n))}
 else if(a==='saveRate'){if(!rt.n)return $('#err').textContent='Elige de 1 a 5 estrellas.';const o=rateTarget(rt.k,rt.id);if(!o)return closeModal();o.rates=o.rates||[];const r={u:DEV,a:myUid(),n:rt.n,name:$('#r-name').value.trim(),txt:$('#r-txt').value.trim(),ts:Date.now()},i=o.rates.findIndex(isMyRate);if(i>=0)o.rates[i]=r;else o.rates.push(r);save();closeModal();const y=scrollY;render();scrollTo(0,y);toast('¡Gracias por tu calificación!')}
 else if(a==='order'){const s=S.stores.find(x=>x.id===id);if(!s.wa)return toast('Esta tienda aún no tiene WhatsApp registrado');
+ /* v356: para pedir por WhatsApp hay que tener cuenta, teléfono y dirección: así la tienda sabe quién pide y a dónde llevarlo */
+ const again=()=>setTimeout(()=>{const bb=document.querySelector('[data-act="order"][data-id="'+id+'"]');if(bb)bb.click();else{try{openCart()}catch(e){}}},400);
+ if(!S.user){toast('Para enviar tu pedido entra o crea tu cuenta: así la tienda sabe quién eres y a dónde llevarlo.');return need(again)}
+ const ad0=typeof adrPick==='function'?adrPick(id):null,tl0=typeof telCO==='function'?telCO(S.user.wa||''):String(S.user.wa||'');if(typeof adrForm==='function'&&(!ad0||tl0.length<7)){closeModal(1);return adrForm('main',again,true)}
  let t=0,l=Object.entries(S.cart).filter(([k])=>k.startsWith(id+'|')).map(([k,q])=>{const p=s.products.find(x=>x.id===k.split('|')[1]);t+=p.price*q;return `• ${q} x ${p.name}${vTx(k)?' - '+vTx(k):''} (${money(p.price*q)})\n   ${(c=>(c?'ID: '+vId(p,c):'Código: '+pCode(p))+(skuOf(p,c)?' · SKU: '+skuOf(p,c):''))(k.split('|')[3])}\n   ${pLink(s.id,p,k.split('|')[3]||'',k.split('|')[2]||'')/* v305: con foto si la página del producto ya existe */}`});
  const num=s.wa.length===10?'57'+s.wa:s.wa;window.open(`https://wa.me/${num}?text=${encodeURIComponent(`Hola ${s.name}, vi su tienda en Mi Pradera y quiero pedir:\n${l.join('\n')}\nTotal: ${money(t)}${typeof ordWaLine==='function'?ordWaLine(id):''/* v320 */}`)}`,'_blank');
  Object.keys(S.cart).forEach(k=>k.startsWith(id+'|')&&delete S.cart[k]);refreshCart()}
