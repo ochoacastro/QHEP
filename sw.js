@@ -17,14 +17,32 @@ self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
   if (r.mode === 'navigate') {
-    e.respondWith(fetch(r).then(res => {
+    const red = fetch(r).then(res => {
       const u = new URL(r.url);
       if (res.ok && !u.search && /\/(index\.html)?$/.test(u.pathname)) {
         const copia = res.clone();
         caches.open(CACHE).then(c => c.put('./', copia)).catch(() => {});
       }
       return res;
-    }).catch(() => caches.match('./')));
+    });
+    /* v378: en la página principal, si internet tarda más de 3,5 segundos se muestra la copia guardada
+       (la versión nueva queda guardada para la próxima vez). Con buena conexión no cambia nada. */
+    const inicio = /\/(index\.html)?$/.test(new URL(r.url).pathname);
+    e.respondWith(new Promise(ok => {
+      let listo = false;
+      const fin = x => { if (!listo && x) { listo = true; ok(x); } };
+      const t = inicio ? setTimeout(() => caches.match('./').then(fin), 3500) : 0;
+      red.then(res => { clearTimeout(t); fin(res); })
+         .catch(() => caches.match('./').then(c => { listo || (listo = true, ok(c || Response.error())); }));
+    }));
+    return;
+  }
+  /* v378: el logo y los íconos se muestran al instante desde la copia guardada y se actualizan por detrás */
+  if (/\/(logo-mp(-oscuro)?\.webp|icon-192\.png|icon-512\.png)$/.test(new URL(r.url).pathname)) {
+    e.respondWith(caches.open(CACHE).then(c => c.match(r).then(hit => {
+      const net = fetch(r).then(res => { if (res.ok) c.put(r, res.clone()).catch(() => {}); return res; });
+      return hit || net;
+    })));
     return;
   }
   e.respondWith(fetch(r).catch(() => caches.match(r)));
