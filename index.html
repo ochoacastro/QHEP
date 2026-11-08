@@ -4876,7 +4876,7 @@ var W={num:'',code:'',t:0,tm:0};
 function fs(){return firebase.firestore()}
 async function mk(num){var u=firebase.auth().currentUser,k=QH.key();if(!u||!k)throw {code:'no-user'};
  for(var i=0;i<4;i++){var c=String(Math.floor(100000+Math.random()*900000));
-  try{await fs().collection('celcod').doc(c).set({k:k,uid:u.uid,wa:num,ts:Date.now()});return c}catch(e){if(i===3)throw e}}}
+  try{await fs().collection('celcod').doc(c).set({k:k,uid:u.uid,wa:num,ts:firebase.firestore.FieldValue.serverTimestamp()/* v367: hora del servidor (el celular puede tener la hora mal) */});return c}catch(e){if(i===3)throw e}}}
 function view(st,txt){var link='https://wa.me/'+biz()+'?text='+encodeURIComponent('Hola Mi Pradera. Mi código para verificar mi celular es: '+W.code);
  modal('<div id="cw"><h2>Verificar mi celular</h2>'+
   (st==='prep'?'<p>Preparando tu código…</p>':
