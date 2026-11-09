@@ -134,6 +134,22 @@ const PRUEBAS = {
     check('Anuncio vencido: aviso «venció» con «Renovar ahora»', await p.evaluate(() => /venció/.test(nfPromos()) && /cmxRenew/.test(nfPromos())));
     sinErrores(p, 'Notificaciones'); await p.cerrar();
   },
+  async appcheck() { // v379/v385 App Check con Fraud Defense (en mipradera.com.co; aquí se fuerza con ?appcheck=1)
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+    const AC = 'firebase.appCheck=function(app){return{activate:function(p,a){(window.__ac=window.__ac||[]).push((app&&app.name)+"|"+p.tipo+"|"+p.k+"|"+a)}}};firebase.appCheck.ReCaptchaEnterpriseProvider=function(k){this.k=k;this.tipo="enterprise"};firebase.appCheck.ReCaptchaV3Provider=function(k){this.k=k;this.tipo="v3"};';
+    await ctx.route(/gstatic\.com\/firebasejs\//, r => { const u = r.request().url(); r.fulfill({ body: /app-compat/.test(u) ? FB : /app-check-compat/.test(u) ? AC : '', contentType: 'application/javascript' }) });
+    await ctx.route(/google\.com\/recaptcha|workers\.dev|googleapis|firebaseio|accounts\.google|cdnjs|ytimg|fonts\.|maps\./, r => r.fulfill({ status: 500, body: '' }));
+    await ctx.addInitScript(() => localStorage.setItem('qh_cookies', '1'));
+    const p = await ctx.newPage(); p.errores = []; p.on('pageerror', e => p.errores.push(e.message));
+    await p.goto(base + '/index.html?appcheck=1'); await p.waitForTimeout(2500);
+    const ac = await p.evaluate(() => (window.__ac || []).join(' '));
+    check('App Check usa Fraud Defense con la clave del proyecto', /\[DEFAULT\]\|enterprise\|6LcaDhguAAAAAEuRH9ah74jx2wRLAY4UY6xvUf18\|true/.test(ac), ac);
+    const t0 = Date.now(), tok = await p.evaluate(() => rcToken('rc-login'));
+    check('Con App Check el inicio de sesión no espera reCAPTCHA', tok === 'appcheck' && Date.now() - t0 < 1000, tok + ' en ' + (Date.now() - t0) + ' ms');
+    await p.evaluate(() => { firebase.app = n => { if (n) throw new Error('no existe'); return { options: {} } }; return authB() }); await p.waitForTimeout(200);
+    check('La conexión de inicio de sesión también queda protegida', /sms\|enterprise/.test(await p.evaluate(() => (window.__ac || []).join(' '))));
+    sinErrores(p, 'App Check'); await ctx.close();
+  },
   async celular() { // v371 un celular por cuenta
     const p = await abrir({ user: { uid: 'uA', isAnonymous: false, email: 'ana@x.co' }, seed: { 'tels/3155555233': { uid: 'otro', k: 'kO' } } });
     await p.evaluate(() => { S.user = { id: 'd', name: 'Julia', email: 'julia@x.co', wa: '3001234567' } });
