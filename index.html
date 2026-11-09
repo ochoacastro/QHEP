@@ -5162,7 +5162,10 @@ function cards(){if(!S.user||(typeof MODE!=='undefined'&&MODE==='admin'))return 
 function keyOf(h){var m=/<h3>([\s\S]*?)<\/h3>/.exec(h);return (m?m[1]:h).replace(/<[^>]*>/g,'').trim().slice(0,80)}
 function seen(){try{var o=JSON.parse(localStorage.getItem(K)||'[]');return Array.isArray(o)?o:[]}catch(e){return []}}
 window.nfPromos=function(){var L=cards();if(!L.length)return '';return '<div class="nfpr">'+L.join('')+'</div><h3 class="nfh">Tus notificaciones</h3>'};
-window.nfPromoNew=function(){var s=seen();return cards().filter(function(h){return s.indexOf(keyOf(h))<0}).length};
+/* v382: el aviso «Publica tu anuncio gratis» no se apaga al abrir Notificaciones: sigue en rojo mientras la persona
+   tenga su anuncio gratis sin usar; al publicarlo se apaga (y vuelve cuando tenga otro gratis disponible, a las 24 horas) */
+function freeOn(){try{if(QH.comListen)QH.comListen()}catch(e){}try{return typeof comFreeWait==='function'&&!comFreeWait()}catch(e){return false}}
+window.nfPromoNew=function(){var s=seen(),fr=null;return cards().filter(function(h){var k=keyOf(h);if(k==='Publica tu anuncio gratis'){if(fr===null)fr=freeOn();return fr}return s.indexOf(k)<0}).length};
 window.nfPromoSeen=function(){var s=seen();cards().forEach(function(h){var k=keyOf(h);if(s.indexOf(k)<0)s.push(k)});try{localStorage.setItem(K,JSON.stringify(s.slice(-30)))}catch(e){}};
 /* número rojo en la pestaña «Mi cuenta» de la barra de abajo */
 function tab(){var n=0;try{n=typeof nfUnread==='function'?nfUnread():0}catch(e){}var b=[].find.call(document.querySelectorAll('#bnav button'),function(x){return /Mi cuenta/.test(x.textContent)});if(!b)return;
