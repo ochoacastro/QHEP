@@ -1,0 +1,7 @@
+
+/* v317: zona urbana (barrios) y zona rural (corregimientos) */
+.znw{display:flex;flex-direction:column;gap:6px}
+.znw select{width:100%}
+.znw input[hidden]{display:none}
+.znadm textarea{width:100%;min-height:150px;font:inherit;font-size:14px}
+.znadm .znc{display:grid;gap:10px}@media (min-width:700px){.znadm .znc{grid-template-columns:1fr 1fr}}

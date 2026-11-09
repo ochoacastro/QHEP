@@ -1,0 +1,41 @@
+
+/* v251: Administrar → Códigos ordenado (resumen, formulario en cuadrícula, tabla con filtros, secciones plegables) y código gratis al instante */
+.cdsum{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px;margin:0 0 14px}
+.cdt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border:1px solid var(--color-pale-mist,#d6d6d6);border-radius:16px;background:#fff;color:var(--color-obsidian,#1d1d1f);font:inherit;text-align:left;cursor:pointer;min-height:84px}
+.cdt.cdt-new b{color:#a35a00}.cdt.cdt-act b{color:#1b7a34}.cdt.cdt-gratis b{color:#0a7d3b}
+.cdt b{font-size:24px;font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.cdt small{font-size:12.5px;color:var(--color-pewter,#707070);line-height:1.25}
+.cdt[aria-pressed=true]{border-color:var(--color-iris-blue,#0071e3);box-shadow:0 0 0 2px rgba(0,113,227,.25)}
+.cdg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 12px;align-items:end}
+.cdg>div{min-width:0}
+.cdh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.cdh h3{margin:0}
+.cdh .btn{min-height:36px;padding:6px 14px;font-size:14px}
+.cdf{display:grid;grid-template-columns:1fr;gap:8px;margin:12px 0 4px}
+@media(min-width:640px){.cdf{grid-template-columns:2fr 1fr 1fr}}
+.cdf input,.cdf select{margin:0}
+.cdc{margin:8px 0 4px;font-size:13px}
+.cdw{overflow-x:auto;margin:0 -4px;-webkit-overflow-scrolling:touch}
+.cdtb{min-width:720px}
+.cdtb td:last-child{white-space:nowrap}
+.cdtb td:last-child .btn{display:inline-flex;margin:0 4px 4px 0}
+.cdtb tr.cd-exp td{opacity:.6}
+.cdtb code{white-space:nowrap}
+@media(max-width:639px){.cdw{overflow:visible;margin:0}.cdtb{min-width:0}.cdtb thead{display:none}.cdtb,.cdtb tbody,.cdtb tr,.cdtb td{display:block;width:100%}
+ .cdtb tr{position:relative;padding:12px 0;border-bottom:1px solid var(--color-pale-mist,#d6d6d6)}.cdtb td{border:0;padding:2px 0}
+ .cdtb td[data-l]:not([data-l="Código"]){position:relative;padding-left:84px;min-height:24px}.cdtb td[data-l]:not([data-l="Código"])::before{content:attr(data-l);position:absolute;left:0;top:4px;font-size:12px;color:var(--color-pewter,#707070)}
+ .cdtb td[data-l="Código"] code{font-size:16px}.cdtb td.cda{padding-top:6px;white-space:normal}}
+.cds{display:inline-block;padding:2px 9px;border-radius:980px;font-size:12px;font-weight:600;white-space:nowrap}
+.cds.new{background:rgba(255,159,10,.15);color:#a35a00}
+.cds.act{background:rgba(48,209,88,.16);color:#1b7a34}
+.cds.exp{background:rgba(0,0,0,.07);color:var(--color-pewter,#707070)}
+.cdx>summary{cursor:pointer;font-size:17px;font-weight:600;padding:2px 0;list-style:none;display:flex;align-items:center;gap:6px}
+.cdx>summary::-webkit-details-marker{display:none}
+.cdx>summary::after{content:"›";margin-left:auto;font-size:22px;line-height:1;transform:rotate(90deg);transition:transform .2s;color:var(--color-pewter,#707070)}
+.cdx:not([open])>summary::after{transform:rotate(0)}
+.cdx[open]>summary{margin-bottom:8px}
+.cdx>.cg{margin:0;padding:0;border:0;box-shadow:none;background:none}
+.cdx>.cg>h3{display:none}
+.cdon{font-style:normal;font-size:12px;font-weight:600;padding:2px 8px;border-radius:980px;background:rgba(48,209,88,.16);color:#1b7a34}
+.qfc{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0;padding:16px;border-radius:16px;background:var(--color-fog-white,#f5f5f7)}
+.qfc code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:24px;font-weight:700;letter-spacing:.06em}

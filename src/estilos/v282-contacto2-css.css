@@ -1,0 +1,5 @@
+
+/* v282: el contacto 2 de emergencias va en el mismo desplegable con «+» del obituario (v280) */
+.emg-c2{margin:12px 0 4px!important}
+.emg-c2 fieldset.emf{border:0!important;padding:0!important;margin:10px 14px 14px!important;background:none!important;box-shadow:none!important}
+.emg-c2 legend{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}

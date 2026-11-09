@@ -1,0 +1,22 @@
+
+/* v262: obituarios en Clasificados: botón, formulario con plantillas (clara y oscura), vista previa y tarjeta vertical */
+.obi-b{display:inline-flex;align-items:center;gap:6px}
+.obi-b .qi{width:18px;height:18px}
+.obi-tpl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 4px}
+.obi-tpl button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px;border:2px solid var(--color-pale-mist,#d6d6d6);border-radius:14px;background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--color-obsidian,#1d1d1f);cursor:pointer}
+.obi-tpl button[aria-pressed=true]{border-color:var(--color-iris-blue,#0071e3);box-shadow:0 0 0 3px rgba(0,113,227,.18)}
+.obi-tpl i{display:block;width:72px;height:128px;border-radius:8px;background:#efe9df center/cover}
+.obi-tpl .t1 i{background:linear-gradient(#f4efe6,#e8e1d4);box-shadow:inset 0 0 0 1px #d8cfbf}
+.obi-tpl .t2 i{background:radial-gradient(circle at 50% 30%,#4a4a4a,#151515)}
+.obi-prev{display:flex;justify-content:center;margin:10px 0 6px}
+.obi-prev canvas{width:216px;height:384px;border-radius:12px;box-shadow:0 10px 24px -12px rgba(0,0,0,.5);background:#eee}
+.obi-row{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.obi-row>div{min-width:0}
+.obi-dm{display:flex;gap:6px;margin:2px 0 6px}
+.obi-dm button{flex:1;min-height:34px;padding:4px 8px;border-radius:999px;border:1px solid var(--color-pale-mist,#d6d6d6);background:#fff;font:inherit;font-size:13px;color:var(--color-obsidian,#1d1d1f);cursor:pointer}
+.obi-dm button[aria-pressed=true]{background:var(--color-obsidian,#1d1d1f);border-color:var(--color-obsidian,#1d1d1f);color:#fff}
+.obi-ex{margin-top:6px;padding:10px 12px;border-radius:14px;background:var(--color-fog-white,#f5f5f7)}
+.obi-ex summary{cursor:pointer;font-weight:600}
+.obi-sug{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
+.obi-sug button{padding:6px 10px;border-radius:999px;border:1px solid var(--color-pale-mist,#d6d6d6);background:#fff;font:inherit;font-size:13px;cursor:pointer;color:var(--color-obsidian,#1d1d1f);text-align:left}
+article.cm-obi .cmi{aspect-ratio:9/16!important;height:auto!important;max-height:78vh;object-fit:contain!important;background:#1b1b1b}

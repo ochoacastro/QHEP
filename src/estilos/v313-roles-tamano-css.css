@@ -1,0 +1,9 @@
+
+/* v313: selector «Uno / Varios» dentro de Comerciante, Vendedor de inmuebles y Vendedor de vehículos */
+.cdsz{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 6px}
+.cdsz button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:64px;padding:10px 12px;border:2px solid #d2d2d7;background:#fff;color:#1d1d1f;font:inherit;text-align:left;cursor:pointer;border-radius:0}
+.cdsz button b{font-size:15px}.cdsz button small{font-size:12.5px;color:#6e6e73;line-height:1.3}
+.cdsz button[aria-pressed=true]{border-color:#0071e3;box-shadow:inset 0 -5px 0 #0071e3}
+html.dark .cdsz button{background:#1e2026!important;border-color:#3b404b!important;color:#fff!important}
+html.dark .cdsz button small{color:#cbd5e1!important}
+html.dark .cdsz button[aria-pressed=true]{border-color:#0a84ff!important;box-shadow:inset 0 -5px 0 #0a84ff!important}

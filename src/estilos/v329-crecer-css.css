@@ -1,0 +1,3 @@
+
+/* v329: los cuadros de texto crecen solos con lo que se escribe */
+textarea.qgrow{overflow-y:hidden;resize:none;transition:height .08s}

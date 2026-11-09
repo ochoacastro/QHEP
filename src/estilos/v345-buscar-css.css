@@ -1,0 +1,8 @@
+
+.qs-fw{position:relative;padding:0 20px 8px}
+.qs-sh:has(.qs-fw){height:min(78vh,640px)}@media (min-width:700px){.qs-sh:has(.qs-fw){height:70vh}}
+.qs-fw svg{position:absolute;left:36px;top:15px;width:18px;height:18px;fill:none;stroke:var(--color-pewter,#707070);stroke-width:2;stroke-linecap:round;pointer-events:none}
+.qs-fw input.qs-f{margin:0;padding-left:46px}
+.qs-no{margin:10px 4px 0;font-size:15px;color:var(--color-pewter,#707070)}
+.qs-o[hidden],.qs-g[hidden]{display:none!important}
+html.dark .qs-fw input.qs-f{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important}

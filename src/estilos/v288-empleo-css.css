@@ -1,0 +1,21 @@
+
+/* v288: plantilla de anuncio de empleo (Ofrezco empleo / Busco empleo) en el formulario de Clasificados */
+.jobt{margin:4px 0 14px;padding:14px;border:1px solid #d3d9e3;border-left:5px solid var(--rio,#0071e3);background:#f3f5f8}
+.jobt h3{margin:0 0 4px;font-size:17px}
+.jobt .jobl{display:flex;gap:0;margin:10px 0 6px;border:2px solid var(--rio,#0071e3)}
+.jobt .jobl button{flex:1;min-height:44px;border:0;background:#fff;color:var(--rio,#0071e3);font:inherit;font-weight:800;font-size:14px;cursor:pointer;padding:6px 8px}
+.jobt .jobl button[aria-pressed=true]{background:var(--rio,#0071e3);color:#fff}
+.jobt .jobr{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.jobt .jobr>div{min-width:0}
+.jobt .jobadv[hidden]{display:none}
+.jobt .jobb{display:flex;flex-wrap:wrap;gap:6px 14px;margin:4px 0 6px}
+.jobt .jobb label{display:flex;align-items:center;gap:6px;margin:0;font-weight:400;font-size:14.5px;min-height:36px}
+.jobt .jobb input{width:20px;height:20px;margin:0}
+.jobt .jobn{font-size:13px;margin:8px 0 0}
+.jobt .jobok{font-size:13px;margin:6px 0 0;color:#166534;font-weight:700}
+@media (max-width:420px){.jobt .jobr{grid-template-columns:1fr}}
+html.dark .jobt{background:#1e2026!important;border-color:#3b404b!important;border-left-color:#0a84ff!important;color:#fff!important}
+html.dark .jobt .jobl{border-color:#0a84ff!important}
+html.dark .jobt .jobl button{background:#111!important;color:#4da3ff!important}
+html.dark .jobt .jobl button[aria-pressed=true]{background:#0a84ff!important;color:#fff!important}
+html.dark .jobt .jobok{color:#86efac!important}

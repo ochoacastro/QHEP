@@ -1,0 +1,4 @@
+
+/* v281: en modo oscuro el filtro elegido (Todos, Vendo, Arriendo…) se rellena de blanco con texto negro, igual que en modo claro se rellena de negro */
+html.dark :is(.chip[aria-pressed=true],.bedq button[aria-pressed=true],.pvx .fxs[aria-pressed=true],.qbt button[aria-selected=true]){background:#fff!important;border-color:#fff!important;color:#000!important}
+html.dark :is(.chip[aria-pressed=true],.bedq button[aria-pressed=true],.qbt button[aria-selected=true]) :is(.qi,svg){color:#000!important;stroke:currentColor}

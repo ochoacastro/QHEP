@@ -1,0 +1,5 @@
+
+/* v204: iconos de linea (Lucide, licencia ISC) en lugar de emojis. Heredan el color del texto, asi funcionan en modo claro y oscuro */
+.qi{display:inline-block;width:1.1em;height:1.1em;vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#themeBtn .qi{width:20px;height:20px;vertical-align:middle;color:var(--color-iron,#333)}
+.cico .qi{width:.9em;height:.9em;color:var(--c,var(--ink))}

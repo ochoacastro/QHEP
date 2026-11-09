@@ -1,0 +1,16 @@
+
+/* v286: redes sociales plegables en el formulario de la tienda (mismo diseño que los grupos de categorías v283). Si algo falla, borra este <style> y el <details class="sgd"> de extraFields. */
+.sgd{width:100%;margin:12px 0 6px;border:1px solid #d3d9e3;background:#fff}
+.sgd summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:52px;padding:10px 12px 10px 14px;cursor:pointer;font-weight:700;font-size:16px}
+.sgd summary::-webkit-details-marker{display:none}
+.sgd summary span{flex:1;min-width:0}
+.sgd summary small{font-weight:400;font-size:13px;opacity:.7;white-space:nowrap}
+.sgd summary i{position:relative;flex:none;width:28px;height:28px;background:var(--rio,#0071e3);color:#fff}
+.sgd summary i::before,.sgd summary i::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:2.5px;background:currentColor;transform:translate(-50%,-50%);transition:transform .2s ease}
+.sgd summary i::after{transform:translate(-50%,-50%) rotate(90deg)}
+.sgd[open] summary i::after{transform:translate(-50%,-50%) rotate(0deg)}
+.sgd .sgr{padding:0 12px 12px}
+.sgd summary:focus-visible{outline:3px solid var(--rio,#0071e3);outline-offset:2px}
+html.dark .sgd{background:#1e2026!important;border-color:#3b404b!important;color:#fff!important}
+html.dark .sgd summary i{background:#0a84ff!important}
+@media (prefers-reduced-motion:reduce){.sgd summary i::after{transition:none}}

@@ -1,0 +1,10 @@
+
+/* v330: en los anuncios de empleo se ocultan los campos que llena la plantilla */
+.cwz[data-s="2"]:has(#jobt:not(.jobman)) :is(label[for="cm-t"],#cm-t,label[for="cm-x"],#cm-x,.cwz-chips,label[for="cm-pr"],#cm-pr,label[for="cm-cd"],#cm-cd,#cm-cd+.qs-btn,.cmex){display:none!important}
+.cwz[data-s="2"]:has(#jobt:not(.jobman)):has(.cmpn[data-m="txt"]:not([style*="none"])) .note{display:none!important}
+.jobpv{margin:14px 0 0;padding:12px 14px;background:#fff;border:1px solid #d2d2d7}
+.jobpv>b{display:block;font-size:14px;margin-bottom:6px}.jobpv h4{margin:0 0 4px;font-size:16px}.jobpv p{margin:0;font-size:14px;white-space:pre-line;color:#3a3a3c}
+.jobpv .btn{margin-top:10px;min-height:42px;font-size:14px}
+.cmex{margin:6px 0 4px;min-height:42px;font-size:14px}
+html.dark .jobpv{background:#1c1c1e!important;border-color:#3a3a3c!important}html.dark .jobpv p{color:#e5e5ea!important}
+.jobpv{border-radius:0!important}

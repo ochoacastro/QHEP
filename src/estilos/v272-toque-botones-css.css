@@ -1,0 +1,22 @@
+
+/* v272: transición al presionar un botón: se rellena de color, se hunde un poco y una onda sale desde el dedo */
+.qprel{position:relative}
+.qrw{display:block;position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none}
+.qrp{display:block;position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);animation:qrpGo .5s cubic-bezier(.2,.8,.3,1) forwards;pointer-events:none}
+.qrp.out{transition:opacity .3s ease;opacity:0}
+@keyframes qrpGo{to{transform:scale(1)}}
+:is(button,.btn,.chip,.nwchip,.pnr,.hhr,.hhr2,.plgo,.qbr1,a[data-act]){transition:background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .2s ease,transform .16s cubic-bezier(.23,1,.32,1),filter .15s}
+.qpr:is(button,.btn,.chip,.nwchip,.pnr,.hhr,.hhr2,.plgo,.qbr1,a[data-act]):not(.hubt){transform:scale(.96)}
+.hubt.qpr .hubi{transform:scale(.9)}
+.qpr:is(.hhr,.hhr2,.plgo,.qbr1){animation:none!important}
+/* botones de contorno o blancos: se rellenan de azul */
+.qpr:is(.btn.ghost,.chip,.nwchip,.pnr,.cdt){background:#006edb!important;border-color:#006edb!important;color:#fff!important}
+.qpr:is(.btn.ghost,.chip,.nwchip,.pnr) .qi,.qpr:is(.btn.ghost,.chip,.nwchip,.pnr) svg{color:#fff!important;stroke:currentColor}
+/* botones rellenos: se oscurecen un poco y ganan un borde de luz */
+.qpr:is(.btn:not(.ghost),.hhr,.hhr2,.plgo,.qbr1){filter:brightness(.88);box-shadow:0 0 0 3px rgba(0,110,219,.28)}
+/* botones negros: se rellenan de azul (la clase «qblk» la pone el script si el fondo es casi negro) */
+.qpr.qblk{background:#006edb!important;border-color:#006edb!important;color:#fff!important}
+html.dark .qpr:is(.btn.ghost,.chip,.nwchip,.pnr,.cdt){background:#0a84ff!important;border-color:#0a84ff!important;color:#fff!important}
+html.dark .qpr.qblk{background:#0a84ff!important;border-color:#0a84ff!important;color:#fff!important}
+html.dark .qpr:is(.btn:not(.ghost),.hhr,.hhr2,.plgo,.qbr1){box-shadow:0 0 0 3px rgba(10,132,255,.35)!important}
+@media (prefers-reduced-motion:reduce){.qrp{display:none}.qpr{transform:none!important}}

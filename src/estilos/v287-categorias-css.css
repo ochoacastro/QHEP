@@ -1,0 +1,19 @@
+
+/* v287: editor de categorías y subcategorías de Clasificados y de «Lo más buscado» (Administrar → Categorías) */
+.cmca .cmcr{margin:0 0 8px;border:1px solid #d3d9e3;background:#fff}
+.cmca .cmcr>summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:50px;padding:8px 12px;cursor:pointer;font-weight:700}
+.cmca .cmcr>summary::-webkit-details-marker{display:none}
+.cmca .cmcr>summary span{flex:1;min-width:0}
+.cmca .cmcr>summary small{font-weight:400;opacity:.7;font-size:12.5px;white-space:nowrap}
+.cmca .cmcr.off>summary span{opacity:.5;text-decoration:line-through}
+.cmca .cmcb{padding:4px 12px 12px}
+.cmca .cmcb textarea{min-height:120px}
+.cmca .cmcb .row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.cmca .cmcb .row .btn{flex:1 1 auto;min-height:38px}
+.cmca .cmct{display:inline-block;margin-left:6px;padding:1px 6px;font-size:11px;font-weight:700;background:#e5e7eb;color:#374151}
+.cmca .cmcb .muted{font-size:12.5px}
+html.dark .cmca .cmcr{background:#1e2026!important;border-color:#3b404b!important;color:#fff!important}
+html.dark .cmca .cmct{background:#374151!important;color:#e5e7eb!important}
+/* la cuadrícula de categorías no se sale de la pantalla con nombres largos */
+.chips.cats{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.chips.cats .chip{min-width:0;white-space:normal;overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto;font-size:14px}

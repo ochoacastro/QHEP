@@ -1,0 +1,25 @@
+
+.banner.promo.sinfo-b{display:block;padding:0;background:#fff;border:1px solid #d2d2d7;border-top:4px solid var(--c,#0071e3);border-radius:0!important;color:var(--ink,#1d1d1f)}
+.sinfo{width:100%}
+.sinfo-b>:not(.sinfo){margin-left:16px!important;margin-right:16px!important;width:auto!important;box-sizing:border-box}.sinfo-b>:last-child:not(.sinfo){margin-bottom:16px!important}.sinfo-b>.acts{padding-top:14px;border-top:1px solid #e5e5ea}html.dark .sinfo-b>.acts{border-color:#3a3a3c!important}
+.si-hd{padding:16px 16px 14px;border-bottom:1px solid #e5e5ea}
+.si-hd h3{margin:0;font-size:20px;line-height:1.25}
+.si-hd p{margin:4px 0 0;font-size:15px;color:#48484a}
+.si-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.si-tags span{font-size:12.5px;font-weight:700;padding:3px 8px;background:#f2f3f6;color:#3a3a3c}
+.si-bd{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;font-size:14px}.si-bd .vf{margin:0}
+.si-hd .soc{margin-top:10px}
+.si-rows{padding:2px 16px}
+.si-r{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e5e5ea}.si-r:last-child{border-bottom:0}
+.si-i{flex:none;width:36px;height:36px;display:grid;place-items:center;background:#eef4ff;color:#0071e3}.si-i svg{width:20px;height:20px}
+.si-v{min-width:0;flex:1}
+.si-l{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#6e6e73;margin:1px 0 3px}
+.si-t{font-size:15.5px;font-weight:600;color:inherit}a.si-t{color:#0071e3;text-decoration:none}
+.si-v small{display:block;font-size:13.5px;color:#6e6e73;margin-top:1px}
+.si-st{font-style:normal;font-size:11.5px;letter-spacing:0;text-transform:none;padding:2px 8px;font-weight:800}.si-st.on{background:#dcfce7;color:#166534}.si-st.off{background:#fee2e2;color:#991b1b}
+.si-h{list-style:none;margin:0;padding:0;display:grid;gap:4px}.si-h li{display:grid;grid-template-columns:minmax(76px,auto) 1fr;gap:10px;font-size:14.5px}.si-h b{font-weight:700}.si-h span{color:#3a3a3c}
+.si-pay{display:flex;flex-wrap:wrap;gap:6px}.si-pay span{font-size:13.5px;font-weight:700;padding:4px 10px;border:1px solid #d2d2d7}
+.si-hid{margin:0;padding:10px 16px;background:#fee2e2;color:#991b1b;font-weight:800}
+html.dark .banner.promo.sinfo-b{background:#1c1c1e!important;border-color:#3a3a3c!important;color:#f5f5f7!important}
+html.dark .si-hd,html.dark .si-r{border-color:#3a3a3c!important}html.dark .si-hd p,html.dark .si-h span{color:#d1d1d6!important}
+html.dark .si-tags span{background:#2c2c2e!important;color:#e5e5ea!important}html.dark .si-i{background:#0a2540!important;color:#64a8ff!important}
+html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64a8ff!important}

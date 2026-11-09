@@ -1,0 +1,16 @@
+
+/* v321: centro de notificaciones */
+#nfBtn{position:absolute;z-index:31;width:44px;height:44px;display:grid;place-items:center;padding:0;border:1px solid var(--line,#d2d2d7);background:#fff;color:var(--ink,#1d1d1f);cursor:pointer;border-radius:0}
+#nfBtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#nfBtn em{position:absolute;top:-8px;right:-8px;min-width:22px;height:22px;padding:0 5px;background:#d70015;color:#fff;font-style:normal;font-size:12px;font-weight:800;display:grid;place-items:center;border-radius:0}
+#nfBtn em[hidden]{display:none}
+.nfl{display:grid;gap:10px;margin:10px 0}
+.nfi{display:flex;gap:12px;align-items:flex-start;padding:12px 6px 12px 12px;border:1px solid #d2d2d7;border-left:5px solid #16a34a;background:#fff}
+.nfi.bad{border-left-color:#d70015}.nfi.new{background:#f0f7ff}
+.nfi .qi{flex:none;width:22px;height:22px;margin-top:2px;color:#16a34a}.nfi.bad .qi{color:#d70015}
+.nfi div{flex:1;min-width:0}.nfi p{margin:0;font-size:15px;line-height:1.4}.nfi small{display:block;margin-top:4px;color:#6e6e73;font-size:12.5px}
+.nfi button{flex:none;width:40px;height:40px;margin:-6px 0;border:0;background:transparent;color:inherit;font-size:20px;cursor:pointer}
+html.dark #nfBtn{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important}
+html.dark .nfi{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important}
+html.dark .nfi.new{background:#0b2545!important}html.dark .nfi small{color:#a1a1a6!important}
+.nfi,.nfi button{border-radius:0!important}

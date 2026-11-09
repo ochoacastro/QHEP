@@ -1,0 +1,9 @@
+
+/* v231: aviso superior con efecto de máquina de escribir y visible en modo oscuro */
+#annc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#annc .qtw{font-weight:600}
+#annc .qtw-c{display:inline-block;width:2px;height:1.05em;margin-left:2px;vertical-align:-.15em;background:currentColor;animation:qtwBlink 1s steps(1) infinite}
+@keyframes qtwBlink{50%{opacity:0}}
+html.dark #annc{background:#0066cc!important;color:#fff!important;filter:none!important}
+html.dark #annc .qtw-c{background:#fff!important}
+@media (prefers-reduced-motion:reduce){#annc .qtw-c{animation:none}}

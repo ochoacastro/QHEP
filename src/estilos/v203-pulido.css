@@ -1,0 +1,25 @@
+
+/* v203 — pulido segun DESIGN_1.md. Solo estilos. Usa "html " delante para ganar a los estilos que el JS inyecta despues de cargar.
+   Si algo se ve mal, borra SOLO este bloque <style id="v203-pulido">. */
+/* Explora Pradera: tarjetas sin borde; filas sobre el lienzo gris en vez de cajas con linea; mapa sin degradado */
+html .hexc{border-color:transparent}
+html .hexl button{border:0;background:var(--color-fog-white);border-radius:12px}
+html .hexl button:hover,html .hexl button:focus-visible{background:#ebebef;box-shadow:none}
+html .hexmap{background:var(--color-fog-white);color:var(--color-obsidian)}
+html .hexmap:hover,html .hexmap:focus-visible{background:#ebebef;box-shadow:none}
+html .hexmap svg{stroke:var(--color-sapphire)}
+html .hexmap b{color:var(--color-sapphire);font-weight:600}
+/* Tarjeta principal: texto Obsidian (no negro puro) */
+html .hubhero{color:var(--color-obsidian)}
+/* Puntos de los carruseles: monocromos, sin el azul marino anterior */
+html .bnd{background:rgba(0,0,0,.05)}
+html .bnd i{background:var(--color-pale-mist)}
+html .bnd i.on{background:var(--color-obsidian)}
+html .tbd{background:rgba(29,29,31,.45);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+/* Barra inferior del movil: vidrio esmerilado, sin sombra, linea fina arriba */
+html #bnav{background:rgba(255,255,255,.78);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px);box-shadow:none;border-top:1px solid rgba(0,0,0,.08)}
+/* Pie: enlaces legales como Text Link (azul #0066cc, subrayado solo al pasar el cursor) */
+html footer .back{color:var(--color-sapphire);text-decoration:none;font-weight:400;font-size:var(--text-caption)}
+html footer .back:hover,html footer .back:focus-visible{color:var(--color-cornflower);text-decoration:underline;text-underline-offset:.18em}
+/* Asistente de publicar: anillo de foco azul del sistema (antes violeta #3a5bff) */
+html .cwz-ty:hover,html .cwz-ty.on,html .cwz-pl.on{border-color:var(--color-iris-blue);box-shadow:0 0 0 3px rgba(0,113,227,.16)}

@@ -1,0 +1,7 @@
+
+/* v312: tablas de Mis inmuebles y Mis vehículos (usan el estilo .mst de la tabla de tiendas) */
+.mst .msti.ph{width:72px;height:54px}.mst .msti.ph img{object-fit:cover}
+.mst .mstp{white-space:nowrap;font-weight:700}
+.mst .msti.ph~b{word-break:normal;overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
+.mst .msts.wait{background:#fef3c7;color:#92400e}
+html.dark .mst .msts.wait{background:#78350f!important;color:#fde68a!important}

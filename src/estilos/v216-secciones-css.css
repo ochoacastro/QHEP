@@ -1,0 +1,6 @@
+
+/* v216: aviso que lleva a las secciones de pago */
+.cmpaid{margin:8px 0 4px;font-size:14px;line-height:1.45}
+.cmpaid button{background:none;border:0;padding:6px 2px;min-height:36px;color:var(--color-sapphire,#06c);font:inherit;cursor:pointer}
+.cmpaid button:hover{text-decoration:underline}
+p.cmpaid.box{padding:12px 14px;border-radius:14px;background:#fff}

@@ -1,0 +1,11 @@
+
+/* v273: botones rectos y limpios: esquinas cuadradas, texto en mayúsculas y grueso, y una franja más oscura abajo */
+.btn,.hhr,.hhr2,.plgo,.qbr1,.chip,.nwchip,.pnr{border-radius:0!important}
+.btn,.hhr,.hhr2,.plgo,.qbr1{text-transform:uppercase;font-weight:800!important;letter-spacing:.03em!important}
+.btn:not(.ghost),.hhr.hhrf,.plgo,.qbr1{box-shadow:inset 0 -4px 0 rgba(0,0,0,.22)!important}
+.btn.ghost{border-width:2px!important;box-shadow:none!important}
+.hhr.hhrf{background:#0a8f3f!important}
+.qpr:is(.btn,.hhr,.hhr2,.plgo,.qbr1){box-shadow:inset 0 -2px 0 rgba(0,0,0,.3),0 0 0 3px rgba(0,110,219,.28)!important}
+html.dark .hhr.hhrf{background:#0a8f3f!important}
+.hh2 .qw,.hh2 #qgo{border-radius:0!important}
+.hh2 #qgo{text-transform:uppercase;font-weight:800;letter-spacing:.03em;box-shadow:inset 0 -4px 0 rgba(0,0,0,.22)}

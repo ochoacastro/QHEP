@@ -1,0 +1,4 @@
+
+/* v220: las rayitas del menu (☰) siempre visibles en modo oscuro, tanto con el modo oscuro nuevo (v219) como con el anterior
+   (invertido), que queda de respaldo si el script v219 no funciona en algun navegador. Un color claro se ve igual en ambos casos. */
+html.dark .hmb i{background:#f5f5f7!important}

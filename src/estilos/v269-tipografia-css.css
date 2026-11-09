@@ -1,0 +1,32 @@
+
+/* v269: tipografía nueva (Rubik: redondeada y gruesa para títulos y botones; el texto sigue en Inter) y transición «Publicando» */
+:root{--font-sf-pro-display:'Rubik','Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--font-rubik:'Rubik','Inter',system-ui,sans-serif}
+/* v270: Rubik también en todo el texto (párrafos, formularios, listas, avisos). Los códigos siguen en letra de máquina */
+:root{--font-sf-pro-text:'Rubik','Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+body{font-family:var(--font-rubik);letter-spacing:0}
+input,select,textarea,button,.qs-btn,label,small,p,li,td,th,dd,dt,summary,.muted,#toast{font-family:var(--font-rubik)}
+/* v271: algunas partes tenían su propia letra (enlaces, avisos vacíos, pie de página, «Desliza…», campos de búsqueda):
+   Rubik se impone en TODO el texto; solo los códigos quedan en letra de máquina */
+body *:not(code):not(kbd):not(pre):not(.mono){font-family:var(--font-rubik)!important}
+input::placeholder,textarea::placeholder{font-family:var(--font-rubik)!important}
+code,kbd,pre,.mono,.qfc code,.cdtb code,.qct code{font-family:ui-monospace,Menlo,Consolas,monospace!important}
+h1,h2,h3,.shead h2,.hubhero h2,.sname h2,.modal h2,.ptitle,.stn,.pvt{font-family:var(--font-rubik);font-weight:800;letter-spacing:-.015em}
+.hubhero h2{font-weight:900;letter-spacing:-.02em}
+.btn,.plgo,.hhr,.hhr2,.chip,.nwchip,.cdt b,.bzt h3,.bzt em,.emg-b b,.emg-b span,.emg-bl b,#bnav button{font-family:var(--font-rubik)}
+.btn,.hhr,.hhr2{font-weight:600;letter-spacing:.005em}
+.plgo,.qbr1{font-weight:800;letter-spacing:.03em}
+/* transición «Publicando» */
+.pfx{position:fixed;inset:0;z-index:100050;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px;background:rgba(10,11,15,.94);color:#fff;text-align:center;opacity:0;transition:opacity .25s ease;pointer-events:none}
+.pfx.on{opacity:1;pointer-events:auto}
+.pfx-t{font-family:var(--font-rubik);font-weight:900;font-size:clamp(40px,12vw,104px);line-height:1;letter-spacing:.01em;text-transform:uppercase;text-shadow:-3px 0 rgba(255,0,170,.55),3px 0 rgba(0,255,140,.45);animation:pfxGl 1.6s steps(1) infinite}
+.pfx-d{display:flex;gap:16px}
+.pfx-d i{width:22px;height:22px;border-radius:50%;background:#56e03d;opacity:.15;animation:pfxDot 1.2s infinite}
+.pfx-d i:nth-child(2){animation-delay:.2s}.pfx-d i:nth-child(3){animation-delay:.4s}
+.pfx-s{font-family:var(--font-rubik);font-weight:400;font-size:clamp(17px,4.6vw,26px);color:#8cf26f;max-width:30ch;line-height:1.3}
+.pfx.ok .pfx-t{color:#8cf26f;animation:pfxIn .45s cubic-bezier(.2,1.4,.4,1) both}
+.pfx.ok .pfx-d{display:none}
+@keyframes pfxDot{0%,100%{opacity:.15;transform:scale(.8)}35%{opacity:1;transform:scale(1)}}
+@keyframes pfxGl{0%,92%{text-shadow:-3px 0 rgba(255,0,170,.55),3px 0 rgba(0,255,140,.45);transform:none}94%{text-shadow:-7px 0 rgba(255,0,170,.7),6px 0 rgba(0,255,140,.6);transform:translateX(2px)}96%{text-shadow:4px 0 rgba(255,0,170,.6),-5px 0 rgba(0,255,140,.5);transform:translateX(-2px)}}
+@keyframes pfxIn{0%{transform:scale(.7);opacity:0}100%{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.pfx-t,.pfx.ok .pfx-t{animation:none}.pfx-d i{animation:none;opacity:1}}
+html.dark .pfx{background:rgba(10,11,15,.94)!important;color:#fff!important}html.dark .pfx-t{color:#fff!important}html.dark .pfx.ok .pfx-t,html.dark .pfx-s{color:#8cf26f!important}html.dark .pfx-d i{background:#56e03d!important}

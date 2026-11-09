@@ -1,0 +1,15 @@
+
+/* v318: los avisos (toast) se muestran como ventana con X para leerlos bien */
+#toast{display:none!important}
+#qpop{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,24px);z-index:100002;display:flex;align-items:flex-start;gap:12px;width:min(440px,calc(100vw - 32px));padding:16px 8px 16px 16px;background:#fff;color:#1d1d1f;border:1px solid #d2d2d7;border-left:6px solid #16a34a;box-shadow:0 18px 40px -12px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .2s,transform .25s}
+#qpop.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#qpop.bad{border-left-color:#d70015}
+#qpop .qi{flex:none;width:24px;height:24px;margin-top:1px;color:#16a34a}#qpop.bad .qi{color:#d70015}
+#qpop p{flex:1;margin:0;font-size:16px;line-height:1.45;font-weight:500;white-space:pre-line}
+#qpop button{flex:none;display:grid;place-items:center;width:44px;height:44px;margin:-10px 0 -10px;border:0;background:transparent;color:#1d1d1f;font:inherit;font-size:22px;cursor:pointer}
+#qpop button:focus-visible{outline:2px solid #0071e3}
+html.dark #qpop{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important;border-left-color:#22c55e!important}
+html.dark #qpop.bad{border-left-color:#ff453a!important}html.dark #qpop button{color:#f5f5f7!important}
+#qpop,#qpop button{border-radius:0!important}
+@media (min-width:900px){#qpop{bottom:28px}}
+@media (prefers-reduced-motion:reduce){#qpop{transition:none}}

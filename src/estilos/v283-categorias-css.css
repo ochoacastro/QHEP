@@ -1,0 +1,21 @@
+
+/* v283: grupos de categorías plegables en el formulario de la tienda y texto de ayuda del horario */
+#f-cats .cgd{width:100%;margin:0 0 6px;border:1px solid #d3d9e3;background:#fff}
+#f-cats .cgd summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:52px;padding:10px 12px 10px 14px;cursor:pointer;font-weight:700;font-size:16px}
+#f-cats .cgd summary::-webkit-details-marker{display:none}
+#f-cats .cgd summary span{flex:1;min-width:0}
+#f-cats .cgd summary small{font-weight:400;font-size:13px;opacity:.7;white-space:nowrap}
+#f-cats .cgd summary i{position:relative;flex:none;width:28px;height:28px;background:var(--rio,#0071e3);color:#fff}
+#f-cats .cgd summary i::before,#f-cats .cgd summary i::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:2.5px;background:currentColor;transform:translate(-50%,-50%);transition:transform .2s ease}
+#f-cats .cgd summary i::after{transform:translate(-50%,-50%) rotate(90deg)}
+#f-cats .cgd[open] summary i::after{transform:translate(-50%,-50%) rotate(0deg)}
+#f-cats .cgd:has([aria-pressed=true]){border-color:var(--rio,#0071e3);border-left:5px solid var(--rio,#0071e3)}
+#f-cats .cgd:has([aria-pressed=true]) summary small::before{content:"Elegida · ";font-weight:700;color:var(--rio,#0071e3);opacity:1}
+#f-cats .cgd .cgr{padding:2px 12px 12px}
+#f-cats .cgd summary:focus-visible{outline:3px solid var(--rio,#0071e3);outline-offset:2px}
+.hcopy-tip{margin:12px 0 0;font-size:14px;line-height:1.45}
+html.dark #f-cats .cgd{background:#1e2026!important;border-color:#3b404b!important;color:#fff!important}
+html.dark #f-cats .cgd:has([aria-pressed=true]){border-color:#0a84ff!important}
+html.dark #f-cats .cgd summary i{background:#0a84ff!important}
+html.dark #f-cats .cgd:has([aria-pressed=true]) summary small::before{color:#4da3ff!important}
+@media (prefers-reduced-motion:reduce){#f-cats .cgd summary i::after{transition:none}}
