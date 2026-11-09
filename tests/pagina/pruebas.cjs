@@ -179,6 +179,20 @@ const PRUEBAS = {
     check('Tienda abierta: sin aviso de pausa', !/en pausa/i.test(await p.evaluate(() => document.getElementById('app').innerText)));
     sinErrores(p, 'Pausa'); await p.cerrar();
   },
+  async carrusel() { // v391 el carrusel avanza solo en celulares táctiles y con «reducir movimiento»
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: 'reduce', serviceWorkers: 'block' });
+    await ctx.route(/gstatic\.com\/firebasejs\//, r => r.fulfill({ body: /app-compat/.test(r.request().url()) ? FB : '', contentType: 'application/javascript' }));
+    await ctx.route(/google\.com\/recaptcha|workers\.dev|googleapis|firebaseio|accounts\.google|cdnjs|ytimg|fonts\.|maps\./, r => r.fulfill({ status: 500, body: '' }));
+    await ctx.addInitScript(() => localStorage.setItem('qh_cookies', '1'));
+    const p = await ctx.newPage(); p.errores = []; p.on('pageerror', e => p.errores.push(e.message));
+    await p.goto(base + '/index.html'); await p.waitForTimeout(3000);
+    await p.evaluate(() => document.querySelectorAll('.qtour,.qhb').forEach(x => x.remove()));
+    await p.evaluate(() => document.querySelector('.bzcs').scrollIntoView({ block: 'center' }));
+    const pos = () => p.evaluate(() => Math.round(document.querySelector('.bzcs').scrollLeft));
+    const a0 = await pos(); await p.waitForTimeout(7600); const a1 = await pos();
+    check('El carrusel avanza solo (táctil y con «reducir movimiento»)', a1 > a0, a0 + ' → ' + a1);
+    sinErrores(p, 'Carrusel'); await ctx.close();
+  },
   async celular() { // v371 un celular por cuenta
     const p = await abrir({ user: { uid: 'uA', isAnonymous: false, email: 'ana@x.co' }, seed: { 'tels/3155555233': { uid: 'otro', k: 'kO' } } });
     await p.evaluate(() => { S.user = { id: 'd', name: 'Julia', email: 'julia@x.co', wa: '3001234567' } });

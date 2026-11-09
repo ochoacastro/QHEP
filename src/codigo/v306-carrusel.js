@@ -25,5 +25,5 @@ var hold=0;function stop(){hold=Date.now()+20000}
 document.addEventListener('scroll',function(e){var s=e.target;if(s&&s.classList&&s.classList.contains('bzcs'))dots(s)},true);
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-bzdot]');if(!b)return;stop();var s=b.closest('.bzcar').querySelector('.bzcs');go(s,+b.dataset.bzdot)});
 ['pointerdown','touchstart','focusin'].forEach(function(t){document.addEventListener(t,function(e){if(e.target.closest&&e.target.closest('.bzcar'))stop()},{passive:true})});
-setInterval(function(){if(Date.now()<hold||document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches)return;var s=document.querySelector('.bzcs');if(!s||s.matches(':hover')||s.children.length<2)return;var r=s.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;go(s,idx(s)+1)},7000);
+setInterval(function(){if(Date.now()<hold||document.hidden)return;/* v391: también avanza con «reducir movimiento» (sin animación de deslizar) */var s=document.querySelector('.bzcs');if(!s||(matchMedia('(hover: hover)').matches&&s.matches(':hover'))/* v391: en pantallas táctiles el :hover se queda pegado después de tocar */||s.children.length<2)return;var r=s.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;go(s,idx(s)+1)},7000);
 })();
