@@ -219,6 +219,19 @@ const PRUEBAS = {
     check('El administrador ve el negocio por ubicar', await q.evaluate(() => /Panadería/.test((document.querySelector('.aadp') || {}).textContent || '')));
     sinErrores(q, 'Negocios por ubicar'); await q.cerrar();
   },
+  async inmuebleUbicacion() { // v396 dirección del inmueble, mapa y aviso al administrador
+    const p = await abrir(); await conCuenta(p);
+    await p.evaluate(() => { closeModal(1); adForm('arr') }); await p.waitForTimeout(400);
+    check('El inmueble pide su dirección (vacía, no la personal)', await p.evaluate(() => document.getElementById('af-addr').value === ''));
+    await p.fill('#af-addr', 'Carrera 10 # 7-45'); await p.waitForTimeout(1300);
+    check('Debajo de la dirección del inmueble se ve el mapa', await p.evaluate(() => /Carrera%2010/.test((document.querySelector('#af-map iframe') || {}).src || '')));
+    check('Tiene la pregunta de Google Maps', await p.evaluate(() => !!document.getElementById('af-mapok')));
+    sinErrores(p, 'Formulario del inmueble'); await p.cerrar();
+    const q = await abrir({ admin: true, seed: { 'ads/i1': { id: 'i1', type: 'arr', title: 'Casa en arriendo', price: 900000, zone: 'Centro', desc: '', imgs: [], f: { addr: 'Carrera 10 # 7-45', mapok: 'No lo ubica bien' }, ts: Date.now(), ownerKey: 'kA' } } });
+    await q.evaluate(() => { closeModal(1); at = 'usr'; view = 'admin'; render() }); await q.waitForTimeout(500);
+    check('El administrador ve el inmueble por ubicar', await q.evaluate(() => !!document.querySelector('[data-adplus="i1"]')));
+    sinErrores(q, 'Inmuebles por ubicar'); await q.cerrar();
+  },
 };
 
 (async () => {

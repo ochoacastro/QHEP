@@ -21,6 +21,7 @@ arr:{tab:'Inmuebles',one:'Arriendo',pub:'Publicar arriendo',desc:'Apartamentos, 
  {k:'price',l:'Canon mensual (COP)',t:'num',r:1,m:1},
  {k:'admin',l:'Administración mensual (COP, si aplica)',t:'num',m:1},
  {k:'zone',l:'Barrio o zona',t:'text',r:1,max:40,ph:'Ej: Centro'},
+ {k:'addr',l:'Dirección del inmueble',t:'text',max:100,ph:'Ej: Calle 5 # 8-20'},{k:'mapok',l:'¿Google Maps ubica bien el inmueble con esta dirección?',t:'sel',hide:1,o:['Sí, lo ubica bien','No lo ubica bien']},/* v396 */
  {k:'area',l:'Área construida',t:'num',u:'m²'},
  {k:'beds',l:'Habitaciones',t:'num'},{k:'baths',l:'Baños',t:'num'},{k:'park',l:'Parqueaderos (cantidad)',t:'num'},{k:'parkT',l:'Parqueadero para',t:'sel',o:['Carro','Moto','Carro y moto']},
  {k:'estrato',l:'Estrato',t:'sel',o:ESTR},{k:'age',l:'Antigüedad',t:'sel',o:AGE},
@@ -37,6 +38,7 @@ casa:{tab:'Inmuebles',one:'Venta de casa',pub:'Vender mi propiedad',desc:'Casas,
  {k:'price',l:'Valor de venta (COP)',t:'num',r:1,m:1},
  {k:'nego',l:'Negociación del precio',t:'sel',o:['Negociable','Fijo']},
  {k:'zone',l:'Barrio o zona',t:'text',r:1,max:40,ph:'Ej: Centro'},
+ {k:'addr',l:'Dirección del inmueble',t:'text',max:100,ph:'Ej: Calle 5 # 8-20'},{k:'mapok',l:'¿Google Maps ubica bien el inmueble con esta dirección?',t:'sel',hide:1,o:['Sí, lo ubica bien','No lo ubica bien']},/* v396 */
  {k:'areaC',l:'Área construida',t:'num',u:'m²'},{k:'areaL',l:'Área del lote o privada',t:'num',u:'m²'},
  {k:'beds',l:'Habitaciones',t:'num'},{k:'baths',l:'Baños',t:'num'},{k:'park',l:'Parqueaderos (cantidad)',t:'num'},{k:'parkT',l:'Parqueadero para',t:'sel',o:['Carro','Moto','Carro y moto']},{k:'floors',l:'Número de pisos',t:'num'},
  {k:'estrato',l:'Estrato',t:'sel',o:ESTR},{k:'age',l:'Antigüedad',t:'num',u:'años'},
@@ -93,7 +95,7 @@ function adsView(t){const T=ADT[t],{all}=adLst(t);
 return `${tabs()}<div class="hubbar"><button class="btn ghost" data-act="hubHome">← Inicio</button></div>${catSearch('Buscar en '+T.tab)}${topBannerHTML(t==='casa'?'arr':t)}<div class="shead"><div><h2>${T.tab}</h2><p class="muted">${T.desc}</p></div><button class="btn pink" data-act="pubAsk" data-v="${t}">${PUBASK[t]||T.pub}</button></div>${t==='arr'||t==='casa'?`<div class="chips left" role="group" aria-label="Arrendar o vender"><button class="chip" data-act="tab" data-v="arr" aria-pressed="${t==='arr'}">Arrendar</button><button class="chip" data-act="tab" data-v="casa" aria-pressed="${t==='casa'}">Vender</button></div>`:''}${adTools(t,all)}${bedQ(t)}<div class="grid" id="adgrid">${adListHTML(t)}</div>`}
 function adView(){const a=S.ads.find(x=>x.id===curAd);if(!a||!(vis(a)||adm)){view='home';return homeView()}
 const T=ADT[a.type],mine=S.myAds.includes(a.id),im=pimgs(a),sold=a.type==='arr'?'Arrendado':'Vendido';
-const rows=T.F.filter(sp=>!CORE.includes(sp.k)&&(!sp.v||sp.v.includes(a.f.vtype))&&has(a.f[sp.k])).map(sp=>`<div><small>${esc(sp.k==='areaL'?areaLName(a.f.ptype):sp.l)}</small><b>${esc(fmtV(sp,a.f[sp.k]))}</b></div>`).join('');
+const rows=T.F.filter(sp=>!CORE.includes(sp.k)&&!sp.hide/* v396 */&&(!sp.v||sp.v.includes(a.f.vtype))&&has(a.f[sp.k])).map(sp=>`<div><small>${esc(sp.k==='areaL'?areaLName(a.f.ptype):sp.l)}</small><b>${esc(fmtV(sp,a.f[sp.k]))}</b></div>`).join('');
 return `<button class="back" data-act="tab" data-v="${a.type}">← Volver a ${esc(T.tab)}</button>
 <article class="adview" style="--c:${T.c}"><div class="gal">${im.length?`<button class="zoom" data-act="zoomAd" data-i="0" aria-label="Ampliar fotos de ${esc(a.title)}"><img src="${im[0]}" alt="${esc(a.title)}">${im.length>1?`<span class="cnt">${im.length} fotos</span>`:''}<span class="zi" aria-hidden="true">Ampliar</span></button>${im.length>1?`<div class="thumbs2">${im.map((m,i)=>`<button data-act="zoomAd" data-i="${i}" aria-label="Ver foto ${i+1}"><img src="${m}" alt=""></button>`).join('')}</div>`:''}`:'<div class="adpic" style="border-radius:12px"><span class="nop">Sin foto</span></div>'}</div>
 <div><span class="tag" style="background:${T.c}">${esc(a.f.ptype||a.f.vtype||T.one)}</span> ${badge(a)} ${a.closed?`<span class="tag" style="background:#5B6475">${sold}</span>`:''}</div>

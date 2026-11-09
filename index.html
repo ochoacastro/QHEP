@@ -2056,6 +2056,7 @@ html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64
 
 
 
+
 <style id="v329-crecer-css">
 /* v329: los cuadros de texto crecen solos con lo que se escribe */
 textarea.qgrow{overflow-y:hidden;resize:none;transition:height .08s}
@@ -5293,6 +5294,45 @@ document.addEventListener('input',onEv);document.addEventListener('change',onEv)
 new MutationObserver(function(){var el=document.getElementById('x-map');if(el&&!el.firstChild)draw()}).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
+<script id="v396-inmueble-ubicacion">/* v396: dirección del inmueble (arriendo o venta). En el formulario, debajo de «Dirección del inmueble» (af-addr) se ve el mapa de
+   Google Maps y el dueño responde «¿Google Maps ubica bien el inmueble?» (af-mapok). No se llena con la dirección personal.
+   Si responde «No lo ubica bien», el administrador lo ve en Usuarios → «Inmuebles por ubicar en el mapa» y le pone el código plus
+   (a.plus, a.lat, a.lng); al guardarlo la respuesta pasa a «Sí, lo ubica bien». Si algo falla, borra este bloque. */
+(function(){
+var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var NO='No lo ubica bien',SI='Sí, lo ubica bien',PR='Pradera, Valle del Cauca';
+function v(id){var x=document.getElementById(id);return x?x.value.trim():''}
+function cur(){try{return af&&af.id?S.ads.find(function(a){return a.id===af.id}):null}catch(e){return null}}
+function gq(a,dir,zone){if(a&&dir===String((a.f||{}).addr||'').trim()){if(a.lat!=null&&a.lng!=null)return a.lat+','+a.lng;if(a.plus)return /\s/.test(a.plus)?a.plus:a.plus+' '+PR}
+ return dir?[dir,zone,PR].filter(Boolean).join(', '):''}
+function draw(){var el=document.getElementById('af-map');if(!el)return;var q=gq(cur(),v('af-addr'),v('af-zone'));
+ if(!q){el.innerHTML='<p class="adhint" style="padding:14px">Escribe la dirección del inmueble y aquí verás el lugar en Google Maps.</p>';el.dataset.q='';return}
+ if(el.dataset.q===q)return;el.dataset.q=q;
+ el.innerHTML='<iframe title="Mapa de la dirección del inmueble" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="'+E('https://maps.google.com/maps?q='+encodeURIComponent(q)+'&z=17&output=embed')+'"></iframe>'}
+function mount(){var i=document.getElementById('af-addr');if(!i||document.getElementById('af-map'))return;var w=i.closest('.fw')||i;
+ w.insertAdjacentHTML('afterend','<div class="admap" id="af-map"></div>');
+ var s=document.getElementById('af-mapok'),sw=s&&(s.closest('.fw')||s);if(sw&&!document.getElementById('af-maph'))sw.insertAdjacentHTML('beforeend','<p class="muted" id="af-maph">Mira el mapa: si no marca el inmueble en el lugar correcto, elige «No lo ubica bien»: el administrador lo ubicará en el mapa.</p>');
+ draw()}
+var T;function later(){clearTimeout(T);T=setTimeout(draw,900)}
+function onEv(e){var t=e.target;if(!t||!document.getElementById('af-map'))return;if(t.id==='af-addr'||t.id==='af-zone'||(t.classList&&t.classList.contains('znsel')))later()}
+document.addEventListener('input',onEv);document.addEventListener('change',onEv);
+new MutationObserver(function(){if(document.getElementById('af-addr')&&!document.getElementById('af-map'))mount()}).observe(document.documentElement,{childList:true,subtree:true});
+/* ---- administrador ---- */
+function ll(t){var c=null;try{c=plusLL(t)}catch(e){}if(!c)return null;var a=Array.isArray(c)?c:[c.lat,c.lng];return isFinite(a[0])&&isFinite(a[1])?[Math.round(a[0]*1e6)/1e6,Math.round(a[1]*1e6)/1e6]:null}
+function maps(a){var q=[(a.f||{}).addr,a.zone,PR].filter(Boolean).join(', ');return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q)}
+function pend(){try{return (S.ads||[]).filter(function(a){return (a.type==='arr'||a.type==='casa')&&a.f&&a.f.mapok===NO})}catch(e){return []}}
+window.admAdPend=function(){var L=pend();if(!L.length)return '';
+ return '<div class="cg aadp"><h3>Inmuebles por ubicar en el mapa <em>'+L.length+'</em></h3><p class="muted">Sus dueños dicen que Google Maps no muestra bien el inmueble. Búscalo, copia el código plus y guárdalo en «Poner código plus».</p>'+
+  L.map(function(a){return '<div class="aadr pend"><b>'+E(a.title||'(sin título)')+' · '+(a.type==='arr'?'Arriendo':'Venta')+(a.wa?' · '+E(a.wa):'')+'</b><p>'+E([(a.f||{}).addr,a.zone].filter(Boolean).join(', ')||'Sin dirección')+'</p><div class="row"><a class="btn ghost" href="'+E(maps(a))+'" target="_blank" rel="noopener">Buscar en Google Maps</a><button type="button" class="btn pink" data-adplus="'+E(a.id)+'">Poner código plus</button></div></div>'}).join('')+'</div>'};
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-adplus],[data-adplusok]');if(!b||typeof MODE==='undefined'||MODE!=='admin')return;e.preventDefault();e.stopImmediatePropagation();
+ var id=b.dataset.adplus||b.dataset.adplusok,a=(S.ads||[]).find(function(x){return x.id===id});if(!a)return toast('No se encontró el inmueble.');
+ if(b.dataset.adplus){modal('<h2>Ubicar inmueble en el mapa</h2><p><b>'+E(a.title||'')+'</b>'+(a.wa?' · '+E(a.wa):'')+'</p><p class="muted">'+E([(a.f||{}).addr,a.zone].filter(Boolean).join(', '))+'</p><p><a class="btn ghost" href="'+E(maps(a))+'" target="_blank" rel="noopener">Buscar en Google Maps</a></p>'+
+  '<label for="ip-plus">Código plus de Google Maps</label><input id="ip-plus" type="text" maxlength="80" value="'+E(a.plus||'')+'" placeholder="Ej: CQ94+H47 Pradera, Valle del Cauca"><p class="adhint">En Google Maps mantén presionado el inmueble y copia el código plus (por ejemplo CQ94+H47).</p>'+
+  '<p class="err" id="err"></p><div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-adplusok="'+E(id)+'">Guardar ubicación</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>');return}
+ var t=v('ip-plus').replace(/\s+/g,' '),c=ll(t),er=document.getElementById('err');if(!c){if(er)er.textContent='Ese no parece un código plus válido. Cópialo de Google Maps (ej: CQ94+H47 Pradera, Valle del Cauca).';return}
+ a.plus=t.slice(0,80);a.lat=c[0];a.lng=c[1];a.f.mapok=SI;save();closeModal(1);toast('Ubicación del inmueble guardada');setTimeout(function(){try{render(true)}catch(x){}},300)},true);
+})();
+</script>
 <script id="v332-datos-negocio">
 /* v332: el teléfono va con la dirección principal (datos personales, solo en este dispositivo). Si se marca
    «también son de mi negocio», al registrar la tienda el teléfono, el otro teléfono y la dirección aparecen ya llenos.
@@ -6438,7 +6478,7 @@ if(at==='rep'){const l=S.reports.slice().reverse();body=l.length?l.map(r=>{const
 else if(at==='pag'){body=typeof brebPagHTML==='function'?brebPagHTML():''/* v238 */}
 else if(at==='cod'){body=codAdmin()}
 else if(at==='emg'){body=typeof emgAdmin==='function'?emgAdmin():''/* v257 */}
-else if(at==='usr'){body=(typeof admShopPend==='function'?admShopPend():'')/* v394 */+(typeof admAddrPend==='function'?admAddrPend():'')/* v358 */+usrRows()}
+else if(at==='usr'){body=(typeof admShopPend==='function'?admShopPend():'')/* v394 */+(typeof admAdPend==='function'?admAdPend():'')/* v396 */+(typeof admAddrPend==='function'?admAddrPend():'')/* v358 */+usrRows()}
 else if(at==='sug'){const l=S.ideas.slice().reverse();body=l.length?l.map(x=>`<div class="cg"><b>${esc(x.name)}</b> <small>· ${new Date(x.ts).toLocaleDateString('es-CO')}</small><p>${esc(x.txt)}</p><button class="btn ghost" data-act="delSug" data-id="${x.id}">Eliminar</button></div>`).join(''):'<div class="empty">No hay sugerencias.</div>';if(typeof msgAdmin==='function')body=msgAdmin()+body/* v344 */}
 else if(at==='srv'){body=`<div class="cg"><h3>Servicios (oficios)</h3><p class="muted">Lista de oficios que se ofrecen en Servicios. Se ordena sola de la A a la Z ("Otro" siempre queda al final). Si renombras un oficio, los servicios ya publicados se actualizan solos.</p>${OFICIOS.filter(o=>o!=='Otro').map((o,i)=>`<div class="catrow"><input type="text" id="jb-n-${i}" maxlength="40" value="${esc(o)}" aria-label="Nombre del oficio ${i+1}"><button class="btn" data-act="jobSave" data-i="${i}">Guardar</button><button class="btn ghost" data-act="jobDel" data-i="${i}">Eliminar</button></div>`).join('')}<h3 style="margin-top:14px">Agregar oficio</h3><div class="catrow"><input type="text" id="jb-new" maxlength="40" placeholder="Nombre del oficio" aria-label="Nombre del nuevo oficio"><button class="btn pink" data-act="jobAdd">Agregar</button></div><div class="err" id="err-j"></div></div>`}
 else if(at==='cat'){body=`${typeof cmcAdmin==='function'?cmcAdmin():''/* v287 */}<div class="cg"><h3>Categorías de tiendas</h3><p class="muted">Cambia el nombre o el color, elimina o agrega. Si renombras o eliminas una categoría, sus tiendas se actualizan solas.</p>${CATS.map((c,i)=>`<div class="catrow"><input type="color" id="ct-c-${i}" value="${c[2]}" aria-label="Color de ${esc(c[0])}"><input type="text" id="ct-n-${i}" maxlength="20" value="${esc(c[0])}" aria-label="Nombre de la categoría ${i+1}"><span class="cico sm" style="--c:${c[2]}">${catIcon(c)}</span><label class="btn ghost cfile">🖼️ Imagen<input type="file" accept="image/*" id="ct-f-${i}" hidden></label><button class="btn" id="ct-s-${i}" data-act="catSave" data-i="${i}" hidden>Guardar</button><button class="btn ghost" data-act="catDel" data-i="${i}">Eliminar</button></div>`).join('')}<h3 style="margin-top:14px">Agregar categoría</h3><div class="catrow"><input type="color" id="ct-newc" value="#1E4FBF" aria-label="Color de la nueva categoría"><input type="text" id="ct-new" maxlength="20" placeholder="Nombre" aria-label="Nombre de la nueva categoría"><span class="cico sm" id="ct-newp" style="--c:#1E4FBF">${newCatImg?`<img src="${newCatImg}" alt="">`:'🏷️'}</span><label class="btn ghost cfile">🖼️ Imagen<input type="file" accept="image/*" id="ct-newf" hidden></label><button class="btn pink" data-act="catAdd">Agregar</button></div><div class="err" id="err"></div></div>`}
@@ -6475,6 +6515,7 @@ arr:{tab:'Inmuebles',one:'Arriendo',pub:'Publicar arriendo',desc:'Apartamentos, 
  {k:'price',l:'Canon mensual (COP)',t:'num',r:1,m:1},
  {k:'admin',l:'Administración mensual (COP, si aplica)',t:'num',m:1},
  {k:'zone',l:'Barrio o zona',t:'text',r:1,max:40,ph:'Ej: Centro'},
+ {k:'addr',l:'Dirección del inmueble',t:'text',max:100,ph:'Ej: Calle 5 # 8-20'},{k:'mapok',l:'¿Google Maps ubica bien el inmueble con esta dirección?',t:'sel',hide:1,o:['Sí, lo ubica bien','No lo ubica bien']},/* v396 */
  {k:'area',l:'Área construida',t:'num',u:'m²'},
  {k:'beds',l:'Habitaciones',t:'num'},{k:'baths',l:'Baños',t:'num'},{k:'park',l:'Parqueaderos (cantidad)',t:'num'},{k:'parkT',l:'Parqueadero para',t:'sel',o:['Carro','Moto','Carro y moto']},
  {k:'estrato',l:'Estrato',t:'sel',o:ESTR},{k:'age',l:'Antigüedad',t:'sel',o:AGE},
@@ -6491,6 +6532,7 @@ casa:{tab:'Inmuebles',one:'Venta de casa',pub:'Vender mi propiedad',desc:'Casas,
  {k:'price',l:'Valor de venta (COP)',t:'num',r:1,m:1},
  {k:'nego',l:'Negociación del precio',t:'sel',o:['Negociable','Fijo']},
  {k:'zone',l:'Barrio o zona',t:'text',r:1,max:40,ph:'Ej: Centro'},
+ {k:'addr',l:'Dirección del inmueble',t:'text',max:100,ph:'Ej: Calle 5 # 8-20'},{k:'mapok',l:'¿Google Maps ubica bien el inmueble con esta dirección?',t:'sel',hide:1,o:['Sí, lo ubica bien','No lo ubica bien']},/* v396 */
  {k:'areaC',l:'Área construida',t:'num',u:'m²'},{k:'areaL',l:'Área del lote o privada',t:'num',u:'m²'},
  {k:'beds',l:'Habitaciones',t:'num'},{k:'baths',l:'Baños',t:'num'},{k:'park',l:'Parqueaderos (cantidad)',t:'num'},{k:'parkT',l:'Parqueadero para',t:'sel',o:['Carro','Moto','Carro y moto']},{k:'floors',l:'Número de pisos',t:'num'},
  {k:'estrato',l:'Estrato',t:'sel',o:ESTR},{k:'age',l:'Antigüedad',t:'num',u:'años'},
@@ -6547,7 +6589,7 @@ function adsView(t){const T=ADT[t],{all}=adLst(t);
 return `${tabs()}<div class="hubbar"><button class="btn ghost" data-act="hubHome">← Inicio</button></div>${catSearch('Buscar en '+T.tab)}${topBannerHTML(t==='casa'?'arr':t)}<div class="shead"><div><h2>${T.tab}</h2><p class="muted">${T.desc}</p></div><button class="btn pink" data-act="pubAsk" data-v="${t}">${PUBASK[t]||T.pub}</button></div>${t==='arr'||t==='casa'?`<div class="chips left" role="group" aria-label="Arrendar o vender"><button class="chip" data-act="tab" data-v="arr" aria-pressed="${t==='arr'}">Arrendar</button><button class="chip" data-act="tab" data-v="casa" aria-pressed="${t==='casa'}">Vender</button></div>`:''}${adTools(t,all)}${bedQ(t)}<div class="grid" id="adgrid">${adListHTML(t)}</div>`}
 function adView(){const a=S.ads.find(x=>x.id===curAd);if(!a||!(vis(a)||adm)){view='home';return homeView()}
 const T=ADT[a.type],mine=S.myAds.includes(a.id),im=pimgs(a),sold=a.type==='arr'?'Arrendado':'Vendido';
-const rows=T.F.filter(sp=>!CORE.includes(sp.k)&&(!sp.v||sp.v.includes(a.f.vtype))&&has(a.f[sp.k])).map(sp=>`<div><small>${esc(sp.k==='areaL'?areaLName(a.f.ptype):sp.l)}</small><b>${esc(fmtV(sp,a.f[sp.k]))}</b></div>`).join('');
+const rows=T.F.filter(sp=>!CORE.includes(sp.k)&&!sp.hide/* v396 */&&(!sp.v||sp.v.includes(a.f.vtype))&&has(a.f[sp.k])).map(sp=>`<div><small>${esc(sp.k==='areaL'?areaLName(a.f.ptype):sp.l)}</small><b>${esc(fmtV(sp,a.f[sp.k]))}</b></div>`).join('');
 return `<button class="back" data-act="tab" data-v="${a.type}">← Volver a ${esc(T.tab)}</button>
 <article class="adview" style="--c:${T.c}"><div class="gal">${im.length?`<button class="zoom" data-act="zoomAd" data-i="0" aria-label="Ampliar fotos de ${esc(a.title)}"><img src="${im[0]}" alt="${esc(a.title)}">${im.length>1?`<span class="cnt">${im.length} fotos</span>`:''}<span class="zi" aria-hidden="true">Ampliar</span></button>${im.length>1?`<div class="thumbs2">${im.map((m,i)=>`<button data-act="zoomAd" data-i="${i}" aria-label="Ver foto ${i+1}"><img src="${m}" alt=""></button>`).join('')}</div>`:''}`:'<div class="adpic" style="border-radius:12px"><span class="nop">Sin foto</span></div>'}</div>
 <div><span class="tag" style="background:${T.c}">${esc(a.f.ptype||a.f.vtype||T.one)}</span> ${badge(a)} ${a.closed?`<span class="tag" style="background:#5B6475">${sold}</span>`:''}</div>
