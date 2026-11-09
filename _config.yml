@@ -1,0 +1,5 @@
+# v384: GitHub Pages no publica estas carpetas en el sitio (son pruebas y herramientas internas, no páginas).
+exclude:
+  - tests
+  - tools
+  - README.md

@@ -1,0 +1,15 @@
+import {initializeTestEnvironment} from '@firebase/rules-unit-testing';
+import {doc,setDoc,updateDoc} from 'firebase/firestore';import fs from 'fs';
+const now=Date.now();
+const env=await initializeTestEnvironment({projectId:'demo-qhep34',firestore:{rules:fs.readFileSync(process.env.RULES,'utf8'),host:'127.0.0.1',port:8089}});
+await env.clearFirestore();
+const real=(uid,email)=>env.authenticatedContext(uid,{email,email_verified:true,firebase:{sign_in_provider:'password'}}).firestore();
+const A=real('uAna','ana@x.co'),X=real('uOtro','o@x.co');
+await env.withSecurityRulesDisabled(async c=>{await setDoc(doc(c.firestore(),'plans/kAna'),{k:'kAna',name:'Ana',wa:'',email:'ana@x.co',uid:'uAna',plan:'free',acc:{merc:now}})});
+const out=[];const t=async(n,want,fn)=>{let ok;try{await fn();ok=true}catch(e){ok=false}out.push([n,ok,want])};
+await t('Ana cambia su nombre y teléfono',true,()=>updateDoc(doc(A,'plans/kAna'),{name:'Ana María Meléndez',wa:'3001234567'}));
+await t('Ana se pone un rol gratis (acc)',false,()=>updateDoc(doc(A,'plans/kAna'),{name:'Ana',acc:{merc:now+9e10}}));
+await t('Ana cambia su plan',false,()=>updateDoc(doc(A,'plans/kAna'),{plan:'pro'}));
+await t('Otra persona cambia el nombre de Ana',false,()=>updateDoc(doc(X,'plans/kAna'),{name:'Hack'}));
+await t('Nombre demasiado largo',false,()=>updateDoc(doc(A,'plans/kAna'),{name:'x'.repeat(41)}));
+fs.writeFileSync(process.env.OUT,JSON.stringify(out));await env.cleanup();

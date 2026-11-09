@@ -1,0 +1,18 @@
+import {initializeTestEnvironment} from '@firebase/rules-unit-testing';
+import {doc,setDoc,updateDoc} from 'firebase/firestore';import fs from 'fs';
+const now=Date.now(),D=864e5;
+const env=await initializeTestEnvironment({projectId:'demo-qhep38',firestore:{rules:fs.readFileSync(process.env.RULES,'utf8'),host:'127.0.0.1',port:8089}});
+await env.clearFirestore();
+const ctx=(uid,email)=>env.authenticatedContext(uid,{email,email_verified:true,firebase:{sign_in_provider:'password'}}).firestore();
+const R=ctx('uR','r@x.co'),SIN=ctx('uS','s@x.co');
+await env.withSecurityRulesDisabled(async c=>{const f=c.firestore();await setDoc(doc(f,'plans/kR'),{uid:'uR',acc:{news:now+30*D}});await setDoc(doc(f,'plans/kS'),{uid:'uS',acc:{}})});
+const out=[];const t=async(n,want,fn)=>{let ok;try{await fn();ok=true}catch(e){ok=false}out.push([n,ok,want])};
+const nw=x=>({id:'n',ownerKey:'kR',ownerUid:'uR',author:'Ana',title:'Corte de agua mañana',text:'Mañana no habrá agua en el centro de 8 a 12.',img:'',link:'',cat:'comu',imgs:[],ts:now,...x});
+await t('Publicar ahora (como antes)',true,()=>setDoc(doc(R,'news/n1'),nw({id:'n1'})));
+await t('Programar para mañana',true,()=>setDoc(doc(R,'news/n2'),nw({id:'n2',ts:now+D,pub:now+D})));
+await t('Programar a 1 año (demasiado lejos)',false,()=>setDoc(doc(R,'news/n3'),nw({id:'n3',ts:now+365*D,pub:now+365*D})));
+await t('Programar con fecha que no es número',false,()=>setDoc(doc(R,'news/n4'),nw({id:'n4',pub:'mañana'})));
+await t('Cambiar la hora programada',true,()=>updateDoc(doc(R,'news/n2'),{pub:now+2*D,ts:now+2*D}));
+await t('Sin acceso de Noticias no puede programar',false,()=>setDoc(doc(SIN,'news/n5'),{...nw({id:'n5',pub:now+D}),ownerKey:'kS',ownerUid:'uS'}));
+await t('Campo desconocido sigue rechazado',false,()=>setDoc(doc(R,'news/n6'),nw({id:'n6',draft:true})));
+fs.writeFileSync(process.env.OUT,JSON.stringify(out));await env.cleanup();
