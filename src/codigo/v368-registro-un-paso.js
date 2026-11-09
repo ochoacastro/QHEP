@@ -3,7 +3,7 @@
    correo y clave. Ahora: al tocar «Registrarme» se crea la cuenta y llega UN enlace al correo; la página se queda esperando y,
    apenas la persona abre el enlace (en este u otro celular), entra sola, sin volver a escribir la clave.
    La seguridad no cambia: la confirmación la hace Firebase con su enlace (las reglas exigen el correo verificado).
-   Si algo falla, borra este bloque: vuelve el registro con código (issueCode). */
+   Este bloque es el registro: no se puede borrar (v387: el registro viejo con código ya no existe). */
 (function(){
 var W=null,E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 var MAXW=30*60000,GAP=60000;

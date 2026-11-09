@@ -151,6 +151,15 @@ const PRUEBAS = {
     check('La conexión de inicio de sesión también queda protegida', /sms\|enterprise/.test(await p.evaluate(() => (window.__ac || []).join(' '))));
     sinErrores(p, 'App Check'); await ctx.close();
   },
+  async guias() { // v366/v387 las guías abren «Hazlo conmigo» (sin visor de fotos)
+    const p = await abrir(); await conCuenta(p);
+    await p.evaluate(() => helpOpen()); await p.waitForTimeout(400);
+    const items = await p.evaluate(() => [...document.querySelectorAll('#ov .qhl [data-guide]')].map(b => b.dataset.guide).join(','));
+    check('Ayuda y guías muestra las guías', items.split(',').length >= 7, items);
+    await p.evaluate(() => document.querySelector('#ov .qhl [data-guide="cla"]').click()); await p.waitForTimeout(1200);
+    check('Una guía abre «Hazlo conmigo» y no el visor de fotos', await p.evaluate(() => !!document.getElementById('qco') && !document.querySelector('.qtour')));
+    sinErrores(p, 'Guías'); await p.cerrar();
+  },
   async celular() { // v371 un celular por cuenta
     const p = await abrir({ user: { uid: 'uA', isAnonymous: false, email: 'ana@x.co' }, seed: { 'tels/3155555233': { uid: 'otro', k: 'kO' } } });
     await p.evaluate(() => { S.user = { id: 'd', name: 'Julia', email: 'julia@x.co', wa: '3001234567' } });
