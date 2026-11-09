@@ -1,0 +1,36 @@
+# v384: pruebas automáticas. Corren solas en cada pull request y se pueden correr a mano (Actions → «Pruebas» → Run workflow).
+# 1) Página: abre index.html en un navegador de verdad con un Firebase falso y revisa inicio, administrador, registro,
+#    pedidos, dirección, anuncios, notificaciones y celular (tests/pagina/pruebas.cjs).
+# 2) Reglas de Firestore: corre ~250 casos en el emulador de Firestore contra tests/reglas/firestore.rules.
+# Si algo falla, el pull request lo muestra en rojo con el nombre de la prueba. No toca la base de datos real.
+name: Pruebas
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Instalar herramientas de prueba
+        run: npm install --no-audit --no-fund
+      - name: Instalar el navegador
+        run: npx playwright install --with-deps chromium
+      - name: Pruebas de la página
+        run: node pagina/pruebas.cjs
+      - name: Pruebas de las reglas de Firestore
+        run: npx firebase emulators:exec --only firestore --project demo-mipradera --config reglas/firebase.json "node reglas/correr.mjs"

@@ -1,0 +1,931 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // v48 (sobre v47): coleccion "tels" (un celular por cuenta): cualquiera con sesion puede ver si un celular ya esta tomado;
+    // solo la persona (sesion real) reserva un celular libre a su nombre; la duena o el admin lo liberan.
+    // v47 (sobre v46): celcod.ts es la hora del servidor (serverTimestamp), asi no falla si el celular tiene la hora mal.
+    // v46 (sobre v45): coleccion "celcod" para verificar el celular por WhatsApp: la persona crea su codigo (6 numeros) con su uid,
+    // su plan y su celular; nadie lo lee desde la pagina; el trabajador de Cloudflare lo lee con la cuenta de servicio y escribe plans/{k}.waV.
+    // plans.waV no lo puede escribir el usuario (create/update ya limitan los campos).
+    // v45 (sobre v44): direccion principal en la ficha del plan (addr), para que el administrador le ponga el codigo plus.
+    // v44 (sobre v43): coleccion "mensajes" para el formulario Escribenos del pie de pagina (crear con sesion, leer solo el admin).
+    // v21 (sobre v20_1): toda publicacion nueva de tiendas, productos, servicios y anuncios exige el rol pagado
+    // vigente (antes solo Comidas y Peluquerias); Comidas incluye las categorias nuevas; los clasificados de pago
+    // (c3..c30) exigen ese plan activo y duran como maximo sus dias. Ediciones y borrados no cambian.
+    // v36 (sobre v35): 1) obituarios con cupo propio (pl 'obi'): solo en Comunidad y otros > Obituarios, titulo "Obituario: ...",
+    // duran como maximo 3 dias (no gastan el anuncio gratis). 2) tiendas: sin rol pagado solo se crea UNA tienda basica, cuyo
+    // documento debe llamarse "b" + uid de la persona (asi no puede haber dos). Con el rol (Comerciante o el de su tipo), varias.
+    // v35 (sobre v34): 1) destacado: "feat" solo lo cambia el admin; "fexp" (destacado hasta) no puede pasar de acc.mercF del plan
+    // del dueno. 2) codigos GRATIS: solo se canjean si a ese rol le queda menos de 31 dias (no se acumulan anos).
+    // 3) comentarios de noticias: minimo 30 s entre comentarios de la misma persona (marca nwRate/<uid> en el mismo batch).
+    // v34 (sobre v33): la persona duena de su ficha de plan puede actualizar SOLO su nombre y su telefono (name, wa),
+    // para que «Mis datos» quede guardado. Nada mas de la ficha (accesos, plan, fechas) se puede cambiar asi.
+    // v33 (sobre v32): las tiendas guardan "pexp" (hasta cuando esta pagado el plan). Solo puede ponerse una fecha que no pase
+    // del acceso real del dueno (Comerciante, Tienda, Comidas o Peluquerias, o el plan antiguo pagado). 0 siempre se permite.
+    // La pagina oculta al publico los productos y la portada 3 dias despues de esa fecha (no se borra nada).
+    // v32: ademas, registrar un negocio (stores) es GRATIS si es basico: sin imagen de portada (cover). Los productos y la portada
+    // siguen pidiendo el rol vigente (Comerciante o el de su categoria). Cambiar de categoria ya no pide rol.
+    // v32 (sobre v31): roles GRATIS (Redactor de noticias y Entidad comunitaria) al instante: la persona guarda en un solo
+    // paso (batch) su solicitud ya aprobada (pagos, via 'gratis', st 'ok', con code) y su codigo (codes, why 'gratis', uid propio).
+    // Ese codigo solo lo puede canjear su dueno. Los pagos de verdad siguen naciendo pendientes.
+    // v31 (sobre v30): noticias como blog: categoria (cat) y hasta 4 fotos extra (imgs); coleccion nwFb con reacciones
+    // (una por persona y noticia) y comentarios (varios por persona). Borra un comentario su autor, el autor de la noticia o el admin.
+    // v30 (sobre v29): quien cobra un pago normal (no de rol) puede marcar la entrega: ent = 'env' (enviado) o 'ent' (entregado), o quitarla ('').
+    // v29 (sobre v28): solicitudes de codigo GRATIS (via 'gratis'): solo para roles, hacia la cuenta de Mi Pradera, con valor 0
+    // y sin comprobante ni numero de transaccion. Los pagos de verdad (Bre-B / Nequi) siguen igual.
+    // v28 (sobre v27): "Mis codigos": cada persona puede listar SOLO sus codigos (los que canjeo con su ficha de plan,
+    // o los que el administrador le entrego por un pago: uid = su uid). Al canjear, el codigo guarda su vencimiento (end).
+    // v27 (sobre v26): el pago puede llevar la imagen del comprobante (img); con comprobante el numero de transaccion es opcional.
+    // v26 (sobre v25): la ficha "breb" guarda tambien el titular (tn) y el banco destino (bk), ya enmascarados por la pagina.
+    // v25 (sobre v24): Nequi ademas de Bre-B: la ficha "breb" acepta nq (numero de Nequi) y la llave Bre-B pasa a ser opcional
+    // (debe haber al menos una de las dos); cada pago guarda "via" ('breb' o 'nequi').
+    // v24 (sobre v23): colecciones nuevas "breb" (llave Bre-B de cada persona) y "pagos" (registro de pagos por Bre-B).
+    // v23 (sobre v22): coleccion nueva "cmFb" para "¿Te sirvió este anuncio?" y comentarios de clasificados.
+    // v22 (sobre v21): la ficha de plan se reconoce tambien por la huella del correo o celular del dueno (keyMine),
+    // asi una ficha creada por otra persona no le quita el acceso al dueno real.
+    // v21: arreglo: la PRIMERA calificacion de una publicacion estaba bloqueada (recorte de lista vacia).
+    // =====================================================================
+    // v5 (ESTRICTA): publicar solo despues de usar index_v102 y confirmar en Firestore
+    // que las publicaciones de tus vendedores ya tienen ownerUid. Las que no lo tengan
+    // (y los vendedores con SMS o codigo de acceso) pierden edicion/borrado hasta reclamarlas.
+    // NO PUBLICAR hasta que index/panel/admin ya:
+    //  1) inicien sesion REAL (correo, telefono, Google) en la sesion principal,
+    //  2) escriban ownerUid = auth.uid en stores/products/services/ads,
+    //  3) escriban uid = auth.uid en ideas.
+    // Si se publican antes, los vendedores pierden acceso de escritura.
+    // =====================================================================
+
+    // ---------- Funciones ----------
+    function signed() { return request.auth != null; }
+
+    // Sesion real = no anonima
+    function real() {
+      return signed() && request.auth.token.firebase.sign_in_provider != 'anonymous'
+          && (request.auth.token.firebase.sign_in_provider != 'password'
+              || request.auth.token.email_verified == true);
+    }
+
+    // Reemplaza el texto por el UID del admin (Firebase Console > Authentication > Usuarios)
+    function isAdmin() {
+      return real() && request.auth.uid == 'UKluJD3k7gP4HJN24KjK1HSHlIC3';
+    }
+
+    function owns() {
+      return real() && resource.data.get('ownerUid', '') == request.auth.uid;
+    }
+
+    function keepsOwner() {
+      return request.resource.data.get('ownerUid', '') == resource.data.get('ownerUid', '');
+    }
+
+    // v17: ademas de "rates" se escriben "rU" (uids que ya calificaron) y "rRm" (la calificacion quitada, como prueba de propiedad)
+    function onlyRates() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rates', 'rU', 'rRm']);
+    }
+
+    // v17: forma y limites de una calificacion nueva; "a" debe ser el uid de quien escribe
+    function rateEntryOk(e, me) {
+      return e is map
+          && e.keys().hasOnly(['u','a','n','name','txt','ts'])
+          && e.keys().hasAll(['u','a','n','ts'])
+          && e.u is string && e.u.size() <= 60
+          && e.a == me
+          && e.n is int && e.n >= 1 && e.n <= 5
+          && e.get('name', '') is string && e.get('name', '').size() <= 30
+          && e.get('txt', '') is string && e.get('txt', '').size() <= 500
+          && e.ts is number;
+    }
+
+    // v12: un visitante solo puede AGREGAR una calificacion (conservando todas las anteriores)
+    // o QUITAR una (sin tocar las demas). Ya no se permite reemplazar el contenido con el mismo tamano.
+    // OJO: editar tu propia calificacion (mismo tamano) queda bloqueado hasta que la pagina lo haga
+    // en dos escrituras: quitar y luego agregar (ver rates() en index).
+    // v17: AGREGAR exige entrada valida con tu uid y que tu uid no este en rU (una por sesion).
+    // QUITAR exige rRm = la entrada quitada, que debe ser tuya (a == tu uid, y sales de rU) o antigua (sin "a", rU intacto).
+    function ratesSafe() {
+      let d = request.resource.data;
+      let me = request.auth.uid;
+      let newR = d.get('rates', []);
+      let oldR = resource.data.get('rates', []);
+      let newU = d.get('rU', []);
+      let oldU = resource.data.get('rU', []);
+      let rm = d.get('rRm', {});
+      return newR is list && newU is list && oldU is list
+          && newR.size() <= 500 && newU.size() <= 500
+          // v21: recortar una lista vacia ([0:0]) da error en las reglas, y eso bloqueaba la PRIMERA calificacion; si antes no habia, se salta
+          && ( (newR.size() == oldR.size() + 1 && (oldR.size() == 0 || newR[0:oldR.size()] == oldR)
+                && rateEntryOk(newR[oldR.size()], me)
+                && !(me in oldU)
+                && newU.size() == oldU.size() + 1 && (oldU.size() == 0 || newU[0:oldU.size()] == oldU) && newU[oldU.size()] == me)
+               || (newR.size() == oldR.size() - 1 && oldR.hasAll(newR)
+                   && rm in oldR && !(rm in newR)
+                   && ( (rm.get('a', '') == me && me in oldU && newU.size() == oldU.size() - 1
+                         && oldU.hasAll(newU) && !(me in newU))
+                        || (!('a' in rm) && newU == oldU) )) );
+    }
+
+    // Reclamar una publicacion antigua (sin ownerUid) con una sesion real.
+    // OJO: ownerKey es un hash calculable, asi que haz la migracion pronto
+    // o reclama tu mismo las publicaciones desde el admin.
+    function claims() {
+      return real()
+        && !('ownerUid' in resource.data)
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerKey == resource.data.ownerKey
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ownerUid']);
+    }
+
+    // v37: el dueno por correo o celular verificado (keyMine del ownerKey) puede editar o borrar su publicacion
+    // aunque su cuenta interna (uid) haya cambiado: al guardar, la publicacion queda con su uid actual.
+    // Antes, si el uid cambiaba (otra forma de entrar, cuenta vuelta a crear), la pagina dejaba editar pero
+    // Firestore rechazaba todo y la tienda quedaba bloqueada.
+    function ownsByKey() {
+      return real()
+        && keyMine(resource.data.get('ownerKey', ''))
+        && request.resource.data.get('ownerKey', '') == resource.data.get('ownerKey', '')
+        && request.resource.data.get('ownerUid', '') == request.auth.uid;
+    }
+
+    // v12: limites basicos para stores/products/services/ads (la pagina usa nombres de max. 60 caracteres)
+    function validDoc() {
+      let d = request.resource.data;
+      return d.keys().size() <= 100
+          && d.get('name', '') is string
+          && d.get('name', '').size() <= 150
+          && d.get('ownerUid', '') is string;
+    }
+
+    // Modelo actual de la pagina (sin ownerUid): el ownerKey no se puede cambiar
+    function sameOwnerKey() {
+      return request.resource.data.get('ownerKey', '') is string
+          && request.resource.data.get('ownerKey', '') != ''
+          && request.resource.data.get('ownerKey', '') == resource.data.get('ownerKey', '');
+    }
+
+    // v33: fecha de pago de la tienda: no puede pasar del acceso real del dueno (su propia ficha de plan)
+    function pexpOk(d) {
+      let v = d.get('pexp', 0);
+      let k = d.get('ownerKey', '');
+      return v == 0
+          || (v is number && k is string && k != ''
+              && exists(/databases/$(database)/documents/plans/$(k))
+              && pexpLe(get(/databases/$(database)/documents/plans/$(k)).data, v, k));
+    }
+
+    function pexpLe(p, v, k) {
+      let a = p.get('acc', {});
+      return (p.get('uid', '') == request.auth.uid
+              || (p.get('email', '') != '' && p.get('email', '').lower() == writerEmail())
+              || keyMine(k))
+          && (v <= a.get('merc', 0) || v <= a.get('merc1', 0) || v <= a.get('store', 0) || v <= a.get('food', 0) || v <= a.get('pelu', 0)
+              || (p.get('plan', 'free') != 'free' && v <= p.get('end', 0)));
+    }
+
+    // v35: destacado. feat solo por el admin; fexp hasta acc.mercF del plan del dueno (o 0)
+    function fexpOk(d) {
+      let v = d.get('fexp', 0);
+      let k = d.get('ownerKey', '');
+      return v == 0
+          || (v is number && k is string && k != ''
+              && exists(/databases/$(database)/documents/plans/$(k))
+              && fexpLe(get(/databases/$(database)/documents/plans/$(k)).data, v, k));
+    }
+
+    function fexpLe(p, v, k) {
+      return (p.get('uid', '') == request.auth.uid
+              || (p.get('email', '') != '' && p.get('email', '').lower() == writerEmail())
+              || keyMine(k))
+          && v <= p.get('acc', {}).get('mercF', 0);
+    }
+
+    // ---------- Tiendas, productos, servicios y anuncios ----------
+    // Este match solo concede permisos a estas cuatro colecciones.
+    match /{coll}/{id} {
+      allow read: if coll in ['stores', 'products', 'services', 'ads'];
+
+      allow create: if coll in ['stores', 'products', 'services', 'ads']
+                    && ( isAdmin()
+                         || (real() && request.resource.data.get('ownerUid', '') == request.auth.uid
+                             && validDoc()
+                             // v17: tiendas de Restaurantes o Peluquerias exigen el acceso pagado vigente
+                             // v21: TODA publicacion nueva exige el rol pagado vigente, igual que la pagina (antes solo se
+                             // revisaba en Comidas y Peluquerias; con la consola del navegador se podia publicar gratis)
+                             && pubOk(coll, id)
+                             && (coll != 'stores' || pexpOk(request.resource.data))
+                             // v35: al crear no se puede nacer destacado
+                             && request.resource.data.get('feat', false) == false
+                             && fexpOk(request.resource.data)) );
+      // v5: se quito crear con sesion anonima + ownerKey (quien publique debe tener sesion real)
+      // v12: validDoc() limita cantidad de campos y largo del nombre
+
+      allow update: if coll in ['stores', 'products', 'services', 'ads']
+                    && ( isAdmin()
+                         || (((owns() && keepsOwner()) || ownsByKey()) && validDoc()
+                             // v17: si la categoria cambia a Restaurantes/Peluquerias se exige acceso; si no cambia, no (no frena ediciones con el acceso vencido)
+                             // v32: en tiendas, poner o cambiar la portada pide el rol; lo demas (y quitarla) es libre
+                             && (coll != 'stores'
+                                 || request.resource.data.get('cover', '') == ''
+                                 || request.resource.data.get('cover', '') == resource.data.get('cover', '')
+                                 || catOk(request.resource.data.get('cat', ''), request.resource.data.get('ownerKey', '')))
+                             // v33: la fecha de pago solo cambia a una fecha real del plan
+                             && (coll != 'stores'
+                                 || request.resource.data.get('pexp', 0) == resource.data.get('pexp', 0)
+                                 || pexpOk(request.resource.data))
+                             // v35: el dueno no cambia "feat"; "fexp" solo a una fecha real del destacado de su plan
+                             && request.resource.data.get('feat', false) == resource.data.get('feat', false)
+                             && (request.resource.data.get('fexp', 0) == resource.data.get('fexp', 0)
+                                 || fexpOk(request.resource.data)))
+                         // v12: se quito "|| claims()" (el ownerKey es publico). Si aun hay publicaciones
+                         // sin ownerUid, reclamalas desde el admin o vuelve a poner "|| claims()" aqui.
+                         || (signed() && onlyRates() && ratesSafe()) );
+      // v5: se quito (signed() && sameOwnerKey()); ya nadie edita con solo conocer el ownerKey
+
+      allow delete: if coll in ['stores', 'products', 'services', 'ads']
+                    && (isAdmin() || owns() || (real() && keyMine(resource.data.get('ownerKey', ''))));
+      // v37: tambien el dueno por correo o celular verificado, aunque su uid haya cambiado
+      // v5: se quito "|| signed()"; solo el admin o el dueno con ownerUid borran
+    }
+
+    // ---------- Sugerencias ----------
+    match /ideas/{id} {
+      allow read: if true;
+      // v12: solo los campos que escribe la pagina y con largos acotados (formulario: nombre 30, texto 500)
+      allow create: if signed()
+                    && request.resource.data.get('uid', '') == request.auth.uid
+                    && request.resource.data.keys().hasOnly(['id','name','txt','ts','ownerKey','uid','_o'])
+                    && request.resource.data.txt is string
+                    && request.resource.data.txt.size() >= 5
+                    && request.resource.data.txt.size() <= 500
+                    && request.resource.data.get('name', '') is string
+                    && request.resource.data.get('name', '').size() <= 60;
+      allow update: if isAdmin();
+      allow delete: if isAdmin()
+                    || (signed() && resource.data.get('uid', '') == request.auth.uid);
+    }
+
+    // ---------- Categorias ----------
+    match /cats/{id} {
+      allow read: if true;
+      // v16: el nombre no admite < > " ` y, si hay icono/color, deben ser un emoji corto o data:image y un #RRGGBB
+      // (antes a[1] y a[2] eran libres y se pintaban en el HTML: XSS). El admin conserva libertad total.
+      allow create: if isAdmin() || (real()
+                    && request.resource.data.keys().hasOnly(['id','a','_o'])
+                    && request.resource.data.a is list
+                    && request.resource.data.a.size() >= 1
+                    && request.resource.data.a.size() <= 3
+                    && request.resource.data.a[0] is string
+                    && request.resource.data.a[0].size() <= 40
+                    && request.resource.data.a[0].matches('^[^<>"`]+$')
+                    && (request.resource.data.a.size() < 2
+                        || (request.resource.data.a[1] is string
+                            && ((request.resource.data.a[1].size() <= 8 && request.resource.data.a[1].matches('^[^<>&`]*$'))
+                                || (request.resource.data.a[1].size() <= 60000
+                                    && request.resource.data.a[1].matches('^data:image/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$')))))
+                    && (request.resource.data.a.size() < 3
+                        || (request.resource.data.a[2] is string
+                            && request.resource.data.a[2].matches('^#[0-9A-Fa-f]{6}$'))));
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- Publicidad y configuracion del sitio ----------
+    match /banners/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /topAds/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /meta/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- Reportes ----------
+    match /reports/{id} {
+      // v12: solo los campos que escribe la pagina, largos acotados y nace sin atender (done:false)
+      allow create: if signed()
+                    && request.resource.data.keys().hasOnly(['id','k','tid','reason','txt','by','u','ts','done','_o'])
+                    && request.resource.data.reason is string
+                    && request.resource.data.reason.size() <= 100
+                    && request.resource.data.get('txt', '') is string
+                    && request.resource.data.get('txt', '').size() <= 300
+                    && request.resource.data.get('by', '') is string
+                    && request.resource.data.get('by', '').size() <= 100
+                    && request.resource.data.get('done', false) == false;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------- Planes ----------
+    match /plans/{id} {
+      // v16: antes cualquier sesion (incluso anonima) podia leer el plan de cualquier vendedor (correo, WhatsApp, accesos).
+      // Ahora: admin, el dueno (uid propio; planes antiguos sin uid: mismo correo verificado), o un documento que aun no existe
+      // (el cliente lo consulta antes de crearlo). Transitorio: planes antiguos sin uid y sin correo siguen legibles.
+      allow get: if isAdmin()
+        || (signed() && (resource == null
+            || resource.data.get('uid', '') == request.auth.uid
+            || (real() && resource.data.get('email', '') != '' && resource.data.get('email', '').lower() == writerEmail())
+            || (!('uid' in resource.data) && resource.data.get('email', '') == '')
+            || keyMine(id)));
+      allow list: if isAdmin();
+      allow create: if signed()
+        && request.resource.data.k == id
+        && request.resource.data.plan == 'free'
+        && request.resource.data.trial == false
+        && request.resource.data.paid == false
+        && request.resource.data.featSlots == 0
+        && request.resource.data.end <= request.time.toMillis() + 3651 * 86400000
+        && request.resource.data.get('uid', request.auth.uid) == request.auth.uid
+        && request.resource.data.keys().hasOnly(
+          ['k','name','wa','email','plan','use','trial','paid',
+           'start','end','featSlots','want','ts','uid']);
+      // v14: se agrega "uid" (dueno del plan) para que la persona pueda borrar su propio plan al eliminar su cuenta
+      // v6: ademas del admin, el usuario puede sumar un acceso (acc) canjeando un codigo
+      allow update: if isAdmin() || redeemOk(id) || profOk(id) || addrOk(id);
+
+      // v34: solo nombre y telefono, por la duena o el dueno de la ficha
+      // v45: la persona guarda su dirección principal en su ficha (solo ella y el administrador la leen).
+      // El administrador le pone el código plus cuando el mapa no muestra bien la casa (campo addr.fix).
+      function addrOk(id) {
+        return real()
+          && (resource.data.get('uid', '') == request.auth.uid
+              || (resource.data.get('email', '') != '' && resource.data.get('email', '').lower() == writerEmail())
+              || keyMine(id))
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['addr'])
+          && request.resource.data.addr is map
+          && request.resource.data.addr.keys().hasOnly(['zone','dir','ref','plus','lat','lng','fix','ts','adm'])
+          && request.resource.data.addr.get('zone', '') is string && request.resource.data.addr.get('zone', '').size() <= 40
+          && request.resource.data.addr.get('dir', '') is string && request.resource.data.addr.get('dir', '').size() <= 120
+          && request.resource.data.addr.get('ref', '') is string && request.resource.data.addr.get('ref', '').size() <= 160
+          && request.resource.data.addr.get('plus', '') is string && request.resource.data.addr.get('plus', '').size() <= 80
+          && request.resource.data.addr.get('lat', 0) is number && request.resource.data.addr.get('lng', 0) is number
+          && request.resource.data.addr.get('fix', false) is bool
+          && request.resource.data.addr.get('ts', 0) is number && request.resource.data.addr.get('adm', 0) is number;
+      }
+      function profOk(id) {
+        return real()
+          && (resource.data.get('uid', '') == request.auth.uid
+              || (resource.data.get('email', '') != '' && resource.data.get('email', '').lower() == writerEmail())
+              || keyMine(id))
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'wa'])
+          && request.resource.data.get('name', '') is string && request.resource.data.get('name', '').size() <= 40
+          && request.resource.data.get('wa', '') is string && request.resource.data.get('wa', '').size() <= 15;
+      }
+      // v14: el admin, o la persona duena del plan (uid propio; planes antiguos sin uid: mismo correo verificado)
+      allow delete: if isAdmin()
+        || (real() && (resource.data.get('uid', '') == request.auth.uid
+            || (resource.data.get('email', '') != '' && resource.data.get('email', '').lower() == writerEmail())
+            || keyMine(id)));
+
+      function redeemOk(id) {
+        let c = request.resource.data.get('accCode', '');
+        let cp = /databases/$(database)/documents/codes/$(c);
+        return signed() && c is string && c.size() == 12
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acc', 'accCode'])
+          && get(cp).data.used == false
+          && getAfter(cp).data.used == true
+          && getAfter(cp).data.usedBy == id
+          && redeemEnd(get(cp).data.use, get(cp).data.days, get(cp).data.get('months', 0))
+          // v35: un codigo gratis solo si a ese rol le queda menos de 31 dias
+          && (get(cp).data.get('why', '') != 'gratis'
+              || resource.data.get('acc', {}).get(get(cp).data.use, 0) < request.time.toMillis() + 31 * 86400000);
+      }
+
+      // El nuevo fin del acceso = max(ahora, fin actual) + dias del codigo (margen de 1 dia por el reloj)
+      // v20: un codigo de Comerciante ("merc") de 6 meses o mas (6, 9 o 12) tambien escribe acc.mercF (destacado) con el mismo fin
+      function redeemEnd(u, days, m) {
+        let old = resource.data.get('acc', {}).get(u, 0);
+        let now = request.time.toMillis();
+        let want = (old > now ? old : now) + days * 86400000;
+        let got = request.resource.data.acc[u];
+        return got >= want - 86400000 && got <= want + 86400000
+          && (request.resource.data.acc.diff(resource.data.get('acc', {})).affectedKeys().hasOnly([u])
+              || (u == 'merc' && m >= 6
+                  && request.resource.data.acc.diff(resource.data.get('acc', {})).affectedKeys().hasOnly(['merc', 'mercF'])
+                  && request.resource.data.acc.get('mercF', 0) == got));
+      }
+    }
+
+    // ---------- Codigos de acceso (v6) ----------
+    match /codes/{c} {
+      allow get: if signed();
+      // v28: ademas del admin, cada persona lista sus propios codigos (canjeados con su ficha de plan, o entregados a su uid)
+      allow list: if isAdmin()
+        || keyMine(resource.data.get('usedBy', ''))
+        || (real() && resource.data.get('uid', '') == request.auth.uid);
+      allow create: if isAdmin() || freeCode(c);
+      allow delete: if isAdmin();
+      // v28: al canjear tambien se guarda "end" (fecha en que vence ese codigo)
+      allow update: if signed()
+        && resource.data.used == false
+        && request.resource.data.used == true
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['used', 'usedBy', 'usedAt', 'end'])
+        && request.resource.data.get('end', 0) is number
+        // v32: el codigo gratis solo lo canjea la persona que lo pidio
+        && (resource.data.get('why', '') != 'gratis' || resource.data.get('uid', '') == request.auth.uid);
+    }
+
+    // v32: codigo de un rol gratis creado por la misma persona, junto con su solicitud aprobada (mismo batch)
+    function freeCode(c) {
+      let d = request.resource.data;
+      let pg = /databases/$(database)/documents/pagos/$(d.get('pago', 'x'));
+      return real()
+          && d.keys().hasOnly(['c', 'use', 'months', 'days', 'used', 'ts', 'uid', 'pago', 'why'])
+          && d.c == c && c.matches('^[A-Z0-9]{12}$')
+          && d.uid == request.auth.uid && d.why == 'gratis'
+          && d.use in ['news', 'comu'] && d.months == 12 && d.days == 365 && d.used == false
+          && d.ts is number
+          && d.pago is string && d.pago.size() > 0 && d.pago.size() <= 40
+          && existsAfter(pg)
+          && getAfter(pg).data.from == request.auth.uid
+          && getAfter(pg).data.get('via', '') == 'gratis'
+          && getAfter(pg).data.get('code', '') == c;
+    }
+
+    // ---------- Clasificados (v8): anuncios clasificados ----------
+    // Crear: sesion real, ownerUid propio, campos acotados y vencimiento razonable
+    // (gratis: maximo ~25 h; con plan: maximo 31 dias).
+    // v8: el dueno puede ocultar/mostrar (campo "hid") y RENOVAR (cambiar ts y exp), siempre dentro de los
+    // mismos limites de la creacion; pl y dueno no se pueden cambiar.
+    // Para borrar vencidos automaticamente: Firestore > TTL > coleccion "community", campo "ttl".
+    // v18: campos nuevos de Clasificados organizados: op (tipo de publicacion), cat, sub, price, zone (ubicacion),
+    // cond (estado) e imgs (hasta 2 fotos extra; la principal sigue en "img"). Todos opcionales y con tamano acotado.
+    function cmExtraOk(d) {
+      return d.get('op', '') is string && d.get('op', '').size() <= 20
+          && d.get('cat', '') is string && d.get('cat', '').size() <= 20
+          && d.get('sub', '') is string && d.get('sub', '').size() <= 60
+          && d.get('zone', '') is string && d.get('zone', '').size() <= 60
+          && d.get('cond', '') is string && d.get('cond', '').size() <= 20
+          && d.get('price', 0) is number && d.get('price', 0) >= 0 && d.get('price', 0) <= 1000000000000
+          && d.get('imgs', []) is list && d.get('imgs', []).size() <= 2
+          && (d.get('imgs', []).size() < 1 || (d.imgs[0] is string && d.imgs[0].size() <= 400000))
+          && (d.get('imgs', []).size() < 2 || (d.imgs[1] is string && d.imgs[1].size() <= 400000));
+    }
+
+    match /community/{id} {
+      allow read: if true;
+      allow create: if real()
+        && request.resource.data.get('ownerUid', '') == request.auth.uid
+        && request.resource.data.keys().hasOnly(
+          ['id','ownerKey','ownerUid','owner','title','text','img','wa','link','pl','ts','exp','ttl','ed','hid',
+           'op','cat','sub','price','zone','cond','imgs'])
+        && cmExtraOk(request.resource.data)
+        // v21: plan de clasificados valido; los de pago (c3..c30) exigen ese plan vigente y duran como maximo sus dias
+        && request.resource.data.exp is number && cmPlanOk(request.resource.data)
+        // v19: los avisos del rol Comunidad exigen ese rol vigente y la categoria "Comunidad y otros"
+        && (request.resource.data.get('pl', '') != 'comu'
+            || (request.resource.data.get('cat', '') == 'com' && roleOk('comu', request.resource.data.get('ownerKey', ''))))
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 3 && request.resource.data.title.size() <= 80
+        && request.resource.data.get('text', '').size() <= 500
+        && request.resource.data.img is string && request.resource.data.img.size() <= 800000
+        && request.resource.data.exp is number
+        && request.resource.data.exp > request.time.toMillis() - 60000
+        && request.resource.data.exp <= request.time.toMillis()
+             + (request.resource.data.pl == 'free' ? 90000000 : 2678400000);
+      allow update: if isAdmin()
+        // v44: coleccion mensajes (formulario Escribenos del pie de pagina).
+    // v43: el dueño también se reconoce por su correo o celular verificado (keyMine del ownerKey);
+        // al guardar, el anuncio queda con su cuenta actual (ownerUid)
+        || (((owns() && keepsOwner()) || cmByKey())
+            && request.resource.data.keys().hasOnly(
+              ['id','ownerKey','ownerUid','owner','title','text','img','wa','link','pl','ts','exp','ttl','ed','hid',
+               'op','cat','sub','price','zone','cond','imgs'])
+            && cmExtraOk(request.resource.data)
+            && (request.resource.data.get('pl', '') != 'comu' || request.resource.data.get('cat', '') == 'com')
+            && (request.resource.data.get('pl', '') != 'obi'
+                || (request.resource.data.get('cat', '') == 'com' && request.resource.data.get('sub', '') == 'Obituarios'
+                    && request.resource.data.title.matches('^Obituario: .+')))
+            && (request.resource.data.exp == resource.data.exp
+                || (request.resource.data.exp is number
+                    && request.resource.data.exp > request.time.toMillis() - 60000
+                    && request.resource.data.exp <= request.time.toMillis()
+                         + (request.resource.data.pl == 'free' ? 90000000 : (request.resource.data.pl == 'obi' ? 262800000 : 2678400000))))
+            && (request.resource.data.ts == resource.data.ts
+                || (request.resource.data.ts is number
+                    && request.resource.data.ts >= request.time.toMillis() - 300000
+                    && request.resource.data.ts <= request.time.toMillis() + 300000))
+            && request.resource.data.get('hid', false) is bool
+            && request.resource.data.pl == resource.data.pl
+            && request.resource.data.ownerKey == resource.data.ownerKey);
+      allow delete: if isAdmin() || owns() || (real() && keyMine(resource.data.get('ownerKey', '')));
+
+      function cmByKey() {
+        return real()
+          && keyMine(resource.data.get('ownerKey', ''))
+          && request.resource.data.get('ownerUid', '') == request.auth.uid;
+      }
+    }
+
+    // ---------- Noticias (v15) ----------
+    // v15: publica quien tenga el acceso "news" vigente en su plan (plans/<ownerKey>.acc.news, se activa
+    // canjeando un codigo, igual que los demas accesos). El plan debe ser de la persona (uid, o mismo correo
+    // verificado en planes antiguos sin uid). Se quitaron writers/list y writerReqs. Lectura de noticias: publica.
+    function writerEmail() {
+      return ('email' in request.auth.token) ? request.auth.token.email.lower() : '';
+    }
+
+    // v22: la ficha de plan (plans/<k>) es de quien tiene la identidad de la que sale "k", igual que key() de la pagina:
+    // k = sha256('mail:' + correo) o sha256('wa:' + ultimos 10 digitos del celular). Asi, si otra persona crea primero
+    // la ficha con su propio uid (ocupar la ficha ajena), el dueno real igual la puede usar, leer y borrar.
+    // Solo AGREGA una forma de reconocer al dueno: todo lo que antes funcionaba sigue funcionando.
+    function hexOf(s) {
+      return hashing.sha256(s).toHexString().lower();
+    }
+
+    function keyMine(k) {
+      let em = writerEmail();
+      let ph = request.auth.token.get('phone_number', '');
+      return real() && k is string && k != ''
+          && ( (em != '' && k == hexOf('mail:' + em))
+               || (em.matches('^[0-9]{10}@cel[.]qhep[.]app$') && k == hexOf('wa:' + em.replace('@cel[.]qhep[.]app$', '')))
+               || (ph is string && ph.matches('^[+]57[0-9]{10}$') && k == hexOf('wa:' + ph.replace('^[+]57', ''))) );
+    }
+
+    function hasNews(k) {
+      let p = get(/databases/$(database)/documents/plans/$(k)).data;
+      return real()
+          && p.get('acc', {}).get('news', 0) > request.time.toMillis()
+          && (p.get('uid', '') == request.auth.uid
+              || (p.get('email', '') != '' && p.get('email', '').lower() == writerEmail())
+              || keyMine(k));
+    }
+
+    // v17: Comidas y Peluquerias solo con acceso vigente del plan de quien escribe (antes solo lo validaba la pagina).
+    // El plan (doc plans/<ownerKey>) debe ser de la persona: uid propio o, en planes antiguos, mismo correo verificado.
+    // v19: rol vigente exacto (sin equivalencias), del plan de quien escribe
+    function roleOk(u, k) {
+      return real() && k is string && k != ''
+          && exists(/databases/$(database)/documents/plans/$(k))
+          && get(/databases/$(database)/documents/plans/$(k)).data.get('acc', {}).get(u, 0) > request.time.toMillis()
+          && (get(/databases/$(database)/documents/plans/$(k)).data.get('uid', '') == request.auth.uid
+              || (get(/databases/$(database)/documents/plans/$(k)).data.get('email', '') != ''
+                  && get(/databases/$(database)/documents/plans/$(k)).data.get('email', '').lower() == writerEmail())
+              || keyMine(k));
+    }
+
+    // v19: el rol Comerciante ("merc") tambien abre Comidas y Peluquerias
+    // v21: como accEnd() de la pagina: merc abre solo los tipos de negocio (MERC) y tambien cuenta el plan
+    // antiguo pagado (plan != 'free' con "end" vigente; use = el tipo o 'all' para tienda, carro, casa y servicios)
+    function hasAcc(u, k) {
+      return real() && k is string && k != ''
+          && exists(/databases/$(database)/documents/plans/$(k))
+          && accOk(get(/databases/$(database)/documents/plans/$(k)).data, u, k);
+    }
+
+    function accOk(p, u, k) {
+      let now = request.time.toMillis();
+      let use = p.get('use', 'all');
+      return (p.get('uid', '') == request.auth.uid
+              || (p.get('email', '') != '' && p.get('email', '').lower() == writerEmail())
+              || keyMine(k))
+          && (p.get('acc', {}).get(u, 0) > now
+              || (u in ['store', 'food', 'car', 'home', 'serv', 'pelu'] && p.get('acc', {}).get('merc', 0) > now)
+              // v39: planes para un solo negocio o un solo bien (Comerciante · Un negocio, Inmuebles · Uno, Vehiculos · Uno)
+              || (u in ['store', 'food', 'car', 'home', 'serv', 'pelu'] && p.get('acc', {}).get('merc1', 0) > now)
+              || (u in ['car', 'home'] && p.get('acc', {}).get(u + '1', 0) > now)
+              || (p.get('plan', 'free') != 'free' && p.get('end', 0) > now
+                  && (use == u || (use == 'all' && u in ['store', 'car', 'home', 'serv']))));
+    }
+
+    // Debe coincidir con COMIDAS y PELU de la pagina
+    // v21: Comidas incluye las categorias nuevas (Comidas rapidas, Panaderias y pastelerias) y los nombres viejos;
+    // cualquier otra categoria de tienda exige el rol de Tienda (antes no exigia nada)
+    function catNeed(c) {
+      return c in ['Restaurantes', 'Comidas rápidas', 'Panaderías y pastelerías', 'Comida', 'Panadería y pastelería'] ? 'food'
+           : (c in ['Barberías', 'Salones de belleza', 'Peluquerías unisex'] ? 'pelu' : 'store');
+    }
+
+    function catOk(c, k) {
+      return hasAcc(catNeed(c), k);
+    }
+
+    // v21: rol que exige cada coleccion al crear (como needAcc() de la pagina)
+    function pubOk(coll, id) {
+      let d = request.resource.data;
+      let k = d.get('ownerKey', '');
+      return coll == 'stores' ? (catOk(d.get('cat', ''), k) || (d.get('cover', '') == '' && id == 'b' + request.auth.uid))
+           : coll == 'services' ? hasAcc('serv', k)
+           : coll == 'ads' ? hasAcc(d.get('type', '') == 'veh' ? 'car' : 'home', k)
+           : (hasAcc('store', k) || hasAcc('food', k) || hasAcc('pelu', k));
+    }
+
+    // v21: clasificados con plan (c3, c7, c15, c30): el plan debe estar activo y el anuncio dura como maximo esos dias
+    function cmDays(pl) {
+      return pl == 'c3' ? 3 : (pl == 'c7' ? 7 : (pl == 'c15' ? 15 : (pl == 'c30' ? 30 : 0)));
+    }
+
+    function cmPlanOk(d) {
+      let pl = d.get('pl', '');
+      return pl in ['free', 'comu', 'c3', 'c7', 'c15', 'c30', 'obi']
+          && (pl != 'obi' || obiOk(d))
+          && (cmDays(pl) == 0
+              || (roleOk(pl, d.get('ownerKey', ''))
+                  && d.exp <= request.time.toMillis() + (cmDays(pl) + 1) * 86400000));
+    }
+
+    // v36: obituario gratis: solo como obituario y maximo 3 dias (+1 hora de margen)
+    function obiOk(d) {
+      return d.get('cat', '') == 'com' && d.get('sub', '') == 'Obituarios'
+          && d.title is string && d.title.matches('^Obituario: .+')
+          && d.exp <= request.time.toMillis() + 262800000;
+    }
+
+    function validNews() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['id','ownerKey','ownerUid','author','title','text','img','link','ts','ed','cat','imgs','pub'])
+          // v38: «pub» = fecha y hora de publicación programada (número, hasta ~6 meses adelante)
+          && (!('pub' in d) || (d.pub is number && d.pub <= request.time.toMillis() + 200 * 86400000))
+          && d.get('cat', '') is string && d.get('cat', '').size() <= 20
+          && d.get('imgs', []) is list && d.get('imgs', []).size() <= 4
+          && (d.get('imgs', []).size() < 1 || (d.imgs[0] is string && d.imgs[0].size() <= 250000))
+          && (d.get('imgs', []).size() < 2 || (d.imgs[1] is string && d.imgs[1].size() <= 250000))
+          && (d.get('imgs', []).size() < 3 || (d.imgs[2] is string && d.imgs[2].size() <= 250000))
+          && (d.get('imgs', []).size() < 4 || (d.imgs[3] is string && d.imgs[3].size() <= 250000))
+          && d.title is string && d.title.size() >= 5 && d.title.size() <= 120
+          && d.text is string && d.text.size() >= 20 && d.text.size() <= 5000
+          && d.get('author', '') is string && d.get('author', '').size() <= 60
+          && d.get('img', '') is string && d.get('img', '').size() <= 800000
+          && d.get('link', '') is string && d.get('link', '').size() <= 300
+          && d.ts is number;
+    }
+
+    match /news/{id} {
+      allow read: if true;
+      allow create: if (isAdmin()
+                        || (request.resource.data.get('ownerKey', '') is string
+                            && request.resource.data.get('ownerKey', '') != ''
+                            && hasNews(request.resource.data.ownerKey)))
+                    && request.resource.data.get('ownerUid', '') == request.auth.uid
+                    && validNews();
+      allow update: if isAdmin()
+                    || (owns() && keepsOwner() && hasNews(resource.data.ownerKey) && validNews());
+      // el dueno siempre puede borrar sus noticias (aunque su acceso haya vencido; tambien al eliminar la cuenta)
+      allow delete: if isAdmin() || owns();
+    }
+
+    // ---------- Reacciones y comentarios de noticias (v31) ----------
+    // Reaccion: id = <noticia>_<uid>, campos nw, uid, re, ts. Comentario: id = <noticia>_<uid>_<cid>, campos nw, uid, cid, name, txt, ts.
+    // Escribe quien tiene sesion real, solo a su nombre y sobre una noticia que existe. La fecha debe ser la de ahora (+-5 min).
+    match /nwFb/{id} {
+      allow read: if true;
+      allow create, update: if real()
+        && request.resource.data.uid == request.auth.uid
+        && (resource == null || resource.data.uid == request.auth.uid)
+        && request.resource.data.nw is string && request.resource.data.nw.size() > 0 && request.resource.data.nw.size() <= 60
+        && exists(/databases/$(database)/documents/news/$(request.resource.data.nw))
+        && request.resource.data.ts is number
+        && request.resource.data.ts >= request.time.toMillis() - 300000
+        && request.resource.data.ts <= request.time.toMillis() + 300000
+        && ( (id == request.resource.data.nw + '_' + request.auth.uid
+              && request.resource.data.keys().hasOnly(['nw', 'uid', 're', 'ts'])
+              && request.resource.data.re in ['like', 'love', 'wow', 'sad', 'clap'])
+          || (request.resource.data.keys().hasOnly(['nw', 'uid', 'cid', 'name', 'txt', 'ts'])
+              // v35: el comentario va con la marca nwRate/<uid> (misma hora) escrita en el mismo batch
+              && existsAfter(/databases/$(database)/documents/nwRate/$(request.auth.uid))
+              && getAfter(/databases/$(database)/documents/nwRate/$(request.auth.uid)).data.ts == request.resource.data.ts
+              && request.resource.data.cid is string && request.resource.data.cid.matches('^c[0-9a-z]{4,14}$')
+              && id == request.resource.data.nw + '_' + request.auth.uid + '_' + request.resource.data.cid
+              && request.resource.data.txt is string && request.resource.data.txt.size() >= 2 && request.resource.data.txt.size() <= 500
+              && request.resource.data.get('name', '') is string && request.resource.data.get('name', '').size() <= 40) );
+      allow delete: if isAdmin()
+        || (real() && resource.data.uid == request.auth.uid)
+        || (real() && exists(/databases/$(database)/documents/news/$(resource.data.nw))
+            && get(/databases/$(database)/documents/news/$(resource.data.nw)).data.get('ownerUid', '') == request.auth.uid);
+    }
+
+    // v35: marca de la ultima vez que la persona comento una noticia: se cambia como minimo cada 30 s
+    match /nwRate/{uid} {
+      allow read: if real() && uid == request.auth.uid;
+      allow create, update: if real() && uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['ts'])
+        && request.resource.data.ts is number
+        && request.resource.data.ts >= request.time.toMillis() - 300000
+        && request.resource.data.ts <= request.time.toMillis() + 300000
+        && (resource == null || resource.data.ts <= request.time.toMillis() - 30000);
+    }
+
+    // ---------- Opiniones de clasificados (v23) ----------
+    // "¿Te sirvió este anuncio?" y comentarios. Un documento por persona y anuncio: id = <anuncio>_<uid>.
+    // Opina quien tiene sesion real y NO es el dueño del anuncio; solo cambia o borra su propia opinion.
+    // El administrador puede borrar cualquiera. El dueño del anuncio no puede borrar opiniones ajenas.
+    match /cmFb/{id} {
+      allow read: if true;
+      allow create, update: if real()
+        && request.resource.data.keys().hasOnly(['ad', 'uid', 'name', 'util', 'txt', 'ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.ad is string && request.resource.data.ad.size() > 0 && request.resource.data.ad.size() <= 60
+        && id == request.resource.data.ad + '_' + request.auth.uid
+        && (resource == null || resource.data.uid == request.auth.uid)
+        && exists(/databases/$(database)/documents/community/$(request.resource.data.ad))
+        && get(/databases/$(database)/documents/community/$(request.resource.data.ad)).data.get('ownerUid', '') != request.auth.uid
+        && (!('util' in request.resource.data) || request.resource.data.util is bool)
+        && request.resource.data.get('txt', '') is string && request.resource.data.get('txt', '').size() <= 300
+        && request.resource.data.get('name', '') is string && request.resource.data.get('name', '').size() <= 40
+        && request.resource.data.ts is number
+        && ('util' in request.resource.data || request.resource.data.get('txt', '') != '');
+      allow delete: if isAdmin() || (real() && resource.data.uid == request.auth.uid);
+    }
+
+    // ---------- Pagos con Bre-B (v24) ----------
+    // "breb": una ficha publica por persona (id = su uid) con su llave Bre-B y/o su numero de Nequi (v25), su nombre y un QR opcional.
+    // Solo la persona escribe o borra su ficha; el administrador tambien puede borrarla.
+    match /breb/{uid} {
+      allow read: if true;
+      allow create, update: if real() && uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['key', 'nq', 'tn', 'bk', 'name', 'qr', 'ts'])
+        && request.resource.data.get('tn', '') is string && request.resource.data.get('tn', '').size() <= 80
+        && request.resource.data.get('bk', '') is string && request.resource.data.get('bk', '').size() <= 40
+        // v25: llave Bre-B (vacia o de 3 a 80 letras) y/o numero de Nequi (vacio o celular de 10 digitos que empieza por 3)
+        && request.resource.data.get('key', '') is string && request.resource.data.get('key', '').size() <= 80
+        && (request.resource.data.get('key', '') == '' || request.resource.data.get('key', '').size() >= 3)
+        && request.resource.data.get('nq', '') is string
+        && (request.resource.data.get('nq', '') == '' || request.resource.data.get('nq', '').matches('^3[0-9]{9}$'))
+        && (request.resource.data.get('key', '') != '' || request.resource.data.get('nq', '') != '')
+        && request.resource.data.get('name', '') is string && request.resource.data.get('name', '').size() <= 60
+        && request.resource.data.get('qr', '') is string && request.resource.data.get('qr', '').size() <= 400000
+        && request.resource.data.ts is number;
+      allow delete: if isAdmin() || (real() && uid == request.auth.uid);
+    }
+
+    // "pagos": registro de un pago hecho por Bre-B (el dinero no pasa por la pagina).
+    // Lo leen solo quien pago (from), quien cobra (to) y el administrador.
+    // Crear: sesion real, from = tu uid, no a ti mismo, quien cobra tiene ficha "breb" y nace "pend".
+    // Los pagos de roles (kind "rol") van siempre al administrador y solo el administrador los confirma.
+    // Quien cobra un pago normal solo cambia el estado (st: pend / ok / no). Quien pago solo marca "red" (rol ya activado)
+    // o borra el registro mientras siga pendiente.
+    match /pagos/{id} {
+      allow read: if isAdmin()
+        || (real() && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid));
+      allow create: if real()
+        && request.resource.data.keys().hasOnly(['from','fromName','to','toName','amt','ref','what','kind','item','use','m','via','img','st','ts','code','sts'])
+        && request.resource.data.get('img', '') is string && request.resource.data.get('img', '').size() <= 300000
+        && request.resource.data.get('via', 'breb') in ['breb', 'nequi', 'gratis']
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to is string && request.resource.data.to.size() > 0 && request.resource.data.to.size() <= 128
+        && request.resource.data.to != request.auth.uid
+        && ( (request.resource.data.st == 'pend' && !('code' in request.resource.data) && !('sts' in request.resource.data))
+             // v32: rol gratis aprobado al instante, solo si en el mismo paso se crea su codigo (de esta persona y de esta solicitud)
+          || (request.resource.data.st == 'ok'
+              && request.resource.data.get('via', '') == 'gratis'
+              && request.resource.data.kind == 'rol'
+              && request.resource.data.get('use', '') in ['news', 'comu']
+              && request.resource.data.get('m', 0) == 12
+              && request.resource.data.get('code', '') is string && request.resource.data.get('code', '').matches('^[A-Z0-9]{12}$')
+              && existsAfter(/databases/$(database)/documents/codes/$(request.resource.data.code))
+              && getAfter(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.uid == request.auth.uid
+              && getAfter(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.pago == id
+              && getAfter(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.use == request.resource.data.use) )
+        && request.resource.data.kind in ['item', 'rol']
+        && (request.resource.data.kind == 'item' || request.resource.data.to == 'UKluJD3k7gP4HJN24KjK1HSHlIC3')
+        && request.resource.data.amt is number
+        && request.resource.data.ref is string && request.resource.data.ref.size() <= 40
+        && ( // v29: solicitud gratis: solo roles, a Mi Pradera, valor 0, sin comprobante
+             (request.resource.data.get('via', 'breb') == 'gratis'
+              && request.resource.data.kind == 'rol'
+              && request.resource.data.amt == 0
+              && request.resource.data.get('img', '') == '')
+             // pago de verdad: quien cobra tiene ficha "breb", valor >= 100 y comprobante o numero de transaccion
+          || (request.resource.data.get('via', 'breb') != 'gratis'
+              && exists(/databases/$(database)/documents/breb/$(request.resource.data.to))
+              && request.resource.data.amt >= 100 && request.resource.data.amt <= 1000000000
+              && (request.resource.data.ref.size() >= 4 || request.resource.data.get('img', '').size() >= 10)) )
+        && request.resource.data.get('what', '') is string && request.resource.data.get('what', '').size() <= 120
+        && request.resource.data.get('fromName', '') is string && request.resource.data.get('fromName', '').size() <= 60
+        && request.resource.data.get('toName', '') is string && request.resource.data.get('toName', '').size() <= 60
+        && request.resource.data.get('item', '') is string && request.resource.data.get('item', '').size() <= 80
+        && request.resource.data.get('use', '') is string && request.resource.data.get('use', '').size() <= 10
+        && request.resource.data.get('m', 0) is number
+        && request.resource.data.ts is number;
+      allow update: if isAdmin()
+        || (real() && resource.data.to == request.auth.uid && resource.data.kind == 'item'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['st', 'sts'])
+            && request.resource.data.st in ['pend', 'ok', 'no'] && request.resource.data.sts is number)
+        // v30: quien cobra marca si ya lo envio o lo entrego (solo esos dos campos)
+        || (real() && resource.data.to == request.auth.uid && resource.data.kind == 'item'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ent', 'ents'])
+            && request.resource.data.get('ent', '') in ['', 'env', 'ent'] && request.resource.data.get('ents', 0) is number)
+        || (real() && resource.data.from == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['red'])
+            && request.resource.data.red == true);
+      allow delete: if isAdmin()
+        || (real() && resource.data.from == request.auth.uid && resource.data.st == 'pend');
+    }
+
+    // ---------- Presencia (quién está en línea) ----------
+    // v40/v41/v42: pedidos hechos por la aplicación (tiendas que eligen recibir pedidos aquí en vez de WhatsApp).
+    // Los lee quien pidió, la tienda (su dueño) y el administrador. Quien pide solo crea el pedido como "nuevo" y puede
+    // cancelarlo mientras siga nuevo. La tienda cambia el estado del pedido (st) y del pago (pst).
+    match /pedidos/{id} {
+      allow read: if isAdmin()
+        || (real() && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid));
+      allow create: if real()
+        && request.resource.data.keys().hasOnly(['sid','sname','to','from','fromName','fromWa','items','total','pay','note','st','pst','ts','addr'])
+        // v42: dirección de entrega (opcional): barrio o corregimiento, dirección, indicaciones, código plus y punto en el mapa
+        && addrOk(request.resource.data.get('addr', {}))
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to is string && request.resource.data.to != request.auth.uid
+        && request.resource.data.sid is string && request.resource.data.sid.size() > 0 && request.resource.data.sid.size() <= 80
+        && exists(/databases/$(database)/documents/stores/$(request.resource.data.sid))
+        && get(/databases/$(database)/documents/stores/$(request.resource.data.sid)).data.get('ownerUid', '') == request.resource.data.to
+        // v41: solo las tiendas que pagan reciben pedidos por la aplicación (fecha de pago vigente, con 3 días de gracia)
+        && get(/databases/$(database)/documents/stores/$(request.resource.data.sid)).data.get('pexp', 0) > request.time.toMillis() - 3 * 86400000
+        && request.resource.data.items is list && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 50
+        && request.resource.data.total is number && request.resource.data.total >= 0 && request.resource.data.total <= 1000000000
+        && request.resource.data.pay in ['cash', 'bre', 'nequi', 'card']
+        && request.resource.data.st == 'nuevo' && request.resource.data.pst == 'pend'
+        && request.resource.data.ts is number
+        && request.resource.data.get('note', '') is string && request.resource.data.get('note', '').size() <= 300
+        && request.resource.data.get('fromName', '') is string && request.resource.data.get('fromName', '').size() <= 60
+        && request.resource.data.get('fromWa', '') is string && request.resource.data.get('fromWa', '').size() <= 15
+        && request.resource.data.get('sname', '') is string && request.resource.data.get('sname', '').size() <= 80;
+      allow update: if isAdmin()
+        || (real() && resource.data.to == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['st', 'pst', 'sts'])
+            && request.resource.data.st in ['nuevo', 'acep', 'env', 'ent', 'canc']
+            && request.resource.data.pst in ['pend', 'ok', 'no']
+            && request.resource.data.sts is number)
+        || (real() && resource.data.from == request.auth.uid && resource.data.st == 'nuevo'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['st', 'sts'])
+            && request.resource.data.st == 'canc' && request.resource.data.sts is number);
+      allow delete: if isAdmin();
+
+      function addrOk(a) {
+        return a is map
+          && a.keys().hasOnly(['lb', 'zone', 'dir', 'ref', 'plus', 'lat', 'lng'])
+          && a.get('lb', '') is string && a.get('lb', '').size() <= 30
+          && a.get('zone', '') is string && a.get('zone', '').size() <= 40
+          && a.get('dir', '') is string && a.get('dir', '').size() <= 120
+          && a.get('ref', '') is string && a.get('ref', '').size() <= 160
+          && a.get('plus', '') is string && a.get('plus', '').size() <= 80
+          && (!('lat' in a) || (a.lat is number && a.lat >= -90 && a.lat <= 90))
+          && (!('lng' in a) || (a.lng is number && a.lng >= -180 && a.lng <= 180));
+      }
+    }
+
+    // ---------- v44: mensajes del formulario «Escríbenos» (pie de página) ----------
+    // Cualquiera con sesión (también visitante anónimo) envía uno; solo el administrador los lee, marca leídos o borra.
+    // ---------- v48: un celular por cuenta ----------
+    match /tels/{n} {
+      allow get: if signed();
+      allow list: if isAdmin();
+      allow create: if real()
+        && n.matches('^3[0-9]{9}$')
+        && request.resource.data.keys().hasOnly(['uid', 'k', 'ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.k is string && request.resource.data.k.size() <= 80
+        && request.resource.data.ts == request.time;
+      allow update: if false;
+      allow delete: if isAdmin() || (real() && resource.data.uid == request.auth.uid);
+    }
+
+    // ---------- v46: codigos de verificacion del celular por WhatsApp ----------
+    match /celcod/{code} {
+      allow create: if real()
+        && code.matches('^[0-9]{6}$')
+        && request.resource.data.keys().hasOnly(['k', 'uid', 'wa', 'ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.wa is string && request.resource.data.wa.matches('^3[0-9]{9}$')
+        && request.resource.data.ts == request.time
+        && request.resource.data.k is string && request.resource.data.k.size() > 0 && request.resource.data.k.size() <= 80
+        && (keyMine(request.resource.data.k)
+            || (exists(/databases/$(database)/documents/plans/$(request.resource.data.k))
+                && get(/databases/$(database)/documents/plans/$(request.resource.data.k)).data.get('uid', '') == request.auth.uid));
+      allow delete: if real() && resource.data.uid == request.auth.uid;
+      allow read, update: if false;
+    }
+
+    match /mensajes/{id} {
+      allow create: if signed()
+        && request.resource.data.keys().hasOnly(['id','nombre','correo','tel','asunto','msg','ts','uid','pag','leido'])
+        && request.resource.data.id == id
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.nombre is string
+        && request.resource.data.nombre.size() >= 2 && request.resource.data.nombre.size() <= 60
+        && request.resource.data.correo is string && request.resource.data.correo.size() <= 100
+        && request.resource.data.correo.matches('^[^@ ]+@[^@ ]+[.][^@ ]+$')
+        && request.resource.data.get('tel', '') is string && request.resource.data.get('tel', '').size() <= 20
+        && request.resource.data.asunto is string
+        && request.resource.data.asunto.size() >= 2 && request.resource.data.asunto.size() <= 80
+        && request.resource.data.msg is string
+        && request.resource.data.msg.size() >= 5 && request.resource.data.msg.size() <= 1500
+        && request.resource.data.get('pag', '') is string && request.resource.data.get('pag', '').size() <= 300
+        && request.resource.data.get('leido', false) == false
+        && request.resource.data.ts is int
+        && request.resource.data.ts <= request.time.toMillis() + 120000
+        && request.resource.data.ts >= request.time.toMillis() - 600000;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /presence/{id} {
+      allow read: if signed();
+      // v4: solo se permite el campo "t" numerico (lo unico que escribe la pagina)
+      allow create, update: if signed()
+        && request.resource.data.keys().hasOnly(['t'])
+        && request.resource.data.t is number;
+      // v11: la pagina nunca borra (usa set t:0), asi que solo el admin puede borrar
+      allow delete: if isAdmin();
+    }
+  }
+}
