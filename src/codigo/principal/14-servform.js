@@ -312,7 +312,7 @@ else if(a==='stRef'){stLoad()}
 else if(a==='stOrph'){orphScan()}
 else if(a==='stOrphGo'){orphGo()}
 else if(a==='admIn'){QH.admIn()}
-else if(a==='admLogin'){QH.admForm()}
+else if(a==='admLogin'){QH.admForm()}else if(a==='admReset'){QH.admReset()}/* v397 */
 else if(a==='pLogin'){loginForm()}
 else if(a==='legImport'){QH.importLegacy()}
 else if(a==='pDelServ'){if(await askC('¿Eliminar este servicio?')){S.services=S.services.filter(x=>x.id!==id);S.myServ=S.myServ.filter(x=>x!==id);save();render()}}

@@ -9,7 +9,7 @@ const newsDel=async id=>{await authP;const o=NEWS.find(x=>x.id===id);try{/* v250
 async function planWipe(k){if(planUn)planUn();planUn=null;planK='';S.plan=null;await authP;await ref('plans',k).delete()}
  /* v202: URL de R2 que usa hoy cualquier documento de Firestore (lectura completa, sin límites). Si falla una colección importante, lanza error */
 async function r2live(){await authP;if(!db)throw new Error('db');const live=new Set(),add=s=>s.forEach(d=>{(JSON.stringify(d.data()).match(R2RE)||[]).forEach(u=>live.add(u))});for(const c of['stores','products','services','ads','ideas','reports','banners','topAds','cats','meta','community','news','breb','pagos']/* v235: QR y comprobantes de pago; si no se pueden leer, la limpieza se detiene */)add(await db.collection(c).get());for(const c of['plans','presence','codes']){try{add(await db.collection(c).get())}catch(e){}}return live}
-return{planProf,r2live,COM,comListen,NEWS,nwReady:()=>nwLoaded,newsListen,newsMore,nwHasMore:()=>nwMoreF,newsPut,newsDel,comPut,comDel,start,after,push,go,admForm,admIn,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,online,presBeat,codes,codeGen,codeDel,codeRedeem,planWipe,authCur:()=>auth&&auth.currentUser,authOut:()=>auth&&auth.signOut()};
+return{planProf,r2live,COM,comListen,NEWS,nwReady:()=>nwLoaded,newsListen,newsMore,nwHasMore:()=>nwMoreF,newsPut,newsDel,comPut,comDel,start,after,push,go,admForm,admIn,admReset,admOut,legacyCard,importLegacy,derive,key,token,plans,planSet,planDel,online,presBeat,codes,codeGen,codeDel,codeRedeem,planWipe,authCur:()=>auth&&auth.currentUser,authOut:()=>auth&&auth.signOut()};
 })();
 
 const $=s=>document.querySelector(s);
