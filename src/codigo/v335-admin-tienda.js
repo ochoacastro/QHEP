@@ -8,6 +8,10 @@ var IC='<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 function isAdm(){return typeof MODE!=='undefined'&&MODE==='admin'&&typeof adm!=='undefined'&&adm}
 window.admShops=function(k){var l=(S.stores||[]).filter(function(s){return s.ownerKey===k});if(!l.length)return '';
  return '<div class="admsh"><b>Tiendas</b>'+l.map(function(s){return '<div class="admsr"><span><b>'+E(s.name||'(sin nombre)')+'</b><small>'+E([s.wa,s.addr,s.zone].filter(Boolean).join(' · ')||'Sin teléfono ni dirección')+'</small></span><button type="button" class="btn ghost" data-admshop="'+E(s.id)+'">'+IC+'Editar datos</button></div>'}).join('')+'</div>'};
+/* v394: negocios cuyo dueño dice que Google Maps no los ubica bien (s.mapfix): el administrador les pone el código plus */
+window.admShopPend=function(){var L=(S.stores||[]).filter(function(s){return s.mapfix});if(!L.length)return '';
+ return '<div class="cg aadp"><h3>Negocios por ubicar en el mapa <em>'+L.length+'</em></h3><p class="muted">Sus dueños dicen que Google Maps no muestra bien el negocio. Búscalo, copia el código plus y guárdalo en «Poner código plus».</p>'+
+  L.map(function(s){var q=[s.addr,s.zone,'Pradera, Valle del Cauca'].filter(Boolean).join(', ');return '<div class="aadr pend"><b>'+E(s.name||'(sin nombre)')+(s.wa?' · '+E(s.wa):'')+'</b><p>'+E([s.addr,s.zone].filter(Boolean).join(', ')||'Sin dirección')+'</p><div class="row"><a class="btn ghost" href="https://www.google.com/maps/search/?api=1&amp;query='+encodeURIComponent(q)+'" target="_blank" rel="noopener">Buscar en Google Maps</a><button type="button" class="btn pink" data-admshop="'+E(s.id)+'">Poner código plus</button></div></div>'}).join('')+'</div>'};
 function form(s){modal('<h2>Datos de la tienda</h2><p class="muted"><b>'+E(s.name||'')+'</b><br>Cambia el teléfono, la dirección o el código plus. El dueño verá los cambios en su tienda.</p>'+
  '<h3 class="adsh" style="border-top:0;padding-top:0">Teléfonos</h3><label for="as-wa">Teléfono / WhatsApp del negocio</label><input id="as-wa" type="tel" inputmode="tel" maxlength="20" value="'+E(s.wa||'')+'">'+
  '<label for="as-wa2">Otro teléfono (opcional)</label><input id="as-wa2" type="tel" inputmode="tel" maxlength="20" value="'+E(s.wa2||'')+'">'+
@@ -27,7 +31,7 @@ addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[
  var wa=telCO(g('as-wa')),wa2=telCO(g('as-wa2'))/* v346 */,pl=g('as-plus');
  if(wa.length<7)return er.textContent='Escribe el teléfono o WhatsApp del negocio.';if(wa2&&wa2.length<7)return er.textContent='El otro teléfono está incompleto.';
  var c=pl?ll(pl):null;if(pl&&!c)return er.textContent='El código plus no es válido. Cópialo de Google Maps (ej: CQ94+H47 Pradera, Valle del Cauca).';
- s.wa=wa.slice(0,15);s.wa2=wa2.slice(0,15);s.zone=g('x-zone').slice(0,40);s.addr=g('as-addr').slice(0,100);s.plus=pl.slice(0,80);if(c){s.lat=c[0];s.lng=c[1]}
+ s.wa=wa.slice(0,15);s.wa2=wa2.slice(0,15);s.zone=g('x-zone').slice(0,40);s.addr=g('as-addr').slice(0,100);s.plus=pl.slice(0,80);if(c){s.lat=c[0];s.lng=c[1];s.mapfix=false/* v394 */}
  save();closeModal(1);toast('Datos de la tienda guardados');try{render(true)}catch(x){}},true);
 document.head.insertAdjacentHTML('beforeend','<style id="v335-css">.admsh{margin:4px 0 8px}.admsh>b{display:block;margin-bottom:6px}.admsr{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line2,#d2d2d7)}.admsr span{min-width:0}.admsr small{display:block;opacity:.75;overflow-wrap:anywhere}.admsr .btn{flex:none;min-height:40px;padding:6px 12px;font-size:14px;display:inline-flex;gap:6px;align-items:center}</style>');
 })();

@@ -205,6 +205,20 @@ const PRUEBAS = {
     check('Un celular libre se reserva', await p.evaluate(() => (__fake.docs['tels/3009998877'] || {}).uid === 'uA'));
     sinErrores(p, 'Celular'); await p.cerrar();
   },
+  async codigoPlus() { // v394 el código plus del negocio solo lo pone el administrador
+    const tienda = { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', addr: 'Calle 5 # 3-20', zone: 'Centro', products: [] };
+    const p = await abrir({ seed: { 'stores/s1': tienda } }); await conCuenta(p);
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render(); editShop() }); await p.waitForTimeout(500);
+    check('El dueño no ve el campo del código plus ni el video', await p.evaluate(() => !document.querySelector('#x-plus:not([type=hidden]),#ov [data-act="plusVid"]')));
+    check('Debajo de la dirección se ve el mapa de Google Maps', await p.evaluate(() => /maps\.google\.com\/maps\?q=Calle%205/.test((document.querySelector('#x-map iframe') || {}).src || '')));
+    await p.selectOption('#x-mapok', '0');
+    check('Si Google Maps no lo ubica, queda pendiente', await p.evaluate(() => readHours().mapfix === true));
+    sinErrores(p, 'Formulario del negocio'); await p.cerrar();
+    const q = await abrir({ admin: true, seed: { 'stores/s1': Object.assign({}, tienda, { mapfix: true }) } });
+    await q.evaluate(() => { closeModal(1); at = 'usr'; view = 'admin'; render() }); await q.waitForTimeout(500);
+    check('El administrador ve el negocio por ubicar', await q.evaluate(() => /Panadería/.test((document.querySelector('.aadp') || {}).textContent || '')));
+    sinErrores(q, 'Negocios por ubicar'); await q.cerrar();
+  },
 };
 
 (async () => {
