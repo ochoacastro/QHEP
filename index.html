@@ -47,7 +47,7 @@ window.rcToken=function(id){if(window.__APPCHECK)return Promise.resolve('appchec
 <style>
 :root{--ink:#000000;--bg:#f2f4f5;--mango:#FFA800;--guava:#FF4D79;--lulo:#14B88A;--rio:#5433eb;--card:#fff}
 *{box-sizing:border-box;margin:0}
-body{min-height:100vh}
+body{background:var(--bg);min-height:100vh}
 h1,h2,h3,.logo{font-family:inherit;font-weight:700}
 button{font:inherit;cursor:pointer;border:0;color:inherit}
 button:focus-visible,input:focus-visible{outline:3px solid var(--rio);outline-offset:2px}
@@ -682,6 +682,7 @@ textarea{border-radius:var(--r-img);padding:12px 18px;border:1px solid rgba(0,0,
 .tbs{border-radius:var(--r-img)}
 .hpc{padding:8px 8px 12px}
 .hpc .hpi,.prod .pic,.cmt{border-radius:var(--r-img)}
+.hpc .hpi,.prod .pic{background:var(--bg)}
 .awning{display:none}
 .shop .em{border-radius:50%}
 .price,.hpc .hpp{font-weight:600}
@@ -695,6 +696,7 @@ textarea{border-radius:var(--r-img);padding:12px 18px;border:1px solid rgba(0,0,
 .hsc{overflow:hidden}.hscv{border-radius:9999px;border-color:var(--line)}.hscw{border-radius:9999px}
 .hnegl{color:#000;text-decoration:underline;text-underline-offset:.18em;font-weight:500}
 .hnegn{box-shadow:var(--sh2)}
+article.cmc .cma{background:var(--bg)}
 /* Capas */
 footer{font-weight:400}
 html:not(.dark) .cdwin .plx{background:var(--bg)}
@@ -2651,7 +2653,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .obi-dm{display:flex;gap:6px;margin:2px 0 6px}
 .obi-dm button{flex:1;min-height:34px;padding:4px 8px;border-radius:999px;border:1px solid var(--color-pale-mist,#d6d6d6);background:#fff;font:inherit;font-size:13px;color:var(--color-obsidian,#1d1d1f);cursor:pointer}
 .obi-dm button[aria-pressed=true]{background:var(--color-obsidian,#1d1d1f);border-color:var(--color-obsidian,#1d1d1f);color:#fff}
-.obi-ex{border-radius:14px}
+.obi-ex{border-radius:14px;background:var(--color-fog-white,#f5f5f7)}
 .obi-ex summary{font-weight:600}
 .obi-sug{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
 .obi-sug button{padding:6px 10px;border-radius:999px;border:1px solid var(--color-pale-mist,#d6d6d6);background:#fff;font:inherit;font-size:13px;cursor:pointer;color:var(--color-obsidian,#1d1d1f);text-align:left}

@@ -1,7 +1,7 @@
 
 :root{--ink:#000000;--bg:#f2f4f5;--mango:#FFA800;--guava:#FF4D79;--lulo:#14B88A;--rio:#5433eb;--card:#fff}
 *{box-sizing:border-box;margin:0}
-body{min-height:100vh}
+body{background:var(--bg);min-height:100vh}
 h1,h2,h3,.logo{font-family:inherit;font-weight:700}
 button{font:inherit;cursor:pointer;border:0;color:inherit}
 button:focus-visible,input:focus-visible{outline:3px solid var(--rio);outline-offset:2px}

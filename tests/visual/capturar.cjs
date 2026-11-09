@@ -1,6 +1,6 @@
 // Comparación visual: toma ~30 pantallas en modo claro y oscuro y guarda, por pantalla, la foto y los estilos
 // calculados de cada elemento (también ::before y ::after). Sirve para reorganizar estilos sin cambiar el diseño:
-//   node tests/visual/capturar.cjs <carpeta>          → guarda las capturas en <carpeta>
+//   node tests/visual/capturar.cjs <carpeta> [pantalla1,pantalla2]  → guarda las capturas en <carpeta> (todas, o solo esas)
 //   node tests/visual/comparar.cjs <antes> <después>  → dice qué pantallas, elementos y propiedades cambiaron
 // Usa el mismo Firebase falso de las pruebas (tests/pagina/firebase-falso.js), con datos de ejemplo fijos y el reloj fijo.
 const { chromium } = require('playwright');
@@ -56,7 +56,9 @@ function estilos() {
 
 (async () => {
   const s = await serve(), base = 'http://127.0.0.1:' + s.address().port, b = await chromium.launch();
+  const solo = (process.argv[3] || '').split(',').filter(Boolean); // opcional: solo algunas pantallas, p. ej. inicio,tienda
   for (const dark of [false, true]) for (const [nombre, admin, prep, arg] of PANTALLAS) {
+    if (solo.length && !solo.includes(nombre)) continue;
     const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: dark ? 'dark' : 'light', serviceWorkers: 'block', reducedMotion: 'reduce' });
     await ctx.route(/gstatic\.com\/firebasejs\//, r => r.fulfill({ body: /app-compat/.test(r.request().url()) ? FB : '', contentType: 'application/javascript' }));
     await ctx.route(/google\.com\/recaptcha|workers\.dev|googleapis|firebaseio|accounts\.google|cdnjs|ytimg|fonts\.|maps\./, r => r.fulfill({ status: 500, body: '' }));

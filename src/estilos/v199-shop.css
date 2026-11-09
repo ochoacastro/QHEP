@@ -38,6 +38,7 @@ textarea{border-radius:var(--r-img);padding:12px 18px;border:1px solid rgba(0,0,
 .tbs{border-radius:var(--r-img)}
 .hpc{padding:8px 8px 12px}
 .hpc .hpi,.prod .pic,.cmt{border-radius:var(--r-img)}
+.hpc .hpi,.prod .pic{background:var(--bg)}
 .awning{display:none}
 .shop .em{border-radius:50%}
 .price,.hpc .hpp{font-weight:600}
@@ -51,6 +52,7 @@ textarea{border-radius:var(--r-img);padding:12px 18px;border:1px solid rgba(0,0,
 .hsc{overflow:hidden}.hscv{border-radius:9999px;border-color:var(--line)}.hscw{border-radius:9999px}
 .hnegl{color:#000;text-decoration:underline;text-underline-offset:.18em;font-weight:500}
 .hnegn{box-shadow:var(--sh2)}
+article.cmc .cma{background:var(--bg)}
 /* Capas */
 footer{font-weight:400}
 html:not(.dark) .cdwin .plx{background:var(--bg)}

@@ -15,7 +15,7 @@
 .obi-dm{display:flex;gap:6px;margin:2px 0 6px}
 .obi-dm button{flex:1;min-height:34px;padding:4px 8px;border-radius:999px;border:1px solid var(--color-pale-mist,#d6d6d6);background:#fff;font:inherit;font-size:13px;color:var(--color-obsidian,#1d1d1f);cursor:pointer}
 .obi-dm button[aria-pressed=true]{background:var(--color-obsidian,#1d1d1f);border-color:var(--color-obsidian,#1d1d1f);color:#fff}
-.obi-ex{border-radius:14px}
+.obi-ex{border-radius:14px;background:var(--color-fog-white,#f5f5f7)}
 .obi-ex summary{font-weight:600}
 .obi-sug{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
 .obi-sug button{padding:6px 10px;border-radius:999px;border:1px solid var(--color-pale-mist,#d6d6d6);background:#fff;font:inherit;font-size:13px;cursor:pointer;color:var(--color-obsidian,#1d1d1f);text-align:left}
