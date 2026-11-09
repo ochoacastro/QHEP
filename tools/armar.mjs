@@ -8,12 +8,26 @@ import fs from 'fs'; import path from 'path';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), SRC = path.join(ROOT, 'src');
 const rd = f => fs.readFileSync(path.join(SRC, f), 'utf8');
 const orden = JSON.parse(fs.readFileSync(path.join(SRC, 'orden.json'), 'utf8'));
-let out = '';
-for (const e of orden) {
-  if (e.t === 'txt') out += e.v;
-  else if (e.t === 'html') out += rd(e.f);
-  else { const tipo = e.t === 'js' ? 'script' : 'style'; out += e.tag + (e.fs ? e.fs.map(rd).join('') : rd(e.f)) + '</' + tipo + '>' }
-}
+const pieza = e => e.t === 'txt' ? e.v : e.t === 'html' ? rd(e.f) : e.tag + (e.fs ? e.fs.map(rd).join('') : rd(e.f)) + '</' + (e.t === 'js' ? 'script' : 'style') + '>';
+/* v393: CARGA RÁPIDA. El código que estaba en la cabecera (Firebase y los módulos) se escribe DESPUÉS del HTML del cuerpo,
+   en el mismo orden relativo; en la cabecera quedan los estilos y lo mínimo (tema claro/oscuro, enlaces, título).
+   Así el navegador dibuja el encabezado y la pantalla de carga sin esperar a que baje todo el código.
+   Las piezas de src/ no cambian; solo el orden en que se juntan. */
+const EN_CABECERA = new Set(['codigo/enlaces-sin-numeral.js', 'codigo/canonical.js', 'codigo/tema-inicial.js', 'codigo/tema-inicial-2.js']);
+const iCuerpo = orden.findIndex(e => e.t === 'html' && /<body[\s>]/.test(rd(e.f)));
+let out = '', luego = '';
+orden.forEach((e, i) => {
+  if (i > iCuerpo) { out += pieza(e); return }
+  if (i === iCuerpo) {
+    // los scripts externos (Firebase…) se piden desde la cabecera para que empiecen a bajar de inmediato
+    // (se ponen justo después de <meta charset> para que el navegador los vea antes de bajar los estilos)
+    const ext = [...luego.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => '<link rel="preload" as="script" href="' + m[1] + '">').join('');
+    out = out.replace(/(<meta charset[^>]*>)/i, '$1' + ext);
+    out += pieza(e) + luego; return
+  }
+  const esCodigo = (e.t === 'js' && !EN_CABECERA.has(e.f)) || (e.t === 'txt' && /<script[\s>]/.test(e.v));
+  if (esCodigo) luego += pieza(e) + '\n'; else out += pieza(e);
+});
 const destino = path.join(ROOT, 'index.html');
 if (process.argv.includes('--revisar')) {
   const actual = fs.readFileSync(destino, 'utf8');
