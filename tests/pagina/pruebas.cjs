@@ -232,6 +232,19 @@ const PRUEBAS = {
     check('El administrador ve el inmueble por ubicar', await q.evaluate(() => !!document.querySelector('[data-adplus="i1"]')));
     sinErrores(q, 'Inmuebles por ubicar'); await q.cerrar();
   },
+  async borradores() { // v399 retomar un formulario cerrado sin guardar
+    const p = await abrir(); await conCuenta(p);
+    await p.evaluate(() => { closeModal(1); adForm('arr') }); await p.waitForTimeout(400);
+    await p.fill('#af-title', 'Casa con patio'); await p.waitForTimeout(700);
+    await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(500);
+    check('Al cerrar sin guardar sale «Continuar»', await p.evaluate(() => /sin terminar/.test((document.getElementById('brbar') || {}).textContent || '')));
+    await p.click('#brbar [data-brk]'); await p.waitForTimeout(500);
+    check('«Continuar» abre el formulario con lo escrito', await p.evaluate(() => ($('#af-title') || {}).value === 'Casa con patio'));
+    await p.evaluate(() => closeModal()); await p.waitForTimeout(300);
+    await p.evaluate(() => regForm()); await p.waitForTimeout(400); await p.fill('#r-pw', 'secreta123'); await p.fill('#r-name', 'Julia'); await p.waitForTimeout(700);
+    check('Nunca guarda contraseñas', await p.evaluate(() => !/secreta/.test(localStorage.getItem('qh_borr') || '')));
+    sinErrores(p, 'Borradores'); await p.cerrar();
+  },
 };
 
 (async () => {
