@@ -4,7 +4,7 @@ const env=await initializeTestEnvironment({projectId:'demo-qhep48',firestore:{ru
 await env.clearFirestore();
 const real=(uid,email,v=true)=>env.authenticatedContext(uid,{email,email_verified:v,firebase:{sign_in_provider:'password'}}).firestore();
 const U=real('uA','a@x.co'),O=real('uO','o@x.co'),ANON=env.authenticatedContext('anon1',{firebase:{sign_in_provider:'anonymous'}}).firestore(),NO=env.unauthenticatedContext().firestore();
-const ADM=env.authenticatedContext('UKluJD3k7gP4HJN24KjK1HSHlIC3',{email:'adm@x.co',email_verified:true,firebase:{sign_in_provider:'password'}}).firestore();
+const ADM=env.authenticatedContext('KUowZZ25CePVc9IXGmhCLVbbSIB3',{email:'adm@x.co',email_verified:true,firebase:{sign_in_provider:'password'}}).firestore();
 const out=[];const t=async(n,w,fn)=>{let ok;try{await fn();ok=true}catch(e){ok=false}out.push([n,ok,w])};
 const T={uid:'uA',k:'kA',ts:serverTimestamp()};
 await t('Ana reserva su celular',true,()=>setDoc(doc(U,'tels/3155555233'),T));

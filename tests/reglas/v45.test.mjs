@@ -3,7 +3,7 @@ import {doc,setDoc,updateDoc,getDoc} from 'firebase/firestore';import fs from 'f
 const env=await initializeTestEnvironment({projectId:'demo-qhep45',firestore:{rules:fs.readFileSync(process.env.RULES,'utf8'),host:'127.0.0.1',port:8089}});
 await env.clearFirestore();const now=Date.now();
 const real=(uid,email)=>env.authenticatedContext(uid,{email,email_verified:true,firebase:{sign_in_provider:'password'}}).firestore();
-const U=real('uA','a@x.co'),O=real('uO','o@x.co'),ADM=env.authenticatedContext('UKluJD3k7gP4HJN24KjK1HSHlIC3',{email:'adm@x.co',email_verified:true,firebase:{sign_in_provider:'password'}}).firestore();
+const U=real('uA','a@x.co'),O=real('uO','o@x.co'),ADM=env.authenticatedContext('KUowZZ25CePVc9IXGmhCLVbbSIB3',{email:'adm@x.co',email_verified:true,firebase:{sign_in_provider:'password'}}).firestore();
 await env.withSecurityRulesDisabled(async c=>{await setDoc(doc(c.firestore(),'plans/kA'),{k:'kA',name:'Ana',email:'a@x.co',uid:'uA',plan:'free',trial:false,paid:false,featSlots:0,start:now,end:now+9e9})});
 const out=[];const t=async(n,w,fn)=>{let ok;try{await fn();ok=true}catch(e){ok=false}out.push([n,ok,w])};
 const A={zone:'Centro',dir:'Calle 5 # 3-20',ref:'Casa azul',fix:true,ts:now};

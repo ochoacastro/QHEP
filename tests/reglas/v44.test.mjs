@@ -3,7 +3,7 @@ import {doc,setDoc,updateDoc,getDoc,deleteDoc} from 'firebase/firestore';import 
 const env=await initializeTestEnvironment({projectId:'demo-qhep44',firestore:{rules:fs.readFileSync(process.env.RULES,'utf8'),host:'127.0.0.1',port:8089}});
 await env.clearFirestore();
 const A=env.authenticatedContext('anon1',{firebase:{sign_in_provider:'anonymous'}}).firestore();
-const ADM=env.authenticatedContext('UKluJD3k7gP4HJN24KjK1HSHlIC3',{email:'a@x.co',email_verified:true,firebase:{sign_in_provider:'password'}}).firestore();
+const ADM=env.authenticatedContext('KUowZZ25CePVc9IXGmhCLVbbSIB3',{email:'a@x.co',email_verified:true,firebase:{sign_in_provider:'password'}}).firestore();
 const U=env.unauthenticatedContext().firestore();
 const out=[];const t=async(n,want,fn)=>{let ok;try{await fn();ok=true}catch(e){ok=false}out.push([n,ok,want])};
 const m=(id,x)=>({id,nombre:'Ana Pérez',correo:'ana@x.co',tel:'3001234567',asunto:'Sugerencia',msg:'Me gusta la página, agreguen eventos.',ts:Date.now(),uid:'anon1',pag:'https://mipradera.com.co/',leido:false,...x});

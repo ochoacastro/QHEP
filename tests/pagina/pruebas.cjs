@@ -5,7 +5,7 @@
 const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path');
 const ROOT = path.resolve(__dirname, '..', '..'), FB = fs.readFileSync(path.join(__dirname, 'firebase-falso.js'), 'utf8');
-const ADMIN_UID = 'UKluJD3k7gP4HJN24KjK1HSHlIC3';
+const ADMIN_UID = 'KUowZZ25CePVc9IXGmhCLVbbSIB3';
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.png': 'image/png', '.webp': 'image/webp', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.css': 'text/css' };
 
 // servidor local de la carpeta del proyecto
