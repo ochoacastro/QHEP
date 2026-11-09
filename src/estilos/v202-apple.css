@@ -14,7 +14,7 @@
 /* los nombres que ya usa la pagina, remapeados a los tokens */
 --rio:#0071e3;--bg:#f5f5f7;--ink:#1d1d1f;--line:#d6d6d6;--line2:#d6d6d6;--muted:#707070;--card:#ffffff;
 --r-card:18px;--r-img:12px;--sh1:none;--sh-soft:none;--sh-violet:none;--sh2:0 8px 30px rgba(0,0,0,.12)}
-body{font-family:var(--font-sf-pro-text);letter-spacing:-.022em;line-height:1.47;color:var(--color-obsidian);background:var(--color-fog-white)}
+body{line-height:1.47;color:var(--color-obsidian);background:var(--color-fog-white)}
 input,textarea,select,button{font-family:inherit;letter-spacing:inherit}
 h1,h2,h3,.logo,.price,.hpp,.pvmp,.stn,.ptitle,.hubhero h2,.sname h2,.pvt,article.cmc .cmb>b{font-family:var(--font-sf-pro-display);font-weight:600;letter-spacing:-.01em;line-height:1.14}
 .hubhero h2,.hh2 h2{letter-spacing:-.015em;line-height:1.1}
@@ -24,7 +24,7 @@ h1,h2,h3,.logo,.price,.hpp,.pvmp,.stn,.ptitle,.hubhero h2,.sname h2,.pvt,article
 .btn,.btn.pink{background:var(--color-iris-blue);color:#fff;border:0;border-radius:var(--radius-buttons);font-weight:500;padding:11px 21px;letter-spacing:-.016em;box-shadow:none;transition:background .15s,color .15s}
 .btn:hover,.btn.pink:hover{background:#0077ed;filter:none}
 .btn:active,.btn.pink:active{background:#006edb}
-.btn.ghost{background:transparent;color:var(--color-sapphire);border:1px solid var(--color-sapphire);box-shadow:none}
+.btn.ghost{background:transparent;color:var(--color-sapphire);border:1px solid var(--color-sapphire)}
 .btn.ghost:hover{background:rgba(0,102,204,.08);filter:none}
 .btn.wa{background:#25D366;color:#073b1d}.btn.wa:hover{background:#2be26f}
 .hhr{background:var(--color-iris-blue);color:#fff;box-shadow:none;font-weight:500}

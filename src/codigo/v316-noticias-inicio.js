@@ -23,6 +23,6 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
 setInterval(function(){
  /* cuando llegan noticias nuevas, el inicio se actualiza solo */
  try{if(view==='home'&&!document.getElementById('ov')&&lastN>=0&&(QH.NEWS||[]).length!==lastN&&document.querySelector('[aria-label="Noticias de Pradera"]'))render(true)}catch(e){}
- if(Date.now()<hold||document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches)return;var s=document.querySelector('.nwc');if(!s||s.matches(':hover')||s.children.length<2)return;var r=s.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;
+ if(Date.now()<hold||document.hidden)return;/* v391: también avanza con «reducir movimiento» (sin animación de deslizar) */var s=document.querySelector('.nwc');if(!s||(matchMedia('(hover: hover)').matches&&s.matches(':hover'))/* v391: en pantallas táctiles el :hover se queda pegado después de tocar */||s.children.length<2)return;var r=s.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;
  var k=idx(s)+1;if(s.scrollLeft+s.clientWidth>=s.scrollWidth-4)k=0;go(s,k)},6000);
 })();
