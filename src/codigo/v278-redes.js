@@ -23,7 +23,7 @@ function url(k,v){v=String(v||'').trim();if(!v)return '';
 function paint(){var f=document.querySelector('footer');if(!f)return;var s=soc(),h='';
  NET.forEach(function(n){var u=url(n[0],s[n[0]]);if(u)h+='<a href="'+E(u)+'" target="_blank" rel="noopener" aria-label="Mi Pradera en '+n[1]+'" title="'+n[1]+'">'+n[3]+'</a>'});
  var key=h+'|'+new Date().getFullYear();if(f.__soc===key)return;f.__soc=key;
- var w=f.querySelector('.qsocw');if(!w){w=document.createElement('div');w.className='qsocw';f.insertBefore(w,f.firstChild)}
+ var w=f.querySelector('.qsocw');if(!w){w=document.createElement('div');w.className='qsocw';var ct=f.querySelector(':scope>.qctw');f.insertBefore(w,ct?ct.nextSibling:f.firstChild)/* v393: siempre después del bloque de contacto */}
  w.innerHTML=h?'<p class="qsoc-h">Síguenos</p><div class="qsoc">'+h+'</div>':'';
  var c=f.querySelector('.qcopy');if(!c){c=document.createElement('div');c.className='qcopy';f.appendChild(c)}
  c.textContent='© '+new Date().getFullYear()+' Mi Pradera. Todos los derechos reservados.'}
