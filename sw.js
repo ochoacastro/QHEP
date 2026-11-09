@@ -38,7 +38,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   /* v378: el logo y los íconos se muestran al instante desde la copia guardada y se actualizan por detrás */
-  if (/\/(logo-mp(-oscuro)?\.webp|icon-192\.png|icon-512\.png)$/.test(new URL(r.url).pathname)) {
+  if (/\/(logo-mp(-oscuro)?\.webp|icon-192\.png|icon-512\.png|img\/[\w-]+\.(?:webp|jpg|png))$/.test(new URL(r.url).pathname)) { /* v392: también los íconos de categorías y de pagos (img/) */
     e.respondWith(caches.open(CACHE).then(c => c.match(r).then(hit => {
       const net = fetch(r).then(res => { if (res.ok) c.put(r, res.clone()).catch(() => {}); return res; });
       return hit || net;
