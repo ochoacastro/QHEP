@@ -210,6 +210,7 @@ const PRUEBAS = {
     const p = await abrir({ seed: { 'stores/s1': tienda } }); await conCuenta(p);
     await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render(); editShop() }); await p.waitForTimeout(500);
     check('El dueño no ve el campo del código plus ni el video', await p.evaluate(() => !document.querySelector('#x-plus:not([type=hidden]),#ov [data-act="plusVid"]')));
+    check('Debajo de la dirección se ve el mapa de Google Maps', await p.evaluate(() => /maps\.google\.com\/maps\?q=Calle%205/.test((document.querySelector('#x-map iframe') || {}).src || '')));
     await p.selectOption('#x-mapok', '0');
     check('Si Google Maps no lo ubica, queda pendiente', await p.evaluate(() => readHours().mapfix === true));
     sinErrores(p, 'Formulario del negocio'); await p.cerrar();
