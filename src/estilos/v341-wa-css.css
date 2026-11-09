@@ -1,0 +1,9 @@
+
+.wafab{position:fixed;right:14px;bottom:24px;z-index:34;display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:#25D366;color:#fff;text-decoration:none;box-shadow:0 10px 24px -8px rgba(18,140,74,.7);transition:transform .15s}
+.wafab svg{width:32px;height:32px}
+.wafab span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wafab:active{transform:scale(.94)}
+.wafab[hidden]{display:none}
+body.instore .wafab{bottom:88px}
+@media (max-width:900px){.wafab{bottom:calc(84px + env(safe-area-inset-bottom))}body.instore .wafab{bottom:calc(152px + env(safe-area-inset-bottom))}}
+html.dark .wafab{background:#25D366!important;filter:none!important}

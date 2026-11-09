@@ -1,0 +1,19 @@
+
+/* v246: secciones del panel de administrador como cuadros con icono (antes: pestañas en una fila que se deslizaba).
+   El número de cada sección va en la esquina (rojo en Pagos y Reportes, gris en el resto). Para volver a las pestañas, borra este <style>. */
+.tabs.admg{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px;overflow:visible;white-space:normal;border:0;margin:4px 0 16px;padding:0}
+.tabs.admg button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:96px;padding:12px 6px;border:1px solid var(--color-pale-mist,#d6d6d6);border-radius:18px;background:#fff;color:var(--color-obsidian,#1d1d1f);font:inherit;font-size:13px;font-weight:600;line-height:1.2;text-align:center;opacity:1;cursor:pointer}
+.tabs.admg button>i{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--color-fog-white,#f5f5f7);color:var(--color-sapphire,#0066cc);font-style:normal;font-size:22px}
+.tabs.admg button>i .qi{width:24px;height:24px}
+.tabs.admg button:hover{border-color:#0066cc}
+.tabs.admg button[aria-current="true"]{background:#0066cc;border-color:#0066cc;color:#fff}
+.tabs.admg button[aria-current="true"]>i{background:rgba(255,255,255,.18);color:#fff}
+.tabs.admg .admn{position:absolute;top:6px;right:6px;min-width:22px;height:22px;padding:0 6px;border-radius:980px;background:#c0123c;color:#fff;font-style:normal;font-size:12px;font-weight:700;line-height:22px}
+.tabs.admg .admn[data-z]{background:var(--color-pale-mist,#d6d6d6);color:var(--color-obsidian,#1d1d1f)}
+.tabs.admg button[aria-current="true"] .admn[data-z]{background:rgba(255,255,255,.25);color:#fff}
+@media (min-width:900px){.tabs.admg{grid-template-columns:repeat(6,1fr)}}
+html.dark .tabs.admg button{background:#1c1c1f!important;border-color:#3a3a3d!important;color:#f5f5f7!important}
+html.dark .tabs.admg button>i{background:#2c2c2e!important;color:#4da3ff!important}
+html.dark .tabs.admg button[aria-current="true"]{background:#0a84ff!important;border-color:#0a84ff!important;color:#fff!important}
+html.dark .tabs.admg button[aria-current="true"]>i{background:rgba(255,255,255,.2)!important;color:#fff!important}
+html.dark .tabs.admg .admn[data-z]{background:#3a3a3d!important;color:#f5f5f7!important}

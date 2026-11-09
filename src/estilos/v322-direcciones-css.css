@@ -1,0 +1,28 @@
+
+/* v322: direcciones de entrega */
+.admap{height:280px;margin:8px 0 6px;border:2px solid #d2d2d7;background:#e5e7eb}.admap iframe{width:100%;height:100%;border:0;display:block}
+.adconf{display:flex;gap:10px;align-items:flex-start;margin:6px 0;font-size:15px;font-weight:600}.adconf input{width:24px;height:24px;flex:none}
+.adhint{font-size:13.5px;color:#6e6e73;margin:0 0 6px}
+.adbtns{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}.adbtns .btn{min-height:42px;padding:8px 14px;font-size:14px}
+.adok{font-size:13.5px;font-weight:700;color:#166534}.adno{font-size:13.5px;font-weight:700;color:#b45309}
+.adc{border:1px solid #d2d2d7;background:#fff;padding:14px;margin:0 0 12px}
+.adc h3{font-size:16px;margin:0 0 4px;display:flex;justify-content:space-between;gap:8px}.adc h3 em{font-style:normal;font-size:12px;font-weight:800;padding:3px 8px;background:#dbeafe;color:#1e3a8a}
+.adc p{margin:2px 0;font-size:14.5px}.adc small{display:block;color:#6e6e73;font-size:13px}
+.adsel{margin:10px 0 6px}.adsel>b{display:block;font-size:14px;margin-bottom:6px}
+.adsel .ops{display:grid;gap:8px}
+.adsel .ops button{display:block;width:100%;text-align:left;min-height:48px;padding:10px 12px;border:2px solid #d2d2d7;background:#fff;color:#1d1d1f;font:inherit;font-size:14px;cursor:pointer}
+.adsel .ops button b{display:block;font-size:14.5px}.adsel .ops button small{display:block;color:#6e6e73;font-size:12.5px}
+.adsel .ops button[aria-pressed=true]{border-color:#0071e3;box-shadow:inset 0 -4px 0 #0071e3}
+.oaddr{margin:6px 0;padding:10px 12px;background:#f2f3f6;border-left:5px solid #0071e3;font-size:14px}
+.oaddr b{display:block}.oaddr .orda{margin-top:6px}
+.adtk{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 4px;font-size:18px}.adtk b{font-size:22px}.adtk .btn{min-height:40px;padding:6px 14px;font-size:14px}/* v357 */
+.omap{margin-top:8px}.omap summary{cursor:pointer;font-weight:700;min-height:36px;display:flex;align-items:center}.omap iframe{display:block;width:100%;height:220px;border:0;margin-top:6px;background:#e5e7eb}.omap small{display:block;color:#6e6e73;margin-top:4px}/* v351 */
+html.dark .adc,html.dark .adsel .ops button{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#3a3a3c!important}
+html.dark .adsel .ops button[aria-pressed=true]{border-color:#0a84ff!important}
+html.dark .adc small,html.dark .adsel .ops button small,html.dark .adhint{color:#a1a1a6!important}
+html.dark .oaddr{background:#2c2c2e!important;color:#f5f5f7!important}html.dark .adok{color:#4ade80!important}
+.admap,.adc,.adsel .ops button,.oaddr,.adc h3 em{border-radius:0!important}
+/* v333: secciones del formulario (datos personales / negocio) */
+.adsh{font-size:17px;margin:18px 0 2px;padding-top:12px;border-top:1px solid #d2d2d7}.adsh small{font-size:13px;font-weight:600;color:#6e6e73}
+.adbiz{margin:16px 0 4px;padding:2px 14px 12px;background:#f2f3f6;border-left:5px solid #0071e3}.adbiz .adsh{border-top:0;padding-top:8px;margin-top:8px}
+html.dark .adsh{border-color:#3a3a3c!important}html.dark .adbiz{background:#2c2c2e!important;color:#f5f5f7!important}

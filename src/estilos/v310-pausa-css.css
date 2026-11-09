@@ -1,0 +1,12 @@
+
+/* v310: tienda en pausa */
+.qpz{display:flex;gap:12px;align-items:flex-start;margin:12px 0;padding:14px 16px;border:2px solid #b45309;background:#fff7ed;color:#7c2d12}
+.qpz .qi{flex:none;width:26px;height:26px;margin-top:2px}.qpz b{display:block;font-size:17px;margin-bottom:2px}.qpz p{margin:0;font-size:14.5px;line-height:1.45}
+.qpz .row{margin-top:10px}.qpz .btn{min-height:42px}
+#app:has(.qpz-cli) :is(.pgrid,.psecs,h3.ptitle:not(.rvt)){display:none!important}
+.qpzo{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}.qpzo button{min-height:48px}
+.qpzc{display:flex;gap:10px;align-items:flex-start;margin:12px 0 4px;font-size:15px}.qpzc input{width:22px;height:22px;flex:none;margin-top:1px}
+.btn.qpzb{border-color:#b45309;color:#b45309}
+html.dark .qpz{background:#2a1606!important;color:#fed7aa!important;border-color:#f59e0b!important}
+html.dark .btn.qpzb{border-color:#f59e0b!important;color:#fbbf24!important}
+.qpz,.qpzo button,.btn.qpzb{border-radius:0!important}

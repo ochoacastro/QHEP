@@ -1,0 +1,1 @@
+(function(){try{var t=localStorage.getItem("qh_theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";var l=document.createElement("link");l.rel="preload";l.as="image";l.href=t==="dark"?"logo-mp-oscuro.webp":"logo-mp.webp";document.head.appendChild(l)}catch(e){}})()

@@ -2,6 +2,7 @@
 # 1) Página: abre index.html en un navegador de verdad con un Firebase falso y revisa inicio, administrador, registro,
 #    pedidos, dirección, anuncios, notificaciones y celular (tests/pagina/pruebas.cjs).
 # 2) Reglas de Firestore: corre ~250 casos en el emulador de Firestore contra tests/reglas/firestore.rules.
+# 3) Que index.html sea exactamente lo que arma tools/armar.mjs con los archivos de src/.
 # Si algo falla, el pull request lo muestra en rojo con el nombre de la prueba. No toca la base de datos real.
 name: Pruebas
 on:
@@ -26,6 +27,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      # v387: index.html se arma desde src/; si alguien lo editó directo sin pasar por src/, esto lo detecta
+      - name: index.html coincide con src/
+        working-directory: .
+        run: node tools/armar.mjs --revisar
       - name: Instalar herramientas de prueba
         run: npm install --no-audit --no-fund
       - name: Instalar el navegador

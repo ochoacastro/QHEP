@@ -1,0 +1,4 @@
+
+/* v276: cajas de los formularios cuadradas (campos de texto, listas, áreas de texto, «Elegir foto» y avisos) */
+input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea,.qs-btn,.fpk-btn,.note,.qhelp{border-radius:0!important}
+input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):focus,select:focus,textarea:focus{border-radius:0!important}

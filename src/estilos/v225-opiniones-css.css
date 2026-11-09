@@ -1,0 +1,24 @@
+
+/* v225: "¿Te sirvió este anuncio?" y comentarios en los clasificados */
+.cmfb:empty{display:none}
+.cmfb{padding:4px 12px 12px;border-top:1px solid var(--color-pale-mist,#d6d6d6);margin-top:2px}
+.cmfb-q{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding-top:10px;font-size:14px;color:var(--color-pewter,#707070)}
+.cmfb-q>span{flex:1 1 100%}
+.cmfb-v{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:8px 14px;border:1px solid var(--color-pale-mist,#d6d6d6);border-radius:980px;background:#fff;color:var(--color-obsidian,#1d1d1f);font:inherit;font-size:14px;cursor:pointer}
+.cmfb-v[aria-pressed=true]{background:var(--color-obsidian,#1d1d1f);border-color:var(--color-obsidian,#1d1d1f);color:#fff}
+.cmfb-v b{font-weight:600}
+.cmfb svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.cmfb-sum{font-size:14px;color:var(--color-pewter,#707070);padding-top:10px}
+.cmfb-tg{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:8px 2px;min-height:40px;border:0;background:none;color:var(--color-sapphire,#0066cc);font:inherit;font-size:14px;cursor:pointer}
+.cmfb-ls{margin-top:4px}
+.cmfb-c{padding:10px 0;border-top:1px solid rgba(0,0,0,.06)}
+.cmfb-c:first-child{border-top:0}
+.cmfb-c b{font-size:14px;font-weight:600}
+.cmfb-c small{color:var(--color-pewter,#707070);font-size:12px;margin-left:6px}
+.cmfb-c p{margin:4px 0 0;font-size:15px;white-space:pre-wrap;word-break:break-word}
+.cmfb-c .cmfb-del{background:none;border:0;padding:4px 0;color:var(--color-sapphire,#0066cc);font:inherit;font-size:13px;cursor:pointer}
+.cmfb-tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:980px;font-size:12px;background:var(--color-fog-white,#f5f5f7);color:var(--color-pewter,#707070)}
+.cmfb-f{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.cmfb-f textarea{width:100%;min-height:72px;margin:0;padding:12px 14px;border:1px solid var(--color-pale-mist,#d6d6d6);border-radius:14px;background:#fff;color:var(--color-obsidian,#1d1d1f);font:inherit;font-size:16px;resize:vertical}
+.cmfb-f .btn{align-self:flex-start}
+.cmfb-note{font-size:13px;color:var(--color-pewter,#707070);margin:8px 0 0}

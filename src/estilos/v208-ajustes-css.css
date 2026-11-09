@@ -1,0 +1,6 @@
+
+/* v208: botones faciles de tocar (minimo 44px de alto) y banner de publicidad oculto si no carga */
+html .hhl{display:inline-flex;align-items:center;min-height:44px;padding:0 8px}
+html .plar{min-width:36px;min-height:44px}
+html footer .back{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+html section.tb.qh-off,html section.bn.qh-off{display:none!important}

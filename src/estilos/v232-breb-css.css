@@ -1,0 +1,102 @@
+
+/* v232: pagos con Bre-B */
+.qbk{display:flex;align-items:center;gap:10px;margin:10px 0;padding:14px 16px;border-radius:14px;background:var(--color-fog-white,#f5f5f7)}
+.qbk b{flex:1;font-size:20px;font-weight:700;word-break:break-all;color:var(--color-obsidian,#1d1d1f)}
+/* v234: resumen "Enviar a / Llave / Banco destino", como en la app del banco */
+.qbk.qbd{display:block;padding:4px 16px 14px}
+.qbd .qbr2{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-pale-mist,#d6d6d6)}
+.qbd .qbr2 span{flex:none;font-size:15px;color:var(--color-pewter,#707070)}
+.qbd .qbr2 b{flex:1;text-align:right;font-size:18px;word-break:break-word}
+.qbd .qbr2 b.qbtn{color:var(--color-sapphire,#0066cc)}
+.qbd .btn{width:100%;margin-top:12px}
+/* v235: comprobante del pago (foto o captura) */
+.qbiv{position:fixed;inset:0;z-index:100002;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;background:rgba(0,0,0,.88)}
+.qbiv img{max-width:100%;max-height:calc(100vh - 110px);border-radius:12px;background:#fff}
+.qbiv .btn{color:#fff!important;border-color:#fff!important;background:transparent!important}
+/* v238: pestaña Pagos del administrador (resumen, filtros y tabla) */
+.qps{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 12px}
+.qps div{padding:12px 14px;border-radius:14px;background:#fff;border:1px solid var(--color-pale-mist,#d6d6d6)}
+.qps b{display:block;font-size:22px;line-height:1.2}.qps span{font-size:13px;color:var(--color-pewter,#707070)}
+.qpf{flex-wrap:wrap}.qpf button{flex:1 1 auto}
+.qtw{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--color-pale-mist,#d6d6d6);border-radius:14px}
+.qpt{width:100%;min-width:780px;border-collapse:collapse;font-size:14px}
+.qpt th{position:sticky;top:0;text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--color-pewter,#707070);background:var(--color-fog-white,#f5f5f7);padding:10px 10px}
+.qpt td{padding:12px 10px;vertical-align:top;border-top:1px solid var(--color-pale-mist,#d6d6d6)}
+.qpt tbody tr:hover td{background:rgba(0,113,227,.04)}
+.qpt td small{display:block;font-size:12px;color:var(--color-pewter,#707070);margin-top:3px}
+.qpt .qv{font-weight:700;white-space:nowrap}.qpt .qd{white-space:nowrap;font-size:13px}
+.qpt code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700}
+.qmd{display:inline-block;padding:3px 10px;border-radius:980px;font-size:12px;font-weight:700;color:#fff}
+.modal.qwide{max-width:920px}
+.qdall{display:flex;justify-content:flex-end;margin:0 0 10px}.btn.qdel{color:#c0123c!important;border-color:#f3b9c5!important}
+/* v243: aviso flotante de código nuevo (esquina superior derecha) */
+.qnots{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;z-index:9000;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.qnot{display:flex;align-items:stretch;max-width:min(360px,calc(100vw - 24px));border-radius:16px;background:#0066cc;color:#fff;box-shadow:0 12px 32px -8px rgba(0,0,0,.45);animation:qnotIn .3s ease}
+@keyframes qnotIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.qnot-go{display:flex;align-items:center;gap:10px;padding:12px 6px 12px 14px;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.qnot-go i{font-style:normal;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);flex:none}
+.qnot-go b{display:block;font-size:15px}.qnot-go small{display:block;font-size:12px;opacity:.85}
+.qnot-x{border:0;background:none;color:inherit;font-size:22px;line-height:1;padding:0 12px;cursor:pointer;opacity:.85}
+html.dark .qnot{background:#0a84ff!important;color:#fff!important}
+@media (prefers-reduced-motion:reduce){.qnot{animation:none}}
+.qbs.en{background:#e8f0fe;color:#0b5cad}.qbs.qbe{margin-left:4px}
+html.dark .qbs.en{background:#12284a!important;color:#9cc3ff!important}
+.qmd.nq{background:#da0081}.qmd.bb{background:#0b5cad}.qmd.gr{background:#6e6e73}
+.qac{display:flex;flex-wrap:wrap;gap:6px}.qac .btn{margin:0;padding:6px 12px;min-height:34px;font-size:13px}
+/* en el celular cada fila de la tabla se ve como una ficha: nombre de la columna a la izquierda y el dato a la derecha */
+@media (max-width:720px){.qtw{overflow:visible;border:0;border-radius:0}.qpt{min-width:0}.qpt thead{display:none}
+ .qpt,.qpt tbody,.qpt tr,.qpt td{display:block;width:100%}
+ .qpt tr{margin:0 0 10px;padding:6px 14px;border:1px solid var(--color-pale-mist,#d6d6d6);border-radius:14px;background:var(--color-fog-white,#f5f5f7)}
+ .qpt td{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--color-pale-mist,#d6d6d6);text-align:right}
+ .qpt td:first-child{border-top:0}
+ .qpt td::before{content:attr(data-l);flex:none;text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--color-pewter,#707070);padding-top:2px}
+ .qpt td>div,.qpt td>span{text-align:right}.qpt td .qac{justify-content:flex-end}
+ .qpt tbody tr:hover td{background:none}.qpt td.qx{display:block;text-align:left}.qpt td.qx::before{display:block;margin-bottom:6px}.qpt td.qx .qac{justify-content:flex-start}}
+html.dark .qpt tr{background:#1f1f23!important}
+html.dark .qps div{background:#1f1f23!important}html.dark .qpt th{background:#1f1f23!important}
+html.dark .qmd.nq{background:#da0081!important;color:#fff!important}html.dark .qmd.bb{background:#2f7de0!important;color:#fff!important}html.dark .qmd.gr{background:#636366!important;color:#fff!important}
+/* v236: Mis códigos (seguimiento del pago y tabla de códigos) */
+.qch{margin:16px 0 8px;font-size:18px}
+.qst{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:10px}
+.qst li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4}
+.qst li i{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:2px solid var(--color-pale-mist,#d6d6d6);font-style:normal;font-size:13px;font-weight:700;color:#fff}
+.qst li b{display:block;font-size:15px}
+.qst li.ok i{background:#1b8a3c;border-color:#1b8a3c}.qst li.now i{border-color:#0066cc;background:#0066cc}.qst li.no i{background:#c0123c;border-color:#c0123c}
+.qst li.off{color:var(--color-pewter,#707070)}
+.qst code,.qct code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;letter-spacing:.02em}
+.qct{width:100%;border-collapse:collapse;font-size:14px}
+.qct th{text-align:left;font-size:13px;font-weight:600;color:var(--color-pewter,#707070);padding:6px 6px 8px;border-bottom:1px solid var(--color-pale-mist,#d6d6d6)}
+.qct td{padding:10px 6px;vertical-align:top;border-bottom:1px solid var(--color-pale-mist,#d6d6d6)}
+.qct td small{display:block;font-size:12px;color:var(--color-pewter,#707070);margin-top:2px}
+.qct code{font-size:13px;word-break:normal;overflow-wrap:break-word}
+.qcs{display:inline-block;padding:2px 8px;border-radius:980px;font-size:12px;font-weight:600}
+.qcs.ok{background:#e7f6ec;color:#1b6b34}.qcs.p{background:#fff4e5;color:#7a4b00}.qcs.no{background:#fde8e8;color:#9b1c1c}
+.qct .btn{margin-top:6px;padding:4px 12px;min-height:32px;font-size:13px}
+.btn.qcp{display:inline-flex;margin:6px 0 0;padding:4px 12px;min-height:32px;font-size:13px}.qct td .btn.qcp{display:flex}
+html.dark .qcs.ok{background:#12351f!important;color:#8fe0a8!important}
+html.dark .qcs.p{background:#3a2a10!important;color:#ffd79a!important}
+html.dark .qcs.no{background:#3d1414!important;color:#ffaaaa!important}
+.qbq{display:block;width:200px;max-width:70%;margin:8px auto;border-radius:12px;background:#fff;padding:8px}
+.qbst{margin:8px 0 12px;padding-left:20px;font-size:15px;line-height:1.5}
+.qbw{margin:8px 0;padding:10px 12px;border-radius:12px;background:#fff4e5;color:#7a4b00;font-size:14px;line-height:1.4}
+.qbt{display:flex;gap:6px;margin:6px 0 12px}
+.qbt button{flex:1;min-height:40px;padding:6px 10px;border:1px solid var(--color-pale-mist,#d6d6d6);border-radius:980px;background:transparent;color:var(--color-obsidian,#1d1d1f);font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+.qbt button[aria-selected="true"]{background:var(--color-obsidian,#1d1d1f);color:#fff;border-color:transparent}
+.qbt em{font-style:normal;display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-radius:980px;background:#c0123c;color:#fff;font-size:12px}
+.qbl{display:grid;gap:8px}
+.qbi{padding:12px 14px;border-radius:14px;background:var(--color-fog-white,#f5f5f7)}
+.qbh{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.qbh b{font-size:16px}.qbh strong{font-size:17px;white-space:nowrap}
+.qbi small{display:block;font-size:13px;color:var(--color-pewter,#707070);margin-top:2px;word-break:break-word}
+.qbi .row{margin-top:8px}
+.qbs{display:inline-block;margin-top:6px;padding:2px 10px;border-radius:980px;font-size:12px;font-weight:600}
+.qbs.p{background:#fff4e5;color:#7a4b00}.qbs.ok{background:#e7f6ec;color:#1b6b34}.qbs.no{background:#fde8e8;color:#9b1c1c}
+.btn.qbb{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:0}
+.plgo.qbr{background:transparent!important;border:2px solid currentColor;color:#fff}
+.plgo.qbr.qbr1{background:#1f56d6!important;border:0;color:#fff}/* v268: el único botón principal */
+.plgo[hidden]{display:none!important}
+.qbwl{display:block;margin:10px auto 0;padding:6px 4px;border:0;background:none;color:var(--color-sapphire,#0066cc);font:inherit;font-size:14.5px;text-decoration:underline;cursor:pointer}
+html.dark .qbt button[aria-selected="true"]{background:#f5f5f7!important;color:#000!important}
+html.dark .qbw,html.dark .qbs.p{background:#3a2a10!important;color:#ffd79a!important}
+html.dark .qbs.ok{background:#12351f!important;color:#8fe0a8!important}
+html.dark .qbs.no{background:#3d1414!important;color:#ffaaaa!important}

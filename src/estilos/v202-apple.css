@@ -1,0 +1,66 @@
+
+/* v202 — tokens Apple (DESIGN_1.md / variables.css / tokens.json) sobre la capa v199.
+   Lienzo #f5f5f7, texto #1d1d1f, azul #0071e3 SOLO en acciones primarias, enlaces/contornos #0066cc,
+   botones y etiquetas en píldora (980px), tarjetas sin sombra, tipografia SF Pro con respaldo Inter.
+   Solo estilos: no toca logica ni datos. Va al final para ganar a las capas anteriores. */
+:root{
+--color-fog-white:#f5f5f7;--color-pure-white:#ffffff;--color-obsidian:#1d1d1f;--color-carbon:#000000;--color-pewter:#707070;--color-slate:#505050;--color-graphite:#474747;--color-iron:#333333;--color-silver:#858585;--color-pale-mist:#d6d6d6;--color-ash-veil:#e2e2e5;--color-iris-blue:#0071e3;--color-sapphire:#0066cc;--color-sky-signal:#2997ff;--color-cornflower:#509be7;--color-ice-wash:#aad0f6;
+--font-sf-pro-display:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Inter',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+--font-sf-pro-text:'SF Pro Text',-apple-system,BlinkMacSystemFont,'Inter',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+--text-caption:12px;--text-body:17px;--text-subheading:21px;--text-heading-sm:26px;--text-heading:34px;--text-heading-lg:40px;--text-display:56px;
+--spacing-unit:4px;--element-gap:12px;--page-max-width:980px;
+--radius-full:980px;--radius-nav:0px;--radius-tags:980px;--radius-buttons:980px;--radius-sections:0px;
+--surface-canvas:#f5f5f7;--surface-pure-white:#ffffff;--surface-section-wash-ice:#aad0f6;--surface-dark-band:#000000;
+/* los nombres que ya usa la pagina, remapeados a los tokens */
+--rio:#0071e3;--bg:#f5f5f7;--ink:#1d1d1f;--line:#d6d6d6;--line2:#d6d6d6;--muted:#707070;--card:#ffffff;
+--r-card:18px;--r-img:12px;--sh1:none;--sh-soft:none;--sh-violet:none;--sh2:0 8px 30px rgba(0,0,0,.12)}
+body{font-family:var(--font-sf-pro-text);letter-spacing:-.022em;line-height:1.47;color:var(--color-obsidian);background:var(--color-fog-white)}
+input,textarea,select,button{font-family:inherit;letter-spacing:inherit}
+h1,h2,h3,.logo,.price,.hpp,.pvmp,.stn,.ptitle,.hubhero h2,.sname h2,.pvt,article.cmc .cmb>b{font-family:var(--font-sf-pro-display);font-weight:600;letter-spacing:-.01em;line-height:1.14}
+.hubhero h2,.hh2 h2{letter-spacing:-.015em;line-height:1.1}
+.hnegh h2,.hgjh h2,.shead h2{font-size:21px;letter-spacing:-.005em}
+::selection{background:var(--color-ice-wash);color:var(--color-obsidian)}
+/* Botones: primario azul relleno, secundario contorno azul, siempre en píldora y sin sombra */
+.btn,.btn.pink{background:var(--color-iris-blue);color:#fff;border:0;border-radius:var(--radius-buttons);font-weight:500;padding:11px 21px;letter-spacing:-.016em;box-shadow:none;transition:background .15s,color .15s}
+.btn:hover,.btn.pink:hover{background:#0077ed;filter:none}
+.btn:active,.btn.pink:active{background:#006edb}
+.btn.ghost{background:transparent;color:var(--color-sapphire);border:1px solid var(--color-sapphire);box-shadow:none}
+.btn.ghost:hover{background:rgba(0,102,204,.08);filter:none}
+.btn.wa{background:#25D366;color:#073b1d}.btn.wa:hover{background:#2be26f}
+.hhr{background:var(--color-iris-blue);color:#fff;box-shadow:none;font-weight:500}
+.hhl{color:var(--color-sapphire);text-decoration:none;font-weight:400}.hhl:hover{color:var(--color-cornflower);text-decoration:underline;text-underline-offset:.18em}
+#qgo{background:var(--color-iris-blue);box-shadow:none}
+/* Chips, etiquetas y estados activos: monocromo (el azul se reserva para la accion primaria) */
+.chip,.hswt button,.plsb,.dchip span,.bedq button,.amen span{background:#fff;color:var(--color-obsidian);border:1px solid var(--color-pale-mist);box-shadow:none}
+.chip[aria-pressed=true],.hswt button[aria-pressed=true],.dchip input:checked+span,.bedq button[aria-pressed=true]{background:var(--color-obsidian);border-color:var(--color-obsidian);color:#fff}
+.tag,.hnegb{background:var(--color-obsidian);color:#fff;border-radius:var(--radius-tags)}
+.hscb{background:#fff;color:var(--color-obsidian);box-shadow:none}
+.tabs{border-bottom-color:var(--color-pale-mist)}.tabs button[aria-current=true]{border-color:var(--color-obsidian)}
+/* Cabecera y barra superior */
+header{background:#fff;border-bottom:0}
+#annc{background:var(--color-obsidian);font-weight:400;letter-spacing:-.01em}
+.hmb i,.cbd{background:var(--color-obsidian)}.cbd{color:#fff}
+#themeBtn{background:#fff;border:1px solid var(--color-pale-mist);box-shadow:none}
+.qw{border:1px solid var(--color-pale-mist);box-shadow:none}
+.qw:focus-within,.hh2 .qw:focus-within{border-color:var(--color-iris-blue);box-shadow:0 0 0 4px rgba(0,113,227,.16)}
+.hh2 .qw{border:1px solid var(--color-pale-mist);box-shadow:none}
+/* Campos de formulario */
+input[type=text],input[type=number],input[type=tel],input[type=email],input[type=password],input[type=time],input[type=month],select,textarea,.csq input{border-color:var(--color-pale-mist);background:#fff;color:var(--color-obsidian)}
+input[type=text]:focus,input[type=number]:focus,input[type=tel]:focus,input[type=email]:focus,input[type=password]:focus,input[type=time]:focus,input[type=month]:focus,select:focus,textarea:focus,.csq input:focus{border-color:var(--color-iris-blue);outline:none;box-shadow:0 0 0 4px rgba(0,113,227,.16)}
+::placeholder{color:var(--color-silver)}
+/* Tarjetas: blancas sobre el lienzo, sin sombra ni borde; la elevacion la da el contraste de color */
+.shop,.prod,.hpc,.rvc,.icard,.pvs,.hnegc,.hubf,.hsc,.hubhero,.hh2,article.cmc,.cg,.cmr,.stbar{border-color:transparent;box-shadow:none}
+.hubi{box-shadow:none}
+.hgjc{background:#fff;border-color:transparent;box-shadow:none}
+.hpc .hpi,.prod .pic{background:var(--color-fog-white)}
+article.cmc .cma{background:var(--color-fog-white)}
+.price,.hpc .hpp{color:var(--color-obsidian)}
+/* Enlaces: azul #0066cc, subrayado solo al pasar el cursor */
+.hnegl,footer a{color:var(--color-sapphire);text-decoration:none;font-weight:400}
+.hnegl:hover,footer a:hover{color:var(--color-cornflower);text-decoration:underline;text-underline-offset:.18em}
+footer{background:var(--color-fog-white);color:var(--color-pewter);font-size:var(--text-caption);line-height:1.33;letter-spacing:-.01em}
+/* Capas flotantes: velo con desenfoque (vidrio esmerilado) y cuadro sin sombra pesada */
+.overlay{background:rgba(0,0,0,.4);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px)}
+.modal{box-shadow:none;border-radius:var(--r-card)}
+#toast{background:var(--color-obsidian);border-radius:var(--radius-full);font-weight:400}
+:focus-visible{outline-color:var(--color-iris-blue)}

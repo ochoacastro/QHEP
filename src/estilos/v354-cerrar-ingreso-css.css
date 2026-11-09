@@ -1,0 +1,6 @@
+
+.am-top{display:flex;justify-content:flex-end;margin:0 -22px;padding:8px 8px 0}
+.am-cx{width:44px;height:44px;display:grid;place-items:center;border:2px solid #d2d2d7;background:#fff;color:#1d1d1f;cursor:pointer;border-radius:0;padding:0}
+.am-cx svg{width:24px;height:24px}.am-cx:hover,.am-cx:focus-visible{border-color:#0071e3;color:#0071e3;outline:none}
+html.dark .am-cx{background:#1c1c1e!important;color:#f5f5f7!important;border-color:#48484a!important}
+html.dark .am-cx:hover,html.dark .am-cx:focus-visible{border-color:#0a84ff!important;color:#64a8ff!important}

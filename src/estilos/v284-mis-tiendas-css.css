@@ -1,0 +1,25 @@
+
+/* v284: «Mis tiendas» en una tabla con Ver, Editar y Eliminar */
+.mstw{overflow-x:auto;margin:6px 0 4px;-webkit-overflow-scrolling:touch}
+.mst{width:100%;border-collapse:collapse;font-size:14px}
+.mst th{text-align:left;font-family:var(--font-rubik);font-weight:800;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:8px 8px;border-bottom:2px solid var(--ink,#111);white-space:nowrap}
+.mst td{vertical-align:top;padding:12px 8px;border-bottom:1px solid #dfe4ec}
+.mst td b{display:block;font-size:15px;line-height:1.3;word-break:break-word}
+.mst td small{display:block;margin-top:2px;font-size:12.5px;opacity:.75;line-height:1.35}
+.mst .mstn{text-align:center;font-weight:800;font-size:16px;white-space:nowrap}
+.mst .msts{display:inline-block;margin-top:6px;padding:2px 8px;font-size:11.5px;font-weight:700;border-radius:0;opacity:1}
+.mst .msts.ok{background:#DCFCE7;color:#166534}.mst .msts.off{background:#FEE2E2;color:#991B1B}.mst .msts.adm{background:#FEF3C7;color:#92400E}
+.mst .msta{display:flex;flex-direction:column;gap:6px;min-width:104px}
+.mst .msta .btn{width:100%;min-height:36px!important;margin:0!important;padding:6px 10px!important;font-size:12.5px!important;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.mst .msta .mstd{color:#c0392b!important;border-color:#c0392b!important}
+.mstx{margin:10px 0 0;font-size:13px}
+.mst .mstu{margin-top:6px!important;font-size:11.5px!important;word-break:break-all;opacity:.8!important;color:var(--rio,#0071e3)}
+.msnew{width:100%;margin:0 0 10px!important;min-height:48px}
+.mst .msti{display:grid;place-items:center;width:52px;height:52px;margin:0 0 8px;border:1px solid #dfe4ec;background:#fff;overflow:hidden}
+.mst .msti img{width:100%;height:100%;object-fit:contain}
+.mst .msti b{display:block;font-size:22px;font-weight:800;color:var(--rio,#0071e3)}
+html.dark .mst .msti{border-color:#3b404b!important;background:#fff!important}
+html.dark .mst th{border-bottom-color:#fff!important}
+html.dark .mst td{border-bottom-color:#2f333c!important}
+html.dark .mst .msta .mstd{color:#ff6b5e!important;border-color:#ff6b5e!important}
+html.dark .mst .msts.ok{background:#14532d!important;color:#bbf7d0!important}html.dark .mst .msts.off{background:#7f1d1d!important;color:#fecaca!important}html.dark .mst .msts.adm{background:#78350f!important;color:#fde68a!important}

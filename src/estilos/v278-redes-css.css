@@ -1,0 +1,18 @@
+
+/* v278: redes sociales de Mi Pradera en el pie de página (las configura el administrador) y © con el año */
+.qsoc{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:0 0 18px}
+.qsoc a{display:grid;place-items:center;width:48px;height:48px;background:#111;color:#fff;border-radius:0;text-decoration:none;transition:transform .16s,filter .15s}
+.qsoc a:active{transform:scale(.94)}
+.qsoc a:hover{filter:brightness(1.3)}
+.qsoc svg{width:24px;height:24px}
+.qsoc .st{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.qsoc .fl{fill:currentColor}
+.qsoc-h{font-family:var(--font-rubik);font-weight:800;font-size:15px;letter-spacing:.03em;text-transform:uppercase;margin:0 0 12px;color:var(--ink)}
+.qcopy{margin-top:16px;padding-top:14px;border-top:1px dotted currentColor;font-size:13px}
+footer{padding-bottom:120px!important}/* que el botón SOS no tape el © */
+.socadm .socr{display:grid;grid-template-columns:110px 1fr;gap:8px;align-items:center;margin:6px 0}
+.socadm .socr label{margin:0;font-weight:700}
+.socadm .socr input{margin:0}
+@media (max-width:420px){.socadm .socr{grid-template-columns:1fr;gap:2px}}
+html.dark .qsoc a{background:#fff!important;color:#000!important}
+html.dark .qsoc-h{color:#fff!important}

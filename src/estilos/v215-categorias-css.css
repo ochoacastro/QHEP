@@ -1,0 +1,8 @@
+
+/* v215: categorias agrupadas en el formulario de la tienda y en la pagina "Categorias" */
+#f-cats{display:block}
+.cgh{display:block;width:100%;margin:12px 0 6px;font-size:13px;font-weight:600;color:var(--color-pewter,#707070);letter-spacing:-.01em}
+.cgh:first-child{margin-top:2px}
+.cgr{display:flex;flex-wrap:wrap;gap:6px}
+.cplist .cgh{grid-column:1/-1}
+.cplist .cgr{display:contents}

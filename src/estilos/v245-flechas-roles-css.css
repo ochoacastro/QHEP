@@ -1,0 +1,7 @@
+
+/* v245: flechas de las pestañas de roles (Comerciante, Clasificados…): antes un círculo amarillo grande con sombra; ahora una flecha
+   discreta del estilo de las pestañas. El área para tocarla sigue siendo de 44 px. Para volver al círculo amarillo, borra este <style>. */
+.plsw .plar{width:30px;height:30px;min-width:30px;min-height:30px;border-radius:50%;background:#1f232b;border:1px solid rgba(255,255,255,.32);color:#fff;box-shadow:0 0 0 6px #0e141b;font-size:20px;font-weight:400}
+.plsw .plar::after{content:"";position:absolute;inset:-7px}
+.plsw .plar:hover{background:#2b313b}
+html.dark .plsw .plar{background:#1f232b!important;border-color:rgba(255,255,255,.32)!important;color:#fff!important;box-shadow:0 0 0 6px #0e141b!important}

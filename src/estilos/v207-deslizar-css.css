@@ -1,0 +1,6 @@
+
+/* v207: fotos de clasificados que se pasan deslizando el dedo */
+article.cmc img.cmi{touch-action:pan-y;user-select:none;-webkit-user-drag:none}
+.cmths img{transition:opacity .15s,outline-color .15s;outline:2px solid transparent;outline-offset:1px}
+.cmths img.on{outline-color:var(--color-obsidian,#1d1d1f)}
+.cmths:has(img.on) img:not(.on){opacity:.6}

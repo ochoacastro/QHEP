@@ -1,0 +1,7 @@
+
+/* v218: numero en la esquina del icono en "Mi cuenta" */
+.pnr i{position:relative;min-width:36px}
+.pnbd{position:absolute;top:-11px;left:52%;min-width:19px;height:19px;padding:0 5px;border-radius:980px;background:#0071e3;color:#fff;font:600 11px/19px var(--font-sf-pro-text,system-ui,sans-serif);letter-spacing:0;text-align:center;font-style:normal;box-shadow:0 0 0 2px var(--card,#fff);white-space:nowrap}
+.pnbd.z{background:#8e8e93}
+html.dark .pnbd{filter:hue-rotate(180deg) invert(1)}
+.qh-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

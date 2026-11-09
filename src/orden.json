@@ -1,0 +1,1486 @@
+[
+ {
+  "t": "html",
+  "f": "html/01.html"
+ },
+ {
+  "t": "js",
+  "tag": "<script>",
+  "f": "codigo/enlaces-sin-numeral.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script>",
+  "f": "codigo/canonical.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n<link rel=\"manifest\" href=\"manifest.webmanifest\">\n<link rel=\"apple-touch-icon\" href=\"apple-touch-icon.png\">\n"
+ },
+ {
+  "t": "txt",
+  "v": "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.2/qrcode.min.js\" defer></script>"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "txt",
+  "v": "<script src=\"https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js\"></script>"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "txt",
+  "v": "<script src=\"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js\"></script>"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "txt",
+  "v": "<script src=\"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js\"></script>"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "txt",
+  "v": "<script src=\"https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js\"></script>"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v379-app-check\">",
+  "f": "codigo/v379-app-check.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script>",
+  "f": "codigo/tema-inicial.js"
+ },
+ {
+  "t": "html",
+  "f": "html/02.html"
+ },
+ {
+  "t": "js",
+  "tag": "<script>",
+  "f": "codigo/recaptcha.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script>",
+  "f": "codigo/tema-inicial-2.js"
+ },
+ {
+  "t": "html",
+  "f": "html/03.html"
+ },
+ {
+  "t": "css",
+  "tag": "<style>",
+  "f": "estilos/base.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v106-design\">",
+  "f": "estilos/v106-design.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v199-shop\">",
+  "f": "estilos/v199-shop.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v202-apple\">",
+  "f": "estilos/v202-apple.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v203-pulido\">",
+  "f": "estilos/v203-pulido.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v204-iconos-css\">",
+  "f": "estilos/v204-iconos-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v204-iconos\">",
+  "f": "codigo/v204-iconos.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v205-avisos-css\">",
+  "f": "estilos/v205-avisos-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v205-avisos\">",
+  "f": "codigo/v205-avisos.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v207-deslizar-css\">",
+  "f": "estilos/v207-deslizar-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v207-deslizar\">",
+  "f": "codigo/v207-deslizar.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v208-ajustes-css\">",
+  "f": "estilos/v208-ajustes-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v208-ajustes\">",
+  "f": "codigo/v208-ajustes.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v209-enlace-clasificado\">",
+  "f": "codigo/v209-enlace-clasificado.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v214-horario-css\">",
+  "f": "estilos/v214-horario-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v214-horario\">",
+  "f": "codigo/v214-horario.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v215-categorias-css\">",
+  "f": "estilos/v215-categorias-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v215-categorias\">",
+  "f": "codigo/v215-categorias.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v216-secciones-css\">",
+  "f": "estilos/v216-secciones-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v216-secciones\">",
+  "f": "codigo/v216-secciones.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v218-cupos-css\">",
+  "f": "estilos/v218-cupos-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v218-cupos\">",
+  "f": "codigo/v218-cupos.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v220-menu-css\">",
+  "f": "estilos/v220-menu-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v221-selector-css\">",
+  "f": "estilos/v221-selector-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v221-selector\">",
+  "f": "codigo/v221-selector.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v345-buscar-en-lista\">",
+  "f": "codigo/v345-buscar-en-lista.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v345-buscar-css\">",
+  "f": "estilos/v345-buscar-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v222-sesion-admin\">",
+  "f": "codigo/v222-sesion-admin.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v225-opiniones-css\">",
+  "f": "estilos/v225-opiniones-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v225-opiniones\">",
+  "f": "codigo/v225-opiniones.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v226-espacios-css\">",
+  "f": "estilos/v226-espacios-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v226-espacios\">",
+  "f": "codigo/v226-espacios.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v227-correo-admin\">",
+  "f": "codigo/v227-correo-admin.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v229-tutorial-css\">",
+  "f": "estilos/v229-tutorial-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v229-tutorial\">",
+  "f": "codigo/v229-tutorial.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v230-guias-css\">",
+  "f": "estilos/v230-guias-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v230-guias\">",
+  "f": "codigo/v230-guias.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v231-aviso-css\">",
+  "f": "estilos/v231-aviso-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v231-aviso\">",
+  "f": "codigo/v231-aviso.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v232-breb-css\">",
+  "f": "estilos/v232-breb-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v232-breb\">",
+  "f": "codigo/v232-breb.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v245-flechas-roles-css\">",
+  "f": "estilos/v245-flechas-roles-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v246-admin-cuadros-css\">",
+  "f": "estilos/v246-admin-cuadros-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v246-admin-cuadros\">",
+  "f": "codigo/v246-admin-cuadros.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v248-hazlo-conmigo-css\">",
+  "f": "estilos/v248-hazlo-conmigo-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v248-hazlo-conmigo\">",
+  "f": "codigo/v248-hazlo-conmigo.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v250-noticias-blog-css\">",
+  "f": "estilos/v250-noticias-blog-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v250-noticias-blog\">",
+  "f": "codigo/v250-noticias-blog.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v251-codigos-css\">",
+  "f": "estilos/v251-codigos-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v252-tienda-gratis-css\">",
+  "f": "estilos/v252-tienda-gratis-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v253-registro-gratis-css\">",
+  "f": "estilos/v253-registro-gratis-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v257-emergencias-css\">",
+  "f": "estilos/v257-emergencias-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v257-emergencias\">",
+  "f": "codigo/v257-emergencias.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v262-obituarios-css\">",
+  "f": "estilos/v262-obituarios-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v262-obituarios\">",
+  "f": "codigo/v262-obituarios.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v269-tipografia-css\">",
+  "f": "estilos/v269-tipografia-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v269-transicion-publicar\">",
+  "f": "codigo/v269-transicion-publicar.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v272-toque-botones-css\">",
+  "f": "estilos/v272-toque-botones-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v272-toque-botones\">",
+  "f": "codigo/v272-toque-botones.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v273-botones-cuadrados\">",
+  "f": "estilos/v273-botones-cuadrados.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v274-publicar-cuadrado\">",
+  "f": "estilos/v274-publicar-cuadrado.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v276-cajas-cuadradas\">",
+  "f": "estilos/v276-cajas-cuadradas.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v277-todo-cuadrado\">",
+  "f": "estilos/v277-todo-cuadrado.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v278-redes-css\">",
+  "f": "estilos/v278-redes-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v278-redes\">",
+  "f": "codigo/v278-redes.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v280-exequias-css\">",
+  "f": "estilos/v280-exequias-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v281-filtro-oscuro\">",
+  "f": "estilos/v281-filtro-oscuro.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v282-contacto2-css\">",
+  "f": "estilos/v282-contacto2-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v283-categorias-css\">",
+  "f": "estilos/v283-categorias-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v286-redes-css\">",
+  "f": "estilos/v286-redes-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v283-horario-dia\">",
+  "f": "codigo/v283-horario-dia.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v284-mis-tiendas-css\">",
+  "f": "estilos/v284-mis-tiendas-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v284-mis-tiendas\">",
+  "f": "codigo/v284-mis-tiendas.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v286-crear-tienda-css\">",
+  "f": "estilos/v286-crear-tienda-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v287-categorias-css\">",
+  "f": "estilos/v287-categorias-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v287-categorias\">",
+  "f": "codigo/v287-categorias.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v288-empleo-css\">",
+  "f": "estilos/v288-empleo-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v288-empleo\">",
+  "f": "codigo/v288-empleo.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v290-roles-css\">",
+  "f": "estilos/v290-roles-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v290-roles\">",
+  "f": "codigo/v290-roles.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v297-enlace-tienda\">",
+  "f": "codigo/v297-enlace-tienda.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v298-negocios-oscuro\">",
+  "f": "estilos/v298-negocios-oscuro.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v299-abrir-enlace\">",
+  "f": "codigo/v299-abrir-enlace.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v302-noticias-css\">",
+  "f": "estilos/v302-noticias-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v302-noticias\">",
+  "f": "codigo/v302-noticias.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v305-enlace-con-foto\">",
+  "f": "codigo/v305-enlace-con-foto.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v350-barras-css\">",
+  "f": "estilos/v350-barras-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v354-cerrar-ingreso\">",
+  "f": "codigo/v354-cerrar-ingreso.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v354-cerrar-ingreso-css\">",
+  "f": "estilos/v354-cerrar-ingreso-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v350-barras\">",
+  "f": "codigo/v350-barras.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v306-carrusel-css\">",
+  "f": "estilos/v306-carrusel-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v306-carrusel\">",
+  "f": "codigo/v306-carrusel.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v308-publicar-sin-cuenta\">",
+  "f": "codigo/v308-publicar-sin-cuenta.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v309-pendientes-menu\">",
+  "f": "codigo/v309-pendientes-menu.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v310-pausa-css\">",
+  "f": "estilos/v310-pausa-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v310-pausa\">",
+  "f": "codigo/v310-pausa.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v312-tablas-anuncios-css\">",
+  "f": "estilos/v312-tablas-anuncios-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v312-tablas-anuncios\">",
+  "f": "codigo/v312-tablas-anuncios.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v313-roles-tamano-css\">",
+  "f": "estilos/v313-roles-tamano-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v313-roles-tamano\">",
+  "f": "codigo/v313-roles-tamano.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v314-limites\">",
+  "f": "codigo/v314-limites.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v316-noticias-inicio-css\">",
+  "f": "estilos/v316-noticias-inicio-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v316-noticias-inicio\">",
+  "f": "codigo/v316-noticias-inicio.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v317-zonas-css\">",
+  "f": "estilos/v317-zonas-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v317-zonas\">",
+  "f": "codigo/v317-zonas.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v318-avisos-css\">",
+  "f": "estilos/v318-avisos-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v318-avisos\">",
+  "f": "codigo/v318-avisos.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v320-pedidos-css\">",
+  "f": "estilos/v320-pedidos-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v320-pedidos\">",
+  "f": "codigo/v320-pedidos.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v321-notificaciones-css\">",
+  "f": "estilos/v321-notificaciones-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v321-notificaciones\">",
+  "f": "codigo/v321-notificaciones.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v322-direcciones-css\">",
+  "f": "estilos/v322-direcciones-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v346-telefono\">",
+  "f": "codigo/v346-telefono.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v322-direcciones\">",
+  "f": "codigo/v322-direcciones.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v343-google-maps\">",
+  "f": "codigo/v343-google-maps.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v343-google-maps-css\">",
+  "f": "estilos/v343-google-maps-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v344-contacto\">",
+  "f": "codigo/v344-contacto.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v344-contacto-css\">",
+  "f": "estilos/v344-contacto-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v341-wa-flotante\">",
+  "f": "codigo/v341-wa-flotante.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v341-wa-css\">",
+  "f": "estilos/v341-wa-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v340-redes\">",
+  "f": "codigo/v340-redes.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v340-redes-css\">",
+  "f": "estilos/v340-redes-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v339-codigos-uno-varios\">",
+  "f": "codigo/v339-codigos-uno-varios.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v338-insignias\">",
+  "f": "codigo/v338-insignias.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v338-insignias-css\">",
+  "f": "estilos/v338-insignias-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v337-ficha-tienda\">",
+  "f": "codigo/v337-ficha-tienda.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v337-ficha-css\">",
+  "f": "estilos/v337-ficha-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v335-admin-tienda\">",
+  "f": "codigo/v335-admin-tienda.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v363-pedido-pendiente\">",
+  "f": "codigo/v363-pedido-pendiente.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v361-verificar-celular\">",
+  "f": "codigo/v361-verificar-celular.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v365-verificar-whatsapp\">",
+  "f": "codigo/v365-verificar-whatsapp.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v368-registro-un-paso\">",
+  "f": "codigo/v368-registro-un-paso.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v369-google-un-toque\">",
+  "f": "codigo/v369-google-un-toque.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v370-inicio-limpio\">",
+  "f": "codigo/v370-inicio-limpio.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v371-una-cuenta\">",
+  "f": "codigo/v371-una-cuenta.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v375-todo\">",
+  "f": "codigo/v375-todo.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v380-anuncio-ubicacion\">",
+  "f": "codigo/v380-anuncio-ubicacion.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v381-avisos-en-notificaciones\">",
+  "f": "codigo/v381-avisos-en-notificaciones.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v358-direccion-admin\">",
+  "f": "codigo/v358-direccion-admin.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v332-datos-negocio\">",
+  "f": "codigo/v332-datos-negocio.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v323-clasificados-dueno\">",
+  "f": "codigo/v323-clasificados-dueno.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v324-boton-empleo\">",
+  "f": "codigo/v324-boton-empleo.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v329-crecer-css\">",
+  "f": "estilos/v329-crecer-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v329-crecer\">",
+  "f": "codigo/v329-crecer.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v330-empleo-simple-css\">",
+  "f": "estilos/v330-empleo-simple-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v330-empleo-simple\">",
+  "f": "codigo/v330-empleo-simple.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v219-modo-oscuro\">",
+  "f": "codigo/v219-modo-oscuro.js"
+ },
+ {
+  "t": "html",
+  "f": "html/04.html"
+ },
+ {
+  "t": "js",
+  "tag": "<script>",
+  "f": "codigo/splash.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script>",
+  "fs": [
+   "codigo/principal/01-cats.js",
+   "codigo/principal/02-news.js",
+   "codigo/principal/03-planerrtxt.js",
+   "codigo/principal/04-cdf.js",
+   "codigo/principal/05-mlc.js",
+   "codigo/principal/06-cattitle.js",
+   "codigo/principal/07-cardov.js",
+   "codigo/principal/08-pflock.js",
+   "codigo/principal/09-rateform.js",
+   "codigo/principal/10-ed.js",
+   "codigo/principal/11-profilemodal.js",
+   "codigo/principal/12-s.js",
+   "codigo/principal/13-af.js",
+   "codigo/principal/14-servform.js",
+   "codigo/principal/15-norm.js",
+   "codigo/principal/16-cmfeat.js",
+   "codigo/principal/17-cmg.js"
+  ]
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script>",
+  "f": "codigo/boton-tema.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script>",
+  "f": "codigo/v180-selector-imagenes.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script>",
+  "f": "codigo/logo-tema.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n</body>\n</html>\n"
+ }
+]

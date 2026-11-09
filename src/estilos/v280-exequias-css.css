@@ -1,0 +1,21 @@
+
+/* v280: «Exequias» del obituario: el desplegable se ve como un botón con «+» (se vuelve «−» al abrir) para que se note que se abre */
+.obi-ex{margin-top:10px!important;padding:0!important;background:#f3f5f8!important;border:2px solid #d3d9e3!important;border-left:5px solid var(--rio,#0071e3)!important}
+.obi-ex summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 14px 14px 16px;cursor:pointer;min-height:56px}
+.obi-ex summary::-webkit-details-marker{display:none}
+.obi-ex summary span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.obi-ex summary b{font-family:var(--font-rubik);font-weight:800;font-size:16px}
+.obi-ex summary small{font-size:13px;opacity:.75;font-weight:400}
+.obi-ex summary i{position:relative;flex:none;width:32px;height:32px;background:var(--rio,#0071e3);color:#fff}
+.obi-ex summary i::before,.obi-ex summary i::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:2.5px;background:currentColor;transform:translate(-50%,-50%);transition:transform .2s ease}
+.obi-ex summary i::after{transform:translate(-50%,-50%) rotate(90deg)}
+.obi-ex[open] summary i::after{transform:translate(-50%,-50%) rotate(0deg)}
+.obi-ex[open] summary{border-bottom:1px solid #d3d9e3}
+.obi-ex>:not(summary){margin-left:14px;margin-right:14px}
+.obi-ex>:last-child:not(summary){margin-bottom:14px}
+.obi-ex>input{display:block;box-sizing:border-box;width:calc(100% - 28px)!important;max-width:none}
+.obi-ex summary:focus-visible{outline:3px solid var(--rio,#0071e3);outline-offset:2px}
+html.dark .obi-ex{background:#1e2026!important;border-color:#3b404b!important;border-left-color:#0a84ff!important;color:#fff!important}
+html.dark .obi-ex[open] summary{border-bottom-color:#3b404b!important}
+html.dark .obi-ex summary i{background:#0a84ff!important;color:#fff!important}
+@media (prefers-reduced-motion:reduce){.obi-ex summary i::after{transition:none}}

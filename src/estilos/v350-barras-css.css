@@ -1,0 +1,8 @@
+
+/* v350: el carrusel de publicidad (arriba del inicio) usa barras en vez de puntos, igual que el carrusel verde (v306) */
+html body .bnd{background:none!important;padding:0!important;gap:8px;margin-top:10px}
+html body .bnd i{width:26px;height:6px;border-radius:0!important;background:#c7c7cc!important;transition:width .2s,background .2s;cursor:pointer;position:relative}
+html body .bnd i::before{content:"";position:absolute;left:0;right:0;top:-10px;bottom:-10px}
+html body .bnd i.on{width:40px;background:#16a34a!important}
+html.dark body .bnd i{background:#48484a!important}html.dark body .bnd i.on{background:#4ade80!important}
+@media (prefers-reduced-motion:reduce){html body .bnd i{transition:none}}

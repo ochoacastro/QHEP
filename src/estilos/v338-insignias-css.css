@@ -1,0 +1,7 @@
+
+.vf.vfb,.banner .vf.vfb{display:inline-flex!important;align-items:center;gap:5px;background:#ECFDF3!important;color:#065F46!important;border:1px solid #34D399;padding:2px 9px 2px 3px!important;font-size:12.5px;font-weight:800;letter-spacing:.01em;line-height:1.5;white-space:nowrap;border-radius:0!important;vertical-align:middle}
+.vf.vfb .vfs{width:18px;height:18px;flex:none;color:#059669}
+.vf.vfi{display:inline-flex!important;align-items:center;gap:5px;color:#fff!important;white-space:nowrap;vertical-align:middle}
+.vf.vfi svg{width:14px;height:14px;flex:none}
+html.dark .vf.vfb{filter:none!important;background:#052e1f!important;color:#6EE7B7!important;border-color:#10B981!important}
+html.dark .vf.vfb .vfs{color:#10B981}
