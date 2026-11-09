@@ -36,7 +36,8 @@ function place(){try{if(MODE==='admin')return;var b=btn(),h=document.querySelect
  var hr=h.getBoundingClientRect(),tr=r&&r.offsetParent?r.getBoundingClientRect():null;
  if(tr&&tr.width){b.style.top=(tr.top-hr.top+(tr.height-44)/2)+'px';b.style.left=(tr.left-hr.left-52)+'px';b.style.right='auto'}else{b.style.top='12px';b.style.right='12px';b.style.left='auto'}}catch(e){}}
 function badge(){var b=document.getElementById('nfBtn');if(!b)return;var n=unread(),em=b.querySelector('em');em.hidden=!n;em.textContent=n>99?'99+':String(n);b.setAttribute('aria-label',n?'Notificaciones, '+n+' sin leer':'Notificaciones')}
-function wrap(){if(typeof window.toast!=='function'||window.toast.__nf)return;var t0=window.toast;var w=function(m){try{var s=String(m==null?'':m);if(s&&IMP.test(s))nfAdd(s)}catch(x){}return t0.apply(this,arguments)};w.__nf=1;for(var k in t0)if(Object.prototype.hasOwnProperty.call(t0,k))w[k]=t0[k];window.toast=w}
+function onToast(m){var s=String(m==null?'':m);if(s&&IMP.test(s))nfAdd(s)}
+function wrap(){var H=window.toastHooks=window.toastHooks||[];if(H.indexOf(onToast)<0)H.push(onToast)}/* v389: gancho de toast (antes envolvía la función) */
 window.addEventListener('load',function(){setTimeout(function(){wrap();place();badge()},200)});setTimeout(function(){wrap();place();badge()},3500);
 window.addEventListener('resize',place);setInterval(function(){place();badge()},2000);
 })();

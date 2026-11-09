@@ -20,5 +20,5 @@ window.telClaim=async function(n,old){n=telCO(n||'');var u=me();if(!ok10(n)||!u)
 var done={};setInterval(function(){try{if(!S.user||MODE==='admin')return;var n=telCO(S.user.wa||''),u=me();if(!ok10(n)||!u||done[u.uid+n])return;done[u.uid+n]=1;
  telClaim(n).then(function(ok){if(!ok)S.user.telDup=1})}catch(e){}},4000);
 /* al eliminar a una persona desde el panel, también se libera su celular */
-(function wrap(){if(typeof QH==='undefined'||!QH.planDel)return setTimeout(wrap,300);if(QH.planDel.v371)return;var pd=QH.planDel;QH.planDel=function(k){try{var p=(QH.plans()||[]).find(function(x){return x.k===k}),n=p&&telCO(p.wa||'');if(p&&ok10(n))T(n).get().then(function(d){if(d.exists&&(!p.uid||d.data().uid===p.uid||d.data().k===k))T(n).delete()}).catch(function(){})}catch(e){}return pd(k)};QH.planDel.v371=1})();
+window.planDelExt=function(k){/* v389: la llama QH.planDel antes de borrar la ficha (antes la envolvía) */try{var p=(QH.plans()||[]).find(function(x){return x.k===k}),n=p&&telCO(p.wa||'');if(p&&ok10(n))T(n).get().then(function(d){if(d.exists&&(!p.uid||d.data().uid===p.uid||d.data().k===k))T(n).delete()}).catch(function(){})}catch(e){}};
 })();

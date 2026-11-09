@@ -19,7 +19,8 @@ function line(m){m=String(m||'');if(/obituario/i.test(m))return 'El obituario ya
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest(SEL);if(!b||st)return;var e0=errTxt();/* el propio botón se desactiva al tocarlo: no se revisa «disabled» */
  setTimeout(function(){var e1=errTxt();if(e1&&e1!==e0)return;if(!document.contains(b)&&!document.querySelector('#ov'))return;start()},120)},true);
 /* el aviso de la página dice si salió bien o mal */
-function hook(){if(typeof window.toast!=='function'||window.toast.__pfx)return;var t0=window.toast;var w=function(m){try{if(st===1){if(BADRE.test(m))stop();else if(OKRE.test(m))done(m)}}catch(x){}return t0.apply(this,arguments)};w.__pfx=1;window.toast=w}
+function onToast(m){if(st===1){if(BADRE.test(m))stop();else if(OKRE.test(m))done(m)}}
+function hook(){var H=window.toastHooks=window.toastHooks||[];if(H.indexOf(onToast)<0)H.push(onToast)}/* v389: gancho de toast (antes envolvía la función) */
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook);else setTimeout(hook,0);
 window.addEventListener('load',hook);
 window.pubFx={start:start,done:done,stop:stop};
