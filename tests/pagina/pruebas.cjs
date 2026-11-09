@@ -47,6 +47,7 @@ const PRUEBAS = {
       const p = await abrir({ dark }), m = dark ? 'oscuro' : 'claro';
       check('Inicio (' + m + ') se dibuja', await p.evaluate(() => !!document.querySelector('.hub .hubhero h2')));
       check('Primera pestaña es «Lo más reciente»', await p.evaluate(() => /Lo más reciente/.test((document.querySelector('.hswt button') || {}).textContent || '')));
+      check('Primer aviso del carrusel: «Publica tu anuncio gratis»', /Publica tu anuncio gratis/.test(await p.evaluate(() => ((document.querySelector('.bzcs > .bzc h3') || {}).textContent || ''))));
       check('El logo carga desde su archivo', await p.evaluate(() => { const i = document.querySelector('#home img'); return !!i && /logo-mp(-oscuro)?\.webp$/.test(i.src) && i.complete && i.naturalWidth > 0 }));
       check('reCAPTCHA no se descarga al abrir', p.pedidos.recaptcha === 0, p.pedidos.recaptcha + ' pedidos');
       sinErrores(p, 'Inicio ' + m); await p.cerrar();
