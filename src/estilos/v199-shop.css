@@ -3,22 +3,14 @@
    tipografía compacta con tracking negativo y un único acento violeta (#5433eb) en el botón de búsqueda.
    Solo estilos: no toca lógica ni datos. Va al final para ganar a las reglas anteriores. */
 :root{--line:#ebebeb;--line2:#e2e2e2;--sh1:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);--sh2:0 4px 24px rgba(0,0,0,.12);--sh-soft:0 2px 8px rgba(0,0,0,.06);--sh-violet:0 4px 24px rgba(69,36,219,.34);--muted:#787574;--r-card:28px;--r-img:20px}
-body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;letter-spacing:-.031em;line-height:1.38}
-input,textarea,select,button{letter-spacing:inherit}
-h1,h2,h3,.logo,.price,.hpp,.pvmp,.stn,.ptitle,.hubhero h2,.sname h2,.pvt,article.cmc .cmb>b{font-family:inherit;font-weight:600;letter-spacing:-.05em}
+body{font-size:16px}
 b,strong{font-weight:600}
-::selection{background:#c0b5f3;color:#000}
-::placeholder{color:var(--muted)}
 /* Cabecera: blanca, sin borde, buscador en píldora con botón violeta */
-header{background:#fff;border-bottom:0}
-#annc{background:#000;font-weight:500;letter-spacing:-.014em}
-.hmb i,.cbd{background:#000}.cbd{color:#fff}
 body.instore #cartBtn{background:#fff;color:#000;box-shadow:var(--sh2)}
-#themeBtn{background:#fff;border:1px solid var(--line);box-shadow:var(--sh-soft)}
-.qw{background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:9999px;padding:4px 4px 4px 20px;overflow:visible;box-shadow:none}
+.qw{background:#fff;border-radius:9999px;padding:4px 4px 4px 20px;overflow:visible}
 .qw:focus-within{border-color:rgba(0,0,0,.35);box-shadow:0 0 0 4px rgba(84,51,235,.12)}
 .qw #q{background:transparent;padding:10px 4px;border-radius:0;font-size:16px;letter-spacing:-.031em}
-#qgo{width:48px;height:48px;border-radius:50%;background:var(--rio);color:#fff;box-shadow:var(--sh-violet)}
+#qgo{width:48px;height:48px;border-radius:50%;color:#fff}
 #qgo svg{width:22px;height:22px}
 .hh2 #qgo{height:44px;border-radius:9999px}
 html.dark #qgo{filter:hue-rotate(180deg) invert(1)}
@@ -27,51 +19,38 @@ html.dark #qgo{filter:hue-rotate(180deg) invert(1)}
 .btn{border-radius:9999px;background:#000;color:#fff;font-weight:600;padding:11px 20px;letter-spacing:-.031em}
 .btn:not(.ghost){box-shadow:none}
 .btn.pink{background:#000;color:#fff}
-.btn.ghost{background:#fff;color:#000;border:1px solid var(--line);box-shadow:var(--sh-soft)}
-.btn.wa{background:#25D366;color:#073b1d}
-.hhr{background:#000;color:#fff;box-shadow:var(--sh2)}
 /* Chips y píldoras */
 .chip,.hswt button,.plsb{border-radius:9999px;background:#fff;color:#000;border:1px solid var(--line);box-shadow:var(--sh-soft);font-weight:500}
 .chip{padding:6px 16px}
 .chip[aria-pressed=true],.hswt button[aria-pressed=true]{background:#000;border-color:#000;color:#fff}
 .dchip span,.bedq button,.amen span{background:#fff;border-color:var(--line)}
 .dchip input:checked+span,.bedq button[aria-pressed=true]{background:#000;border-color:#000;color:#fff}
-.tabs{border-bottom-color:var(--line)}.tabs button[aria-current=true]{border-color:#000}
 .tag,.hnegb,.hscb{background:#000;color:#fff;border-radius:9999px;font-weight:500}
-.hscb{background:#fff;color:#000;box-shadow:var(--sh-soft)}
 /* Campos de formulario */
 input[type=text],input[type=number],input[type=tel],input[type=email],input[type=password],input[type=time],input[type=month],select{border-radius:9999px;padding:11px 20px;border:1px solid rgba(0,0,0,.1);background:#fff}
 textarea{border-radius:var(--r-img);padding:12px 18px;border:1px solid rgba(0,0,0,.1)}
-input[type=text]:focus,input[type=number]:focus,input[type=tel]:focus,input[type=email]:focus,input[type=password]:focus,input[type=time]:focus,input[type=month]:focus,select:focus,textarea:focus,.csq input:focus{border-color:rgba(0,0,0,.35);box-shadow:0 0 0 4px rgba(84,51,235,.12)}
 .csq input{border-radius:9999px;border-color:rgba(0,0,0,.1);padding:14px 20px}
 /* Tarjetas: 28px, blancas, separadas por sombra (sin borde), imagen interior 20px */
-.shop,.prod,.hpc,.rvc,.icard,.pvs,.hnegc,.hubf,.hsc,.hubhero,.hh2,article.cmc,.cg,.cmr,.stbar{border-radius:var(--r-card);border-color:transparent;box-shadow:var(--sh1)}
+.shop,.prod,.hpc,.rvc,.icard,.pvs,.hnegc,.hubf,.hsc,.hubhero,.hh2,article.cmc,.cg,.cmr,.stbar{border-radius:var(--r-card)}
 .shop:hover,.sg:hover{border-color:transparent}
 .banner,.cover,.plx,.modal,.drawer{border-radius:var(--r-card)}
 .drawer{border-top-right-radius:0;border-bottom-right-radius:0}
 .tbs{border-radius:var(--r-img)}
 .hpc{padding:8px 8px 12px}
 .hpc .hpi,.prod .pic,.cmt{border-radius:var(--r-img)}
-.hpc .hpi,.prod .pic{background:var(--bg)}
 .awning{display:none}
 .shop .em{border-radius:50%}
-.price,.hpc .hpp{color:#000;font-weight:600}
+.price,.hpc .hpp{font-weight:600}
 .hubhero,.hh2{background:#fff;border:0;color:#000}
-.hubhero h2,.hh2 h2{font-weight:600;letter-spacing:-.05em}
+.hubhero h2,.hh2 h2{font-weight:600}
 .hh2 h2 em{color:var(--rio)}
-.hh2 .qw{border:1px solid rgba(0,0,0,.1);box-shadow:var(--sh-soft)}
-.hubi{background:var(--c);border-radius:28%;box-shadow:var(--sh1)}
+.hubi{background:var(--c);border-radius:28%}
 .hubt{font-weight:500;letter-spacing:-.014em}
-.hgjc{background:#fff;border:1px solid var(--line);box-shadow:var(--sh-soft);border-radius:var(--r-img)}
+.hgjc{border:1px solid var(--line);border-radius:var(--r-img)}
 .hscc{color:var(--muted)}
 .hsc{overflow:hidden}.hscv{border-radius:9999px;border-color:var(--line)}.hscw{border-radius:9999px}
 .hnegl{color:#000;text-decoration:underline;text-underline-offset:.18em;font-weight:500}
 .hnegn{box-shadow:var(--sh2)}
-.hnegh h2,.hgjh h2,.shead h2{font-size:20px;letter-spacing:-.05em}
-article.cmc .cma{background:var(--bg)}
 /* Capas */
-.overlay{background:rgba(0,0,0,.5)}
-.modal{box-shadow:var(--sh2)}
-#toast{background:#000;border-radius:9999px;font-weight:500}
-footer{color:var(--muted);font-weight:400}
+footer{font-weight:400}
 html:not(.dark) .cdwin .plx{background:var(--bg)}

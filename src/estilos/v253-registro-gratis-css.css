@@ -1,6 +1,6 @@
 
 /* v253: botón y tarjeta «Registra tu negocio gratis» (visitantes y cuentas sin negocio) y publicidad «Pásate a Comerciante» (registro básico) */
-.hhr.hhrf{background:linear-gradient(135deg,#0a8f3f,#30d158);color:#fff;border:0;font-weight:700;box-shadow:0 10px 24px -10px rgba(10,143,63,.7);animation:bzpulse 2.4s ease-in-out infinite}
+.hhr.hhrf{color:#fff;border:0;font-weight:700;box-shadow:0 10px 24px -10px rgba(10,143,63,.7);animation:bzpulse 2.4s ease-in-out infinite}
 @keyframes bzpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 @media (prefers-reduced-motion:reduce){.hhr.hhrf{animation:none}}
 .bzc{position:relative;overflow:hidden;display:flex;gap:14px;align-items:flex-start;margin:16px 0;padding:20px 18px;border-radius:22px;color:#fff;box-shadow:0 14px 30px -16px rgba(0,0,0,.45)}
