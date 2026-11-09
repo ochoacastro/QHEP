@@ -10,7 +10,7 @@ function slide(cls,lbl,ic,tag,h,p,items,act,v,btn,tab,more){return '<section cla
 window.hubCar=function(){
  var L=[];var b='',g='';try{b=bizCta()}catch(e){}
  /* v311: el aviso verde «Registra tu negocio gratis» va siempre (antes solo salía sin cuenta o sin tienda) */
- try{var o0=bizSt;bizSt=function(){return 'none'};try{g=bizCta()}finally{bizSt=o0}}catch(e){}
+ try{g=bizCta('none')}catch(e){}/* v389: antes reemplazaba bizSt un momento */
  if(g)L.push(g);if(b&&b!==g)L.push(b);
  var pc='';try{pc=typeof pubCta==='function'?pubCta():''}catch(e){}/* v386: el aviso azul «Publica tu anuncio gratis» (el mismo de Notificaciones) va de primero */
  if(pc)L.unshift(pc);else L.push(slide('bzk','Publica un anuncio en los clasificados',(typeof hubIc!=='undefined'&&hubIc.mega?'<svg class="qi" viewBox="0 0 24 24" aria-hidden="true">'+hubIc.mega+'</svg>':''),'GRATIS','¿Quieres publicar un anuncio en los clasificados?','Vende, compra o avisa algo a tus vecinos de Pradera.',['1 anuncio gratis al día que dura 24 horas','Con fotos, precio y tu WhatsApp','Celulares, muebles, ropa, empleo y más'],'cmxNew','','Publicar mi anuncio','com','Ver clasificados'));/* v307 */

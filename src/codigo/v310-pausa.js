@@ -17,10 +17,10 @@ function banner(s,mine){
  if(mine)return '<div class="qpz" role="status">'+IC+'<div><b>Tu tienda está en pausa</b><p>'+(s.pauseA?'Se pausó mientras editas tus productos. ':'')+'Tus clientes ven los datos de tu tienda pero no tus productos, y no pueden hacer pedidos, '+until(s)+'.</p><div class="row"><button type="button" class="btn pink" data-qpz="off">Reanudar tienda</button></div></div></div>';
  return '<div class="qpz qpz-cli" role="status">'+IC+'<div><b>Tienda en pausa</b><p>'+esc(s.name)+' está actualizando sus productos y precios. Vuelve en unos minutos'+(Number(s.pause)-Date.now()>7*864e5?'':' (hasta las '+hhmm(Number(s.pause))+')')+'. Mientras tanto puedes ver sus datos y escribirle.</p></div></div>'}
 function wrap(){if(window.__qpzW||typeof storeView!=='function'||typeof prodView!=='function')return;window.__qpzW=1;
- var o=storeView;storeView=function(){var h=o(),s=view==='store'?st(cur):null;if(!s)return h;var mine=mineOf(s);
+ window.storeViewExt=function(){var h=storeView0(),s=view==='store'?st(cur):null;if(!s)return h;var mine=mineOf(s);
   if(mine)h=h.replace('<button class="btn ghost" data-act="editShop">','<button class="btn ghost qpzb" data-qpz="'+(paused(s)?'off':'menu')+'">'+(paused(s)?'Reanudar tienda':'Pausar tienda')+'</button><button class="btn ghost" data-act="editShop">');
   if(!paused(s))return h;var i=h.indexOf('<div class="icard">');var bn=banner(s,mine);return i>0?h.slice(0,i)+bn+h.slice(i):bn+h};
- var op=prodView;prodView=function(){var s=st(cur);if(!s||!paused(s)||mineOf(s)||adm)return op();
+ window.prodViewExt=function(){var s=st(cur);if(!s||!paused(s)||mineOf(s)||adm)return prodView0();
   return '<div class="hubbar"><button class="btn ghost" data-act="open" data-id="'+esc(s.id)+'">← Ver la tienda</button></div>'+banner(s,false)}}
 document.addEventListener('DOMContentLoaded',wrap);setTimeout(wrap,0);
 function menu(id){var s=st(id);if(!s)return;var opts=[[15,'15 minutos'],[30,'30 minutos'],[60,'1 hora'],[180,'3 horas']];

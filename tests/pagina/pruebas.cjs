@@ -160,6 +160,25 @@ const PRUEBAS = {
     check('Una guía abre «Hazlo conmigo» y no el visor de fotos', await p.evaluate(() => !!document.getElementById('qco') && !document.querySelector('.qtour')));
     sinErrores(p, 'Guías'); await p.cerrar();
   },
+  async avisos() { // v318 aviso emergente y v321 notificaciones, ahora como ganchos de toast (v389)
+    const p = await abrir({ user: { uid: 'uA', isAnonymous: false, email: 'ana@x.co' } }); await conCuenta(p); await p.waitForTimeout(800);
+    const n0 = await p.evaluate(() => nfUnread());
+    await p.evaluate(() => toast('Tu pedido fue enviado a la tienda')); await p.waitForTimeout(400);
+    check('Un aviso sale en la ventanita de arriba', /pedido fue enviado/.test(await p.evaluate(() => (document.getElementById('qpop') || {}).textContent || '')));
+    check('Y queda guardado en Notificaciones', (await p.evaluate(() => nfUnread())) === n0 + 1);
+    await p.evaluate(() => toast('Copiado')); await p.waitForTimeout(300);
+    check('Un aviso sin importancia no se guarda', (await p.evaluate(() => nfUnread())) === n0 + 1);
+    sinErrores(p, 'Avisos'); await p.cerrar();
+  },
+  async pausa() { // v310 tienda en pausa (ahora como ampliación explícita de storeView y prodView, v389)
+    const now = Date.now();
+    const p = await abrir({ seed: { 'stores/s1': { id: 's1', name: 'Tienda Pausada', ownerKey: 'kOtro', cat: 'Otros', wa: '3001234567', _o: 1, pause: now + 864e5, products: [{ id: 'p1', name: 'Arroz', price: 4000 }] }, 'stores/s2': { id: 's2', name: 'Tienda Abierta', ownerKey: 'kOtro', cat: 'Otros', wa: '3001234568', _o: 2, products: [] } } });
+    await p.evaluate(() => { view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(300);
+    check('Tienda en pausa: se avisa a los clientes', /pausa/i.test(await p.evaluate(() => document.getElementById('app').innerText)));
+    await p.evaluate(() => { view = 'store'; cur = 's2'; render() }); await p.waitForTimeout(300);
+    check('Tienda abierta: sin aviso de pausa', !/en pausa/i.test(await p.evaluate(() => document.getElementById('app').innerText)));
+    sinErrores(p, 'Pausa'); await p.cerrar();
+  },
   async celular() { // v371 un celular por cuenta
     const p = await abrir({ user: { uid: 'uA', isAnonymous: false, email: 'ana@x.co' }, seed: { 'tels/3155555233': { uid: 'otro', k: 'kO' } } });
     await p.evaluate(() => { S.user = { id: 'd', name: 'Julia', email: 'julia@x.co', wa: '3001234567' } });

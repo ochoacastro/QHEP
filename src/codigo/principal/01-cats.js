@@ -118,7 +118,7 @@ const QH=(function(){
  let plL=false;
  function plansListen(){if(MODE!=='admin'||plL||!adm||!ready)return;plL=true;listen('plans',()=>{if(view==='admin'&&!$('#ov'))render(true)})}
  const planSet=(k,patch)=>ref('plans',k).set(patch,{merge:true}).catch(wfail);
- const planDel=k=>ref('plans',k).delete().catch(wfail);
+ const planDel=k=>{try{if(typeof window.planDelExt==='function')window.planDelExt(k)}catch(e){}/* v389: v371 libera el celular */return ref('plans',k).delete().catch(wfail)};
  const plans=()=>Object.values(RAW.plans||{});
  /* v103: codigos de acceso (coleccion codes/<CODIGO de 12 caracteres>); el admin los crea, el usuario los canjea */
  const codes=()=>Object.values(RAW.codes||{}).sort((a,b)=>(b.ts||0)-(a.ts||0));

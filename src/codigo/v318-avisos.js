@@ -15,8 +15,7 @@ function show(m){m=String(m==null?'':m).trim();if(!m)return;var p=el(),bad=BAD.t
  p.setAttribute('role',bad?'alert':'status');p.classList.add('on');clearTimeout(t);
  if(!bad&&m.length<=70)t=setTimeout(function(){hide(false)},5000)}
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){var p=document.getElementById('qpop');if(p&&p.classList.contains('on')&&!document.getElementById('ov')){hide(true)}}});
-function wrap(){if(typeof window.toast!=='function'||window.toast.__qpop)return;var t0=window.toast;var w=function(m){try{show(m)}catch(x){}return t0.apply(this,arguments)};w.__qpop=1;
- for(var k in t0)if(Object.prototype.hasOwnProperty.call(t0,k))w[k]=t0[k];window.toast=w}
+function wrap(){var H=window.toastHooks=window.toastHooks||[];if(H.indexOf(show)<0)H.push(show)}/* v389: gancho de toast (antes envolvía la función) */
 /* el aviso de «Publicando…» (pubFx) envuelve toast cuando carga la página; este va por fuera de ese */
 window.addEventListener('load',function(){setTimeout(wrap,50)});setTimeout(wrap,3000);
 window.qpopHide=hide;

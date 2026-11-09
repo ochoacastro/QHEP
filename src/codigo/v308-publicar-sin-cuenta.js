@@ -56,8 +56,7 @@ async function resume(){if(busy||!S.user||MODE!=='panel')return;var d=ld();if(!d
  }finally{if(d.k==='shop'||!GD)busy=0}}
 window.gdResume=resume;window.gdGet=ld;window.gdFill=fill;window.gdClear=clr;/* v309 */
 /* cada vez que se abre un formulario nuevo de inmueble o vehículo con un borrador guardado, se llena solo */
-function wrap(){if(window.__gdW||typeof adForm!=='function')return;window.__gdW=1;var o=adForm;
- adForm=function(t,a){o(t,a);if(a)return;var d=ld();if(d&&d.k===t){window.__gdF=fill(d);if(!S.user)note(t)}else{window.__gdF=Promise.resolve(false);if(!S.user)note(t)}}}
+function wrap(){if(window.__gdW||typeof adForm!=='function')return;window.__gdW=1;window.adFormExt=function(t,a){adForm0(t,a);if(a)return;var d=ld();if(d&&d.k===t){window.__gdF=fill(d);if(!S.user)note(t)}else{window.__gdF=Promise.resolve(false);if(!S.user)note(t)}}}
 document.addEventListener('DOMContentLoaded',wrap);setTimeout(wrap,0);
 /* Publicar / Abrir tienda sin cuenta: guardar y pedir la cuenta */
 addEventListener('click',function(e){var t=e.target;if(!t.closest)return;

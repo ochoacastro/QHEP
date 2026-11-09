@@ -14,7 +14,8 @@ function syncAreaL(){const p=$('#af-ptype'),l=document.querySelector('label[for=
 const visOn=()=>{const w=$('#af-who'),c=$('#af-cond');return !!w&&!!c&&w.value==='Constructora'&&c.value==='Nuevo'};
 function syncVisT(){const f=$('#af-visT'),w=f&&f.closest('.fw');if(w)w.hidden=!visOn()}
 function applyVis(){syncAreaL();syncVisT();const s=$('#af-vtype');if(!s)return;document.querySelectorAll('#adf .fw[data-v]').forEach(w=>{w.hidden=!w.dataset.v.split('|').includes(s.value)})}
-function adForm(t,a){const T=ADT[t],u=S.user;af={type:t,id:a?a.id:'',imgs:a?pimgs(a).slice():[]};
+function adForm(t,a){return typeof window.adFormExt==='function'?window.adFormExt.apply(this,arguments):adForm0.apply(this,arguments)}/* v389: adForm tiene una ampliación (adFormExt) en v308-publicar-sin-cuenta */
+function adForm0(t,a){const T=ADT[t],u=S.user;af={type:t,id:a?a.id:'',imgs:a?pimgs(a).slice():[]};
 modal(`<h2>${a?'Editar anuncio':T.pub}</h2><div id="adf">${T.F.map(sp=>`<div class="fw"${sp.v?` data-v="${sp.v.join('|')}" hidden`:''}>${fieldHTML(sp,a?(CORE.includes(sp.k)?a[sp.k]:a.f[sp.k]):'')}</div>`).join('')}
 <label>Fotos (máximo 5)</label><div class="row" id="a-imgs" style="padding:6px 0">${aImgs()}</div><input id="a-img" type="file" accept="image/*" multiple><div class="muted" id="a-cnt">Puedes elegir hasta 5 fotos.</div>${PHOTO_NOTE}
 <label for="a-owner">Tu nombre</label><input id="a-owner" type="text" maxlength="30" value="${esc(a?a.owner:(u?u.name:''))}">
@@ -48,7 +49,8 @@ function lbZoom(z){lb.z=Math.min(4,Math.max(1,z));const im=$('#lbimg'),st=$('#st
 /* v265: la versión gratis tiene 1 tienda básica; para tener más tiendas hace falta el rol Comerciante (o el de su tipo de negocio) */
 const shopsMine=()=>{let k='';try{k=QH.key()}catch(e){}return S.stores.filter(s=>S.mine.includes(s.id)||(k&&s.ownerKey===k))};
 const shopRole=()=>['merc','store','food','pelu'].some(u=>accOn(u));
-function shopForm(only){const ms0=shopsMine();if(MODE!=='admin'&&S.user&&ms0.length&&!shopRole()){
+function shopForm(only){return typeof window.shopFormExt==='function'?window.shopFormExt.apply(this,arguments):shopForm0.apply(this,arguments)}/* v389: shopForm tiene una ampliación (shopFormExt) en v313-roles-tamano */
+function shopForm0(only){const ms0=shopsMine();if(MODE!=='admin'&&S.user&&ms0.length&&!shopRole()){
  return modal(`<h2>Ya tienes tu tienda gratis</h2><p>El registro gratis incluye <b>1 tienda básica</b>: <b>${esc(ms0[0].name)}</b>.</p><p>Para tener <b>más tiendas</b> (y agregarles portada y productos) activa el rol <b>Comerciante</b>.</p><div class="row" style="margin-top:10px"><button type="button" class="btn pink" data-act="shopPro">Ver el rol Comerciante</button><button type="button" class="btn ghost" data-act="shopGoMine" data-id="${esc(ms0[0].id)}">Ir a mi tienda</button><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>`)}const ol=only?(only==='food'?COMIDAS:PELU):null,cl=CATSA().filter(c=>!ol||ol.includes(c[0]));pick={cat:ol&&cl.length===1?cl[0][0]:'',emoji:'🏪',kind:''};modal(`<h2>${only==='food'?'Publica tu restaurante o comida':only==='pelu'?'Publica tu peluquería':'Crea tu tienda'}</h2>
 <p class="shpnote"><b>Registrar tu negocio es gratis</b>: nombre, logo, categoría, dirección, teléfono y una descripción corta. Con el rol <b>Comerciante</b> agregas imagen de portada y productos con fotos y precios.</p>
 <label>Tipo de negocio</label><div class="row" id="f-kind"><button class="chip" data-act="pkind" data-v="" aria-pressed="true">Con nombre de negocio</button><button class="chip" data-act="pkind" data-v="casero" aria-pressed="false">Casero (con mi nombre)</button></div>
@@ -81,7 +83,8 @@ const pxFields=(x,p)=>{p=p||{};cG={};cS={};vK={};(p.vsku||[]).forEach(q=>{if(q&&
 <label for="${x}-spec">Características (una por línea)</label><textarea id="${x}-spec" rows="4" maxlength="800" placeholder="Pantalla: 16 pulgadas&#10;Memoria RAM: 16 GB">${esc(p.spec||'')}</textarea>
 <label for="${x}-desc">Descripción completa</label><textarea id="${x}-desc" rows="5" maxlength="2000">${esc(p.desc||'')}</textarea></details>`};
 const pxRead=x=>{const g=i=>(($('#'+x+'-'+i)||{}).value||'').trim(),o=Number(g('old').replace(/\D/g,'')),sk=($('#'+x+'-stk')||{}).hidden?'':g('stock');return{brand:g('brand'),sku:g('sku').slice(0,40),vsku:csv(g('color')).filter(c=>String(vK[c]||'').trim()).map(c=>({c,k:String(vK[c]).trim().slice(0,40)})),old:o>0?Math.floor(o):'',cond:g('cond'),color:g('color'),sizes:g('sizes'),stock:sk===''?'':Math.max(0,Math.floor(Number(sk))||0),war:g('war'),spec:g('spec'),desc:g('desc')}};
-function prodView(){const s=S.stores.find(x=>x.id===cur),p=s&&s.products.find(x=>x.id===curP);if(!s||!p||!(vis(s)||adm)){view=s?'store':'home';return s?storeView():homeView()}if(ageBlock(s))return ageGate(s);
+function prodView(){return typeof window.prodViewExt==='function'?window.prodViewExt.apply(this,arguments):prodView0.apply(this,arguments)}/* v389: prodView tiene una ampliación (prodViewExt) en v310-pausa */
+function prodView0(){const s=S.stores.find(x=>x.id===cur),p=s&&s.products.find(x=>x.id===curP);if(!s||!p||!(vis(s)||adm)){view=s?'store':'home';return s?storeView():homeView()}if(ageBlock(s))return ageGate(s);
 const c=catOf(s.cat),mine=S.mine.includes(s.id),li=LISTING.includes(s.cat),g=galC(p,(pSel[p.id]||{}).co),im=g.filter(m=>!isYt(m)),n=im.length,rr=p.rates||[],out=!!p.out||p.stock===0,mx=p.stock>0?p.stock:99,pi=Math.min(pI,Math.max(0,n-1)),q=pQ=Math.max(1,Math.min(pQ,mx)),
 off=p.old>p.price?Math.round((1-p.price/p.old)*100):0,
 bul=[p.d].concat((p.spec||'').split('\n').map(x=>x.trim())).filter(Boolean),
