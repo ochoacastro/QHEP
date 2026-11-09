@@ -1,6 +1,6 @@
 
 /* v230: GUÍAS PASO A PASO. Centro de ayuda (Mi cuenta → "Ayuda y guías") y botón "¿Cómo se hace?" dentro de cada formulario.
-   Usa el mismo visor del tutorial (tourOpen). Imágenes en la carpeta guias/. El administrador apaga todo el centro de ayuda
+   Las guías se abren con «Hazlo conmigo» (v248); las imágenes y su visor se quitaron (v366, v387). El administrador apaga todo el centro de ayuda
    (meta/site.help = false) o guías sueltas (meta/site.helpOff = ['id', ...]) en Administrar → Mis datos.
    Si algo falla, borra este <script id="v230-guias"> y el <style id="v230-guias-css">. */
 var GUIDES=[
@@ -39,13 +39,11 @@ var GUIDES=[
 function helpSite(){try{return (typeof site==='function'?site():(S&&S.site))||{}}catch(e){return {}}}
 function helpOn(){return helpSite().help!==false}
 function guideOn(g){var off=helpSite().helpOff;return helpOn()&&!(Array.isArray(off)&&off.indexOf(g.id)>-1)}
-function guideOpen(id){var g=GUIDES.find(function(x){return x.id===id});if(!g)return;tourOpen(g.s.map(function(x){return ['guias/'+x[0]+'.webp',x[1],x[2]]}),g.t)}
 function helpOpen(){var l=GUIDES.filter(function(g){return guideOn(g)&&g.id!=='ins'})/* v366: sin guías de fotos */;try{modal('<h2>Ayuda y guías</h2><p class="muted">Elige qué quieres aprender. Cada guía te acompaña paso a paso en la página.</p><div class="qhl">'+
  l.map(function(g){return '<button type="button" data-guide="'+g.id+'"><i>'+g.ic+'</i><span><b>'+g.t+'</b><small>'+g.d+'</small></span></button>'}).join('')+
  '</div><div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>')}catch(e){}}
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-guide],[data-act="helpOpen"]');if(!b)return;e.preventDefault();e.stopPropagation();
- if(b.dataset.act==='helpOpen'){try{if(document.querySelector('.overlay')&&typeof closeModal==='function')closeModal(1)}catch(x){}setTimeout(helpOpen,150);return}
- var id=b.dataset.guide,inForm=b.classList.contains('qhelp');if(!inForm){try{if(document.querySelector('.overlay')&&typeof closeModal==='function')closeModal(1)}catch(x){}}setTimeout(function(){guideOpen(id)},inForm?0:150)},true);
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="helpOpen"]');if(!b)return;e.preventDefault();e.stopPropagation();
+ try{if(document.querySelector('.overlay')&&typeof closeModal==='function')closeModal(1)}catch(x){}setTimeout(helpOpen,150)},true);/* v387: cada guía la abre «Hazlo conmigo» (v248); se quitó el visor de guías con fotos */
 /* botón "¿Cómo se hace?" arriba de cada formulario que tiene guía */
 (function(){var pend=false;function put(){pend=false;if(!helpOn())return;GUIDES.forEach(function(g){if(!g.f||!guideOn(g))return;var f=document.querySelector(g.f);if(!f)return;
   var box=f.closest('.modal')||f.closest('.overlay')||f.closest('.cg')||f.parentNode;if(!box||box.querySelector('.qhelp[data-guide="'+g.id+'"]'))return;
