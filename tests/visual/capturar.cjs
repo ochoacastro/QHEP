@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path');
 const ROOT = path.resolve(__dirname, '..', '..'), FB = fs.readFileSync(path.join(__dirname, '..', 'pagina', 'firebase-falso.js'), 'utf8');
 const OUT = path.resolve(process.argv[2] || 'capturas'); fs.mkdirSync(OUT, { recursive: true });
-const ADMIN_UID = 'UKluJD3k7gP4HJN24KjK1HSHlIC3', T0 = Date.UTC(2026, 10, 9, 15, 0, 0);
+const ADMIN_UID = 'KUowZZ25CePVc9IXGmhCLVbbSIB3', T0 = Date.UTC(2026, 10, 9, 15, 0, 0);
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.png': 'image/png', '.webp': 'image/webp', '.json': 'application/json', '.webmanifest': 'application/manifest+json' };
 const IMG = c => 'data:image/svg+xml;base64,' + Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="${c}"/></svg>`).toString('base64');
 const SEED = {

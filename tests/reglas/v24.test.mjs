@@ -1,6 +1,6 @@
 import {initializeTestEnvironment} from '@firebase/rules-unit-testing';
 import {doc,setDoc,getDoc,deleteDoc,updateDoc,addDoc,collection,query,where,getDocs} from 'firebase/firestore';import fs from 'fs';
-const now=Date.now(),AD='UKluJD3k7gP4HJN24KjK1HSHlIC3';
+const now=Date.now(),AD='KUowZZ25CePVc9IXGmhCLVbbSIB3';
 const env=await initializeTestEnvironment({projectId:'demo-qhep',firestore:{rules:fs.readFileSync(process.env.RULES,'utf8'),host:'127.0.0.1',port:8089}});
 const real=(uid,email)=>env.authenticatedContext(uid,{email,email_verified:true,firebase:{sign_in_provider:'password'}}).firestore();
 const V=real('uVecino','v@x.co'),O=real('uDueno','d@x.co'),X=real('uOtro','o@x.co'),A=real(AD,'admin@x.co');
