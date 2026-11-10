@@ -2,6 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // v50 (sobre v49): tiendas con «Conoce el lugar» (gal: fotos, vid: video de YouTube): gratis hasta 3 fotos sin video;
+    // con el rol de la tienda hasta 10 fotos y 1 video (funciones galOk y galOkNew).
     // v49 (sobre v48): el administrador ahora es la cuenta nueva (UID KUowZZ25CePVc9IXGmhCLVbbSIB3, creada el 9 nov 2026);
     // solo cambia el UID dentro de isAdmin(). Lo demas es igual a v48.
     // v48 (sobre v47): coleccion "tels" (un celular por cuenta): cualquiera con sesion puede ver si un celular ya esta tomado;
@@ -215,6 +217,7 @@ service cloud.firestore {
                              // revisaba en Comidas y Peluquerias; con la consola del navegador se podia publicar gratis)
                              && pubOk(coll, id)
                              && (coll != 'stores' || pexpOk(request.resource.data))
+                             && (coll != 'stores' || galOkNew(request.resource.data))
                              // v35: al crear no se puede nacer destacado
                              && request.resource.data.get('feat', false) == false
                              && fexpOk(request.resource.data)) );
@@ -230,6 +233,7 @@ service cloud.firestore {
                                  || request.resource.data.get('cover', '') == ''
                                  || request.resource.data.get('cover', '') == resource.data.get('cover', '')
                                  || catOk(request.resource.data.get('cat', ''), request.resource.data.get('ownerKey', '')))
+                             && (coll != 'stores' || galOk(request.resource.data, resource.data))
                              // v33: la fecha de pago solo cambia a una fecha real del plan
                              && (coll != 'stores'
                                  || request.resource.data.get('pexp', 0) == resource.data.get('pexp', 0)
@@ -601,6 +605,25 @@ service cloud.firestore {
 
     function catOk(c, k) {
       return hasAcc(catNeed(c), k);
+    }
+
+    // v50: «Conoce el lugar» de cada tienda: gal (lista de fotos) y vid (video de YouTube).
+    // Gratis: hasta 3 fotos y sin video. Con el rol de la categoria (Comerciante, Comidas o Peluquerias): hasta 10 fotos y 1 video.
+    // Si el rol vence, la tienda conserva lo que ya tenia y puede quitar fotos, pero no agregar.
+    function galVal(d) {
+      return d.get('gal', []) is list && d.get('gal', []).size() <= 10
+          && d.get('vid', '') is string && d.get('vid', '').size() <= 20;
+    }
+    function galFree(d) {
+      return d.get('gal', []).size() <= 3 && d.get('vid', '') == '';
+    }
+    function galOkNew(d) {
+      return galVal(d) && (galFree(d) || catOk(d.get('cat', ''), d.get('ownerKey', '')));
+    }
+    function galOk(n, o) {
+      return galVal(n) && (galFree(n)
+          || (n.get('gal', []).size() <= o.get('gal', []).size() && (n.get('vid', '') == '' || n.get('vid', '') == o.get('vid', '')))
+          || catOk(n.get('cat', ''), n.get('ownerKey', '')));
     }
 
     // v21: rol que exige cada coleccion al crear (como needAcc() de la pagina)

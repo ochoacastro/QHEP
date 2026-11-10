@@ -23,7 +23,7 @@ else return null;return {k,id,t,sub,u}}).filter(Boolean);
 const need=f=>{if(S.user)f();else{after=f;loginForm()}};
 const zonesOf=l=>[...new Set(l.map(x=>(x.zone||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
 const toolsHTML=k=>`<div class="tools"><label for="t-sort">Ordenar</label><select id="t-sort" data-sel="sort"><option value="">Más recientes</option><option value="rate"${sortBy==='rate'?' selected':''}>Mejor calificadas</option><option value="az"${sortBy==='az'?' selected':''}>A – Z</option></select><label for="t-zone">Barrio</label><select id="t-zone" data-sel="zone"><option value="">Todos</option>${znOpts(zonesOf(k==='store'?S.stores:S.services),zoneF)}</select><button class="chip" data-act="favf" aria-pressed="${favOnly}">Solo favoritos</button></div>`;
-const storeUrl=id=>BASE_URL+'?tienda='+stRefId(id);/* v300: sin «#» *//* v297: con el nombre de la tienda */const cardUrl=id=>BASE_URL+'#/n/'+encodeURIComponent(id);
+const storeUrl=id=>BASE_URL+'?tienda='+stRefId(id);/* v300: sin «#» *//* v297: con el nombre de la tienda */
 const adUrl=id=>BASE_URL+'#/a/'+encodeURIComponent(id);
 const pCode=p=>'QHP-'+String(p.id).toUpperCase();
 const prodUrl=(sid,pid,v,t)=>BASE_URL+'?producto='+stRefId(sid)+'/'+encodeURIComponent(pid)+(v?'&v='+v:'')+(t?'&talla='+encodeURIComponent(t):'');/* v300: sin «#» (el color va en v y la talla en talla) *//* v296: el enlace lleva el color (v) y la talla (t) */

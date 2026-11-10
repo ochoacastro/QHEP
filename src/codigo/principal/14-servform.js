@@ -84,9 +84,9 @@ else if(a==='hubWa'){const t=S.stores.find(x=>x.id===id);if(t&&t.wa)waOpen(t.wa,
 else if(a==='hubStores'){query='';{const q0=$('#q');if(q0)q0.value=''}kf='';cat=v;vt='';fu='';sortBy='';zoneF='';favOnly=false;shopsOpen=true;view='home';render()}
 else if(a==='hubHome'){kf='';cat='';vt='';fu='';query='';$('#q').value='';shopsOpen=false;view='home';render()}
 else if(a==='open'){view='store';cur=id;render()}
-else if(a==='card'){view='card';cur=id;render()}
-else if(a==='shareCard'){const s=S.stores.find(x=>x.id===id);if(s)shTxt('Mira la tarjeta de '+s.name+' en Mi Pradera',cardUrl(id))}
-else if(a==='copyCard'){cpTxt(cardUrl(id),'Enlace de la tarjeta copiado')}
+else if(a==='card'){view='store';cur=id;render()}/* v404: ya no hay tarjeta digital; abre la tienda */
+else if(a==='shareCard'){const s=S.stores.find(x=>x.id===id);if(s)shTxt('Mira '+s.name+' en Mi Pradera',storeUrl(id))}
+else if(a==='copyCard'){cpTxt(storeUrl(id),'Enlace de la tienda copiado')}
 else if(a==='nwOpen'){curN=id;view='news';render();scrollTo(0,0)}
 else if(a==='nwList'){curN='';view='news';render();scrollTo(0,0)}
 else if(a==='nwCat'){nwCat=id||'';curN='';view='news';render();scrollTo(0,0)}

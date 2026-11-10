@@ -256,6 +256,23 @@ const PRUEBAS = {
     check('La pregunta del mapa tiene botones y guarda la respuesta', await p.evaluate(() => $('#x-mapok').value === '1' && readHours().mapfix === false && getComputedStyle(document.querySelector('label[for=x-mapok]')).display === 'none'));
     sinErrores(p, 'Horario y pregunta'); await p.cerrar();
   },
+  async conoceElLugar() { // v403 sin portada; «Conoce el lugar»: gratis 3 fotos, con el rol 10 y video
+    const R2 = i => 'https://pub-419ea53b95de40199910716cc66fd035.r2.dev/u/a/' + i + '-abcdef12.webp';
+    const base = { name: 'Acabados', cat: 'Ferreterías', wa: '3112223344', products: [] };
+    const p = await abrir({ seed: { 'stores/s1': { id: 's1', ...base, ownerKey: 'kO', gal: [0, 1, 2, 3, 4].map(R2), vid: 'MQ6c-4SBo9Y', pexp: Date.now() + 9e9 }, 'stores/s2': { id: 's2', ...base, ownerKey: 'kO', gal: [0, 1, 2, 3, 4].map(R2), vid: 'MQ6c-4SBo9Y', pexp: 1 } } });
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(300);
+    check('Ya no hay espacio de portada', await p.evaluate(() => !document.querySelector('#app .cover')));
+    check('Tienda al día: se ven el video y las 5 fotos', await p.evaluate(() => document.querySelectorAll('.clug .clz').length === 6 && !!document.querySelector('.clug .clt.v')));
+    await p.click('[data-clopen="1"]'); await p.waitForTimeout(300);
+    check('Tocar una foto la abre en grande', await p.evaluate(() => !!document.getElementById('lb')));
+    await p.evaluate(() => { lbClose(); cur = 's2'; render() }); await p.waitForTimeout(300);
+    check('Con el pago vencido se ven solo 3 fotos y sin video', await p.evaluate(() => document.querySelectorAll('.clug .clz').length === 3 && !document.querySelector('.clug .clt.v')));
+    sinErrores(p, 'Conoce el lugar'); await p.cerrar();
+    const q = await abrir({ seed: { 'stores/s3': { id: 's3', ...base, ownerKey: 'kA' } } }); await conCuenta(q);
+    await q.evaluate(() => { closeModal(1); if (!S.mine.includes('s3')) S.mine.push('s3'); view = 'store'; cur = 's3'; render() }); await q.waitForTimeout(300);
+    check('El dueño gratis ve «Agregar fotos 0 de 3» y el candado de más fotos y video', await q.evaluate(() => /0 de 3/.test(document.querySelector('.clug').textContent) && !!document.querySelector('.clug .cla.lock') && !document.querySelector('[data-clvid]')));
+    sinErrores(q, 'Conoce el lugar (dueño)'); await q.cerrar();
+  },
   async sesionYAvisos() { // v400 entrar solo con el botón, campana solo con sesión, «Escríbenos» visible
     const p = await abrir();
     check('Sin sesión no se ve la campana', await p.evaluate(() => { const b = document.getElementById('nfBtn'); return !b || b.offsetParent === null }));
