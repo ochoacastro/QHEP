@@ -7217,7 +7217,7 @@ else if(a==='codesModal'){codesModal()}
 else if(a==='bn'){closeModal(1);const clr=()=>{query='';const q0=$('#q');if(q0)q0.value=''};
  if(v==='home'){if(MODE!=='index'){location.href=BASE_URL;return}kf='';cat='';vt='';fu='';clr();shopsOpen=false;view='home';render();scrollTo(0,0)}
  else if(v==='search'){if(MODE!=='index'){location.href=BASE_URL;return}if(view!=='home'||shopsOpen){kf='';cat='';clr();shopsOpen=false;view='home';render()}scrollTo(0,0);setTimeout(()=>{const q=$('#q');if(q)q.focus()},200)}
- else if(v==='pub'){if(MODE==='index'){location.href=PANEL_URL+'#/publicar';return}need(pubMenu)}
+ else if(v==='pub'){if(MODE==='index'){location.href=PANEL_URL+'#/clasificado';return}view='com';render();pubRun('com')}/* v407: «Publicar» de la barra de abajo va directo a crear un clasificado */
  else if(v==='com'){cmF={...CMF0};clr();view='com';render();scrollTo(0,0)}
  else if(v==='me'){if(MODE==='index'){location.href=PANEL_URL;return}view='home';render();scrollTo(0,0)}}
 else if(a==='guiaGo'){closeModal(1);sortBy='';zoneF='';favOnly=false;view='guias';render();const i=+v||0;setTimeout(()=>{const s=document.querySelectorAll('#app section.cg')[i];if(s)scrollTo({top:s.getBoundingClientRect().top+scrollY-12,behavior:'smooth'})},80)}
