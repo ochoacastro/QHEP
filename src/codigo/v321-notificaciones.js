@@ -12,9 +12,10 @@ var WARN='<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 function ld(){try{var l=JSON.parse(localStorage.getItem(K)||'[]');return Array.isArray(l)?l.filter(function(n){return n&&n.m&&Date.now()-(n.t||0)<KEEP}):[]}catch(e){return []}}
 function sv(l){try{localStorage.setItem(K,JSON.stringify(l.slice(0,MAX)))}catch(e){}}
-function unread(){return ld().filter(function(n){return !n.r}).length+(typeof window.nfPromoNew==='function'?nfPromoNew():0)/* v381: avisos nuevos */}
+function lg(){try{return !!S.user}catch(e){return false}}/* v400: sin sesión no hay notificaciones */
+function unread(){if(!lg())return 0;return ld().filter(function(n){return !n.r}).length+(typeof window.nfPromoNew==='function'?nfPromoNew():0)/* v381: avisos nuevos */}
 window.nfUnread=function(){return unread()}/* v381 */;
-window.nfAdd=function(m,bad){m=String(m||'').trim();if(!m)return;var l=ld();if(l[0]&&l[0].m===m&&Date.now()-l[0].t<8000)return;
+window.nfAdd=function(m,bad){m=String(m||'').trim();if(!m||!lg())return;/* v400 */var l=ld();if(l[0]&&l[0].m===m&&Date.now()-l[0].t<8000)return;
  l.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),m:m.slice(0,300),t:Date.now(),b:bad==null?BAD.test(m):!!bad,r:false});sv(l);badge();box()};
 function D(t){try{return new Date(t).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}catch(e){return ''}}
 function listH(){var l=ld();if(!l.length)return '<p class="muted">No tienes notificaciones. Aquí aparecen los avisos de pedidos, pagos, roles y publicaciones.</p>';
@@ -35,7 +36,7 @@ function place(){try{if(MODE==='admin')return;var b=btn(),h=document.querySelect
  if(getComputedStyle(h).position==='static')h.style.position='relative';
  var hr=h.getBoundingClientRect(),tr=r&&r.offsetParent?r.getBoundingClientRect():null;
  if(tr&&tr.width){b.style.top=(tr.top-hr.top+(tr.height-44)/2)+'px';b.style.left=(tr.left-hr.left-52)+'px';b.style.right='auto'}else{b.style.top='12px';b.style.right='12px';b.style.left='auto'}}catch(e){}}
-function badge(){var b=document.getElementById('nfBtn');if(!b)return;var n=unread(),em=b.querySelector('em');em.hidden=!n;em.textContent=n>99?'99+':String(n);b.setAttribute('aria-label',n?'Notificaciones, '+n+' sin leer':'Notificaciones')}
+function badge(){var b=document.getElementById('nfBtn');if(!b)return;b.style.display=lg()?'':'none'/* v400: sin sesión no hay campana */;var n=unread(),em=b.querySelector('em');em.hidden=!n;em.textContent=n>99?'99+':String(n);b.setAttribute('aria-label',n?'Notificaciones, '+n+' sin leer':'Notificaciones')}
 function onToast(m){var s=String(m==null?'':m);if(s&&IMP.test(s))nfAdd(s)}
 function wrap(){var H=window.toastHooks=window.toastHooks||[];if(H.indexOf(onToast)<0)H.push(onToast)}/* v389: gancho de toast (antes envolvía la función) */
 window.addEventListener('load',function(){setTimeout(function(){wrap();place();badge()},200)});setTimeout(function(){wrap();place();badge()},3500);

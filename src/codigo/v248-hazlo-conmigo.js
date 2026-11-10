@@ -65,7 +65,7 @@ var G={
   F('#f-owner','Escribe <b>tu nombre</b>.',len(2)),
   F('#f-wa','El <b>teléfono o WhatsApp</b> del negocio: ahí te contactarán.',tel),
   F('#x-zone','Tu <b>barrio o zona</b> (opcional).',null,{opt:1}),
-  I('#x-open','Pon tu <b>horario de atención</b>. Si cambia según el día, marca «El horario cambia según el día».',{box:'up2'}),
+  I('#x-hrs','Pon tu <b>horario de atención</b>: marca los días que abres y elige la hora. Si abres igual varios días, toca «Aplicar este horario a los días marcados».',{box:'up2'}),
   F('#x-addr','La <b>dirección</b> de tu negocio (opcional).',null,{opt:1}),
   T('[data-act="saveShop"]','¡Listo! Toca <b>«Abrir tienda»</b>.',{final:1})]},
  pro:{t:'Agregar productos',open:function(){var id=(S.mine||[]).find(function(i){return S.stores.some(function(s){return s.id===i})});if(!id)return 'nostore';cur=id;prodForm()},first:'#p-name',steps:[
