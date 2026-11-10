@@ -7,3 +7,5 @@
 body.instore .wafab{bottom:88px}
 @media (max-width:900px){.wafab{bottom:calc(84px + env(safe-area-inset-bottom))}body.instore .wafab{bottom:calc(152px + env(safe-area-inset-bottom))}}
 html.dark .wafab{background:#25D366!important;filter:none!important}
+/* v405: el botón de WhatsApp solo en la página principal */
+body:not(.qhome) .wafab{display:none!important}

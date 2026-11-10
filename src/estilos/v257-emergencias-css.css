@@ -47,3 +47,5 @@ html.dark .emg-b{color:#fff!important}
 html.dark .emg-w{background:#fff!important;color:#0a7d3b!important}
 html.dark .emg-tip{color:#ffb4b4!important}
 html.dark .emg-c .btn.wa{background:#25d366!important;color:#06361a!important}
+/* v405: el botón SOS solo en la página principal */
+body:not(.qhome) .emgfab{display:none!important}
