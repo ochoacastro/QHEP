@@ -1372,6 +1372,15 @@
  },
  {
   "t": "js",
+  "tag": "<script id=\"v402-pregunta-mapa\">",
+  "f": "codigo/v402-pregunta-mapa.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
   "tag": "<script id=\"v332-datos-negocio\">",
   "f": "codigo/v332-datos-negocio.js"
  },
