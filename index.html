@@ -1788,9 +1788,13 @@ html.dark .ltr2 button[aria-pressed=true]{border-color:#0a84ff;box-shadow:inset 
 html.dark .ltrc .chip[aria-pressed=true]{background:#0a84ff!important;border-color:#0a84ff!important}
 .ltr,.ltr2 button,.ltrc .chip{border-radius:0!important}
 </style>
-<style id="v419-check-pagos">/* v419: CASILLA EN LOS MEDIOS DE PAGO. En el formulario de la tienda, cada medio de pago (Efectivo, Bre-B, Nequi, tarjeta,
+<style id="v419-check-pagos">/* v419: MEDIOS DE PAGO EN UNA COLUMNA Y CON CASILLA. Se agrega «Tarjeta débito» (en 09-rateform.js y v320-pedidos.js) y los
+   medios de pago del formulario de la tienda van uno debajo del otro, todos del mismo ancho. En el formulario de la tienda, cada medio de pago (Efectivo, Bre-B, Nequi, tarjeta,
    Sistecrédito) lleva una casilla a la izquierda: vacía si no está elegido, azul con el chulo si está elegido. Antes solo
    cambiaba el fondo, y con los logos no se notaba bien cuál estaba marcado. Si algo falla, borra este <style>. */
+#x-pays.dayrow{flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:8px}
+#x-pays .dchip.pay{display:block}
+#x-pays .dchip.pay span{justify-content:flex-start;gap:10px;min-height:48px;text-align:left}
 .dchip.pay span::before{content:"";flex:0 0 auto;box-sizing:border-box;width:22px;height:22px;border:2px solid #8e8e93;background-color:transparent}
 .dchip.pay input:checked+span::before{border-color:#0071e3;background:#0071e3 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4 10.5l4 4 8-9' fill='none' stroke='%23fff' stroke-width='2.6'/%3E%3C/svg%3E") center/16px 16px no-repeat}
 .dchip.pay input:focus-visible+span{outline:2px solid #0071e3;outline-offset:2px}
@@ -4384,7 +4388,7 @@ window.qpopHide=hide;
      El cliente lo ve en Mi cuenta → Mis pedidos. Si paga con Bre-B o Nequi, sube el comprobante como los demás pagos.
    Campo de la tienda: om = 'wa' | 'app'. Si algo falla, borra este bloque. */
 (function(){
-var PAYN={cash:'Efectivo (contra entrega)',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta (datáfono)',siste:'Sistecrédito'/* v410 */},PAYS_={cash:'Efectivo',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta',siste:'Sistecrédito'};
+var PAYN={cash:'Efectivo (contra entrega)',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta de crédito (datáfono)',debit:'Tarjeta débito (datáfono)'/* v419 */,siste:'Sistecrédito'/* v410 */},PAYS_={cash:'Efectivo',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta de crédito',debit:'Tarjeta débito'/* v419 */,siste:'Sistecrédito'};
 var STN={nuevo:'Nuevo',acep:'Aceptado · preparando',env:'Enviado',ent:'Entregado',canc:'Cancelado'},PSN={pend:'Pago pendiente',ok:'Pagado',no:'No pagó'};
 var ORD={},OT=[],OF=[],uidL='',subs=[],seen=null,FT='act',sf=0;
 /* v418: PEDIDOS POR LA APLICACIÓN APAGADOS (APP=false). Todos los pedidos salen por WhatsApp: el formulario de la tienda ya no
@@ -6840,7 +6844,7 @@ const REASONS=['Estafa o fraude','Contenido inapropiado o prohibido','Informaci�
 const DELIV=['','Sí, hago domicilios','Solo recoger en la tienda','A convenir'];
 const readDel=()=>{if($('#x-del').value!==DELIV[1])return{dfee:'',dcost:''};const f=$('#x-dfee').value,c=parseInt(String($('#x-dcost').value).replace(/\D/g,''),10);return{dfee:f==='free'||f==='paid'?f:'',dcost:f==='paid'&&c>0?Math.min(c,999999):''}};
 const delFeeTxt=s=>s.delivery!==DELIV[1]?'':s.dfee==='free'?' · Gratis':s.dfee==='paid'?(s.dcost?' · Costo '+money(s.dcost):' · Con costo'):'';
-const PAYS=[['cash','Efectivo'],['bre','Bre-B'],['nequi','Nequi'],['card','Tarjeta de crédito'],['siste','Sistecrédito']/* v410 */];
+const PAYS=[['cash','Efectivo'],['bre','Bre-B'],['nequi','Nequi'],['card','Tarjeta de crédito'],['debit','Tarjeta débito']/* v419 */,['siste','Sistecrédito']/* v410 */];
 const PAYIMG={bre:'img/pago-bre.jpg',nequi:'img/pago-nequi.jpg',siste:'img/pago-siste.jpg'/* v410 */};
 const readPays=()=>({pays:[...document.querySelectorAll('#x-pays input:checked')].map(i=>i.value).filter(v=>PAYS.some(p=>p[0]===v)),...(typeof omRead==='function'?omRead():{})/* v320: cómo recibe los pedidos */});
 const paysTxt=s=>(s.pays||[]).map(k=>(PAYS.find(p=>p[0]===k)||[])[1]).filter(Boolean).join(' · ');

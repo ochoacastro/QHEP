@@ -9,7 +9,7 @@ const REASONS=['Estafa o fraude','Contenido inapropiado o prohibido','Informaci�
 const DELIV=['','Sí, hago domicilios','Solo recoger en la tienda','A convenir'];
 const readDel=()=>{if($('#x-del').value!==DELIV[1])return{dfee:'',dcost:''};const f=$('#x-dfee').value,c=parseInt(String($('#x-dcost').value).replace(/\D/g,''),10);return{dfee:f==='free'||f==='paid'?f:'',dcost:f==='paid'&&c>0?Math.min(c,999999):''}};
 const delFeeTxt=s=>s.delivery!==DELIV[1]?'':s.dfee==='free'?' · Gratis':s.dfee==='paid'?(s.dcost?' · Costo '+money(s.dcost):' · Con costo'):'';
-const PAYS=[['cash','Efectivo'],['bre','Bre-B'],['nequi','Nequi'],['card','Tarjeta de crédito'],['siste','Sistecrédito']/* v410 */];
+const PAYS=[['cash','Efectivo'],['bre','Bre-B'],['nequi','Nequi'],['card','Tarjeta de crédito'],['debit','Tarjeta débito']/* v419 */,['siste','Sistecrédito']/* v410 */];
 const PAYIMG={bre:'img/pago-bre.jpg',nequi:'img/pago-nequi.jpg',siste:'img/pago-siste.jpg'/* v410 */};
 const readPays=()=>({pays:[...document.querySelectorAll('#x-pays input:checked')].map(i=>i.value).filter(v=>PAYS.some(p=>p[0]===v)),...(typeof omRead==='function'?omRead():{})/* v320: cómo recibe los pedidos */});
 const paysTxt=s=>(s.pays||[]).map(k=>(PAYS.find(p=>p[0]===k)||[])[1]).filter(Boolean).join(' · ');

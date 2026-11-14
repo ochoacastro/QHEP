@@ -1,6 +1,10 @@
-/* v419: CASILLA EN LOS MEDIOS DE PAGO. En el formulario de la tienda, cada medio de pago (Efectivo, Bre-B, Nequi, tarjeta,
+/* v419: MEDIOS DE PAGO EN UNA COLUMNA Y CON CASILLA. Se agrega «Tarjeta débito» (en 09-rateform.js y v320-pedidos.js) y los
+   medios de pago del formulario de la tienda van uno debajo del otro, todos del mismo ancho. En el formulario de la tienda, cada medio de pago (Efectivo, Bre-B, Nequi, tarjeta,
    Sistecrédito) lleva una casilla a la izquierda: vacía si no está elegido, azul con el chulo si está elegido. Antes solo
    cambiaba el fondo, y con los logos no se notaba bien cuál estaba marcado. Si algo falla, borra este <style>. */
+#x-pays.dayrow{flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:8px}
+#x-pays .dchip.pay{display:block}
+#x-pays .dchip.pay span{justify-content:flex-start;gap:10px;min-height:48px;text-align:left}
 .dchip.pay span::before{content:"";flex:0 0 auto;box-sizing:border-box;width:22px;height:22px;border:2px solid #8e8e93;background-color:transparent}
 .dchip.pay input:checked+span::before{border-color:#0071e3;background:#0071e3 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4 10.5l4 4 8-9' fill='none' stroke='%23fff' stroke-width='2.6'/%3E%3C/svg%3E") center/16px 16px no-repeat}
 .dchip.pay input:focus-visible+span{outline:2px solid #0071e3;outline-offset:2px}
