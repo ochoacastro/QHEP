@@ -465,7 +465,11 @@ const PRUEBAS = {
     await p.click('[data-wz="omitir"]'); await p.waitForTimeout(200);
     check('«Omitir» pasa a «Horario»', /Paso 5 de 6 · Horario/.test(await paso()) && await ve('#x-hrs') && !(await ve('#x-addr')));
     await p.click('[data-wz="omitir"]'); await p.waitForTimeout(200);
-    check('En el último paso está «Abrir tienda» y ya no hay «Continuar»', /Paso 6 de 6/.test(await paso()) && await ve('[data-act="saveShop"]') && (await bot()) === 'Atrás', (await paso()) + ' ' + (await bot()));
+    const fila = () => p.evaluate(() => { const r = document.querySelector('#ov .modal > .row.wz-fin'); if (!r) return 'sin fila'; const B = [...r.querySelectorAll('.btn')].filter(x => x.offsetParent).map(x => ({ t: x.textContent, r: x.getBoundingClientRect() })).sort((a, b) => a.r.top - b.r.top || a.r.left - b.r.left); return B.map(x => x.t).join(',') + '|' + (B.length > 1 && B[0].r.bottom <= B[1].r.top && B[0].r.width >= B[1].r.width && B[0].r.width > r.getBoundingClientRect().width - 2 ? 'arriba' : 'no') });
+    check('En el último paso ya no hay «Continuar» y «Abrir tienda» va arriba a todo el ancho, con «Atrás» y «Cancelar» debajo (v420)', /Paso 6 de 6/.test(await paso()) && (await bot()) === '' && (await fila()) === 'Abrir tienda,Atrás,Cancelar|arriba', (await paso()) + ' [' + (await bot()) + '] ' + (await fila()));
+    await p.click('#ov .modal > .row [data-wz="atras"]'); await p.waitForTimeout(200);
+    check('Ese «Atrás» vuelve al paso anterior y desaparece de la fila de guardar', /Paso 5 de 6/.test(await paso()) && !(await p.evaluate(() => !!document.querySelector('#ov .modal > .row [data-wz]'))));
+    await p.evaluate(() => qhPasos.ir(5)); await p.waitForTimeout(200);
     await p.evaluate(() => { document.getElementById('f-wa').value = '' }); await p.click('[data-act="saveShop"]'); await p.waitForTimeout(400);
     check('Si al guardar falta un dato, vuelve solo al paso donde está', /Paso 3 de 6 · Contacto/.test(await paso()) && /tel[eé]fono|WhatsApp/i.test(await p.evaluate(() => document.getElementById('err').textContent)), await paso());
     await p.fill('#f-wa', '3001234567'); await p.evaluate(() => qhPasos.ir(5)); await p.click('[data-act="saveShop"]'); await p.waitForTimeout(900);
@@ -476,7 +480,7 @@ const PRUEBAS = {
     await p.click('[data-wz="sigue"]'); await p.waitForTimeout(200);
     check('Sin barrio no deja continuar', /barrio/i.test(await p.evaluate(() => document.querySelector('.wze').textContent)));
     await p.evaluate(() => { const s = document.querySelector('#ov .znsel'); s.value = 'Centro'; s.dispatchEvent(new Event('change', { bubbles: true })) }); await p.fill('#ad-dir', 'Calle 5 # 3-20'); await p.click('[data-wz="sigue"]'); await p.waitForTimeout(250);
-    check('El último paso es el mapa, con «Guardar mis datos»', /Paso 2 de 2 · Tu casa en el mapa/.test(await paso()) && await ve('.adq') && await ve('[data-adsave]') && !(await ve('#ad-dir')));
+    check('El último paso es el mapa, con «Guardar mis datos»', /Paso 2 de 2 · Tu casa en el mapa/.test(await paso()) && await ve('.adq') && await ve('[data-adsave]') && !(await ve('#ad-dir')) && (await fila()) === 'Guardar mis datos,Atrás|arriba', await fila());
     // editar tienda: pestañas
     await p.evaluate(() => { closeModal(1); const s = S.stores.find(x => x.name === 'Dulces de la Abuela'); view = 'store'; cur = s.id; render(); editShop() }); await p.waitForTimeout(700);
     check('«Editar tienda» muestra las secciones como pestañas y «Guardar» siempre a la vista', await p.evaluate(() => [...document.querySelectorAll('.wztab [role=tab]')].map(b => b.textContent).join(',') === 'Tu negocio,Contacto,Ubicación,Horario,Entregas y pagos') && await ve('[data-act="saveEditShop"]') && await ve('#e-name') && !(await ve('#x-hrs')));
