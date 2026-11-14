@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 191 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#146** (v416). Todo hasta la v416 está en `main`. **La rama tiene la v417 (formularios por pasos) y la v418 (solo WhatsApp entre usuarios) sin PR ni publicar.**
+- **Pruebas:** 192 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#146** (v416). Todo hasta la v416 está en `main`. **La rama tiene la v417 (formularios por pasos), la v418 (solo WhatsApp entre usuarios) y la v419 (casilla en los medios de pago) sin PR ni publicar.**
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v418)
+## 2. Lo que se hizo en esta etapa (v392 a v419)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -45,6 +45,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v416 | **Pedir y preguntar sin registro:** sin cuenta, «Pedir por WhatsApp» abre «Tus datos para el pedido» (nombre, WhatsApp, barrio, dirección, indicaciones y mensaje) en vez de «Registrarme»; preguntar por un producto, servicio o anuncio pide nombre y WhatsApp solo la primera vez. Además, las ventanas abiertas desde el carrito ya no quedan tapadas por el carrito | #146 |
 | v417 | **Formularios por pasos:** «Crea tu tienda» pasa de una ventana de más de 5.000 px a 6 pasos (Tu negocio, Categoría, Contacto, Ubicación, Horario, Entregas y pagos) con «Continuar», «Omitir» y «Atrás»; «Tus datos personales» va en 2 o 3 pasos; «Editar tienda» muestra las mismas secciones como pestañas | sin PR |
 | v418 | **Solo WhatsApp entre usuarios:** se apagan los pagos entre usuarios (botón «Pagar con Bre-B / Nequi» junto al WhatsApp, «Pagos Bre-B y Nequi» en Mi cuenta, pestaña «Cobrar») y los pedidos por la aplicación (todos salen por WhatsApp). Los pagos de roles a Mi Pradera y «Mis códigos» no cambian | sin PR |
+| v419 | En el formulario de la tienda, cada medio de pago lleva una casilla: vacía sin elegir y azul con el chulo al elegirlo (`estilos/v419-check-pagos.css`) | sin PR |
 
 ---
 

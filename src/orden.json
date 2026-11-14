@@ -948,6 +948,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v419-check-pagos\">",
+  "f": "estilos/v419-check-pagos.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v411-letrero\">",
   "f": "codigo/v411-letrero.js"

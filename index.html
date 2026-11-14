@@ -1788,6 +1788,13 @@ html.dark .ltr2 button[aria-pressed=true]{border-color:#0a84ff;box-shadow:inset 
 html.dark .ltrc .chip[aria-pressed=true]{background:#0a84ff!important;border-color:#0a84ff!important}
 .ltr,.ltr2 button,.ltrc .chip{border-radius:0!important}
 </style>
+<style id="v419-check-pagos">/* v419: CASILLA EN LOS MEDIOS DE PAGO. En el formulario de la tienda, cada medio de pago (Efectivo, Bre-B, Nequi, tarjeta,
+   Sistecrédito) lleva una casilla a la izquierda: vacía si no está elegido, azul con el chulo si está elegido. Antes solo
+   cambiaba el fondo, y con los logos no se notaba bien cuál estaba marcado. Si algo falla, borra este <style>. */
+.dchip.pay span::before{content:"";flex:0 0 auto;box-sizing:border-box;width:22px;height:22px;border:2px solid #8e8e93;background-color:transparent}
+.dchip.pay input:checked+span::before{border-color:#0071e3;background:#0071e3 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4 10.5l4 4 8-9' fill='none' stroke='%23fff' stroke-width='2.6'/%3E%3C/svg%3E") center/16px 16px no-repeat}
+.dchip.pay input:focus-visible+span{outline:2px solid #0071e3;outline-offset:2px}
+</style>
 
 <style id="v312-tablas-anuncios-css">
 /* v312: tablas de Mis inmuebles y Mis vehículos (usan el estilo .mst de la tabla de tiendas) */
