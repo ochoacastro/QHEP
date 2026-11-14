@@ -2084,6 +2084,7 @@ html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64
 
 
 
+
 <style id="v329-crecer-css">
 /* v329: los cuadros de texto crecen solos con lo que se escribe */
 textarea.qgrow{overflow-y:hidden;resize:none;transition:height .08s}
@@ -5585,6 +5586,36 @@ document.head.insertAdjacentHTML('beforeend','<style id="v403-css">.clug{margin:
  'body.instore .emgfab{width:48px;height:48px;padding:0;justify-content:center;gap:0}body.instore .emgfab>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}body.instore .emgfab svg{width:26px;height:26px}body.instore #app{padding-bottom:calc(200px + env(safe-area-inset-bottom))}</style>');
 })();
 </script>
+<script id="v406-recuperar-roles">/* v406: roles por recuperar. Si la ficha de una cuenta (plans/<k>) se borró y se volvió a crear, queda sin roles (acc) aunque sus
+   códigos sigan usados y vigentes («Mis códigos» los muestra, pero «Publicar» dice «Sin activar»). En Usuarios, el administrador
+   ve la lista y con un botón devuelve a cada ficha el fin de cada rol según sus códigos (y acc.mercF del destacado de Comerciante
+   de 6 meses o más). Solo sube fechas, nunca las baja. Si algo falla, borra este bloque y la llamada admRolesFix en 11-profilemodal. */
+(function(){
+var DAY=864e5,E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function rn(u){try{return CD_SH[u]||u}catch(e){return u}}
+function fd(t){return new Date(t).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}
+/* lo que falta en cada ficha: {k, p, acc (nuevo), faltan:[[rol,fin]]} */
+function gaps(){var now=Date.now(),P={},out=[];try{QH.plans().forEach(function(p){if(p&&p.k)P[p.k]=p})}catch(e){return []}
+ /* El fin de cada rol se calcula con los días de cada código (los pone el administrador o las reglas), en el orden en que se usaron:
+    cada código empieza cuando termina el anterior. La fecha «end» que guarda el código la escribe quien lo canjea y las reglas no
+    la revisan, así que solo se usa para BAJAR el resultado, nunca para subirlo. Los códigos gratis no se suman entre sí. */
+ var want={},G={};try{QH.codes().forEach(function(c){if(!c||!c.used||!c.usedBy||!c.use)return;var g=G[c.usedBy]=G[c.usedBy]||{};(g[c.use]=g[c.use]||[]).push(c)})}catch(e){return []}
+ Object.keys(G).forEach(function(k){Object.keys(G[k]).forEach(function(u){var e=0,f=0;
+  G[k][u].sort(function(a,b){return (Number(a.usedAt)||0)-(Number(b.usedAt)||0)}).forEach(function(c){var t=Math.min(Number(c.usedAt)||0,now),d=(Number(c.days)||0)*DAY;if(!(t>0)||!(d>0))return;
+   var x=(c.why==='gratis'?t:Math.max(e,t))+d;if(Number(c.end)>0)x=Math.min(x,Number(c.end));e=Math.max(e,x);if(u==='merc'&&(Number(c.months)||0)>=6)f=Math.max(f,x)});
+  if(e>now){var w=want[k]=want[k]||{};w[u]=e;if(f>now)w.mercF=f}})});
+ Object.keys(want).forEach(function(k){var p=P[k];if(!p)return;var acc=Object.assign({},p.acc||{}),f=[];
+  Object.keys(want[k]).forEach(function(u){if((Number(acc[u])||0)<want[k][u]-DAY){acc[u]=want[k][u];if(u!=='mercF')f.push([u,want[k][u]])}});
+  if(f.length)out.push({k:k,p:p,acc:acc,faltan:f})});return out}
+window.admRolesFix=function(){var L=gaps();if(!L.length)return '';
+ return '<div class="cg aadp"><h3>Roles por recuperar <em>'+L.length+'</em></h3><p class="muted">Estas cuentas tienen códigos usados y vigentes, pero su ficha no tiene el rol (por ejemplo, porque la ficha se borró y se creó de nuevo). Por eso al publicar les sale «Sin activar».</p>'+
+  L.map(function(g){return '<div class="aadr pend"><b>'+E(g.p.name||'(sin nombre)')+(g.p.email?' · '+E(g.p.email):'')+'</b><p>'+g.faltan.map(function(x){return E(rn(x[0]))+' hasta el '+fd(x[1])}).join(' · ')+'</p></div>'}).join('')+
+  '<div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-rolesfix="1">Recuperar '+(L.length===1?'el rol':'los roles')+'</button></div></div>'};
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-rolesfix]');if(!b||typeof MODE==='undefined'||MODE!=='admin')return;e.preventDefault();e.stopImmediatePropagation();
+ var L=gaps();if(!L.length)return toast('No hay roles por recuperar.');b.disabled=true;
+ Promise.all(L.map(function(g){return QH.planSet(g.k,{acc:g.acc})})).then(function(){toast(L.length===1?'Rol recuperado':'Roles recuperados en '+L.length+' cuentas');setTimeout(function(){try{render(true)}catch(x){}},500)}).catch(function(){b.disabled=false;toast('No se pudo guardar. Intenta de nuevo.')})},true);
+})();
+</script>
 <script id="v332-datos-negocio">
 /* v332: el teléfono va con la dirección principal (datos personales, solo en este dispositivo). Si se marca
    «también son de mi negocio», al registrar la tienda el teléfono, el otro teléfono y la dirección aparecen ya llenos.
@@ -6733,7 +6764,7 @@ if(at==='rep'){const l=S.reports.slice().reverse();body=l.length?l.map(r=>{const
 else if(at==='pag'){body=typeof brebPagHTML==='function'?brebPagHTML():''/* v238 */}
 else if(at==='cod'){body=codAdmin()}
 else if(at==='emg'){body=typeof emgAdmin==='function'?emgAdmin():''/* v257 */}
-else if(at==='usr'){body=(typeof admShopPend==='function'?admShopPend():'')/* v394 */+(typeof admAdPend==='function'?admAdPend():'')/* v396 */+(typeof admAddrPend==='function'?admAddrPend():'')/* v358 */+usrRows()}
+else if(at==='usr'){body=(typeof admRolesFix==='function'?admRolesFix():'')/* v406 */+(typeof admShopPend==='function'?admShopPend():'')/* v394 */+(typeof admAdPend==='function'?admAdPend():'')/* v396 */+(typeof admAddrPend==='function'?admAddrPend():'')/* v358 */+usrRows()}
 else if(at==='sug'){const l=S.ideas.slice().reverse();body=l.length?l.map(x=>`<div class="cg"><b>${esc(x.name)}</b> <small>· ${new Date(x.ts).toLocaleDateString('es-CO')}</small><p>${esc(x.txt)}</p><button class="btn ghost" data-act="delSug" data-id="${x.id}">Eliminar</button></div>`).join(''):'<div class="empty">No hay sugerencias.</div>';if(typeof msgAdmin==='function')body=msgAdmin()+body/* v344 */}
 else if(at==='srv'){body=`<div class="cg"><h3>Servicios (oficios)</h3><p class="muted">Lista de oficios que se ofrecen en Servicios. Se ordena sola de la A a la Z ("Otro" siempre queda al final). Si renombras un oficio, los servicios ya publicados se actualizan solos.</p>${OFICIOS.filter(o=>o!=='Otro').map((o,i)=>`<div class="catrow"><input type="text" id="jb-n-${i}" maxlength="40" value="${esc(o)}" aria-label="Nombre del oficio ${i+1}"><button class="btn" data-act="jobSave" data-i="${i}">Guardar</button><button class="btn ghost" data-act="jobDel" data-i="${i}">Eliminar</button></div>`).join('')}<h3 style="margin-top:14px">Agregar oficio</h3><div class="catrow"><input type="text" id="jb-new" maxlength="40" placeholder="Nombre del oficio" aria-label="Nombre del nuevo oficio"><button class="btn pink" data-act="jobAdd">Agregar</button></div><div class="err" id="err-j"></div></div>`}
 else if(at==='cat'){body=`${typeof cmcAdmin==='function'?cmcAdmin():''/* v287 */}<div class="cg"><h3>Categorías de tiendas</h3><p class="muted">Cambia el nombre o el color, elimina o agrega. Si renombras o eliminas una categoría, sus tiendas se actualizan solas.</p>${CATS.map((c,i)=>`<div class="catrow"><input type="color" id="ct-c-${i}" value="${c[2]}" aria-label="Color de ${esc(c[0])}"><input type="text" id="ct-n-${i}" maxlength="20" value="${esc(c[0])}" aria-label="Nombre de la categoría ${i+1}"><span class="cico sm" style="--c:${c[2]}">${catIcon(c)}</span><label class="btn ghost cfile">🖼️ Imagen<input type="file" accept="image/*" id="ct-f-${i}" hidden></label><button class="btn" id="ct-s-${i}" data-act="catSave" data-i="${i}" hidden>Guardar</button><button class="btn ghost" data-act="catDel" data-i="${i}">Eliminar</button></div>`).join('')}<h3 style="margin-top:14px">Agregar categoría</h3><div class="catrow"><input type="color" id="ct-newc" value="#1E4FBF" aria-label="Color de la nueva categoría"><input type="text" id="ct-new" maxlength="20" placeholder="Nombre" aria-label="Nombre de la nueva categoría"><span class="cico sm" id="ct-newp" style="--c:#1E4FBF">${newCatImg?`<img src="${newCatImg}" alt="">`:'🏷️'}</span><label class="btn ghost cfile">🖼️ Imagen<input type="file" accept="image/*" id="ct-newf" hidden></label><button class="btn pink" data-act="catAdd">Agregar</button></div><div class="err" id="err"></div></div>`}

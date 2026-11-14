@@ -1408,6 +1408,15 @@
  },
  {
   "t": "js",
+  "tag": "<script id=\"v406-recuperar-roles\">",
+  "f": "codigo/v406-recuperar-roles.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
   "tag": "<script id=\"v332-datos-negocio\">",
   "f": "codigo/v332-datos-negocio.js"
  },

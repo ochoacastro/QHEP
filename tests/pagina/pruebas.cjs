@@ -330,6 +330,25 @@ const PRUEBAS = {
     check('El dueño gratis ve «Agregar fotos 0 de 3» y el candado de más fotos y video', await q.evaluate(() => /0 de 3/.test(document.querySelector('.clug').textContent) && !!document.querySelector('.clug .cla.lock') && !document.querySelector('[data-clvid]')));
     sinErrores(q, 'Conoce el lugar (dueño)'); await q.cerrar();
   },
+  async rolesPorRecuperar() { // v406 el administrador devuelve los roles a una ficha que quedó sin ellos
+    const fin = Date.now() + 300 * 864e5, cod = (c, o) => Object.assign({ c, use: 'merc', months: 12, days: 365, used: true, usedBy: 'kA', usedAt: Date.now() - 65 * 864e5, end: fin, ts: 1 }, o);
+    const seed = { 'plans/kA': { k: 'kA', name: 'Ana Pérez', email: 'ana@x.co', plan: 'free' }, 'plans/kB': { k: 'kB', name: 'Beto', email: 'beto@x.co', plan: 'free', acc: { news: fin } },
+      'codes/AAAABBBBCCCC': cod('AAAABBBBCCCC'), 'codes/DDDDEEEEFFFF': cod('DDDDEEEEFFFF', { use: 'news', months: 0 }), 'codes/GGGGHHHHJJJJ': cod('GGGGHHHHJJJJ', { use: 'news', months: 0, usedBy: 'kB' }),
+      'codes/KKKKLLLLMMMM': cod('KKKKLLLLMMMM', { use: 'serv', end: Date.now() - 864e5 }), 'codes/NNNNPPPPQQQQ': cod('NNNNPPPPQQQQ', { use: 'car', used: false, usedBy: '' }),
+      'codes/RRRRSSSSTTTT': cod('RRRRSSSSTTTT', { use: 'comu', months: 12, why: 'gratis', end: Date.now() + 5000 * 864e5 }) }; // fecha inflada a mano
+    const p = await abrir({ admin: true, seed });
+    await p.evaluate(() => { closeModal(1); at = 'usr'; view = 'admin'; render() }); await p.waitForTimeout(500);
+    const caja = () => p.evaluate(() => { const h = [...document.querySelectorAll('.aadp')].find(x => /Roles por recuperar/.test(x.textContent)); return h ? h.textContent : '' });
+    const t = await caja();
+    check('El administrador ve la cuenta con roles por recuperar', /Ana Pérez/.test(t) && /Redactor|Noticias/i.test(t), t.slice(0, 200));
+    check('No aparecen la cuenta que ya tiene su rol ni los códigos vencidos o sin usar', !/Beto/.test(t) && (t.match(/hasta el/g) || []).length === 3, t.slice(0, 300));
+    await p.click('[data-rolesfix]'); await p.waitForTimeout(900);
+    const acc = await p.evaluate(() => (QH.plans().find(x => x.k === 'kA') || {}).acc || {});
+    check('Al tocar «Recuperar» la ficha queda con los roles y sus fechas', acc.merc === fin && acc.mercF === fin && acc.news === fin && !acc.serv && !acc.car, JSON.stringify(acc));
+    check('Una fecha inflada en el código no sube el rol más allá de sus días', acc.comu > Date.now() + 299 * 864e5 && acc.comu < Date.now() + 301 * 864e5, String((acc.comu - Date.now()) / 864e5));
+    check('Después ya no hay roles por recuperar', (await caja()) === '');
+    sinErrores(p, 'Roles por recuperar'); await p.cerrar();
+  },
   async sesionYAvisos() { // v400 entrar solo con el botón, campana solo con sesión, «Escríbenos» visible
     const p = await abrir();
     check('Sin sesión no se ve la campana', await p.evaluate(() => { const b = document.getElementById('nfBtn'); return !b || b.offsetParent === null }));
