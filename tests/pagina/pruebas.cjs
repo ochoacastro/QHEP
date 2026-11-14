@@ -232,6 +232,18 @@ const PRUEBAS = {
     check('El administrador ve el inmueble por ubicar', await q.evaluate(() => !!document.querySelector('[data-adplus="i1"]')));
     sinErrores(q, 'Inmuebles por ubicar'); await q.cerrar();
   },
+  async mapaInmueble() { // v409 el visitante ve el mapa del inmueble en el anuncio
+    const ad = (id, x) => Object.assign({ id, type: 'arr', title: 'Casa en arriendo', price: 900000, zone: 'Centro', desc: '', imgs: [], ts: Date.now(), ownerKey: 'kA' }, x);
+    const p = await abrir({ seed: { 'ads/i1': ad('i1', { f: { addr: 'Carrera 10 # 7-45', mapok: 'Sí, lo ubica bien' } }), 'ads/i2': ad('i2', { f: { addr: 'Calle 1 # 2-3', mapok: 'No lo ubica bien' } }), 'ads/i3': ad('i3', { type: 'casa', lat: 3.42, lng: -76.24, plus: 'CQ94+H47', f: { addr: 'Calle 9 # 1-1', mapok: 'Sí, lo ubica bien' } }) } });
+    const ver = async id => { await p.evaluate(i => { closeModal(1); curAd = i; view = 'ad'; render() }, id); await p.waitForTimeout(400); return p.evaluate(() => (document.querySelector('.adview .advmap iframe') || {}).src || '') };
+    check('El anuncio del inmueble muestra el mapa de su dirección', /Carrera%2010.*Centro/.test(await ver('i1')));
+    check('Tiene el enlace «Abrir en Google Maps»', await p.evaluate(() => /google\.com\/maps\/search/.test((document.querySelector('.advmap a') || {}).href || '')));
+    check('Si el dueño dijo que no lo ubica bien, no se muestra el mapa', await ver('i2') === '');
+    check('Con el punto del administrador, el mapa usa ese punto', /q=3\.42(%2C|,)-76\.24/.test(await ver('i3')));
+    await p.evaluate(() => render()); await p.waitForTimeout(400);
+    check('El mapa no se repite al volver a dibujar', await p.evaluate(() => document.querySelectorAll('.advmap').length === 1));
+    sinErrores(p, 'Mapa del inmueble'); await p.cerrar();
+  },
   async borradores() { // v399 retomar un formulario cerrado sin guardar
     const p = await abrir(); await conCuenta(p);
     await p.evaluate(() => { closeModal(1); adForm('arr') }); await p.waitForTimeout(400);
