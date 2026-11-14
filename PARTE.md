@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v50** (`tests/reglas/firestore.rules`). Hay que confirmar que esté publicada en Firebase; ver la sección 3.
-- **Pruebas:** 95 pruebas de la página (`tests/pagina/pruebas.cjs`) y 16 archivos de pruebas de reglas (v24 a v50). Todas pasan.
-- **PR abierto:** ninguno. El último fusionado es el **#141**. El commit **v408** está en la rama y falta su PR.
+- **Pruebas:** 101 pruebas de la página (`tests/pagina/pruebas.cjs`) y 16 archivos de pruebas de reglas (v24 a v50). Todas pasan.
+- **PR abierto:** **#143** (skill `find-skills` y v409). El último fusionado es el **#142**.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`).
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v408)
+## 2. Lo que se hizo en esta etapa (v392 a v409)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -33,7 +33,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v404 | Se quita la tarjeta digital; el botón es «Copiar enlace»; los enlaces y QR viejos abren la tienda | #139 |
 | v405 | Los botones de WhatsApp y SOS solo aparecen en la página principal | #140 |
 | v407 | «Publicar» de la barra de abajo abre directo el formulario de clasificado | #141 |
-| v408 | En Clasificados, las categorías van dentro de un botón «Ver categorías» que se abre y se cierra | **falta PR** |
+| v408 | En Clasificados, las categorías van dentro de un botón «Ver categorías» que se abre y se cierra | #142 |
+| v409 | El anuncio de un inmueble muestra al visitante «Ubicación»: el mapa de Google Maps de su dirección y «Abrir en Google Maps» | #143 |
 
 ---
 
