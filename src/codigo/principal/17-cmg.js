@@ -53,7 +53,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-act^
  else if(a==='cmxCatGo'){closeModal(1);cmF={...CMF0,cat:b.dataset.v||''};cmFOpen=false;query='';{const q0=$('#q');if(q0)q0.value=''}view='com';render();scrollTo(0,0);setTimeout(()=>{const h=$('#cmsub');if(h)scrollTo({top:h.getBoundingClientRect().top+scrollY-12,behavior:'smooth'})},80)}
  else if(a==='cmxOpen'){closeModal(1);cmF={...CMF0};query='';{const q0=$('#q');if(q0)q0.value=''}view='com';render();setTimeout(()=>{const el=document.querySelector('[data-cid="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]');if(el){el.scrollIntoView({block:'center',behavior:'smooth'});el.classList.add('cmhl');setTimeout(()=>el.classList.remove('cmhl'),2500)}},80)}
  else if(a==='cmxOp'){cmF.op=b.dataset.v||'';render(true)}
- else if(a==='cmxCat'){const v=b.dataset.v||'';cmF.cat=cmF.cat===v?'':v;cmF.sub='';render(true)}
+ else if(a==='cmxCat'){const v=b.dataset.v||'';cmF.cat=cmF.cat===v?'':v;cmF.sub='';window.cmCatOpen=false/* v408: al elegir se cierra la lista */;render(true)}else if(a==='cmxCats'){window.cmCatOpen=!window.cmCatOpen;render(true)}
  else if(a==='cmxSub'){cmF.sub=b.dataset.v||'';render(true)}
  else if(a==='cmxFt'){cmFOpen=!cmFOpen;render(true)}
  else if(a==='cmxClr'){cmF={...CMF0};query='';const q=$('#cq');if(q)q.value='';render(true)}
