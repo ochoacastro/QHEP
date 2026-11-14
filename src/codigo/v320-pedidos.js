@@ -10,6 +10,11 @@
 var PAYN={cash:'Efectivo (contra entrega)',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta (datáfono)',siste:'Sistecrédito'/* v410 */},PAYS_={cash:'Efectivo',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta',siste:'Sistecrédito'};
 var STN={nuevo:'Nuevo',acep:'Aceptado · preparando',env:'Enviado',ent:'Entregado',canc:'Cancelado'},PSN={pend:'Pago pendiente',ok:'Pagado',no:'No pagó'};
 var ORD={},OT=[],OF=[],uidL='',subs=[],seen=null,FT='act',sf=0;
+/* v418: PEDIDOS POR LA APLICACIÓN APAGADOS (APP=false). Todos los pedidos salen por WhatsApp: el formulario de la tienda ya no
+   pregunta «¿Cómo quieres recibir los pedidos?» y el carrito siempre dice «Pedir por WhatsApp». Los pedidos que ya estaban
+   guardados se siguen viendo en Mi cuenta («Mis pedidos», «Pedidos de mi tienda») para poder cerrarlos; no se crean nuevos.
+   La forma de pago y la nota del carrito siguen yendo en el mensaje de WhatsApp. Para volver a encenderlos: APP=true. */
+var APP=false;
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 var M=function(n){try{return money(Number(n)||0)}catch(e){return '$'+n}};
 var D=function(t){try{return new Date(t).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
@@ -17,7 +22,7 @@ function me(){try{var u=firebase.auth().currentUser;return u&&!u.isAnonymous?u:n
 function st(id){return S.stores.find(function(x){return x.id===id})}
 /* v321: solo las tiendas que pagan (fecha de pago vigente + 3 días de gracia) reciben pedidos por la aplicación; la versión gratis va a WhatsApp */
 function paid(s){return !!s&&(Number(s.pexp)||0)+3*864e5>Date.now()}window.ordPaid=paid;
-window.ordMode=function(s){return s&&s.om==='app'&&s.ownerUid&&paid(s)?'app':'wa'};
+window.ordMode=function(s){return APP/* v418 */&&s&&s.om==='app'&&s.ownerUid&&paid(s)?'app':'wa'};
 function pays(s){var l=(s&&Array.isArray(s.pays)?s.pays:[]).filter(function(k){return PAYN[k]});return l.length?l:['cash']}
 function sel(sid){var s=st(sid),o=ORD[sid]||(ORD[sid]={});var l=pays(s);if(l.indexOf(o.pay)<0)o.pay=l[0];return o}
 /* ---- carrito ---- */
@@ -67,7 +72,7 @@ function paint(){var o=document.getElementById('ordbox');if(o)o.innerHTML=o.data
 /* ---- Mi cuenta ---- */
 window.ordMenu=function(it){var h='',ic='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>',ic2='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
  var mine=[];try{mine=shopsMine()}catch(e){}var n=OT.filter(function(p){return p.st==='nuevo'}).length;
- if(mine.length||OT.length)h+=it(ic2,'Pedidos de mi tienda',(OT.length?OT.length+(OT.length===1?' pedido':' pedidos'):'Aún no tienes pedidos')+(mine.some(function(s){return ordMode(s)==='app'})?'':' · actívalos en Editar tienda'),'ordTo','',n?{n:n,t:n+(n===1?' pedido nuevo':' pedidos nuevos')}:null);
+ if((APP&&mine.length)||OT.length/* v418 */)h+=it(ic2,'Pedidos de mi tienda',(OT.length?OT.length+(OT.length===1?' pedido':' pedidos'):'Aún no tienes pedidos')+(!APP||mine.some(function(s){return ordMode(s)==='app'})?'':' · actívalos en Editar tienda'),'ordTo','',n?{n:n,t:n+(n===1?' pedido nuevo':' pedidos nuevos')}:null);
  if(OF.length)h+=it(ic,'Mis pedidos',OF.length+(OF.length===1?' pedido':' pedidos'),'ordFrom','');return h};
 function tags(p){var c=p.st==='canc'?'no':p.st==='ent'?'ok':p.st==='nuevo'?'n':'w',pc=p.pst==='ok'?'ok':p.pst==='no'?'no':'w';return '<div class="ordtg"><span class="'+c+'">'+E(STN[p.st]||p.st)+'</span><span class="'+pc+'">'+E(PSN[p.pst]||'')+'</span><span>'+E(PAYN[p.pay]||p.pay)+'</span></div>'}
 function items(p){return '<ul>'+(p.items||[]).map(function(i){return '<li>'+E(i.q)+' × '+E(i.n)+(i.v?' · '+E(i.v):'')+' — '+E(M(i.p*i.q))+(i.c?' <small style="display:inline">('+E(i.c)+')</small>':'')+'</li>'}).join('')+'</ul>'}
@@ -107,7 +112,7 @@ addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;v
  if((b=t.closest('[data-opaynow]'))){var p=OF.concat(OT).find(function(x){return x.id===b.dataset.opaynow})||null;var s=p&&st(p.sid);if(!p)return;closeModal(1);brebPay({to:p.to,toName:(s&&s.name)||p.sname,amt:p.total,what:'Pedido en '+p.sname,kind:'item',item:'ped:'+p.id,wa:s&&s.wa});return}},true);
 /* ---- formulario de la tienda: cómo recibe los pedidos ---- */
 window.omRead=function(){var i=document.querySelector('input[name="x-om"]:checked');return i?{om:i.value==='app'&&!i.disabled?'app':'wa'}:{}};
-function addOm(){var g=document.getElementById('x-pays');if(!g||document.getElementById('x-om'))return;var m=document.querySelector('#ov .modal');if(!m||!m.contains(g))return;
+function addOm(){if(!APP)return;/* v418 */var g=document.getElementById('x-pays');if(!g||document.getElementById('x-om'))return;var m=document.querySelector('#ov .modal');if(!m||!m.contains(g))return;
  var ed=!!m.querySelector('[data-act="saveEditShop"]'),s=ed?st(cur):null,can=false;try{can=MODE==='admin'||shopRole()}catch(e){}var v=can&&s&&s.om==='app'?'app':'wa';
  g.insertAdjacentHTML('afterend','<p class="omw" id="x-pw" hidden></p><label id="x-om-l" style="display:block;margin-top:14px">¿Cómo quieres recibir los pedidos?</label><div class="omg" id="x-om" role="radiogroup" aria-labelledby="x-om-l">'+
   '<label><input type="radio" name="x-om" value="wa"'+(v==='wa'?' checked':'')+'><span><b>Por WhatsApp</b><small>El cliente te escribe con su pedido y la forma de pago.</small></span></label>'+

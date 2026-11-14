@@ -484,6 +484,38 @@ const PRUEBAS = {
     check('Tocar «Horario» muestra solo el horario', await ve('#x-hrs') && !(await ve('#e-name')) && await ve('[data-act="saveEditShop"]') && await p.evaluate(() => document.querySelector('.wztab [aria-selected="true"]').textContent === 'Horario'));
     sinErrores(p, 'Por pasos'); await p.cerrar();
   },
+  async soloWhatsapp() { // v418 sin pagos entre usuarios ni pedidos por la aplicación; los roles siguen igual
+    const U = { uid: 'uA', isAnonymous: false, email: 'ana@x.co', emailVerified: true };
+    const tienda = { id: 'sa', name: 'Tienda App', wa: '3007654321', pays: ['cash', 'bre'], om: 'app', ownerUid: 'uT', ownerKey: 'kT', pexp: Date.now() + 30 * 864e5, cat: 'Otros', products: [], _o: 1 };
+    const base = { 'stores/sa': tienda, 'products/sa__p3': { id: 'p3', sid: 'sa', name: 'Pan', price: 500, imgs: [], ownerKey: 'kT' }, 'services/v1': { id: 'v1', name: 'Luis Plomero', job: 'Plomería', wa: '3009998877', ownerUid: 'uT', ownerKey: 'kT' },
+      'breb/uT': { key: 'llave-tienda', name: 'Tienda', ts: 1 }, ['breb/' + ADMIN_UID]: { key: 'llave-mipradera', name: 'Mi Pradera', ts: 1 } };
+    const p = await abrir({ user: U, seed: base }); await conCuenta(p);
+    await p.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<i class="qtour" hidden></i>'));
+    await p.evaluate(() => { S.cart = { 'sa|p3||': 1 }; save(); openCart() }); await p.waitForTimeout(500);
+    check('La tienda que tenía «por la aplicación» ahora ofrece «Pedir por WhatsApp»', await p.evaluate(() => { const b = document.querySelector('[data-act="order"][data-id="sa"]'); return !!b && /Pedir por WhatsApp/.test(b.textContent) && b.dataset.om === 'wa' }));
+    await p.evaluate(() => { document.getElementById('drawer').classList.remove('open'); closeModal(1); view = 'serv'; render() }); await p.waitForTimeout(900);
+    check('Junto al WhatsApp de una publicación ya no sale «Pagar con Bre-B»', await p.evaluate(() => !!document.querySelector('[data-act="contact"]') && !document.querySelector('.qbb')));
+    const menu = await p.evaluate(() => { const d = document.createElement('div'); d.innerHTML = pnlMenu(); return d.textContent });
+    check('En Mi cuenta no están «Pagos Bre-B y Nequi», «Mis pedidos» ni «Pedidos de mi tienda»', menu.length > 50 && !/Pagos Bre-B y Nequi/.test(menu) && !/Mis pedidos/.test(menu) && !/Pedidos de mi tienda/.test(menu), menu.slice(0, 200));
+    check('«Mis códigos» y «Mis roles» siguen en Mi cuenta', /Mis códigos/.test(menu) && /Mis roles/.test(menu));
+    await p.evaluate(() => { closeModal(1); brebPay({ to: 'uT', toName: 'Tienda', amt: 5000, what: 'Pan', kind: 'item', item: 'store:sa' }) }); await p.waitForTimeout(300);
+    check('Ya no se puede abrir un pago a otro usuario', await p.evaluate(() => !document.getElementById('ov')));
+    await p.evaluate(a => brebPay({ to: a, toName: 'Mi Pradera', amt: 20000, what: 'Rol Comerciante', kind: 'rol', use: 'merc', m: 12 }), ADMIN_UID); await p.waitForTimeout(500);
+    check('El pago de un rol a Mi Pradera se sigue abriendo', await p.evaluate(() => !!document.getElementById('ov') && /Rol Comerciante|Mi Pradera/.test(document.getElementById('ov').textContent)), await p.evaluate(() => JSON.stringify({ u: QH.authCur() && QH.authCur().uid, on: brebOn(), role: brebRoleOn(), t: (document.querySelector('.toast,#toast') || {}).textContent }) + ((document.getElementById('ov') || {}).textContent || 'sin ventana').slice(0, 120)));
+    await p.evaluate(() => { closeModal(1); shopForm() }); await p.waitForTimeout(700);
+    check('El formulario de la tienda ya no pregunta cómo recibir los pedidos', await p.evaluate(() => !!document.getElementById('x-pays') && !document.getElementById('x-om') && !/Por la aplicación/.test(document.querySelector('#ov').textContent)));
+    sinErrores(p, 'Solo WhatsApp'); await p.cerrar();
+    // quien ya tenía pagos o pedidos guardados los sigue viendo para cerrarlos
+    const q = await abrir({ user: U, seed: Object.assign({}, base, { 'pagos/g1': { from: 'uA', fromName: 'Ana', to: 'uT', toName: 'Tienda', amt: 5000, ref: '1234', what: 'Pan', kind: 'item', via: 'breb', st: 'pend', ts: Date.now() },
+      'pedidos/o1': { sid: 'sa', sname: 'Tienda App', to: 'uT', from: 'uA', fromName: 'Ana', items: [{ n: 'Pan', q: 1, p: 500 }], total: 500, pay: 'cash', st: 'nuevo', pst: 'pend', ts: Date.now() } }) }); await conCuenta(q);
+    await q.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<i class="qtour" hidden></i>'));
+    await q.waitForTimeout(800);
+    const m2 = await q.evaluate(() => { const d = document.createElement('div'); d.innerHTML = pnlMenu(); return d.textContent });
+    check('Con un pago y un pedido ya guardados, sí se ven «Pagos Bre-B y Nequi» y «Mis pedidos»', /Pagos Bre-B y Nequi/.test(m2) && /Mis pedidos/.test(m2), await q.evaluate(() => JSON.stringify({ u: QH.authCur() && QH.authCur().uid, items: brebItems(), pag: /Pagos Bre-B/.test(pnlMenu()), ped: /Mis pedidos/.test(pnlMenu()) })));
+    await q.evaluate(() => { closeModal(1); brebMy('sent') }); await q.waitForTimeout(500);
+    check('El historial de pagos ya no tiene la pestaña «Cobrar»', await q.evaluate(() => [...document.querySelectorAll('#qb-tabs [role=tab]')].map(b => b.textContent.replace(/\d+/g, '')).join(',') === 'Recibidos,Enviados'), await q.evaluate(() => (document.getElementById('qb-tabs') || {}).textContent || ''));
+    sinErrores(q, 'Solo WhatsApp (historial)'); await q.cerrar();
+  },
   async sesionYAvisos() { // v400 entrar solo con el botón, campana solo con sesión, «Escríbenos» visible
     const p = await abrir();
     check('Sin sesión no se ve la campana', await p.evaluate(() => { const b = document.getElementById('nfBtn'); return !b || b.offsetParent === null }));

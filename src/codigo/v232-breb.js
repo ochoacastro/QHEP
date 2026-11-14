@@ -10,6 +10,11 @@
    Si algo falla, borra este <script id="v232-breb"> y el <style id="v232-breb-css">. */
 (function(){
 var PRO={},SENT=[],RECV=[],subs=[],uidL='',tab='recv',KM='',PAY=null,LAST=null,QRD='',RED={};
+/* v418: PAGOS ENTRE USUARIOS APAGADOS (ITEM=false). Los usuarios solo se contactan por WhatsApp: ya no sale «Pagar con Bre-B / Nequi»
+   junto al WhatsApp de las publicaciones, ni «Pagos Bre-B y Nequi» en Mi cuenta, ni la pestaña «Cobrar». Quien ya tenía pagos
+   registrados con otros usuarios sigue viendo ese historial (Recibidos / Enviados) para cerrarlo. Los pagos de ROLES a Mi Pradera
+   y «Mis códigos» NO cambian. Para volver a encender los pagos entre usuarios: ITEM=true. */
+var ITEM=false;function viejos(){return RECV.concat(SENT).some(function(p){return p.kind!=='rol'})}
 function E(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function db(){return firebase.firestore()}
 function me(){try{var u=QH.authCur&&QH.authCur();return u&&!u.isAnonymous?u:null}catch(e){return null}}
@@ -39,7 +44,7 @@ function lbl(p){var v=vias(p);return v.length>1?'Bre-B o Nequi':v.length?VN(v[0]
 window.brebRoleOn=function(){return on()&&hasP(PRO[aid()])};
 /* si cambia si se pueden pagar roles aquí, se vuelve a pintar el texto de "Mis roles" */
 function roleTxt(){var rk=window.brebRoleOn()?'1':'0';if(rk===ADMK)return;ADMK=rk;try{var cb=document.getElementById('cdbox');if(cb&&typeof cdBox==='function')cb.innerHTML=cdBox();if(view==='comp'&&!document.querySelector('.overlay'))render(true)}catch(e){}}
-window.brebOn=on;window.brebPay=function(o){payOpen(o)};window.brebHas=function(u){return hasP(PRO[u])};window.brebMy=function(t){myOpen(t)};/* v320 */
+window.brebOn=on;window.brebItems=function(){return on()&&(ITEM||viejos())}/* v418: el menú de pagos entre usuarios */;window.brebPay=function(o){if(!ITEM&&o&&o.kind!=='rol')return;/* v418 */payOpen(o)};window.brebHas=function(u){return ITEM&&hasP(PRO[u])}/* v418 */;window.brebMy=function(t){myOpen(t)};/* v320 */
 /* v233: texto de "Mis roles" y de los planes de Clasificados según se pueda pagar aquí o no */
 window.payNote=function(c){var A=PRO[aid()];
  if(!window.brebRoleOn())return c?'Pagas por Nequi o transferencia y el administrador te entrega un código de 12 caracteres. Actívalo abajo y publica hasta el número de anuncios de tu plan.':'Pago único. No se renueva solo. Pagas por Nequi o transferencia y el administrador te entrega un código.';
@@ -70,7 +75,7 @@ function info(b){var a=b.dataset.act,id=b.dataset.id,x;try{
  if(a==='ask'){x=S.stores.find(function(o){return o.id===cur});var p=x&&(x.products||[]).find(function(o){return o.id===id});return p&&{o:x.ownerUid,n:x.name,amt:+p.price||0,what:p.name+' ('+x.name+')',wa:x.wa,item:'prod:'+x.id+'/'+id}}
 }catch(e){}return null}
 function inject(){var u=me(),l=document.querySelectorAll(SEL);for(var k=0;k<l.length;k++){var b=l[k];if(b.classList.contains('hscw')||b.closest('.overlay'))continue;
-  var nx=b.nextElementSibling,has=!!(nx&&nx.classList.contains('qbb')),i=on()&&info(b),ok=!!(i&&i.o&&hasP(PRO[i.o])&&!(u&&u.uid===i.o)),tx=ok?'💳 Pagar con '+lbl(PRO[i.o]):'';
+  var nx=b.nextElementSibling,has=!!(nx&&nx.classList.contains('qbb')),i=ITEM/* v418 */&&on()&&info(b),ok=!!(i&&i.o&&hasP(PRO[i.o])&&!(u&&u.uid===i.o)),tx=ok?'💳 Pagar con '+lbl(PRO[i.o]):'';
   if(ok&&!has){var q=document.createElement('button');q.type='button';q.className='btn ghost qbb';q.dataset.tx=tx;q.textContent=tx;if(b.style.width)q.style.cssText='width:100%;margin-top:8px';b.insertAdjacentElement('afterend',q)}
   else if(!ok&&has)nx.remove();else if(ok&&has&&nx.dataset.tx!==tx){nx.dataset.tx=tx;nx.textContent=tx}}
  /* pagar un rol: debajo de COMPRAR ACCESO / CONTINUAR en "Mis roles" */
@@ -207,7 +212,7 @@ function keyH(){var u=me();if(!u)return '<p class="muted">Para recibir pagos ent
   '<label for="qb-qr">Código QR de Bre-B (opcional)</label><img class="qbq" id="qb-qrv" src="'+E(p.qr||'')+'" alt="Código QR"'+(p.qr?'':' hidden')+'><input type="file" id="qb-qr" accept="image/*"><p class="muted" style="font-size:13px;margin:4px 0 0">Lo descargas desde la app de tu banco, en la opción Bre-B.</p>'+
   '<p class="err" id="qb-kerr" role="alert"></p><div class="row"><button type="button" class="btn pink" id="qb-ksave">Guardar</button>'+(hasP(p)?'<button type="button" class="btn ghost" id="qb-kdel">Quitar mis datos</button>':'')+'</div>'}
 function tabsH(){var n=RECV.filter(function(p){return p.kind!=='rol'&&p.st==='pend'}).length;
- return '<div class="qbt" role="tablist">'+[['recv','Recibidos'+(n?'<em>'+n+'</em>':'')],['sent','Enviados'],['key','Cobrar']].map(function(t){return '<button type="button" role="tab" data-qbtab="'+t[0]+'" aria-selected="'+(tab===t[0])+'">'+t[1]+'</button>'}).join('')+'</div>'}
+ return '<div class="qbt" role="tablist">'+[['recv','Recibidos'+(n?'<em>'+n+'</em>':'')],['sent','Enviados']].concat(ITEM?[['key','Cobrar']]:[])/* v418 */.map(function(t){return '<button type="button" role="tab" data-qbtab="'+t[0]+'" aria-selected="'+(tab===t[0])+'">'+t[1]+'</button>'}).join('')+'</div>'}
 function myOpen(t){if(!S.user){try{need(function(){myOpen(t)})}catch(e){}return}KM='';tab=t||'recv';pseeAll();/* v244 */
  modal('<h2>Pagos Bre-B y Nequi</h2><div id="qb-tabs">'+tabsH()+'</div><div id="qb-list"></div><div class="row" style="margin-top:12px"><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>');var md=document.querySelector('#ov .modal');if(md)md.classList.add('qwide')/* v241: más ancha para la tabla */;paintList(true)}
 function paintList(force){var el=document.getElementById('qb-list');if(!el)return;
