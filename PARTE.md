@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 159 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último fusionado es el **#145** (v406 y v413 a v415), el 14 de noviembre de 2026; antes, el **#144** (v410 a v412). Todo hasta la v415 está en `main`. **La rama tiene la v416 (pedir y preguntar sin registro) sin PR ni publicar.**
+- **Pruebas:** 180 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#146** (v416). Todo hasta la v416 está en `main`. **La rama tiene la v417 (formularios por pasos) sin PR ni publicar.**
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v416)
+## 2. Lo que se hizo en esta etapa (v392 a v417)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -42,7 +42,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v413 | **Datos sanos:** una publicación con campos de tipo equivocado (escrita por fuera de la página) ya no tumba la página; se corrige en memoria al leerla | #145 |
 | v414 | Generador del modo oscuro: «white» y «black» dentro del nombre de una variable ya no se tratan como colores. No cambia ningún color visible | #145 |
 | v415 | «Mis datos» y el formulario de «Mis direcciones» también preguntan al salir con cambios | #145 |
-| v416 | **Pedir y preguntar sin registro:** sin cuenta, «Pedir por WhatsApp» abre «Tus datos para el pedido» (nombre, WhatsApp, barrio, dirección, indicaciones y mensaje) en vez de «Registrarme»; preguntar por un producto, servicio o anuncio pide nombre y WhatsApp solo la primera vez. Además, las ventanas abiertas desde el carrito ya no quedan tapadas por el carrito | sin PR |
+| v416 | **Pedir y preguntar sin registro:** sin cuenta, «Pedir por WhatsApp» abre «Tus datos para el pedido» (nombre, WhatsApp, barrio, dirección, indicaciones y mensaje) en vez de «Registrarme»; preguntar por un producto, servicio o anuncio pide nombre y WhatsApp solo la primera vez. Además, las ventanas abiertas desde el carrito ya no quedan tapadas por el carrito | #146 |
+| v417 | **Formularios por pasos:** «Crea tu tienda» pasa de una ventana de más de 5.000 px a 6 pasos (Tu negocio, Categoría, Contacto, Ubicación, Horario, Entregas y pagos) con «Continuar», «Omitir» y «Atrás»; «Tus datos personales» va en 2 o 3 pasos; «Editar tienda» muestra las mismas secciones como pestañas | sin PR |
 
 ---
 
@@ -90,6 +91,14 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - el toque afuera no cierra esos formularios; las demás ventanas sí se cierran al tocar afuera (la dueña lo pidió así).
 - **Mapa del inmueble (v409):** si el dueño respondió «No lo ubica bien» y el administrador aún no puso el código plus, el mapa no se muestra.
 
+- **Por pasos (v417):**
+  - no cambia los campos ni cómo se guarda: solo oculta lo que no es del paso actual. Borrar el archivo devuelve los formularios completos;
+  - «Omitir» solo sale en los pasos donde todo es opcional (Ubicación y Horario); en los demás hay que llenar lo obligatorio para continuar;
+  - si al guardar falta un dato, vuelve solo al paso donde está;
+  - «Editar tienda» no obliga a recorrer los pasos: son pestañas y «Guardar» está siempre a la vista;
+  - mientras corre el tutorial «Hazlo conmigo» el formulario se muestra completo, como antes;
+  - no se aplicó a servicio, anuncio, producto ni registro. El motor (`FORMS` en `v417-por-pasos.js`) admite más formularios: cada uno necesita su lista de pasos y de etiquetas donde empieza cada paso;
+  - en las pruebas, `qhPasos.ver('#campo')` muestra el paso donde está un campo.
 - **Sin registro (v416):**
   - los datos del visitante se guardan solo en su teléfono (`localStorage`, `qh_invitado`), no en Firebase; el formulario trae «Borrar mis datos»;
   - el formulario del pedido se muestra cada vez (ya lleno) para confirmar la dirección; el de información solo la primera vez;

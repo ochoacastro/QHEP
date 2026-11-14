@@ -104,13 +104,13 @@ const PRUEBAS = {
   async direccion() { // v372 la pregunta del mapa no se repite si ya se respondió
     const p = await abrir(); await conCuenta(p);
     const st = () => p.evaluate(() => { const v = s => { const e = document.querySelector(s); return !!e && getComputedStyle(e).display !== 'none' }; return v('#ov .adq') });
-    await p.evaluate(() => adrForm('main')); await p.waitForTimeout(300);
+    await p.evaluate(() => adrForm('main')); await p.waitForTimeout(300); await p.evaluate(() => qhPasos.ver('.adq')); // v417: la pregunta está en el paso del mapa
     check('Dirección nueva: sale la pregunta del mapa', await st());
-    await p.evaluate(() => { const s = document.querySelector('#ov .znsel'); s.value = 'Centro'; s.dispatchEvent(new Event('change', { bubbles: true })) }); await p.fill('#ad-dir', 'Calle 5 # 3-20');
-    await p.evaluate(() => document.querySelector('[data-adok="1"]').click()); await p.click('[data-adsave]'); await p.waitForTimeout(300);
-    await p.evaluate(() => adrForm('main')); await p.waitForTimeout(300);
+    await p.evaluate(() => qhPasos.ver('#ad-dir')); await p.evaluate(() => { const s = document.querySelector('#ov .znsel'); s.value = 'Centro'; s.dispatchEvent(new Event('change', { bubbles: true })) }); await p.fill('#ad-dir', 'Calle 5 # 3-20');
+    await p.evaluate(() => qhPasos.ver('.adq')); await p.evaluate(() => document.querySelector('[data-adok="1"]').click()); await p.click('[data-adsave]'); await p.waitForTimeout(300);
+    await p.evaluate(() => adrForm('main')); await p.waitForTimeout(300); await p.evaluate(() => qhPasos.ver('.adq')); 
     check('Ya respondida: la pregunta no sale', !(await st()));
-    await p.fill('#ad-dir', 'Calle 7 # 2-10'); await p.waitForTimeout(100);
+    await p.evaluate(() => qhPasos.ver('#ad-dir')); await p.fill('#ad-dir', 'Calle 7 # 2-10'); await p.waitForTimeout(100); await p.evaluate(() => qhPasos.ver('.adq')); 
     check('Si cambia la dirección, vuelve a preguntar', await st());
     sinErrores(p, 'Dirección'); await p.cerrar();
   },
@@ -227,7 +227,7 @@ const PRUEBAS = {
     await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render(); editShop() }); await p.waitForTimeout(500);
     check('El dueño no ve el campo del código plus ni el video', await p.evaluate(() => !document.querySelector('#x-plus:not([type=hidden]),#ov [data-act="plusVid"]')));
     check('Debajo de la dirección se ve el mapa de Google Maps', await p.evaluate(() => /maps\.google\.com\/maps\?q=Calle%205/.test((document.querySelector('#x-map iframe') || {}).src || '')));
-    await p.waitForTimeout(300); await p.click('.mq [data-v="0"]'); // v402: botones «Sí, está bien» / «No, no aparece bien»
+    await p.waitForTimeout(300); await p.evaluate(() => qhPasos.ver('.mq')); await p.click('.mq [data-v="0"]'); // v417: la pregunta está en «Ubicación»; v402: botones «Sí, está bien» / «No, no aparece bien»
     check('Si Google Maps no lo ubica, queda pendiente', await p.evaluate(() => readHours().mapfix === true));
     sinErrores(p, 'Formulario del negocio'); await p.cerrar();
     const q = await abrir({ admin: true, seed: { 'stores/s1': Object.assign({}, tienda, { mapfix: true }) } });
@@ -308,10 +308,11 @@ const PRUEBAS = {
     const p = await abrir({ seed: { 'stores/s1': { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', addr: 'Calle 5', products: [] } } }); await conCuenta(p);
     await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render(); editShop() }); await p.waitForTimeout(600);
     check('Ya no está la casilla «El horario cambia según el día» ni las horas del navegador', await p.evaluate(() => !document.querySelector('label.chk #x-hpd') && ![...document.querySelectorAll('#ov input[type=time]')].some(i => i.offsetParent) && document.querySelectorAll('#x-hrs select.ho').length === 14));
+    await p.evaluate(() => qhPasos.ver('#x-hrs')); // v417: el horario está en su propia sección
     check('Sin el botón grande del final y con «Aplicar este horario…» solo en el primer día marcado', await p.evaluate(() => !document.querySelector('.hcopy') && [...document.querySelectorAll('#x-hrs .hcp')].filter(b => b.offsetParent).length === 1));
     await p.evaluate(() => { const r = document.querySelector('#x-hrs .hrow.first'); const s = r.querySelector('select.ho'); s.value = '09:30'; s.dispatchEvent(new Event('change', { bubbles: true })); r.querySelector('.hcp').click() }); await p.waitForTimeout(200);
     check('«Aplicar este horario…» lo copia a los días marcados', await p.evaluate(() => Object.values(readHrs() || {}).every(v => v.startsWith('09:30'))));
-    await p.click('.mq [data-v="1"]');
+    await p.evaluate(() => qhPasos.ver('.mq')); await p.click('.mq [data-v="1"]');
     check('La pregunta del mapa tiene botones y guarda la respuesta', await p.evaluate(() => $('#x-mapok').value === '1' && readHours().mapfix === false && getComputedStyle(document.querySelector('label[for=x-mapok]')).display === 'none'));
     sinErrores(p, 'Horario y pregunta'); await p.cerrar();
   },
@@ -434,6 +435,54 @@ const PRUEBAS = {
     w2 = await p.evaluate(() => window.__wa || '');
     check('Con cuenta, preguntar sigue igual que antes (WhatsApp directo, sin datos agregados)', /quisiera más información/.test(w2) && !/Mi nombre/.test(w2));
     sinErrores(p, 'Sin registro'); await p.cerrar();
+  },
+  async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
+    const p = await abrir(); await conCuenta(p);
+    await p.evaluate(() => { closeModal(1); shopForm() }); await p.waitForTimeout(700);
+    const ve = sel => p.evaluate(s => { const e = document.querySelector(s); return !!e && !!e.offsetParent }, sel);
+    const paso = () => p.evaluate(() => (document.querySelector('.wzk') || {}).textContent + ' · ' + (document.querySelector('.wzt') || {}).textContent);
+    const bot = () => p.evaluate(() => [...document.querySelectorAll('.wzr button')].map(b => b.textContent).join(','));
+    await p.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<div class="qtour" id="t-tour"></div>')); await p.waitForTimeout(300);
+    check('Mientras corre «Hazlo conmigo» el formulario se muestra completo', await ve('#f-name') && await ve('#x-hrs') && await ve('[data-act="saveShop"]') && !(await p.evaluate(() => !!document.querySelector('.wzh'))));
+    await p.evaluate(() => document.getElementById('t-tour').remove()); await p.waitForTimeout(300);
+    check('La tienda empieza en «Paso 1 de 6 · Tu negocio»', (await paso()) === 'Paso 1 de 6 · Tu negocio', await paso());
+    check('Solo se ven los campos de ese paso', await ve('#f-name') && !(await ve('#f-cats')) && !(await ve('#f-wa')) && !(await ve('#x-hrs')) && !(await ve('[data-act="saveShop"]')));
+    check('En el primer paso hay «Cancelar» y «Continuar», sin «Omitir»', (await bot()) === 'Cancelar,Continuar', await bot());
+    check('La ventana ya no mide varias pantallas', await p.evaluate(() => document.querySelector('#ov .modal').scrollHeight < 1300), String(await p.evaluate(() => document.querySelector('#ov .modal').scrollHeight)));
+    await p.click('[data-wz="sigue"]'); await p.waitForTimeout(200);
+    check('Sin nombre no deja continuar y dice qué falta', /nombre/i.test(await p.evaluate(() => document.querySelector('.wze').textContent)) && /Paso 1/.test(await paso()));
+    await p.fill('#f-name', 'Dulces de la Abuela'); await p.fill('#f-desc', 'Postres caseros'); await p.click('[data-wz="sigue"]'); await p.waitForTimeout(250);
+    check('Con los datos, «Continuar» pasa a «Categoría»', (await paso()) === 'Paso 2 de 6 · Categoría' && await ve('#f-cats') && !(await ve('#f-name')), await paso());
+    await p.click('[data-wz="sigue"]'); await p.waitForTimeout(200);
+    check('Sin categoría no deja continuar', /categor/i.test(await p.evaluate(() => document.querySelector('.wze').textContent)));
+    await p.evaluate(() => { const d = document.querySelector('#f-cats details'); d.open = true; d.querySelector('.cgr button, .cgr .chip').click() }); await p.waitForTimeout(250);
+    await p.click('[data-wz="sigue"]'); await p.waitForTimeout(250);
+    check('Elegida la categoría, pasa a «Contacto»', /Paso 3 de 6 · Contacto/.test(await paso()), await paso());
+    await p.click('[data-wz="atras"]'); await p.waitForTimeout(200);
+    check('«Atrás» vuelve al paso anterior sin perder lo escrito', /Paso 2/.test(await paso()) && await p.evaluate(() => document.getElementById('f-name').value === 'Dulces de la Abuela'));
+    await p.click('[data-wz="sigue"]'); await p.waitForTimeout(200); await p.evaluate(() => { const b = document.querySelector('.bizo button'); if (b) b.click() }); await p.fill('#f-wa', '3001234567'); await p.click('[data-wz="sigue"]'); await p.waitForTimeout(250);
+    check('«Ubicación» es opcional: tiene «Omitir»', /Paso 4 de 6 · Ubicación/.test(await paso()) && (await bot()) === 'Atrás,Omitir,Continuar' && await ve('#x-addr') && !(await ve('#x-hrs')), (await paso()) + ' ' + (await bot()));
+    await p.click('[data-wz="omitir"]'); await p.waitForTimeout(200);
+    check('«Omitir» pasa a «Horario»', /Paso 5 de 6 · Horario/.test(await paso()) && await ve('#x-hrs') && !(await ve('#x-addr')));
+    await p.click('[data-wz="omitir"]'); await p.waitForTimeout(200);
+    check('En el último paso está «Abrir tienda» y ya no hay «Continuar»', /Paso 6 de 6/.test(await paso()) && await ve('[data-act="saveShop"]') && (await bot()) === 'Atrás', (await paso()) + ' ' + (await bot()));
+    await p.evaluate(() => { document.getElementById('f-wa').value = '' }); await p.click('[data-act="saveShop"]'); await p.waitForTimeout(400);
+    check('Si al guardar falta un dato, vuelve solo al paso donde está', /Paso 3 de 6 · Contacto/.test(await paso()) && /tel[eé]fono|WhatsApp/i.test(await p.evaluate(() => document.getElementById('err').textContent)), await paso());
+    await p.fill('#f-wa', '3001234567'); await p.evaluate(() => qhPasos.ir(5)); await p.click('[data-act="saveShop"]'); await p.waitForTimeout(900);
+    check('Al terminar, la tienda se crea con lo escrito en los pasos', await p.evaluate(() => S.stores.some(s => s.name === 'Dulces de la Abuela' && s.desc === 'Postres caseros' && s.wa === '3001234567' && !!s.cat)), await p.evaluate(() => (document.getElementById('err') || {}).textContent || ''));
+    // datos personales
+    await p.evaluate(() => { closeModal(1); adrForm('main', null, true) }); await p.waitForTimeout(600);
+    check('«Tus datos» va por pasos: primero la dirección, sin «Cancelar» cuando es obligatoria', /Paso 1 de 2 · Tu dirección/.test(await paso()) && (await bot()) === 'Continuar' && await ve('#ad-dir') && !(await ve('.adq')) && !(await ve('[data-adsave]')), (await paso()) + ' ' + (await bot()));
+    await p.click('[data-wz="sigue"]'); await p.waitForTimeout(200);
+    check('Sin barrio no deja continuar', /barrio/i.test(await p.evaluate(() => document.querySelector('.wze').textContent)));
+    await p.evaluate(() => { const s = document.querySelector('#ov .znsel'); s.value = 'Centro'; s.dispatchEvent(new Event('change', { bubbles: true })) }); await p.fill('#ad-dir', 'Calle 5 # 3-20'); await p.click('[data-wz="sigue"]'); await p.waitForTimeout(250);
+    check('El último paso es el mapa, con «Guardar mis datos»', /Paso 2 de 2 · Tu casa en el mapa/.test(await paso()) && await ve('.adq') && await ve('[data-adsave]') && !(await ve('#ad-dir')));
+    // editar tienda: pestañas
+    await p.evaluate(() => { closeModal(1); const s = S.stores.find(x => x.name === 'Dulces de la Abuela'); view = 'store'; cur = s.id; render(); editShop() }); await p.waitForTimeout(700);
+    check('«Editar tienda» muestra las secciones como pestañas y «Guardar» siempre a la vista', await p.evaluate(() => [...document.querySelectorAll('.wztab [role=tab]')].map(b => b.textContent).join(',') === 'Tu negocio,Contacto,Ubicación,Horario,Entregas y pagos') && await ve('[data-act="saveEditShop"]') && await ve('#e-name') && !(await ve('#x-hrs')));
+    await p.click('.wztab [data-wzir="3"]'); await p.waitForTimeout(200);
+    check('Tocar «Horario» muestra solo el horario', await ve('#x-hrs') && !(await ve('#e-name')) && await ve('[data-act="saveEditShop"]') && await p.evaluate(() => document.querySelector('.wztab [aria-selected="true"]').textContent === 'Horario'));
+    sinErrores(p, 'Por pasos'); await p.cerrar();
   },
   async sesionYAvisos() { // v400 entrar solo con el botón, campana solo con sesión, «Escríbenos» visible
     const p = await abrir();
