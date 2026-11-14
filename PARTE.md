@@ -11,7 +11,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 - **Reglas de Firestore:** la versión del repositorio es **v50** (`tests/reglas/firestore.rules`). Hay que confirmar que esté publicada en Firebase; ver la sección 3.
 - **Pruebas:** 95 pruebas de la página (`tests/pagina/pruebas.cjs`) y 16 archivos de pruebas de reglas (v24 a v50). Todas pasan.
 - **PR abierto:** ninguno. El último fusionado es el **#141**. El commit **v408** está en la rama y falta su PR.
-- **Administrador:** la cuenta es `ochoacastro88@gmail.com`, con UID `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`).
+- **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`).
 
 ---
 
