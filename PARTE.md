@@ -10,7 +10,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 142 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último fusionado es el **#144** (v410 a v412). Todo hasta la v412 está en `main`. **La rama tiene la v406 y las v413 a v415 sin PR ni publicar:** falta que la dueña pida el PR y lo fusione.
+- **PR abierto:** ninguno. El último fusionado es el **#145** (v406 y v413 a v415), el 14 de noviembre de 2026; antes, el **#144** (v410 a v412). Todo hasta la v415 está en `main`. En la rama solo quedan cambios de este parte, sin PR.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -38,10 +38,10 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v410 | Nuevo medio de pago **Sistecrédito** (con su logo) en la tienda y en los pedidos; reglas **v51** | #144 |
 | v411 | Se quita la pausa de la tienda (v310). En su lugar, **letrero Abierto / Cerrado** que el dueño pone a mano, con nota opcional; el de cerrado manda sobre el horario | #144 |
 | v412 | Al salir de un formulario con cambios se pregunta «Guardar cambios», «No guardar» o «Seguir editando»; un toque afuera no cierra los formularios; «Continuar» (v399) queda solo para emergencias | #144 |
-| v406 | En el panel, **Usuarios → «Roles por recuperar»**: devuelve los roles a una ficha que quedó sin ellos aunque sus códigos sigan vigentes | sin PR |
-| v413 | **Datos sanos:** una publicación con campos de tipo equivocado (escrita por fuera de la página) ya no tumba la página; se corrige en memoria al leerla | sin PR |
-| v414 | Generador del modo oscuro: «white» y «black» dentro del nombre de una variable ya no se tratan como colores. No cambia ningún color visible | sin PR |
-| v415 | «Mis datos» y el formulario de «Mis direcciones» también preguntan al salir con cambios | sin PR |
+| v406 | En el panel, **Usuarios → «Roles por recuperar»**: devuelve los roles a una ficha que quedó sin ellos aunque sus códigos sigan vigentes | #145 |
+| v413 | **Datos sanos:** una publicación con campos de tipo equivocado (escrita por fuera de la página) ya no tumba la página; se corrige en memoria al leerla | #145 |
+| v414 | Generador del modo oscuro: «white» y «black» dentro del nombre de una variable ya no se tratan como colores. No cambia ningún color visible | #145 |
+| v415 | «Mis datos» y el formulario de «Mis direcciones» también preguntan al salir con cambios | #145 |
 
 ---
 
@@ -55,7 +55,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - agregar el secreto `FB_SA` en GitHub;
    - el ID de cliente de Google One Tap;
    - configurar WhatsApp Business.
-5. **Recuperar los roles de `contacto@mipradera.com.co`** (cuando la v406 esté publicada): entrar al panel, **Usuarios**, revisar la lista «Roles por recuperar» y tocar el botón. Ver la sección 4.
+5. **Recuperar los roles de `contacto@mipradera.com.co`** (la v406 ya está publicada): entrar al panel, **Usuarios**, revisar la lista «Roles por recuperar» y tocar el botón. Ver la sección 4.
 6. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
 
 Ya hecho: las reglas v51 están publicadas en Firebase (14 de noviembre de 2026).
@@ -71,7 +71,7 @@ Ya hecho: las reglas v51 están publicadas en Firebase (14 de noviembre de 2026)
 - Los roles, en cambio, salen de la ficha de la cuenta (`plans/<llave>.acc`).
 - Si la ficha se borró y la página la volvió a crear, queda sin roles: las reglas no dejan crearla con roles, y la cuenta no puede recuperarlos sola, porque solo se guardan al usar un código nuevo.
 
-**Arreglo activado y probado con datos de prueba (v406), sin publicar:** `src/codigo/v406-recuperar-roles.js`. En el panel de administrador, en **Usuarios**, muestra «Roles por recuperar» y un botón que devuelve a cada ficha el fin de cada rol. Solo sube fechas, nunca las baja.
+**Arreglo publicado (v406, PR #145), probado solo con datos de prueba:** `src/codigo/v406-recuperar-roles.js`. En el panel de administrador, en **Usuarios**, muestra «Roles por recuperar» y un botón que devuelve a cada ficha el fin de cada rol. Solo sube fechas, nunca las baja.
 
 - El fin de cada rol se calcula con los días de cada código, en el orden en que se usaron. La fecha `end` del código la escribe quien lo canjea y las reglas no la revisan, así que solo puede bajar el resultado, nunca subirlo.
 - La causa sigue siendo «probable»: no se ha visto la ficha real. Si en el panel la lista «Roles por recuperar» no muestra esa cuenta, la causa es otra y hay que revisar su tarjeta en Usuarios.
