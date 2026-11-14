@@ -5815,6 +5815,45 @@ window.addEventListener('load',scanAll);
 }catch(e){}})();
 </script>
 <script>window.hideSplash=function(){var x=document.getElementById('splash');if(x){x.classList.add('off');setTimeout(function(){x.remove()},500)}};setTimeout(function(){window.hideSplash()},20000);(function(){var h=window.hideSplash,d=0;window.hideSplash=function(){if(!d){d=1;document.body.classList.add('v-intro');setTimeout(function(){document.body.classList.remove('v-intro')},1000)}h()}})();(function(){const m=e=>{const t=e.target;if(t&&t.tagName==='IMG')t.classList.add('ld')};document.addEventListener('load',m,true);document.addEventListener('error',m,true)})()</script>
+<script id="v413-datos-sanos">/* v413: DATOS SANOS. Las reglas de Firestore dejan que el dueño de una publicación escriba en ella campos de cualquier tipo
+   (por ejemplo, con la consola del navegador: «tags» como texto en vez de lista). Antes, UNA sola publicación así tumbaba el
+   inicio para todos los visitantes. Ahora, al leer cada documento de tiendas, productos, servicios, anuncios y clasificados,
+   los campos conocidos que lleguen con un tipo equivocado se corrigen en memoria (texto → '', lista → [], etc.).
+   - Un documento bien hecho no cambia en nada.
+   - En el panel, las publicaciones propias no se tocan (así nunca se guarda de vuelta algo corregido sin querer).
+   - En el modo administrador sí se corrigen, para que pueda ver y borrar la publicación dañada.
+   Se usa en rebuild() y comListen() de principal/01-cats.js (window.docFix). Si algo falla, borra este <script>:
+   la página vuelve a leer los documentos tal como llegan. */
+(function(){
+var STR='name title desc d cat logo emoji kind owner wa wa2 zone age open close addr plus delivery dfee dcost cover vid video shutN type text link img sub op cond author sid id ownerKey ownerUid c1 c2 vtype fuel pl'.split(' '),
+    ARR='days tags pays gal imgs rates rU cimgs'.split(' '),OBJ='hrs social f'.split(' '),NUM='lat lng ts exp pexp fexp pause _o'.split(' '),
+    TXT={tags:1,pays:1,gal:1,imgs:1,rU:1},REQ={name:1,title:1},
+    NEED={stores:'name',products:'name',services:'name',ads:'title',community:'title'};/* el campo que la página da por hecho en cada colección */
+function po(v){return !!v&&typeof v==='object'&&!Array.isArray(v)}
+function str(v,k){return typeof v==='string'?v:(typeof v==='number'&&isFinite(v)?String(v):(REQ[k]?'Sin nombre':''))}
+function fix(c,o){if(!po(o))return o;var n=0,k,i,v;
+ for(i=0;i<STR.length;i++){k=STR[i];if(k in o&&o[k]!=null&&typeof o[k]!=='string'){o[k]=str(o[k],k);n++}}
+ for(i=0;i<ARR.length;i++){k=ARR[i];if(!(k in o)||o[k]==null)continue;
+  if(!Array.isArray(o[k])){o[k]=[];n++;continue}
+  v=o[k].filter(TXT[k]?function(x){return typeof x==='string'}:k==='days'?function(x){return typeof x==='number'}:po);
+  if(v.length!==o[k].length){o[k]=v;n++}}
+ for(i=0;i<OBJ.length;i++){k=OBJ[i];if(k in o&&o[k]!=null&&!po(o[k])){if(k==='hrs')delete o[k];else o[k]={};n++}}
+ for(i=0;i<NUM.length;i++){k=NUM[i];if(k in o&&o[k]!=null&&!(typeof o[k]==='number'&&isFinite(o[k]))){if(k==='ts'||k==='_o')o[k]=0;else delete o[k];n++}}
+ k=NEED[c];if(k&&typeof o[k]!=='string'){o[k]='Sin nombre';n++}
+ if(c==='ads'&&!po(o.f)){o.f={};n++}
+ /* un anuncio con un tipo que no existe no sale en ninguna lista, pero abrirlo por su enlace daba error: queda como arriendo oculto */
+ if(c==='ads'&&typeof ADT==='object'&&!ADT[o.type]){o.type='arr';o.hidden=true;n++}
+ if('price' in o&&o.price!=null&&typeof o.price!=='number'&&typeof o.price!=='string'){o.price=0;n++}
+ if(po(o.f))for(k in o.f){v=o.f[k];if(v!=null&&typeof v==='object'&&!Array.isArray(v)){delete o.f[k];n++}}
+ if(po(o.social))for(k in o.social)if(typeof o.social[k]!=='string'){delete o.social[k];n++}
+ if(Array.isArray(o.rates))o.rates.forEach(function(r){['u','name','txt'].forEach(function(q){if(q in r&&typeof r[q]!=='string'){r[q]=str(r[q]);n++}});if(typeof r.n!=='number'||!(r.n>=1&&r.n<=5)){r.n=Math.min(5,Math.max(1,Math.round(Number(r.n))||1));n++}});
+ if(n)try{(window.docFixLog=window.docFixLog||[]).push(c+'/'+(o.id||''));if(window.console&&console.warn&&docFixLog.length<=20)console.warn('v413: publicación con datos dañados: '+c+'/'+(o.id||''))}catch(e){}
+ return o}
+window.docFix=function(c,o){try{
+  if(typeof MODE!=='undefined'&&MODE==='panel'&&o&&o.ownerKey){var k='';try{k=QH.key()}catch(e){}if(k&&o.ownerKey===k)return o}
+  return fix(c,o)}catch(e){return o}};
+})();
+</script>
 <script>
 const CATS=[['Farmacia','','#1E6FBF'],['Electrodomésticos','','#2B3A55'],['Restaurantes','','#B23A2E'],['Ropa','','#4A4A6A'],['Celulares','','#C0392B'],['Computación','','#1F6F8B'],['Hogar','','#2E7D5B'],['Alquiler de artículos','🎪','#0E7490'],['Ferretería','🔧','#B45309'],['Muebles y decoración','🛋️','#9A3412'],['Moda y accesorios','👗','#BE185D'],['Accesorios vehículos','🚗','#1E4FBF'],['Deporte y fitness','🏋️','#15803D'],['Tecnología','💻','#1F6F8B'],['Oficina y papelería','📎','#6D28D9'],['Videojuegos','🎮','#4338CA'],['Juegos y juguetes','🧸','#C2410C'],['Abarrotes','🛒','#2E7D5B'],['Bebés','🍼','#DB2777'],['Mascotas','🐶','#A0551A'],['Instrumentos musicales','🎸','#7C2D12'],['Joyas y relojes','💍','#A16207'],['Cacharrerías','🧰','#475569'],['Belleza y salud','💄','#BE123C'],['Licores','🍷','#8A4B1A'],['Calzado','👟','#4D7C0F'],['Libros y revistas','📚','#6D28D9'],['Floristería y regalos','💐','#BE185D'],['Panadería y pastelería','🥐','#B45309'],['Jardinería y agro','🌱','#15803D'],['Fiestas y eventos','🎉','#9F1239']];
 const OFICIOS=['Niñera','Cuidador de ancianos','Aseadora','Carpintero','Plomero o fontanero','Electricista','Pintor','Jardinero','Mecánico','Servicios especializados','Otro'];const DEFJOBS=OFICIOS.filter(o=>o!=='Otro');let newCatImg='';
@@ -5912,7 +5951,7 @@ const QH=(function(){
  function wfail(e){const c=(e&&e.code)||'';toast(c==='permission-denied'?'No tienes permiso para guardar ese cambio.':'No se pudo guardar ('+(c||'sin conexión')+'). Revisa tu internet.');rebuild();render(true)}
  /* ---- lo que llega de Firestore ---- */
  function rebuild(){
-  const g=(c,asc)=>Object.values(RAW[c]||{}).map(clean).sort((a,b)=>asc?(a._o||0)-(b._o||0):(b._o||0)-(a._o||0));
+  const g=(c,asc)=>Object.values(RAW[c]||{}).map(clean).map(o=>typeof docFix==='function'?docFix(c,o):o)/* v413 */.sort((a,b)=>asc?(a._o||0)-(b._o||0):(b._o||0)-(a._o||0));
   const pr={};g('products',1).forEach(p=>(pr[p.sid]=pr[p.sid]||[]).push(p));
   S.stores=g('stores').map(s=>(s.products=pr[s.id]||[],s));
   if(MODE!=='admin'){const k0=key();S.stores.forEach(s=>{if(k0&&s.ownerKey===k0)return;if(!shopLive(s)){s._off=1;s.products=[];delete s.cover}})}/* v259: plan vencido: solo el registro básico a la vista (el dueño y el admin ven todo) */
@@ -6029,7 +6068,7 @@ const QH=(function(){
  const token=async()=>{try{await authP;const u=auth&&auth.currentUser;return u?await u.getIdToken():''}catch(e){return ''}};
  /* v104: Clasificados — coleccion community/<id>; listener propio, fuera del diff de want()/flush() */
  const COM=[];let comUn=null;
- function comListen(){if(comUn||!ready)return;comUn=db.collection('community').where('exp','>',Date.now()-2*DAY).onSnapshot(snap=>{COM.length=0;snap.forEach(d=>{const o=Object.assign({},d.data(),{id:d.id});COM.push(typeof cmNorm==='function'?cmNorm(o):o)})/* v287: anuncios viejos a las categorías nuevas */;COM.sort((a,b)=>(b.ts||0)-(a.ts||0));if((view==='com'||view==='home'||(view==='admin'&&at==='ver'))&&!$('#ov'))render(true)},e=>{comUn=null;COM.length=0})}
+ function comListen(){if(comUn||!ready)return;comUn=db.collection('community').where('exp','>',Date.now()-2*DAY).onSnapshot(snap=>{COM.length=0;snap.forEach(d=>{const o=Object.assign({},d.data(),{id:d.id});COM.push(typeof cmNorm==='function'?cmNorm(typeof docFix==='function'?docFix('community',o):o/* v413 */):o)})/* v287: anuncios viejos a las categorías nuevas */;COM.sort((a,b)=>(b.ts||0)-(a.ts||0));if((view==='com'||view==='home'||(view==='admin'&&at==='ver'))&&!$('#ov'))render(true)},e=>{comUn=null;COM.length=0})}
  async function comPut(o){await authP;const u=auth&&auth.currentUser;if(!u||u.isAnonymous)throw{m:'Para publicar entra con tu correo y tu clave.'};o.ownerUid=u.uid;o.ttl=new Date(o.exp+2*DAY);await ref('community',o.id).set(o)}
  const comDel=async id=>{await authP;const o=COM.find(x=>x.id===id);await ref('community',id).delete();r2q(o);r2gc([want(),COM.filter(x=>x.id!==id),NEWS])};
 /* v163: Noticias — coleccion news/<id>; publican quienes tengan el acceso "news" (plans/<k>.acc.news, por código) */
