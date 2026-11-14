@@ -244,6 +244,13 @@ const PRUEBAS = {
     check('El mapa no se repite al volver a dibujar', await p.evaluate(() => document.querySelectorAll('.advmap').length === 1));
     sinErrores(p, 'Mapa del inmueble'); await p.cerrar();
   },
+  async sistecredito() { // v410 medio de pago Sistecrédito
+    const p = await abrir();
+    check('Sistecrédito está entre los medios de pago', await p.evaluate(() => paysTxt({ pays: ['cash', 'siste'] }) === 'Efectivo · Sistecrédito'));
+    check('El logo de Sistecrédito existe como archivo', await p.evaluate(async () => (await fetch(PAYIMG.siste)).ok));
+    check('El formulario de la tienda lo ofrece con su logo', await p.evaluate(() => { const d = document.createElement('div'); d.innerHTML = extraFields({ pays: ['siste'] }, 1); const i = d.querySelector('#x-pays input[value=siste]'); return !!i && i.checked && !!i.parentNode.querySelector('img[alt="Sistecrédito"]') }));
+    sinErrores(p, 'Sistecrédito'); await p.cerrar();
+  },
   async borradores() { // v399 retomar un formulario cerrado sin guardar
     const p = await abrir(); await conCuenta(p);
     await p.evaluate(() => { closeModal(1); adForm('arr') }); await p.waitForTimeout(400);

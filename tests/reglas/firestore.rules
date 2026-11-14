@@ -2,6 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // v51 (sobre v50): los pedidos aceptan el medio de pago 'siste' (Sistecrédito). Lo demas es igual a v50.
     // v50 (sobre v49): tiendas con «Conoce el lugar» (gal: fotos, vid: video de YouTube): gratis hasta 3 fotos sin video;
     // con el rol de la tienda hasta 10 fotos y 1 video (funciones galOk y galOkNew).
     // v49 (sobre v48): el administrador ahora es la cuenta nueva (UID KUowZZ25CePVc9IXGmhCLVbbSIB3, creada el 9 nov 2026);
@@ -858,7 +859,7 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/stores/$(request.resource.data.sid)).data.get('pexp', 0) > request.time.toMillis() - 3 * 86400000
         && request.resource.data.items is list && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 50
         && request.resource.data.total is number && request.resource.data.total >= 0 && request.resource.data.total <= 1000000000
-        && request.resource.data.pay in ['cash', 'bre', 'nequi', 'card']
+        && request.resource.data.pay in ['cash', 'bre', 'nequi', 'card', 'siste']
         && request.resource.data.st == 'nuevo' && request.resource.data.pst == 'pend'
         && request.resource.data.ts is number
         && request.resource.data.get('note', '') is string && request.resource.data.get('note', '').size() <= 300
