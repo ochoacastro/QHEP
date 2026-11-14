@@ -1768,18 +1768,25 @@ html.dark .bzcd button{background:#48484a!important}html.dark .bzcd button[aria-
 
 
 
-<style id="v310-pausa-css">
-/* v310: tienda en pausa */
-.qpz{display:flex;gap:12px;align-items:flex-start;margin:12px 0;padding:14px 16px;border:2px solid #b45309;background:#fff7ed;color:#7c2d12}
-.qpz .qi{flex:none;width:26px;height:26px;margin-top:2px}.qpz b{display:block;font-size:17px;margin-bottom:2px}.qpz p{margin:0;font-size:14.5px;line-height:1.45}
-.qpz .row{margin-top:10px}.qpz .btn{min-height:42px}
-#app:has(.qpz-cli) :is(.pgrid,.psecs,h3.ptitle:not(.rvt)){display:none!important}
-.qpzo{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}.qpzo button{min-height:48px}
-.qpzc{display:flex;gap:10px;align-items:flex-start;margin:12px 0 4px;font-size:15px}.qpzc input{width:22px;height:22px;flex:none;margin-top:1px}
-.btn.qpzb{border-color:#b45309;color:#b45309}
-html.dark .qpz{background:#2a1606!important;color:#fed7aa!important;border-color:#f59e0b!important}
-html.dark .btn.qpzb{border-color:#f59e0b!important;color:#fbbf24!important}
-.qpz,.qpzo button,.btn.qpzb{border-radius:0!important}
+<style id="v411-letrero-css">
+/* v411: letrero Abierto / Cerrado de la tienda */
+.ltr{display:flex;gap:14px;align-items:center;margin:12px 0;padding:12px 14px;border:2px solid #0e9f4b;background:#f0fdf4;color:#14532d}
+.ltr.off{border-color:#d92027;background:#fef2f2;color:#7f1d1d}
+.ltrs{flex:none;width:112px;height:auto;display:block}
+.ltr b{display:block;font-size:17px;line-height:1.3}.ltr p{margin:2px 0 0;font-size:15px;line-height:1.45}
+.ltr .ltrm{font-size:14px;opacity:.9;margin-top:4px}.ltr .row{margin-top:8px}.ltr .btn{min-height:42px}
+.ltr2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.ltr2 button{padding:10px 8px 12px;border:2px solid var(--line);background:transparent;cursor:pointer;display:flex;justify-content:center;opacity:.55}
+.ltr2 button .ltrs{width:100%;max-width:150px}
+.ltr2 button[aria-pressed=true]{opacity:1;border-color:#0071e3;box-shadow:inset 0 0 0 2px #0071e3}
+.ltrn b{display:block;margin:4px 0 8px}.ltrc{display:flex;flex-wrap:wrap;gap:8px}
+.ltrc .chip{min-height:42px;text-align:left}.ltrc .chip[aria-pressed=true]{background:#0071e3!important;border-color:#0071e3!important;color:#fff!important}
+.ltrn label{display:block;margin:12px 0 4px}
+html.dark .ltr{background:#06200f!important;color:#bbf7d0!important;border-color:#22c55e!important}
+html.dark .ltr.off{background:#2a0a0a!important;color:#fecaca!important;border-color:#ef4444!important}
+html.dark .ltr2 button[aria-pressed=true]{border-color:#0a84ff;box-shadow:inset 0 0 0 2px #0a84ff}
+html.dark .ltrc .chip[aria-pressed=true]{background:#0a84ff!important;border-color:#0a84ff!important}
+.ltr,.ltr2 button,.ltrc .chip{border-radius:0!important}
 </style>
 
 <style id="v312-tablas-anuncios-css">
@@ -2055,6 +2062,7 @@ html.dark .si-hd,html.dark .si-r{border-color:#3a3a3c!important}html.dark .si-hd
 html.dark .si-tags span{background:#2c2c2e!important;color:#e5e5ea!important}html.dark .si-i{background:#0a2540!important;color:#64a8ff!important}
 html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64a8ff!important}
 </style>
+
 
 
 
@@ -4084,53 +4092,50 @@ addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;
  setTimeout(function(){if(!document.getElementById(shop?'f-cats':'adf')&&gdGet()===g){gdClear();if(MODE==='panel'&&view==='home')render(true)}},1800)},true);
 })();
 </script>
-<script id="v310-pausa">
-/* v310: el dueño puede poner su tienda EN PAUSA (botón «Pausar tienda» o sola mientras agrega o edita un producto).
-   En pausa, los clientes ven los datos de la tienda (nombre, horario, ubicación, contacto, opiniones) pero no los productos,
-   y no pueden agregar al carrito ni enviar el pedido, para que nadie compre con un precio que está cambiando.
-   Campos de la tienda: pause = hasta cuándo (fecha en ms), pauseA = 1 si la puso la edición. Si algo falla, borra este bloque. */
+<script id="v411-letrero">/* v411: LETRERO de la tienda (reemplaza la pausa de v310, que ya no existe). El dueño pone a mano «Abierto» o «Cerrado»
+   desde su tienda (botón «Cambiar letrero»). El letrero de cerrado manda sobre el horario, lleva una nota opcional
+   (una de la lista, otra escrita por el dueño o ninguna) y se queda puesto hasta que el dueño lo cambie.
+   Los clientes ven el letrero arriba de la tienda; con «Abierto» la tienda sigue su horario normal.
+   Campos de la tienda: shut = 1 si el letrero dice cerrado, shutN = la nota (máx. 80 letras). El «Cerrado ahora» de las
+   tarjetas sale de openBadge (09-rateform.js). Si algo falla, borra este bloque y su CSS (v411-letrero-css.css). */
 (function(){
-var IC='<svg class="qi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="10" x2="10" y1="15" y2="9"/><line x1="14" x2="14" y1="15" y2="9"/></svg>';
-var MIN=6e4,AUTO=20*MIN;
-var paused=function(s){return !!s&&Number(s.pause)>Date.now()};window.qpzOn=paused;
-var mineOf=function(s){try{return !!s&&shopsMine().some(function(x){return x.id===s.id})}catch(e){return false}};
+var NOTAS=['Mañana volvemos al horario habitual','Hoy no hay atención','Abrimos en la tarde'];
 var st=function(id){return S.stores.find(function(x){return x.id===id})};
-var hhmm=function(t){return new Date(t).toLocaleTimeString('es-CO',{hour:'numeric',minute:'2-digit'})};
-var until=function(s){var t=Number(s.pause);return t-Date.now()>7*864e5?'hasta que el dueño la reanude':'hasta las '+hhmm(t)};
-var autoOn=function(){try{return localStorage.getItem('qh_pauto')!=='0'}catch(e){return true}};
-function setP(id,t,a){var s=st(id);if(!s)return;s.pause=t;s.pauseA=a?1:0;save();if(view==='store'||view==='prod')render(true)}
-function banner(s,mine){
- if(mine)return '<div class="qpz" role="status">'+IC+'<div><b>Tu tienda está en pausa</b><p>'+(s.pauseA?'Se pausó mientras editas tus productos. ':'')+'Tus clientes ven los datos de tu tienda pero no tus productos, y no pueden hacer pedidos, '+until(s)+'.</p><div class="row"><button type="button" class="btn pink" data-qpz="off">Reanudar tienda</button></div></div></div>';
- return '<div class="qpz qpz-cli" role="status">'+IC+'<div><b>Tienda en pausa</b><p>'+esc(s.name)+' está actualizando sus productos y precios. Vuelve en unos minutos'+(Number(s.pause)-Date.now()>7*864e5?'':' (hasta las '+hhmm(Number(s.pause))+')')+'. Mientras tanto puedes ver sus datos y escribirle.</p></div></div>'}
-function wrap(){if(window.__qpzW||typeof storeView!=='function'||typeof prodView!=='function')return;window.__qpzW=1;
- window.storeViewExt=function(){var h=storeView0(),s=view==='store'?st(cur):null;if(!s)return h;var mine=mineOf(s);
-  if(mine)h=h.replace('<button class="btn ghost" data-act="editShop">','<button class="btn ghost qpzb" data-qpz="'+(paused(s)?'off':'menu')+'">'+(paused(s)?'Reanudar tienda':'Pausar tienda')+'</button><button class="btn ghost" data-act="editShop">');
-  if(!paused(s))return h;var i=h.indexOf('<div class="icard">');var bn=banner(s,mine);return i>0?h.slice(0,i)+bn+h.slice(i):bn+h};
- window.prodViewExt=function(){var s=st(cur);if(!s||!paused(s)||mineOf(s)||adm)return prodView0();
-  return '<div class="hubbar"><button class="btn ghost" data-act="open" data-id="'+esc(s.id)+'">← Ver la tienda</button></div>'+banner(s,false)}}
+var mineOf=function(s){try{return !!s&&shopsMine().some(function(x){return x.id===s.id})}catch(e){return false}};
+var shut=function(s){return !!s&&!!s.shut};window.ltrShut=shut;
+function sign(on,cls){var c=on?'#0e9f4b':'#d92027';
+ return '<svg class="ltrs'+(cls?' '+cls:'')+'" viewBox="0 0 120 72" role="img" aria-label="Letrero: '+(on?'abierto':'cerrado')+'"><g fill="none" stroke="'+c+'" stroke-width="3" stroke-linecap="round"><circle cx="60" cy="7" r="4.5"/><path d="M57 10.5 20 37M63 10.5 100 37"/></g><rect x="2" y="36" width="116" height="34" fill="'+c+'"/><text x="60" y="59.5" text-anchor="middle" font-size="18" font-weight="800" letter-spacing="1" fill="#fff" font-family="inherit">'+(on?'ABIERTO':'CERRADO')+'</text></svg>'}
+/* cerrado por horario (sin letrero): lo que ya dice la insignia del horario */
+function porHorario(s){try{return /cerrado/i.test(String(openBadge(s)).replace(/<[^>]*>/g,''))}catch(e){return false}}
+function banner(s,mine){var c=shut(s),h=!c&&porHorario(s),on=!c&&!h,n=c?String(s.shutN||'').trim():'';
+ var t=c?'<b>La tienda está cerrada en este momento</b>'+(n?'<p>'+esc(n)+'</p>':''):h?'<b>Cerrado</b><p>Según el horario de la tienda.</p>':'<b>Abierto</b>';
+ var o=mine?'<p class="ltrm">'+(c?'Tus clientes ven este letrero aunque tu horario diga abierto. Se queda puesto hasta que lo cambies.':'Así ven tu tienda tus clientes. Si vas a cerrar un rato, pon el letrero de cerrado.')+'</p><div class="row"><button type="button" class="btn '+(c?'pink':'ghost')+'" data-ltr="menu">Cambiar letrero</button></div>':'';
+ return '<div class="ltr '+(on?'on':'off')+'" role="status">'+sign(on)+'<div>'+t+o+'</div></div>'}
+function wrap(){if(window.__ltrW||typeof storeView0!=='function')return;window.__ltrW=1;
+ window.storeViewExt=function(){var h=storeView0(),s=view==='store'?st(cur):null;if(!s)return h;var bn=banner(s,mineOf(s)),i=h.indexOf('<div class="icard">');
+  return i>0?h.slice(0,i)+bn+h.slice(i):bn+h}}
 document.addEventListener('DOMContentLoaded',wrap);setTimeout(wrap,0);
-function menu(id){var s=st(id);if(!s)return;var opts=[[15,'15 minutos'],[30,'30 minutos'],[60,'1 hora'],[180,'3 horas']];
- modal('<h2>Pausar tienda</h2><p>Mientras está en pausa, tus clientes ven los datos de <b>'+esc(s.name)+'</b> (horario, ubicación, contacto y opiniones) pero <b>no tus productos</b>, y no pueden enviar pedidos. Úsalo mientras cambias precios o productos.</p><p class="muted">¿Por cuánto tiempo?</p><div class="qpzo">'+opts.map(function(x){return '<button type="button" class="btn" data-qpz="set" data-m="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div><button type="button" class="btn ghost" data-qpz="set" data-m="0" style="width:100%">Hasta que yo la reanude</button><label class="qpzc"><input type="checkbox" id="qpz-auto"'+(autoOn()?' checked':'')+'><span>Pausar sola mientras agrego o edito un producto (se reanuda sola al terminar)</span></label><div class="row" style="margin-top:12px"><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>')}
-document.addEventListener('change',function(e){if(e.target&&e.target.id==='qpz-auto'){try{localStorage.setItem('qh_pauto',e.target.checked?'1':'0')}catch(_){}}});
-/* pausa automática mientras el dueño edita un producto; se reanuda 1 minuto después de cerrar el formulario */
-var watch=null;
-function autoWatch(id){clearInterval(watch);var gone=0;watch=setInterval(function(){var s=st(id);if(!s||!s.pauseA){clearInterval(watch);return}
- if(document.getElementById('ov')){gone=0;if(Number(s.pause)-Date.now()<5*MIN){s.pause=Date.now()+AUTO;save()}return}
- if(++gone>=12){clearInterval(watch);setP(id,0,0);toast('Tu tienda volvió a estar abierta')}},5000)}
-addEventListener('click',function(e){var t=e.target;if(!t.closest)return;var q=t.closest('[data-qpz]');
- if(q){e.preventDefault();e.stopImmediatePropagation();var a=q.dataset.qpz;
-  if(a==='menu')return menu(cur);
-  if(a==='off'){clearInterval(watch);closeModal(1);setP(cur,0,0);return toast('Tu tienda está abierta otra vez')}
-  if(a==='set'){var m=+q.dataset.m;closeModal(1);setP(cur,Date.now()+(m?m*MIN:365*864e5),0);return toast('Tu tienda está en pausa')}
-  return}
- var b=t.closest('[data-act]');if(!b)return;var act=b.dataset.act;
- if((act==='addProd'||act==='editProd')&&view==='store'){var s=st(cur);if(s&&mineOf(s)&&autoOn()&&(!paused(s)||s.pauseA)){if(!paused(s)){s.pause=Date.now()+AUTO;s.pauseA=1;save();toast('Tu tienda quedó en pausa mientras editas')}autoWatch(s.id)}return}
- /* clientes: no agregar ni pedir en una tienda en pausa */
- if((act==='add'||act==='order')&&MODE!=='admin'/* v314: el «add» del administrador es de categorías */){var sid=act==='order'?b.dataset.id:(b.dataset.sid||cur),s2=st(sid);if(!s2||!paused(s2)||mineOf(s2))return;
-  e.preventDefault();e.stopImmediatePropagation();
-  modal('<h2>Tienda en pausa</h2><p><b>'+esc(s2.name)+'</b> está actualizando sus productos y precios, así que por ahora no recibe pedidos. Vuelve a intentarlo en unos minutos'+(Number(s2.pause)-Date.now()>7*864e5?'':' (hasta las '+hhmm(Number(s2.pause))+')')+'.</p>'+(act==='order'?'<p class="muted">Tu carrito queda guardado.</p>':'')+'<div class="row" style="margin-top:10px"><button type="button" class="btn pink" data-act="close">Entendido</button></div>')}},true);
-/* cuando termina la pausa, la tienda abierta se actualiza sola */
-var last='';setInterval(function(){if(view!=='store'&&view!=='prod')return;var s=st(cur),k=s?String(paused(s)):'';if(k!==last){if(last!=='')render(true);last=k}},15000);
+/* ---- el dueño cambia el letrero ---- */
+var M={c:0,k:'none'};
+function menuBody(){var ch=function(k,t){return '<button type="button" class="chip" data-ltr="nota" data-k="'+k+'" aria-pressed="'+(M.k===String(k))+'">'+t+'</button>'};
+ return '<div class="ltr2" role="group" aria-label="Elige el letrero"><button type="button" data-ltr="pick" data-v="0" aria-pressed="'+(!M.c)+'">'+sign(1)+'</button><button type="button" data-ltr="pick" data-v="1" aria-pressed="'+(!!M.c)+'">'+sign(0)+'</button></div>'+
+  (M.c?'<div class="ltrn" role="group" aria-label="Nota para tus clientes"><b>Nota para tus clientes (opcional)</b><div class="ltrc">'+NOTAS.map(function(t,i){return ch(i,esc(t))}).join('')+ch('otro','Otra nota')+ch('none','Sin nota')+'</div>'+
+   (M.k==='otro'?'<label for="ltr-o">Escribe tu nota</label><input id="ltr-o" type="text" maxlength="80" value="'+esc(M.o||'')+'" placeholder="Ej: Volvemos a las 3 de la tarde">':'')+'</div>'
+  :'<p class="muted">Con el letrero de abierto, tu tienda sigue el horario que tienes guardado.</p>')}
+function menu(id){var s=st(id);if(!s)return;var n=String(s.shutN||'').trim(),i=NOTAS.indexOf(n);M={c:shut(s)?1:0,k:!n?'none':i>=0?String(i):'otro',o:i<0?n:''};
+ modal('<h2>Letrero de tu tienda</h2><p>Tus clientes lo ven al entrar a <b>'+esc(s.name)+'</b>. El letrero de cerrado manda sobre tu horario y se queda puesto hasta que lo cambies.</p><div id="ltr-b">'+menuBody()+'</div><div class="row" style="margin-top:12px"><button type="button" class="btn pink" data-ltr="ok">Guardar letrero</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>')}
+function keep(){var i=document.getElementById('ltr-o');if(i)M.o=i.value}
+function redraw(f){var b=document.getElementById('ltr-b');if(!b)return;b.innerHTML=menuBody();if(f){var i=document.getElementById('ltr-o');if(i)i.focus()}}
+addEventListener('click',function(e){var q=e.target.closest&&e.target.closest('[data-ltr]');if(!q)return;e.preventDefault();e.stopImmediatePropagation();var a=q.dataset.ltr,s=st(cur);
+ if(a==='menu'){if(s&&mineOf(s))menu(s.id);return}
+ if(a==='pick'){keep();M.c=+q.dataset.v;return redraw()}
+ if(a==='nota'){keep();M.k=q.dataset.k;return redraw(M.k==='otro')}
+ if(a==='ok'){keep();if(!s||!mineOf(s))return closeModal(1);
+  var n=!M.c||M.k==='none'?'':M.k==='otro'?String(M.o||'').replace(/\s+/g,' ').trim().slice(0,80):NOTAS[+M.k]||'';
+  s.shut=M.c?1:0;s.shutN=n;if(s.pause){s.pause=0;s.pauseA=0}/* limpia la pausa vieja (v310) */
+  save();closeModal(1);if(view==='store')render(true);toast(M.c?'Tu tienda muestra el letrero de cerrado':'Tu tienda muestra el letrero de abierto')}},true);
+/* si el horario abre o cierra mientras alguien mira la tienda, el letrero se actualiza solo */
+var last='';setInterval(function(){if(view!=='store'||document.getElementById('ov'))return;var s=st(cur),k=s?String(shut(s))+porHorario(s):'';if(k!==last){if(last!=='')render(true);last=k}},30000);
 })();
 </script>
 <script id="v312-tablas-anuncios">
@@ -4364,7 +4369,7 @@ window.qpopHide=hide;
      El cliente lo ve en Mi cuenta → Mis pedidos. Si paga con Bre-B o Nequi, sube el comprobante como los demás pagos.
    Campo de la tienda: om = 'wa' | 'app'. Si algo falla, borra este bloque. */
 (function(){
-var PAYN={cash:'Efectivo (contra entrega)',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta (datáfono)'},PAYS_={cash:'Efectivo',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta'};
+var PAYN={cash:'Efectivo (contra entrega)',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta (datáfono)',siste:'Sistecrédito'/* v410 */},PAYS_={cash:'Efectivo',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta',siste:'Sistecrédito'};
 var STN={nuevo:'Nuevo',acep:'Aceptado · preparando',env:'Enviado',ent:'Entregado',canc:'Cancelado'},PSN={pend:'Pago pendiente',ok:'Pagado',no:'No pagó'};
 var ORD={},OT=[],OF=[],uidL='',subs=[],seen=null,FT='act',sf=0;
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
@@ -5418,6 +5423,8 @@ function store(m){m=m||M();if(!S0||!m||m!==S0.el||kindOf(m)!==S0.act)return;/* s
  o[S0.key]=d;put(o)}
 var tW,pendM=null;function later(){var m=M();if(!m)return;pendM=m;clearTimeout(tW);tW=setTimeout(function(){var x=pendM;pendM=null;store(x)},400)}
 function del(key){var o=all();delete o[key];put(o)}
+/* v412: «No guardar» al salir pregunta si hay cambios (dirty) y borra el borrador de la ventana abierta (drop) */
+window.qhBorr={dirty:function(){return !!(S0&&S0.dirty)},drop:function(){clearTimeout(tW);pendM=null;if(S0){del(S0.key);S0.dirty=false;S0.el=null}bar()}};
 function ago(ts){var m=Math.round((Date.now()-ts)/6e4);return m<1?'hace un momento':m<60?'hace '+m+' min':m<1440?'hace '+Math.round(m/60)+' h':'hace '+Math.round(m/1440)+' días'}
 /* ---- volver a poner lo escrito ---- */
 function setv(i,val){if(i.type==='checkbox'||i.type==='radio'){if(i.checked!==!!val){i.checked=!!val;i.dispatchEvent(new Event('change',{bubbles:true}))}}
@@ -5461,6 +5468,42 @@ setTimeout(check,2500);
 document.head.insertAdjacentHTML('beforeend','<style id="v399-css">.brb{margin:4px 0 12px;padding:12px 14px;background:#eef4ff;border-left:5px solid #0071e3}.brb p{margin:0 0 8px}.brbr{display:flex;gap:8px;flex-wrap:wrap}.brbr .btn{flex:1 1 140px;min-height:44px}'+
  '#brbar{position:fixed;left:12px;right:12px;bottom:16px;z-index:30;display:flex;align-items:center;gap:10px;max-width:560px;margin:0 auto;padding:10px 10px 10px 14px;background:#1d1d1f;color:#fff;box-shadow:0 8px 24px #0000003d}#brbar span{flex:1;min-width:0}#brbar small{display:block;opacity:.75;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#brbar .btn{flex:none;min-height:42px;padding:6px 14px}#brbar .brx{flex:none;width:36px;height:42px;background:none;border:0;color:#fff;font-size:24px;line-height:1;cursor:pointer}'+
  '@media (max-width:900px){#brbar{bottom:calc(76px + env(safe-area-inset-bottom))}}html.dark .brb{background:#0a2540!important;color:#f5f5f7!important}html.dark #brbar{background:#2c2c2e;color:#f5f5f7}.brb,#brbar,#brbar .btn{border-radius:0!important}</style>');
+})();
+</script>
+<script id="v412-salir-guardar">/* v412: SALIR DE UN FORMULARIO. Si alguien cambió algo en una ventana de edición (tienda nueva, editar tienda, anuncio,
+   servicio, producto, editar producto o registro) y la cierra por su cuenta (botón de cerrar o «Cancelar», o la tecla
+   Escape), se le pregunta: «Guardar cambios», «No guardar» o «Seguir editando».
+   Un toque afuera de la ventana NO cierra estos formularios (con o sin cambios): hay que usar cerrar o «Cancelar».
+   «Guardar cambios» toca el botón de guardar del formulario (si falta un dato, el formulario lo dice y sigue abierto).
+   «No guardar» cierra y borra el borrador (v399), así no queda el aviso «Continuar». El borrador y «Continuar» quedan solo
+   para emergencias: se apagó el teléfono, se recargó o se cerró la página. Si algo falla, borra este bloque. */
+(function(){
+var ACTS=['saveShop','saveEditShop','saveAd','saveServ','saveProd','saveEdit','doReg'];
+function M(){return document.querySelector('#ov .modal')}
+function saveBtn(m){if(!m)return null;for(var i=0;i<ACTS.length;i++){var b=m.querySelector('[data-act="'+ACTS[i]+'"]');if(b)return b}return null}
+function dirty(m){if(!m||!saveBtn(m))return false;if(m._sgq)return true;try{return !!(window.qhBorr&&qhBorr.dirty())}catch(e){return false}}
+/* cualquier cosa que la persona escriba, elija o marque en el formulario cuenta como cambio (también las fotos) */
+function touch(e){if(!e.isTrusted)return;var t=e.target,m=t&&t.closest&&t.closest('#ov .modal');if(m&&saveBtn(m))m._sgq=1}
+document.addEventListener('input',touch,true);document.addEventListener('change',touch,true);
+var Q=null;
+function ask(m){if(Q)return;var prev=document.activeElement,o=document.createElement('div');o.className='overlay';o.id='sgq';o.style.zIndex=100001;
+ o.innerHTML='<div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="sgq-t" style="max-width:400px"><h2 id="sgq-t">¿Guardar los cambios?</h2><p>Hiciste cambios en esta ventana y todavía no están guardados.</p><div class="sgqb"><button type="button" class="btn pink" data-sgq="si">Guardar cambios</button><button type="button" class="btn ghost" data-sgq="no">No guardar</button><button type="button" class="btn ghost" data-sgq="x">Seguir editando</button></div></div>';
+ function done(v){document.removeEventListener('keydown',kd,true);o.remove();Q=null;
+  if(v==='si'){var b=saveBtn(M());if(b){try{b.scrollIntoView({block:'nearest'})}catch(e){}b.click()}return}
+  if(v==='no'){try{window.qhBorr&&qhBorr.drop()}catch(e){}closeModal();return}
+  try{prev&&prev.isConnected&&prev.focus&&prev.focus()}catch(e){}}
+ function kd(e){if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();return done('x')}
+  if(e.key==='Tab'){e.stopImmediatePropagation();var l=[].slice.call(o.querySelectorAll('button')),i=l.indexOf(document.activeElement);e.preventDefault();l[(i+(e.shiftKey?-1:1)+l.length)%l.length].focus()}}
+ document.addEventListener('keydown',kd,true);
+ o.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-sgq]');if(b)done(b.dataset.sgq)});
+ document.body.appendChild(o);Q=o;o.querySelector('button').focus()}
+/* salir por cuenta propia: cerrar, «Cancelar» o Escape. El toque afuera no cierra el formulario */
+document.addEventListener('click',function(e){if(Q)return;var t=e.target,ov=document.getElementById('ov');if(!ov||!t||!t.closest)return;
+ var out=t===ov&&!ov.dataset.lock,x=t.closest('#ov [data-act="close"]');if(!out&&!x)return;var m=M();if(out&&!x){if(saveBtn(m)){e.preventDefault();e.stopImmediatePropagation()}return}if(!dirty(m))return;
+ e.preventDefault();e.stopImmediatePropagation();ask(m)},true);
+document.addEventListener('keydown',function(e){if(Q||e.key!=='Escape')return;var ov=document.getElementById('ov');if(!ov||ov.dataset.lock||document.getElementById('lb')||document.querySelector('.qs-ov'))return;
+ var m=M();if(!dirty(m))return;e.preventDefault();e.stopImmediatePropagation();ask(m)},true);
+document.head.insertAdjacentHTML('beforeend','<style id="v412-css">#sgq .sgqb{display:flex;flex-direction:column;gap:8px;margin-top:14px}#sgq .sgqb .btn{width:100%;min-height:46px}#sgq .modal,#sgq .btn{border-radius:0!important}</style>');
 })();
 </script>
 <script id="v402-pregunta-mapa">/* v402: la pregunta «¿Google Maps muestra bien…?» del negocio (#x-mapok) y del inmueble (#af-mapok) tiene el mismo diseño
@@ -6534,8 +6577,8 @@ const REASONS=['Estafa o fraude','Contenido inapropiado o prohibido','Informaci�
 const DELIV=['','Sí, hago domicilios','Solo recoger en la tienda','A convenir'];
 const readDel=()=>{if($('#x-del').value!==DELIV[1])return{dfee:'',dcost:''};const f=$('#x-dfee').value,c=parseInt(String($('#x-dcost').value).replace(/\D/g,''),10);return{dfee:f==='free'||f==='paid'?f:'',dcost:f==='paid'&&c>0?Math.min(c,999999):''}};
 const delFeeTxt=s=>s.delivery!==DELIV[1]?'':s.dfee==='free'?' · Gratis':s.dfee==='paid'?(s.dcost?' · Costo '+money(s.dcost):' · Con costo'):'';
-const PAYS=[['cash','Efectivo'],['bre','Bre-B'],['nequi','Nequi'],['card','Tarjeta de crédito']];
-const PAYIMG={bre:'img/pago-bre.jpg',nequi:'img/pago-nequi.jpg'};
+const PAYS=[['cash','Efectivo'],['bre','Bre-B'],['nequi','Nequi'],['card','Tarjeta de crédito'],['siste','Sistecrédito']/* v410 */];
+const PAYIMG={bre:'img/pago-bre.jpg',nequi:'img/pago-nequi.jpg',siste:'img/pago-siste.jpg'/* v410 */};
 const readPays=()=>({pays:[...document.querySelectorAll('#x-pays input:checked')].map(i=>i.value).filter(v=>PAYS.some(p=>p[0]===v)),...(typeof omRead==='function'?omRead():{})/* v320: cómo recibe los pedidos */});
 const paysTxt=s=>(s.pays||[]).map(k=>(PAYS.find(p=>p[0]===k)||[])[1]).filter(Boolean).join(' · ');
 const DIAS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
@@ -6554,7 +6597,7 @@ const hrsRows=s=>{const h=hrsGet(s),has=Object.keys(h).length,dd=(s.days&&s.days
 const hSel=(c,v,l)=>{const L=[];for(let m=0;m<1440;m+=30)L.push(String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'));if(v&&/^\d\d:\d\d$/.test(v)&&!L.includes(v)){L.push(v);L.sort()}return `<select class="${c}" aria-label="${esc(l)}">${L.map(x=>`<option value="${x}"${x===v?' selected':''}>${hhmm(x)}</option>`).join('')}</select>`};
 const readHrs=()=>{const o={};document.querySelectorAll('#x-hrs .hrow').forEach(r=>{if(!r.querySelector('.hon').checked)return;const t=[...r.querySelectorAll('.ht')].filter((x,k)=>k===0||r.classList.contains('two')).map(x=>{const a=x.querySelector('.ho').value,b=x.querySelector('.hc').value;return a&&b&&a!==b?a+'-'+b:''}).filter(Boolean);if(t.length)o[r.dataset.d]=t.join(',')});return Object.keys(o).length?o:null};
 const hoursTxt=s=>{if(Object.keys(hrsGet(s)).length)return hrsTxt(s);const d=daysTxt(s.days),t=s.open&&s.close?hhmm(s.open)+' a '+hhmm(s.close):s.open?'Abre '+hhmm(s.open):s.close?'Cierra '+hhmm(s.close):'';return [d,t].filter(Boolean).join(' · ')||s.hours||''};
-const openBadge=s=>{if(Object.keys(hrsGet(s)).length)return hrsBadge(s);if(!s.open||!s.close)return'';const n=new Date(),di=(n.getDay()+6)%7,m=n.getHours()*60+n.getMinutes(),f=t=>{const[h,mm]=t.split(':').map(Number);return h*60+mm},o=f(s.open),c=f(s.close);if(s.days&&s.days.length&&!s.days.includes(di))return'<b>· Cerrado hoy</b>';const on=o<=c?(m>=o&&m<c):(m>=o||m<c);return on?'<b>· Abierto ahora</b>':'<b>· Cerrado ahora</b>'};
+const openBadge=s=>{if(s&&s.shut)return'<b>· Cerrado ahora</b>';/* v411: letrero de cerrado */if(Object.keys(hrsGet(s)).length)return hrsBadge(s);if(!s.open||!s.close)return'';const n=new Date(),di=(n.getDay()+6)%7,m=n.getHours()*60+n.getMinutes(),f=t=>{const[h,mm]=t.split(':').map(Number);return h*60+mm},o=f(s.open),c=f(s.close);if(s.days&&s.days.length&&!s.days.includes(di))return'<b>· Cerrado hoy</b>';const on=o<=c?(m>=o&&m<c):(m>=o||m<c);return on?'<b>· Abierto ahora</b>':'<b>· Cerrado ahora</b>'};
 const mapQ=s=>encodeURIComponent([s.addr,s.zone,'Pradera, Valle del Cauca, Colombia'].filter(Boolean).join(', '));
 const OLCA='23456789CFGHJMPQRVWX';
 const plusLL=t=>{const m=String(t||'').toUpperCase().match(/[23456789CFGHJMPQRVWX]{2,8}\+[23456789CFGHJMPQRVWX]*/);if(!m)return null;let c=m[0];const p=c.indexOf('+');if(p%2||p>8)return null;let res0=0;
@@ -6595,7 +6638,7 @@ const socHTML=s=>{const o=s.social||{},L=[['ig','Instagram'],['fb','Facebook'],[
 const parseTags=t=>{const o=[];String(t||'').toLowerCase().split(/[\s,;]+/).forEach(x=>{x=x.replace(/^#+/,'').replace(/[^a-z0-9áéíóúüñ_-]/g,'').slice(0,24);if(x&&!o.includes(x))o.push(x)});return o.slice(0,8)};
 const tagsTxt=a=>(a||[]).map(t=>'#'+t).join(' ');
 /* v286: Instagram, Facebook, TikTok y Sitio web ahora van dentro de <details class="sgd"> (plegable; se abre solo si ya hay alguna red guardada). Los ids x-ig, x-fb, x-tt, x-web no cambiaron. */
-/* v284: botón «Ver video» (tutorial de cómo copiar el Plus Code en Google Maps) debajo del campo x-plus; abre el video con la acción plusVid. Si falla, borra el <button data-act="plusVid"> de aquí. */const extraFields=(s,noTags)=>`${noTags?'':`<label for="x-tags">Etiquetas (opcional)</label><input id="x-tags" type="text" maxlength="120" value="${esc(tagsTxt(s.tags))}" placeholder="Ej: #farmacia #medicinas"><p class="muted">Escribe palabras con # para que te encuentren por más cosas que ofreces. Sepáralas con un espacio (máximo 8).</p>`}<label for="x-age">¿Para quién es el contenido de tu tienda?</label><select id="x-age"><option value="">Para todo público</option><option value="adult"${s.age==='adult'?' selected':''}>Solo mayores de 18: contenido sexual explícito</option><option value="bet"${s.age==='bet'?' selected':''}>Solo mayores de 18: juegos de azar o apuestas</option></select><p class="muted">Si tu tienda muestra o vende contenido sexual explícito, o juegos de azar y apuestas, elige esa opción: quienes entren deberán confirmar que son mayores de 18 años. <!-- v353 --></p><details class="sgd"${['ig','fb','tt','web'].some(k=>(s.social||{})[k])?' open':''}><summary><span>Redes sociales y sitio web (opcional)</span><small>4 opciones</small><i aria-hidden="true"></i></summary><div class="sgr"><label for="x-ig">Instagram (opcional)</label><input id="x-ig" type="text" maxlength="150" value="${esc((s.social||{}).ig||'')}" placeholder="@tutienda o el link"><label for="x-fb">Facebook (opcional)</label><input id="x-fb" type="text" maxlength="150" value="${esc((s.social||{}).fb||'')}" placeholder="Nombre de tu página o el link"><label for="x-tt">TikTok (opcional)</label><input id="x-tt" type="text" maxlength="150" value="${esc((s.social||{}).tt||'')}" placeholder="@tutienda o el link"><label for="x-web">Sitio web u otro link (opcional)</label><input id="x-web" type="text" maxlength="200" value="${esc((s.social||{}).web||'')}" placeholder="www.tutienda.com"></div></details><label for="x-zone">Barrio o zona (opcional)</label><input id="x-zone" type="text" maxlength="40" value="${esc(s.zone||'')}" placeholder="Ej: Centro"><label id="x-days-l">Días de atención (opcional)</label><div class="dayrow" id="x-days" role="group" aria-labelledby="x-days-l">${DIAS.map((d,i)=>`<label class="dchip"><input type="checkbox" value="${i}"${(s.days||[]).includes(i)?' checked':''}><span>${d}</span></label>`).join('')}</div>${s.hours&&!(s.days||[]).length&&!s.open&&!s.close?`<p class="muted">Horario anterior: ${esc(s.hours)}</p>`:''}<div class="row"><div style="flex:1;min-width:130px"><label for="x-open">Hora de apertura</label><input id="x-open" type="time" value="${esc(s.open||'')}"></div><div style="flex:1;min-width:130px"><label for="x-close">Hora de cierre</label><input id="x-close" type="time" value="${esc(s.close||'')}"></div></div><input type="checkbox" id="x-hpd" checked hidden><label id="x-hrs-l">Horario de atención (opcional)</label><p class="muted">Marca los días que abres y elige la hora. Si abres igual varios días, pon la hora en el primero y toca «Aplicar este horario a los días marcados».</p><div class="hrs" id="x-hrs" role="group" aria-labelledby="x-hrs-l">${hrsRows(s)}</div><!-- v401: solo el horario por día --><label for="x-addr">Dirección del negocio (opcional)</label><input id="x-addr" type="text" maxlength="100" value="${esc(s.addr||'')}" placeholder="Ej: Calle 5 #8-20"><input type="hidden" id="x-lat" value="${s.lat!=null?s.lat:''}"><input type="hidden" id="x-lng" value="${s.lng!=null?s.lng:''}"><input type="hidden" id="x-plus" value="${esc(s.plus||'')}"><div class="admap" id="x-map" data-a0="${esc(s.addr||'')}"></div><label for="x-mapok">¿Google Maps ubica bien tu negocio con esta dirección?</label><select id="x-mapok"><option value="">Sin revisar</option><option value="1"${!s.mapfix&&(s.plus||s.lat!=null)?' selected':''}>Sí, lo ubica bien</option><option value="0"${s.mapfix?' selected':''}>No lo ubica bien</option></select><p class="muted">Mira el mapa: si no marca tu negocio en el lugar correcto, elige «No»: el administrador lo ubicará en el mapa. <!-- v394: el código plus solo lo pone el administrador --></p><label for="x-del">Domicilios</label><select id="x-del">${DELIV.map(d=>`<option value="${esc(d)}"${(s.delivery||'')===d?' selected':''}>${d||'Sin especificar'}</option>`).join('')}</select><div id="x-dfee-w"${(s.delivery||'')===DELIV[1]?'':' hidden'}><label for="x-dfee">¿El domicilio es gratis? (opcional)</label><select id="x-dfee"><option value="">Sin especificar</option><option value="free"${s.dfee==='free'?' selected':''}>Sí, domicilio gratis</option><option value="paid"${s.dfee==='paid'?' selected':''}>No, tiene un costo</option></select><div id="x-dcost-w"${s.dfee==='paid'?'':' hidden'}><label for="x-dcost">Costo del domicilio en pesos (opcional)</label><input id="x-dcost" type="text" data-money inputmode="numeric" maxlength="7" value="${moneyFmt(s.dcost||'')}" placeholder="Ej: 3.000"></div></div><label id="x-pays-l">Medios de pago (opcional, puedes elegir varios)</label><div class="dayrow" id="x-pays" role="group" aria-labelledby="x-pays-l">${PAYS.map(([k,n])=>`<label class="dchip pay"><input type="checkbox" value="${k}"${(s.pays||[]).includes(k)?' checked':''}><span>${k==='bre'?`<img class="pimg" src="${PAYIMG.bre}" alt="Bre-B">`:k==='nequi'?`<img class="pimg" src="${PAYIMG.nequi}" alt=""> Nequi`:(k==='cash'?'💵 ':'💳 ')+n}</span></label>`).join('')}</div>`;
+/* v284: botón «Ver video» (tutorial de cómo copiar el Plus Code en Google Maps) debajo del campo x-plus; abre el video con la acción plusVid. Si falla, borra el <button data-act="plusVid"> de aquí. */const extraFields=(s,noTags)=>`${noTags?'':`<label for="x-tags">Etiquetas (opcional)</label><input id="x-tags" type="text" maxlength="120" value="${esc(tagsTxt(s.tags))}" placeholder="Ej: #farmacia #medicinas"><p class="muted">Escribe palabras con # para que te encuentren por más cosas que ofreces. Sepáralas con un espacio (máximo 8).</p>`}<label for="x-age">¿Para quién es el contenido de tu tienda?</label><select id="x-age"><option value="">Para todo público</option><option value="adult"${s.age==='adult'?' selected':''}>Solo mayores de 18: contenido sexual explícito</option><option value="bet"${s.age==='bet'?' selected':''}>Solo mayores de 18: juegos de azar o apuestas</option></select><p class="muted">Si tu tienda muestra o vende contenido sexual explícito, o juegos de azar y apuestas, elige esa opción: quienes entren deberán confirmar que son mayores de 18 años. <!-- v353 --></p><details class="sgd"${['ig','fb','tt','web'].some(k=>(s.social||{})[k])?' open':''}><summary><span>Redes sociales y sitio web (opcional)</span><small>4 opciones</small><i aria-hidden="true"></i></summary><div class="sgr"><label for="x-ig">Instagram (opcional)</label><input id="x-ig" type="text" maxlength="150" value="${esc((s.social||{}).ig||'')}" placeholder="@tutienda o el link"><label for="x-fb">Facebook (opcional)</label><input id="x-fb" type="text" maxlength="150" value="${esc((s.social||{}).fb||'')}" placeholder="Nombre de tu página o el link"><label for="x-tt">TikTok (opcional)</label><input id="x-tt" type="text" maxlength="150" value="${esc((s.social||{}).tt||'')}" placeholder="@tutienda o el link"><label for="x-web">Sitio web u otro link (opcional)</label><input id="x-web" type="text" maxlength="200" value="${esc((s.social||{}).web||'')}" placeholder="www.tutienda.com"></div></details><label for="x-zone">Barrio o zona (opcional)</label><input id="x-zone" type="text" maxlength="40" value="${esc(s.zone||'')}" placeholder="Ej: Centro"><label id="x-days-l">Días de atención (opcional)</label><div class="dayrow" id="x-days" role="group" aria-labelledby="x-days-l">${DIAS.map((d,i)=>`<label class="dchip"><input type="checkbox" value="${i}"${(s.days||[]).includes(i)?' checked':''}><span>${d}</span></label>`).join('')}</div>${s.hours&&!(s.days||[]).length&&!s.open&&!s.close?`<p class="muted">Horario anterior: ${esc(s.hours)}</p>`:''}<div class="row"><div style="flex:1;min-width:130px"><label for="x-open">Hora de apertura</label><input id="x-open" type="time" value="${esc(s.open||'')}"></div><div style="flex:1;min-width:130px"><label for="x-close">Hora de cierre</label><input id="x-close" type="time" value="${esc(s.close||'')}"></div></div><input type="checkbox" id="x-hpd" checked hidden><label id="x-hrs-l">Horario de atención (opcional)</label><p class="muted">Marca los días que abres y elige la hora. Si abres igual varios días, pon la hora en el primero y toca «Aplicar este horario a los días marcados».</p><div class="hrs" id="x-hrs" role="group" aria-labelledby="x-hrs-l">${hrsRows(s)}</div><!-- v401: solo el horario por día --><label for="x-addr">Dirección del negocio (opcional)</label><input id="x-addr" type="text" maxlength="100" value="${esc(s.addr||'')}" placeholder="Ej: Calle 5 #8-20"><input type="hidden" id="x-lat" value="${s.lat!=null?s.lat:''}"><input type="hidden" id="x-lng" value="${s.lng!=null?s.lng:''}"><input type="hidden" id="x-plus" value="${esc(s.plus||'')}"><div class="admap" id="x-map" data-a0="${esc(s.addr||'')}"></div><label for="x-mapok">¿Google Maps ubica bien tu negocio con esta dirección?</label><select id="x-mapok"><option value="">Sin revisar</option><option value="1"${!s.mapfix&&(s.plus||s.lat!=null)?' selected':''}>Sí, lo ubica bien</option><option value="0"${s.mapfix?' selected':''}>No lo ubica bien</option></select><p class="muted">Mira el mapa: si no marca tu negocio en el lugar correcto, elige «No»: el administrador lo ubicará en el mapa. <!-- v394: el código plus solo lo pone el administrador --></p><label for="x-del">Domicilios</label><select id="x-del">${DELIV.map(d=>`<option value="${esc(d)}"${(s.delivery||'')===d?' selected':''}>${d||'Sin especificar'}</option>`).join('')}</select><div id="x-dfee-w"${(s.delivery||'')===DELIV[1]?'':' hidden'}><label for="x-dfee">¿El domicilio es gratis? (opcional)</label><select id="x-dfee"><option value="">Sin especificar</option><option value="free"${s.dfee==='free'?' selected':''}>Sí, domicilio gratis</option><option value="paid"${s.dfee==='paid'?' selected':''}>No, tiene un costo</option></select><div id="x-dcost-w"${s.dfee==='paid'?'':' hidden'}><label for="x-dcost">Costo del domicilio en pesos (opcional)</label><input id="x-dcost" type="text" data-money inputmode="numeric" maxlength="7" value="${moneyFmt(s.dcost||'')}" placeholder="Ej: 3.000"></div></div><label id="x-pays-l">Medios de pago (opcional, puedes elegir varios)</label><div class="dayrow" id="x-pays" role="group" aria-labelledby="x-pays-l">${PAYS.map(([k,n])=>`<label class="dchip pay"><input type="checkbox" value="${k}"${(s.pays||[]).includes(k)?' checked':''}><span>${k==='bre'?`<img class="pimg" src="${PAYIMG.bre}" alt="Bre-B">`:k==='nequi'?`<img class="pimg" src="${PAYIMG.nequi}" alt=""> Nequi`:k==='siste'?`<img class="pimg" src="${PAYIMG.siste}" alt="Sistecrédito">`/* v410 */:(k==='cash'?'💵 ':'💳 ')+n}</span></label>`).join('')}</div>`;
 let ed={id:'',imgs:[]};
 const edImgs=()=>ed.imgs.length?ed.imgs.map((m,i)=>`<div style="position:relative;width:64px;height:64px;flex:none"><img src="${m}" alt="Foto ${i+1}" style="width:100%;height:100%;object-fit:cover;border-radius:8px"><button class="x" style="width:22px;height:22px;top:-6px;right:-6px;font-size:12px;padding:0" data-act="rmimg" data-i="${i}" aria-label="Quitar foto ${i+1}">✕</button><button class="x" style="width:24px;height:24px;top:auto;bottom:-8px;left:-6px;right:auto;font-size:16px;padding:0" data-act="mvimg" data-i="${i}" data-d="-1" aria-label="Mover foto ${i+1} a la izquierda"${i===0?' disabled':''}>‹</button><button class="x" style="width:24px;height:24px;top:auto;bottom:-8px;right:-6px;font-size:16px;padding:0" data-act="mvimg" data-i="${i}" data-d="1" aria-label="Mover foto ${i+1} a la derecha"${i===ed.imgs.length-1?' disabled':''}>›</button></div>`).join(''):'<span class="muted">Sin fotos</span>';
 let PEND=null;

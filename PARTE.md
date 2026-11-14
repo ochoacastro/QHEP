@@ -8,14 +8,14 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 ## 1. Estado actual
 
-- **Reglas de Firestore:** la versión del repositorio es **v50** (`tests/reglas/firestore.rules`). Hay que confirmar que esté publicada en Firebase; ver la sección 3.
-- **Pruebas:** 101 pruebas de la página (`tests/pagina/pruebas.cjs`) y 16 archivos de pruebas de reglas (v24 a v50). Todas pasan.
-- **PR abierto:** **#143** (skill `find-skills` y v409). El último fusionado es el **#142**.
+- **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
+- **Pruebas:** 123 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Todas pasan.
+- **PR abierto:** **#144** (v410 a v412). El último fusionado es el **#143** (skills y v409).
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`).
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v409)
+## 2. Lo que se hizo en esta etapa (v392 a v412)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -35,12 +35,15 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v407 | «Publicar» de la barra de abajo abre directo el formulario de clasificado | #141 |
 | v408 | En Clasificados, las categorías van dentro de un botón «Ver categorías» que se abre y se cierra | #142 |
 | v409 | El anuncio de un inmueble muestra al visitante «Ubicación»: el mapa de Google Maps de su dirección y «Abrir en Google Maps» | #143 |
+| v410 | Nuevo medio de pago **Sistecrédito** (con su logo) en la tienda y en los pedidos; reglas **v51** | #144 |
+| v411 | Se quita la pausa de la tienda (v310). En su lugar, **letrero Abierto / Cerrado** que el dueño pone a mano, con nota opcional; el de cerrado manda sobre el horario | #144 |
+| v412 | Al salir de un formulario con cambios se pregunta «Guardar cambios», «No guardar» o «Seguir editando»; un toque afuera no cierra los formularios; «Continuar» (v399) queda solo para emergencias | #144 |
 
 ---
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
-1. **Publicar las reglas v50** en Firebase → Firestore → Reglas, si aún no están: copiar completo `tests/reglas/firestore.rules`. Sin ellas, alguien podría saltarse el límite de 3 fotos gratis de «Conoce el lugar».
+1. ~~Publicar las reglas v51~~ — hecho: la dueña las publicó el 14 de noviembre de 2026.
 2. **Actualizar el worker de Cloudflare** con el UID nuevo del administrador (`worker_v12_INSTALAR.js`, línea 50). Sin esto no llegan los avisos de pagos de roles.
 3. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 4. **Pendientes de antes:**

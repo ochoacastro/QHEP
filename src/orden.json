@@ -940,8 +940,8 @@
  },
  {
   "t": "css",
-  "tag": "<style id=\"v310-pausa-css\">",
-  "f": "estilos/v310-pausa-css.css"
+  "tag": "<style id=\"v411-letrero-css\">",
+  "f": "estilos/v411-letrero-css.css"
  },
  {
   "t": "txt",
@@ -949,8 +949,8 @@
  },
  {
   "t": "js",
-  "tag": "<script id=\"v310-pausa\">",
-  "f": "codigo/v310-pausa.js"
+  "tag": "<script id=\"v411-letrero\">",
+  "f": "codigo/v411-letrero.js"
  },
  {
   "t": "txt",
@@ -1374,6 +1374,15 @@
   "t": "js",
   "tag": "<script id=\"v399-borradores\">",
   "f": "codigo/v399-borradores.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v412-salir-guardar\">",
+  "f": "codigo/v412-salir-guardar.js"
  },
  {
   "t": "txt",

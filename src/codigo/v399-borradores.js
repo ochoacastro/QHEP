@@ -39,6 +39,8 @@ function store(m){m=m||M();if(!S0||!m||m!==S0.el||kindOf(m)!==S0.act)return;/* s
  o[S0.key]=d;put(o)}
 var tW,pendM=null;function later(){var m=M();if(!m)return;pendM=m;clearTimeout(tW);tW=setTimeout(function(){var x=pendM;pendM=null;store(x)},400)}
 function del(key){var o=all();delete o[key];put(o)}
+/* v412: «No guardar» al salir pregunta si hay cambios (dirty) y borra el borrador de la ventana abierta (drop) */
+window.qhBorr={dirty:function(){return !!(S0&&S0.dirty)},drop:function(){clearTimeout(tW);pendM=null;if(S0){del(S0.key);S0.dirty=false;S0.el=null}bar()}};
 function ago(ts){var m=Math.round((Date.now()-ts)/6e4);return m<1?'hace un momento':m<60?'hace '+m+' min':m<1440?'hace '+Math.round(m/60)+' h':'hace '+Math.round(m/1440)+' días'}
 /* ---- volver a poner lo escrito ---- */
 function setv(i,val){if(i.type==='checkbox'||i.type==='radio'){if(i.checked!==!!val){i.checked=!!val;i.dispatchEvent(new Event('change',{bubbles:true}))}}

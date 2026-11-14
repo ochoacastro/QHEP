@@ -171,14 +171,28 @@ const PRUEBAS = {
     check('Un aviso sin importancia no se guarda', (await p.evaluate(() => nfUnread())) === n0 + 1);
     sinErrores(p, 'Avisos'); await p.cerrar();
   },
-  async pausa() { // v310 tienda en pausa (ahora como ampliación explícita de storeView y prodView, v389)
-    const now = Date.now();
-    const p = await abrir({ seed: { 'stores/s1': { id: 's1', name: 'Tienda Pausada', ownerKey: 'kOtro', cat: 'Otros', wa: '3001234567', _o: 1, pause: now + 864e5, products: [{ id: 'p1', name: 'Arroz', price: 4000 }] }, 'stores/s2': { id: 's2', name: 'Tienda Abierta', ownerKey: 'kOtro', cat: 'Otros', wa: '3001234568', _o: 2, products: [] } } });
-    await p.evaluate(() => { view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(300);
-    check('Tienda en pausa: se avisa a los clientes', /pausa/i.test(await p.evaluate(() => document.getElementById('app').innerText)));
-    await p.evaluate(() => { view = 'store'; cur = 's2'; render() }); await p.waitForTimeout(300);
-    check('Tienda abierta: sin aviso de pausa', !/en pausa/i.test(await p.evaluate(() => document.getElementById('app').innerText)));
-    sinErrores(p, 'Pausa'); await p.cerrar();
+  async letrero() { // v411 letrero Abierto / Cerrado de la tienda (reemplaza la pausa de v310)
+    const tienda = (id, x) => Object.assign({ id, name: 'Tienda ' + id, ownerKey: 'kOtro', cat: 'Otros', wa: '3001234567', products: [{ id: 'p1', name: 'Arroz', price: 4000 }] }, x);
+    const p = await abrir({ seed: { 'stores/s1': tienda('s1', { _o: 1, shut: 1, shutN: 'Hoy no hay atención' }), 'stores/s2': tienda('s2', { _o: 2 }), 'stores/s3': tienda('s3', { _o: 3, pause: Date.now() + 864e5 }) } });
+    const ver = async id => { await p.evaluate(i => { closeModal(1); view = 'store'; cur = i; render() }, id); await p.waitForTimeout(300); return p.evaluate(() => { const l = document.querySelector('#app .ltr'); return l ? (l.classList.contains('off') ? 'CERRADO ' : 'ABIERTO ') + l.innerText : '' }) };
+    const c = await ver('s1');
+    check('Con el letrero de cerrado, el cliente ve «cerrada» y la nota', /^CERRADO/.test(c) && /Hoy no hay atención/.test(c), c);
+    check('El cliente sigue viendo la sección de productos', await p.evaluate(() => { const h = [...document.querySelectorAll('#app h3.ptitle')].find(x => /Productos/.test(x.textContent)); return !!h && getComputedStyle(h).display !== 'none' }));
+    check('La insignia del horario dice cerrado', await p.evaluate(() => /Cerrado ahora/.test(openBadge(S.stores.find(x => x.id === 's1')))));
+    check('El cliente no ve el botón «Cambiar letrero»', await p.evaluate(() => !document.querySelector('[data-ltr="menu"]')));
+    check('Sin letrero de cerrado, se ve abierto', /^ABIERTO/.test(await ver('s2')));
+    check('Una tienda con la pausa vieja ya no se ve en pausa', /^ABIERTO/.test(await ver('s3')) && await p.evaluate(() => !/en pausa/i.test(document.getElementById('app').innerText)));
+    await conCuenta(p); await p.evaluate(() => { S.mine.push('s2') }); await ver('s2');
+    check('El dueño ve «Cambiar letrero» y ya no «Pausar tienda»', await p.evaluate(() => !!document.querySelector('[data-ltr="menu"]') && !/Pausar tienda/.test(document.getElementById('app').innerText)));
+    await p.click('[data-ltr="menu"]'); await p.waitForTimeout(300);
+    await p.click('[data-ltr="pick"][data-v="1"]'); await p.click('[data-ltr="nota"][data-k="otro"]'); await p.fill('#ltr-o', 'Volvemos a las 3'); await p.waitForTimeout(200);
+    await p.click('[data-ltr="ok"]'); await p.waitForTimeout(400);
+    check('El dueño pone cerrado con su propia nota', await p.evaluate(() => { const s = S.stores.find(x => x.id === 's2'); return s.shut === 1 && s.shutN === 'Volvemos a las 3' && /Volvemos a las 3/.test(document.querySelector('#app .ltr.off').innerText) }));
+    await p.click('[data-ltr="menu"]'); await p.click('[data-ltr="nota"][data-k="none"]'); await p.click('[data-ltr="ok"]'); await p.waitForTimeout(400);
+    check('Puede dejar solo el letrero, sin nota', await p.evaluate(() => { const s = S.stores.find(x => x.id === 's2'); return s.shut === 1 && s.shutN === '' }));
+    await p.click('[data-ltr="menu"]'); await p.click('[data-ltr="pick"][data-v="0"]'); await p.click('[data-ltr="ok"]'); await p.waitForTimeout(400);
+    check('El dueño vuelve a poner abierto', await p.evaluate(() => { const s = S.stores.find(x => x.id === 's2'); return !s.shut && !!document.querySelector('#app .ltr.on') }));
+    sinErrores(p, 'Letrero'); await p.cerrar();
   },
   async carrusel() { // v391 el carrusel avanza solo en celulares táctiles y con «reducir movimiento»
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: 'reduce', serviceWorkers: 'block' });
@@ -244,15 +258,46 @@ const PRUEBAS = {
     check('El mapa no se repite al volver a dibujar', await p.evaluate(() => document.querySelectorAll('.advmap').length === 1));
     sinErrores(p, 'Mapa del inmueble'); await p.cerrar();
   },
-  async borradores() { // v399 retomar un formulario cerrado sin guardar
+  async sistecredito() { // v410 medio de pago Sistecrédito
+    const p = await abrir();
+    check('Sistecrédito está entre los medios de pago', await p.evaluate(() => paysTxt({ pays: ['cash', 'siste'] }) === 'Efectivo · Sistecrédito'));
+    check('El logo de Sistecrédito existe como archivo', await p.evaluate(async () => (await fetch(PAYIMG.siste)).ok));
+    check('El formulario de la tienda lo ofrece con su logo', await p.evaluate(() => { const d = document.createElement('div'); d.innerHTML = extraFields({ pays: ['siste'] }, 1); const i = d.querySelector('#x-pays input[value=siste]'); return !!i && i.checked && !!i.parentNode.querySelector('img[alt="Sistecrédito"]') }));
+    sinErrores(p, 'Sistecrédito'); await p.cerrar();
+  },
+  async borradores() { // v399 borradores solo para emergencias; v412 al salir se pregunta si guardar
     const p = await abrir(); await conCuenta(p);
-    await p.evaluate(() => { closeModal(1); adForm('arr') }); await p.waitForTimeout(400);
-    await p.fill('#af-title', 'Casa con patio'); await p.waitForTimeout(700);
-    await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(500);
-    check('Al cerrar sin guardar sale «Continuar»', await p.evaluate(() => /sin terminar/.test((document.getElementById('brbar') || {}).textContent || '')));
+    await p.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<i class="qtour" hidden></i>')); // así no se abre sola «Tu dirección principal» (v322, cada 2,5 s si no hay ventana abierta) en medio de la prueba
+    const abre = async () => { await p.evaluate(() => { closeModal(1); adForm('arr') }); await p.waitForTimeout(400) };
+    const hay = sel => p.evaluate(s => !!document.querySelector(s), sel);
+    await abre(); await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(300);
+    check('Sin cambios, la ventana se cierra sin preguntar', !(await hay('#sgq')) && !(await hay('#ov')));
+    await abre(); await p.mouse.click(5, 5); await p.waitForTimeout(300);
+    check('Sin cambios, un toque afuera tampoco cierra el formulario', await hay('#ov [data-act="saveAd"]'));
+    await p.evaluate(() => { closeModal(1); modal('<h2>Aviso</h2><button class="btn" data-act="close">Cerrar</button>') }); await p.waitForTimeout(200); await p.mouse.click(5, 5); await p.waitForTimeout(300);
+    check('Las ventanas que no son formularios se siguen cerrando al tocar afuera', !(await hay('#ov')));
+    await abre(); await p.fill('#af-title', 'Casa con patio'); await p.waitForTimeout(700);
+    await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(300);
+    check('Con cambios, al cerrar pregunta si guardar', await p.evaluate(() => /Guardar los cambios/.test((document.getElementById('sgq') || {}).textContent || '') && document.querySelectorAll('#sgq [data-sgq]').length === 3));
+    await p.click('#sgq [data-sgq="x"]'); await p.waitForTimeout(200);
+    check('«Seguir editando» deja el formulario con lo escrito', !(await hay('#sgq')) && await p.evaluate(() => ($('#af-title') || {}).value === 'Casa con patio'));
+    await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+    check('La tecla Escape también pregunta', await hay('#sgq'));
+    await p.click('#sgq [data-sgq="si"]'); await p.waitForTimeout(500);
+    check('«Guardar cambios» usa el botón de guardar del formulario (avisa lo que falta)', !(await hay('#sgq')) && await p.evaluate(() => !!document.querySelector('#ov [data-act="saveAd"]') && ((document.querySelector('#ov #err') || {}).textContent || '').trim().length > 0));
+    await p.mouse.click(5, 5); await p.waitForTimeout(300);
+    check('Un toque afuera no cierra el formulario ni pregunta', !(await hay('#sgq')) && await p.evaluate(() => ($('#af-title') || {}).value === 'Casa con patio'));
+    await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(300);
+    await p.click('#sgq [data-sgq="no"]'); await p.waitForTimeout(500);
+    check('«No guardar» cierra y no deja «Continuar»', !(await hay('#ov')) && !(await hay('#brbar')) && await p.evaluate(() => !/Casa con patio/.test(localStorage.getItem('qh_borr') || '')));
+    await abre(); await p.fill('#af-title', 'Lote esquinero'); await p.waitForTimeout(700);
+    await p.evaluate(() => closeModal(1)); await p.waitForTimeout(500); // la ventana desaparece sin que la persona la cierre (emergencia)
+    check('En una emergencia queda «Continuar»', await p.evaluate(() => /sin terminar/.test((document.getElementById('brbar') || {}).textContent || '')));
     await p.click('#brbar [data-brk]'); await p.waitForTimeout(500);
-    check('«Continuar» abre el formulario con lo escrito', await p.evaluate(() => ($('#af-title') || {}).value === 'Casa con patio'));
-    await p.evaluate(() => closeModal()); await p.waitForTimeout(300);
+    check('«Continuar» abre el formulario con lo escrito', await p.evaluate(() => ($('#af-title') || {}).value === 'Lote esquinero'));
+    await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(300);
+    check('Después de «Continuar», al cerrar también pregunta', await hay('#sgq'));
+    await p.click('#sgq [data-sgq="no"]'); await p.waitForTimeout(300);
     await p.evaluate(() => regForm()); await p.waitForTimeout(400); await p.fill('#r-pw', 'secreta123'); await p.fill('#r-name', 'Julia'); await p.waitForTimeout(700);
     check('Nunca guarda contraseñas', await p.evaluate(() => !/secreta/.test(localStorage.getItem('qh_borr') || '')));
     sinErrores(p, 'Borradores'); await p.cerrar();
