@@ -8,7 +8,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 ## 1. Estado actual
 
-- **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`). Hay que confirmar que esté publicada en Firebase; ver la sección 3.
+- **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 123 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Todas pasan.
 - **PR abierto:** **#143** (skills y v409 a v412). El último fusionado es el **#142**.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`).
@@ -43,7 +43,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
-1. **Publicar las reglas v51** en Firebase → Firestore → Reglas: copiar completo `tests/reglas/firestore.rules`. Sin ellas, los pedidos pagados con Sistecrédito se rechazan, y alguien podría saltarse el límite de 3 fotos gratis de «Conoce el lugar» (v50).
+1. ~~Publicar las reglas v51~~ — hecho: la dueña las publicó el 14 de noviembre de 2026.
 2. **Actualizar el worker de Cloudflare** con el UID nuevo del administrador (`worker_v12_INSTALAR.js`, línea 50). Sin esto no llegan los avisos de pagos de roles.
 3. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 4. **Pendientes de antes:**
