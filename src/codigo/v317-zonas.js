@@ -23,7 +23,7 @@ window.znOpts=function(have,sel){var g={urb:[],rur:[],otr:[]};(have||[]).forEach
  if(g.rur.length)h+='<optgroup label="Zona rural · corregimientos">'+g.rur.map(function(z){return o(z,z)}).join('')+'</optgroup>';
  if(g.otr.length)h+='<optgroup label="Otros lugares">'+g.otr.map(function(z){return o(z,z)}).join('')+'</optgroup>';return h};
 /* formularios: el campo de texto del barrio se vuelve una lista con «Otro lugar» */
-var IDS=['cm-z','x-zone','af-zone','v-zone','ad-zone']/* v322: también la dirección de entrega */;
+var IDS=['cm-z','x-zone','af-zone','v-zone','ad-zone','iv-zone'/* v416: pedido sin registro */]/* v322: también la dirección de entrega */;
 function enhance(i){if(i.dataset.zn)return;i.dataset.zn='1';var L=lists(),v=i.value.trim(),hit='';
  [].concat(L.urb,L.rur).forEach(function(x){if(nm(x)===nm(v))hit=x});
  var opt=function(x){return '<option'+(hit===x?' selected':'')+'>'+E(x)+'</option>'};

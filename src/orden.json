@@ -1255,6 +1255,15 @@
  },
  {
   "t": "js",
+  "tag": "<script id=\"v416-sin-registro\">",
+  "f": "codigo/v416-sin-registro.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
   "tag": "<script id=\"v361-verificar-celular\">",
   "f": "codigo/v361-verificar-celular.js"
  },

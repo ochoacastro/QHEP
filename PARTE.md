@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 142 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último fusionado es el **#145** (v406 y v413 a v415), el 14 de noviembre de 2026; antes, el **#144** (v410 a v412). Todo hasta la v415 está en `main`. En la rama solo quedan cambios de este parte, sin PR.
+- **Pruebas:** 159 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último fusionado es el **#145** (v406 y v413 a v415), el 14 de noviembre de 2026; antes, el **#144** (v410 a v412). Todo hasta la v415 está en `main`. **La rama tiene la v416 (pedir y preguntar sin registro) sin PR ni publicar.**
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v415)
+## 2. Lo que se hizo en esta etapa (v392 a v416)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -42,6 +42,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v413 | **Datos sanos:** una publicación con campos de tipo equivocado (escrita por fuera de la página) ya no tumba la página; se corrige en memoria al leerla | #145 |
 | v414 | Generador del modo oscuro: «white» y «black» dentro del nombre de una variable ya no se tratan como colores. No cambia ningún color visible | #145 |
 | v415 | «Mis datos» y el formulario de «Mis direcciones» también preguntan al salir con cambios | #145 |
+| v416 | **Pedir y preguntar sin registro:** sin cuenta, «Pedir por WhatsApp» abre «Tus datos para el pedido» (nombre, WhatsApp, barrio, dirección, indicaciones y mensaje) en vez de «Registrarme»; preguntar por un producto, servicio o anuncio pide nombre y WhatsApp solo la primera vez. Además, las ventanas abiertas desde el carrito ya no quedan tapadas por el carrito | sin PR |
 
 ---
 
@@ -89,6 +90,14 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - el toque afuera no cierra esos formularios; las demás ventanas sí se cierran al tocar afuera (la dueña lo pidió así).
 - **Mapa del inmueble (v409):** si el dueño respondió «No lo ubica bien» y el administrador aún no puso el código plus, el mapa no se muestra.
 
+- **Sin registro (v416):**
+  - los datos del visitante se guardan solo en su teléfono (`localStorage`, `qh_invitado`), no en Firebase; el formulario trae «Borrar mis datos»;
+  - el formulario del pedido se muestra cada vez (ya lleno) para confirmar la dirección; el de información solo la primera vez;
+  - al preguntar, el nombre y el WhatsApp van al final del mensaje («Mi nombre», «Mi WhatsApp»), no al inicio;
+  - sin cuenta, el pedido a una tienda que recibe por la aplicación sale por WhatsApp (guardar un pedido exige sesión);
+  - sin cuenta no se pregunta si Google Maps ubica bien la casa ni se manda el enlace del mapa: solo dirección, barrio e indicaciones;
+  - la invitación a crear cuenta sale una sola vez por teléfono, después del primer pedido;
+  - quien ya tiene cuenta no ve ningún cambio.
 - **Datos sanos (v413):**
   - corrige en memoria, no en Firestore. En el modo administrador sí se guarda la corrección al guardar, para que el administrador pueda ver y borrar la publicación dañada;
   - en el panel no toca las publicaciones propias;
