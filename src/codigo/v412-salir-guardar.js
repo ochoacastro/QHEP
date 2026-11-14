@@ -1,6 +1,7 @@
 /* v412: SALIR DE UN FORMULARIO. Si alguien cambió algo en una ventana de edición (tienda nueva, editar tienda, anuncio,
-   servicio, producto, editar producto o registro) y la cierra por su cuenta (botón de cerrar o «Cancelar», un toque afuera
-   o la tecla Escape), se le pregunta: «Guardar cambios», «No guardar» o «Seguir editando».
+   servicio, producto, editar producto o registro) y la cierra por su cuenta (botón de cerrar o «Cancelar», o la tecla
+   Escape), se le pregunta: «Guardar cambios», «No guardar» o «Seguir editando».
+   Un toque afuera de la ventana NO cierra estos formularios (con o sin cambios): hay que usar cerrar o «Cancelar».
    «Guardar cambios» toca el botón de guardar del formulario (si falta un dato, el formulario lo dice y sigue abierto).
    «No guardar» cierra y borra el borrador (v399), así no queda el aviso «Continuar». El borrador y «Continuar» quedan solo
    para emergencias: se apagó el teléfono, se recargó o se cerró la página. Si algo falla, borra este bloque. */
@@ -24,9 +25,9 @@ function ask(m){if(Q)return;var prev=document.activeElement,o=document.createEle
  document.addEventListener('keydown',kd,true);
  o.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-sgq]');if(b)done(b.dataset.sgq)});
  document.body.appendChild(o);Q=o;o.querySelector('button').focus()}
-/* las tres formas de salir por cuenta propia */
+/* salir por cuenta propia: cerrar, «Cancelar» o Escape. El toque afuera no cierra el formulario */
 document.addEventListener('click',function(e){if(Q)return;var t=e.target,ov=document.getElementById('ov');if(!ov||!t||!t.closest)return;
- var out=t===ov&&!ov.dataset.lock,x=t.closest('#ov [data-act="close"]');if(!out&&!x)return;var m=M();if(!dirty(m))return;
+ var out=t===ov&&!ov.dataset.lock,x=t.closest('#ov [data-act="close"]');if(!out&&!x)return;var m=M();if(out&&!x){if(saveBtn(m)){e.preventDefault();e.stopImmediatePropagation()}return}if(!dirty(m))return;
  e.preventDefault();e.stopImmediatePropagation();ask(m)},true);
 document.addEventListener('keydown',function(e){if(Q||e.key!=='Escape')return;var ov=document.getElementById('ov');if(!ov||ov.dataset.lock||document.getElementById('lb')||document.querySelector('.qs-ov'))return;
  var m=M();if(!dirty(m))return;e.preventDefault();e.stopImmediatePropagation();ask(m)},true);

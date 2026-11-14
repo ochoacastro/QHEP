@@ -272,6 +272,10 @@ const PRUEBAS = {
     const hay = sel => p.evaluate(s => !!document.querySelector(s), sel);
     await abre(); await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(300);
     check('Sin cambios, la ventana se cierra sin preguntar', !(await hay('#sgq')) && !(await hay('#ov')));
+    await abre(); await p.mouse.click(5, 5); await p.waitForTimeout(300);
+    check('Sin cambios, un toque afuera tampoco cierra el formulario', await hay('#ov [data-act="saveAd"]'));
+    await p.evaluate(() => { closeModal(1); modal('<h2>Aviso</h2><button class="btn" data-act="close">Cerrar</button>') }); await p.waitForTimeout(200); await p.mouse.click(5, 5); await p.waitForTimeout(300);
+    check('Las ventanas que no son formularios se siguen cerrando al tocar afuera', !(await hay('#ov')));
     await abre(); await p.fill('#af-title', 'Casa con patio'); await p.waitForTimeout(700);
     await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(300);
     check('Con cambios, al cerrar pregunta si guardar', await p.evaluate(() => /Guardar los cambios/.test((document.getElementById('sgq') || {}).textContent || '') && document.querySelectorAll('#sgq [data-sgq]').length === 3));
@@ -282,7 +286,8 @@ const PRUEBAS = {
     await p.click('#sgq [data-sgq="si"]'); await p.waitForTimeout(500);
     check('«Guardar cambios» usa el botón de guardar del formulario (avisa lo que falta)', !(await hay('#sgq')) && await p.evaluate(() => !!document.querySelector('#ov [data-act="saveAd"]') && ((document.querySelector('#ov #err') || {}).textContent || '').trim().length > 0));
     await p.mouse.click(5, 5); await p.waitForTimeout(300);
-    check('Un toque afuera también pregunta', await hay('#sgq'));
+    check('Un toque afuera no cierra el formulario ni pregunta', !(await hay('#sgq')) && await p.evaluate(() => ($('#af-title') || {}).value === 'Casa con patio'));
+    await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(300);
     await p.click('#sgq [data-sgq="no"]'); await p.waitForTimeout(500);
     check('«No guardar» cierra y no deja «Continuar»', !(await hay('#ov')) && !(await hay('#brbar')) && await p.evaluate(() => !/Casa con patio/.test(localStorage.getItem('qh_borr') || '')));
     await abre(); await p.fill('#af-title', 'Lote esquinero'); await p.waitForTimeout(700);
