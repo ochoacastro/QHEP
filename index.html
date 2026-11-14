@@ -2084,6 +2084,7 @@ html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64
 
 
 
+
 <style id="v329-crecer-css">
 /* v329: los cuadros de texto crecen solos con lo que se escribe */
 textarea.qgrow{overflow-y:hidden;resize:none;transition:height .08s}
@@ -5476,11 +5477,12 @@ document.head.insertAdjacentHTML('beforeend','<style id="v399-css">.brb{margin:4
    Un toque afuera de la ventana NO cierra estos formularios (con o sin cambios): hay que usar cerrar o «Cancelar».
    «Guardar cambios» toca el botón de guardar del formulario (si falta un dato, el formulario lo dice y sigue abierto).
    «No guardar» cierra y borra el borrador (v399), así no queda el aviso «Continuar». El borrador y «Continuar» quedan solo
-   para emergencias: se apagó el teléfono, se recargó o se cerró la página. Si algo falla, borra este bloque. */
+   para emergencias: se apagó el teléfono, se recargó o se cerró la página. Si algo falla, borra este bloque.
+   v415: también pregunta en «Mis datos» y en el formulario de «Mis direcciones» (antes se cerraban sin preguntar). */
 (function(){
-var ACTS=['saveShop','saveEditShop','saveAd','saveServ','saveProd','saveEdit','doReg'];
+var ACTS=['saveShop','saveEditShop','saveAd','saveServ','saveProd','saveEdit','doReg','pfSave'/* v415: «Mis datos» */];
 function M(){return document.querySelector('#ov .modal')}
-function saveBtn(m){if(!m)return null;for(var i=0;i<ACTS.length;i++){var b=m.querySelector('[data-act="'+ACTS[i]+'"]');if(b)return b}return null}
+function saveBtn(m){if(!m)return null;for(var i=0;i<ACTS.length;i++){var b=m.querySelector('[data-act="'+ACTS[i]+'"]');if(b)return b}return m.querySelector('[data-adsave]')/* v415: «Mis direcciones» */}
 function dirty(m){if(!m||!saveBtn(m))return false;if(m._sgq)return true;try{return !!(window.qhBorr&&qhBorr.dirty())}catch(e){return false}}
 /* cualquier cosa que la persona escriba, elija o marque en el formulario cuenta como cambio (también las fotos) */
 function touch(e){if(!e.isTrusted)return;var t=e.target,m=t&&t.closest&&t.closest('#ov .modal');if(m&&saveBtn(m))m._sgq=1}
@@ -5583,6 +5585,36 @@ document.head.insertAdjacentHTML('beforeend','<style id="v403-css">.clug{margin:
  '.clt,.clx,.cla,.clp svg{border-radius:0!important}.clp svg{border-radius:50%!important}'+
  /* dentro de la tienda: SOS solo con el ícono (más pequeño) y espacio abajo para que los botones flotantes no tapen el final */
  'body.instore .emgfab{width:48px;height:48px;padding:0;justify-content:center;gap:0}body.instore .emgfab>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}body.instore .emgfab svg{width:26px;height:26px}body.instore #app{padding-bottom:calc(200px + env(safe-area-inset-bottom))}</style>');
+})();
+</script>
+<script id="v406-recuperar-roles">/* v406: roles por recuperar. Si la ficha de una cuenta (plans/<k>) se borró y se volvió a crear, queda sin roles (acc) aunque sus
+   códigos sigan usados y vigentes («Mis códigos» los muestra, pero «Publicar» dice «Sin activar»). En Usuarios, el administrador
+   ve la lista y con un botón devuelve a cada ficha el fin de cada rol según sus códigos (y acc.mercF del destacado de Comerciante
+   de 6 meses o más). Solo sube fechas, nunca las baja. Si algo falla, borra este bloque y la llamada admRolesFix en 11-profilemodal. */
+(function(){
+var DAY=864e5,E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function rn(u){try{return CD_SH[u]||u}catch(e){return u}}
+function fd(t){return new Date(t).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}
+/* lo que falta en cada ficha: {k, p, acc (nuevo), faltan:[[rol,fin]]} */
+function gaps(){var now=Date.now(),P={},out=[];try{QH.plans().forEach(function(p){if(p&&p.k)P[p.k]=p})}catch(e){return []}
+ /* El fin de cada rol se calcula con los días de cada código (los pone el administrador o las reglas), en el orden en que se usaron:
+    cada código empieza cuando termina el anterior. La fecha «end» que guarda el código la escribe quien lo canjea y las reglas no
+    la revisan, así que solo se usa para BAJAR el resultado, nunca para subirlo. Los códigos gratis no se suman entre sí. */
+ var want={},G={};try{QH.codes().forEach(function(c){if(!c||!c.used||!c.usedBy||!c.use)return;var g=G[c.usedBy]=G[c.usedBy]||{};(g[c.use]=g[c.use]||[]).push(c)})}catch(e){return []}
+ Object.keys(G).forEach(function(k){Object.keys(G[k]).forEach(function(u){var e=0,f=0;
+  G[k][u].sort(function(a,b){return (Number(a.usedAt)||0)-(Number(b.usedAt)||0)}).forEach(function(c){var t=Math.min(Number(c.usedAt)||0,now),d=(Number(c.days)||0)*DAY;if(!(t>0)||!(d>0))return;
+   var x=(c.why==='gratis'?t:Math.max(e,t))+d;if(Number(c.end)>0)x=Math.min(x,Number(c.end));e=Math.max(e,x);if(u==='merc'&&(Number(c.months)||0)>=6)f=Math.max(f,x)});
+  if(e>now){var w=want[k]=want[k]||{};w[u]=e;if(f>now)w.mercF=f}})});
+ Object.keys(want).forEach(function(k){var p=P[k];if(!p)return;var acc=Object.assign({},p.acc||{}),f=[];
+  Object.keys(want[k]).forEach(function(u){if((Number(acc[u])||0)<want[k][u]-DAY){acc[u]=want[k][u];if(u!=='mercF')f.push([u,want[k][u]])}});
+  if(f.length)out.push({k:k,p:p,acc:acc,faltan:f})});return out}
+window.admRolesFix=function(){var L=gaps();if(!L.length)return '';
+ return '<div class="cg aadp"><h3>Roles por recuperar <em>'+L.length+'</em></h3><p class="muted">Estas cuentas tienen códigos usados y vigentes, pero su ficha no tiene el rol (por ejemplo, porque la ficha se borró y se creó de nuevo). Por eso al publicar les sale «Sin activar».</p>'+
+  L.map(function(g){return '<div class="aadr pend"><b>'+E(g.p.name||'(sin nombre)')+(g.p.email?' · '+E(g.p.email):'')+'</b><p>'+g.faltan.map(function(x){return E(rn(x[0]))+' hasta el '+fd(x[1])}).join(' · ')+'</p></div>'}).join('')+
+  '<div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-rolesfix="1">Recuperar '+(L.length===1?'el rol':'los roles')+'</button></div></div>'};
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-rolesfix]');if(!b||typeof MODE==='undefined'||MODE!=='admin')return;e.preventDefault();e.stopImmediatePropagation();
+ var L=gaps();if(!L.length)return toast('No hay roles por recuperar.');b.disabled=true;
+ Promise.all(L.map(function(g){return QH.planSet(g.k,{acc:g.acc})})).then(function(){toast(L.length===1?'Rol recuperado':'Roles recuperados en '+L.length+' cuentas');setTimeout(function(){try{render(true)}catch(x){}},500)}).catch(function(){b.disabled=false;toast('No se pudo guardar. Intenta de nuevo.')})},true);
 })();
 </script>
 <script id="v332-datos-negocio">
@@ -5737,7 +5769,9 @@ function shift(c,role){var p=parse(c);if(!p)return c;var hsl=rgb2hsl(p[0],p[1],p
  else if(role==='l'){if(l>.5){l=.17+(1-l)*.45;s=s*.6}else if(l<.2&&p[3]<.5){return out([255,255,255],Math.min(.16,p[3]*1.2))}else return c}
  return out(hsl2rgb(h,clamp(s),clamp(l)),p[3])}
 var COLRE=/#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|\bwhite\b|\bblack\b/g;
-function mapVal(v,role){return v.replace(COLRE,function(c){return shift(c,role)})}
+/* v414: «white» y «black» dentro del nombre de una variable (var(--color-fog-white)) no son colores: no se tocan */
+function mapVal(v,role){return v.replace(COLRE,function(c,i,t){if(/^[wb]/i.test(c)&&(t.charAt(i-1)==='-'||t.charAt(i+c.length)==='-'))return c;return shift(c,role)})}
+function hasLit(v){return /#[0-9a-fA-F]{3,8}\b|rgba?\(|\bwhite\b|\bblack\b/.test(String(v).replace(/--[\w-]+/g,''))}
 /* valores claros originales de las variables (:root). Si una variable "de texto" (p. ej. --ink) se usa como FONDO, se reemplaza por su
    valor original tratado como fondo (sigue oscura); y una variable "de fondo" usada como TEXTO, por su valor tratado como texto */
 var VARS={};
@@ -5752,7 +5786,7 @@ function ruleCSS(st){var o='',any=false;
   if(sh==='background'){var nsv=fixVars(mapVal(sv,'b'),'b');if(nsv!==sv)any=true;o+='background:'+nsv+imp+';'}
   else{/* de bordes y contornos solo se copia el color (el grosor y el estilo siguen saliendo de la regla original) */var cm=sv.match(/var\((?:[^()]|\([^()]*\))*\)|#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)/g);if(cm){var cv=mapVal(cm[cm.length-1],'l');o+=(sh==='outline'?'outline-color':sh==='border'||sh==='border-color'?'border-color':sh+'-color')+':'+cv+imp+';'}}}}
  for(var i=0;i<st.length;i++){var p=st[i],v=st.getPropertyValue(p),pr=st.getPropertyPriority(p);if(!v)continue;
-  var cust=p.indexOf('--')===0,role=cust?varRole(p):ROLE[p];if(!role)continue;var lit=/#[0-9a-fA-F]{3,8}\b|rgba?\(|\bwhite\b|\bblack\b/.test(v);
+  var cust=p.indexOf('--')===0,role=cust?varRole(p):ROLE[p];if(!role)continue;var lit=hasLit(v)/* v414 */;
   if(cust&&!lit)continue;if(cust&&/^(?::root|html)$/.test(st.parentRule&&st.parentRule.selectorText||''))VARS[p]=v.trim();
   var nv=(lit&&role!=='keep')?mapVal(v,role):v;if(!cust)nv=fixVars(nv,role);if(nv!==v)any=true;o+=p+':'+nv+(pr?' !important':'')+';'}return any||o&&o.length<4000?o:''}
 function walk(rules,acc){for(var i=0;i<rules.length;i++){var r=rules[i];
@@ -5770,7 +5804,7 @@ function flush(){if(!OUT){OUT=document.createElement('style');OUT.id='v219-oscur
 function scanAll(){var n=css.length;[].forEach.call(document.styleSheets,take);if(css.length!==n||!OUT||document.head.lastElementChild!==OUT)flush()}
 /* colores escritos en style="..." */
 var IN=/(background(?:-color)?|color|border(?:-[a-z]+)?-?color|border)\s*:\s*([^;]+)/g;
-function inl(el){var s=el.getAttribute('style');if(!s||!/#[0-9a-fA-F]{3,8}\b|rgba?\(|\bwhite\b|\bblack\b/.test(s))return;
+function inl(el){var s=el.getAttribute('style');if(!s||!hasLit(s)/* v414 */)return;
  if(H.classList.contains('dark')){if(el.dataset.dkO==null)el.dataset.dkO=s;var o=el.dataset.dkO,n=o.replace(IN,function(m,p,v){var role=/^color$/.test(p)?'f':/border/.test(p)?'l':'b';return p+':'+mapVal(v,role)});if(n!==s)el.setAttribute('style',n)}
  else if(el.dataset.dkO!=null){el.setAttribute('style',el.dataset.dkO);delete el.dataset.dkO}}
 function inlAll(root){if(root.nodeType!==1)return;if(root.hasAttribute('style'))inl(root);var l=root.querySelectorAll('[style]');for(var i=0;i<l.length;i++)inl(l[i])}
@@ -5784,6 +5818,45 @@ window.addEventListener('load',scanAll);
 }catch(e){}})();
 </script>
 <script>window.hideSplash=function(){var x=document.getElementById('splash');if(x){x.classList.add('off');setTimeout(function(){x.remove()},500)}};setTimeout(function(){window.hideSplash()},20000);(function(){var h=window.hideSplash,d=0;window.hideSplash=function(){if(!d){d=1;document.body.classList.add('v-intro');setTimeout(function(){document.body.classList.remove('v-intro')},1000)}h()}})();(function(){const m=e=>{const t=e.target;if(t&&t.tagName==='IMG')t.classList.add('ld')};document.addEventListener('load',m,true);document.addEventListener('error',m,true)})()</script>
+<script id="v413-datos-sanos">/* v413: DATOS SANOS. Las reglas de Firestore dejan que el dueño de una publicación escriba en ella campos de cualquier tipo
+   (por ejemplo, con la consola del navegador: «tags» como texto en vez de lista). Antes, UNA sola publicación así tumbaba el
+   inicio para todos los visitantes. Ahora, al leer cada documento de tiendas, productos, servicios, anuncios y clasificados,
+   los campos conocidos que lleguen con un tipo equivocado se corrigen en memoria (texto → '', lista → [], etc.).
+   - Un documento bien hecho no cambia en nada.
+   - En el panel, las publicaciones propias no se tocan (así nunca se guarda de vuelta algo corregido sin querer).
+   - En el modo administrador sí se corrigen, para que pueda ver y borrar la publicación dañada.
+   Se usa en rebuild() y comListen() de principal/01-cats.js (window.docFix). Si algo falla, borra este <script>:
+   la página vuelve a leer los documentos tal como llegan. */
+(function(){
+var STR='name title desc d cat logo emoji kind owner wa wa2 zone age open close addr plus delivery dfee dcost cover vid video shutN type text link img sub op cond author sid id ownerKey ownerUid c1 c2 vtype fuel pl'.split(' '),
+    ARR='days tags pays gal imgs rates rU cimgs'.split(' '),OBJ='hrs social f'.split(' '),NUM='lat lng ts exp pexp fexp pause _o'.split(' '),
+    TXT={tags:1,pays:1,gal:1,imgs:1,rU:1},REQ={name:1,title:1},
+    NEED={stores:'name',products:'name',services:'name',ads:'title',community:'title'};/* el campo que la página da por hecho en cada colección */
+function po(v){return !!v&&typeof v==='object'&&!Array.isArray(v)}
+function str(v,k){return typeof v==='string'?v:(typeof v==='number'&&isFinite(v)?String(v):(REQ[k]?'Sin nombre':''))}
+function fix(c,o){if(!po(o))return o;var n=0,k,i,v;
+ for(i=0;i<STR.length;i++){k=STR[i];if(k in o&&o[k]!=null&&typeof o[k]!=='string'){o[k]=str(o[k],k);n++}}
+ for(i=0;i<ARR.length;i++){k=ARR[i];if(!(k in o)||o[k]==null)continue;
+  if(!Array.isArray(o[k])){o[k]=[];n++;continue}
+  v=o[k].filter(TXT[k]?function(x){return typeof x==='string'}:k==='days'?function(x){return typeof x==='number'}:po);
+  if(v.length!==o[k].length){o[k]=v;n++}}
+ for(i=0;i<OBJ.length;i++){k=OBJ[i];if(k in o&&o[k]!=null&&!po(o[k])){if(k==='hrs')delete o[k];else o[k]={};n++}}
+ for(i=0;i<NUM.length;i++){k=NUM[i];if(k in o&&o[k]!=null&&!(typeof o[k]==='number'&&isFinite(o[k]))){if(k==='ts'||k==='_o')o[k]=0;else delete o[k];n++}}
+ k=NEED[c];if(k&&typeof o[k]!=='string'){o[k]='Sin nombre';n++}
+ if(c==='ads'&&!po(o.f)){o.f={};n++}
+ /* un anuncio con un tipo que no existe no sale en ninguna lista, pero abrirlo por su enlace daba error: queda como arriendo oculto */
+ if(c==='ads'&&typeof ADT==='object'&&!ADT[o.type]){o.type='arr';o.hidden=true;n++}
+ if('price' in o&&o.price!=null&&typeof o.price!=='number'&&typeof o.price!=='string'){o.price=0;n++}
+ if(po(o.f))for(k in o.f){v=o.f[k];if(v!=null&&typeof v==='object'&&!Array.isArray(v)){delete o.f[k];n++}}
+ if(po(o.social))for(k in o.social)if(typeof o.social[k]!=='string'){delete o.social[k];n++}
+ if(Array.isArray(o.rates))o.rates.forEach(function(r){['u','name','txt'].forEach(function(q){if(q in r&&typeof r[q]!=='string'){r[q]=str(r[q]);n++}});if(typeof r.n!=='number'||!(r.n>=1&&r.n<=5)){r.n=Math.min(5,Math.max(1,Math.round(Number(r.n))||1));n++}});
+ if(n)try{(window.docFixLog=window.docFixLog||[]).push(c+'/'+(o.id||''));if(window.console&&console.warn&&docFixLog.length<=20)console.warn('v413: publicación con datos dañados: '+c+'/'+(o.id||''))}catch(e){}
+ return o}
+window.docFix=function(c,o){try{
+  if(typeof MODE!=='undefined'&&MODE==='panel'&&o&&o.ownerKey){var k='';try{k=QH.key()}catch(e){}if(k&&o.ownerKey===k)return o}
+  return fix(c,o)}catch(e){return o}};
+})();
+</script>
 <script>
 const CATS=[['Farmacia','','#1E6FBF'],['Electrodomésticos','','#2B3A55'],['Restaurantes','','#B23A2E'],['Ropa','','#4A4A6A'],['Celulares','','#C0392B'],['Computación','','#1F6F8B'],['Hogar','','#2E7D5B'],['Alquiler de artículos','🎪','#0E7490'],['Ferretería','🔧','#B45309'],['Muebles y decoración','🛋️','#9A3412'],['Moda y accesorios','👗','#BE185D'],['Accesorios vehículos','🚗','#1E4FBF'],['Deporte y fitness','🏋️','#15803D'],['Tecnología','💻','#1F6F8B'],['Oficina y papelería','📎','#6D28D9'],['Videojuegos','🎮','#4338CA'],['Juegos y juguetes','🧸','#C2410C'],['Abarrotes','🛒','#2E7D5B'],['Bebés','🍼','#DB2777'],['Mascotas','🐶','#A0551A'],['Instrumentos musicales','🎸','#7C2D12'],['Joyas y relojes','💍','#A16207'],['Cacharrerías','🧰','#475569'],['Belleza y salud','💄','#BE123C'],['Licores','🍷','#8A4B1A'],['Calzado','👟','#4D7C0F'],['Libros y revistas','📚','#6D28D9'],['Floristería y regalos','💐','#BE185D'],['Panadería y pastelería','🥐','#B45309'],['Jardinería y agro','🌱','#15803D'],['Fiestas y eventos','🎉','#9F1239']];
 const OFICIOS=['Niñera','Cuidador de ancianos','Aseadora','Carpintero','Plomero o fontanero','Electricista','Pintor','Jardinero','Mecánico','Servicios especializados','Otro'];const DEFJOBS=OFICIOS.filter(o=>o!=='Otro');let newCatImg='';
@@ -5881,7 +5954,7 @@ const QH=(function(){
  function wfail(e){const c=(e&&e.code)||'';toast(c==='permission-denied'?'No tienes permiso para guardar ese cambio.':'No se pudo guardar ('+(c||'sin conexión')+'). Revisa tu internet.');rebuild();render(true)}
  /* ---- lo que llega de Firestore ---- */
  function rebuild(){
-  const g=(c,asc)=>Object.values(RAW[c]||{}).map(clean).sort((a,b)=>asc?(a._o||0)-(b._o||0):(b._o||0)-(a._o||0));
+  const g=(c,asc)=>Object.values(RAW[c]||{}).map(clean).map(o=>typeof docFix==='function'?docFix(c,o):o)/* v413 */.sort((a,b)=>asc?(a._o||0)-(b._o||0):(b._o||0)-(a._o||0));
   const pr={};g('products',1).forEach(p=>(pr[p.sid]=pr[p.sid]||[]).push(p));
   S.stores=g('stores').map(s=>(s.products=pr[s.id]||[],s));
   if(MODE!=='admin'){const k0=key();S.stores.forEach(s=>{if(k0&&s.ownerKey===k0)return;if(!shopLive(s)){s._off=1;s.products=[];delete s.cover}})}/* v259: plan vencido: solo el registro básico a la vista (el dueño y el admin ven todo) */
@@ -5998,7 +6071,7 @@ const QH=(function(){
  const token=async()=>{try{await authP;const u=auth&&auth.currentUser;return u?await u.getIdToken():''}catch(e){return ''}};
  /* v104: Clasificados — coleccion community/<id>; listener propio, fuera del diff de want()/flush() */
  const COM=[];let comUn=null;
- function comListen(){if(comUn||!ready)return;comUn=db.collection('community').where('exp','>',Date.now()-2*DAY).onSnapshot(snap=>{COM.length=0;snap.forEach(d=>{const o=Object.assign({},d.data(),{id:d.id});COM.push(typeof cmNorm==='function'?cmNorm(o):o)})/* v287: anuncios viejos a las categorías nuevas */;COM.sort((a,b)=>(b.ts||0)-(a.ts||0));if((view==='com'||view==='home'||(view==='admin'&&at==='ver'))&&!$('#ov'))render(true)},e=>{comUn=null;COM.length=0})}
+ function comListen(){if(comUn||!ready)return;comUn=db.collection('community').where('exp','>',Date.now()-2*DAY).onSnapshot(snap=>{COM.length=0;snap.forEach(d=>{const o=Object.assign({},d.data(),{id:d.id});COM.push(typeof cmNorm==='function'?cmNorm(typeof docFix==='function'?docFix('community',o):o/* v413 */):o)})/* v287: anuncios viejos a las categorías nuevas */;COM.sort((a,b)=>(b.ts||0)-(a.ts||0));if((view==='com'||view==='home'||(view==='admin'&&at==='ver'))&&!$('#ov'))render(true)},e=>{comUn=null;COM.length=0})}
  async function comPut(o){await authP;const u=auth&&auth.currentUser;if(!u||u.isAnonymous)throw{m:'Para publicar entra con tu correo y tu clave.'};o.ownerUid=u.uid;o.ttl=new Date(o.exp+2*DAY);await ref('community',o.id).set(o)}
  const comDel=async id=>{await authP;const o=COM.find(x=>x.id===id);await ref('community',id).delete();r2q(o);r2gc([want(),COM.filter(x=>x.id!==id),NEWS])};
 /* v163: Noticias — coleccion news/<id>; publican quienes tengan el acceso "news" (plans/<k>.acc.news, por código) */
@@ -6733,7 +6806,7 @@ if(at==='rep'){const l=S.reports.slice().reverse();body=l.length?l.map(r=>{const
 else if(at==='pag'){body=typeof brebPagHTML==='function'?brebPagHTML():''/* v238 */}
 else if(at==='cod'){body=codAdmin()}
 else if(at==='emg'){body=typeof emgAdmin==='function'?emgAdmin():''/* v257 */}
-else if(at==='usr'){body=(typeof admShopPend==='function'?admShopPend():'')/* v394 */+(typeof admAdPend==='function'?admAdPend():'')/* v396 */+(typeof admAddrPend==='function'?admAddrPend():'')/* v358 */+usrRows()}
+else if(at==='usr'){body=(typeof admRolesFix==='function'?admRolesFix():'')/* v406 */+(typeof admShopPend==='function'?admShopPend():'')/* v394 */+(typeof admAdPend==='function'?admAdPend():'')/* v396 */+(typeof admAddrPend==='function'?admAddrPend():'')/* v358 */+usrRows()}
 else if(at==='sug'){const l=S.ideas.slice().reverse();body=l.length?l.map(x=>`<div class="cg"><b>${esc(x.name)}</b> <small>· ${new Date(x.ts).toLocaleDateString('es-CO')}</small><p>${esc(x.txt)}</p><button class="btn ghost" data-act="delSug" data-id="${x.id}">Eliminar</button></div>`).join(''):'<div class="empty">No hay sugerencias.</div>';if(typeof msgAdmin==='function')body=msgAdmin()+body/* v344 */}
 else if(at==='srv'){body=`<div class="cg"><h3>Servicios (oficios)</h3><p class="muted">Lista de oficios que se ofrecen en Servicios. Se ordena sola de la A a la Z ("Otro" siempre queda al final). Si renombras un oficio, los servicios ya publicados se actualizan solos.</p>${OFICIOS.filter(o=>o!=='Otro').map((o,i)=>`<div class="catrow"><input type="text" id="jb-n-${i}" maxlength="40" value="${esc(o)}" aria-label="Nombre del oficio ${i+1}"><button class="btn" data-act="jobSave" data-i="${i}">Guardar</button><button class="btn ghost" data-act="jobDel" data-i="${i}">Eliminar</button></div>`).join('')}<h3 style="margin-top:14px">Agregar oficio</h3><div class="catrow"><input type="text" id="jb-new" maxlength="40" placeholder="Nombre del oficio" aria-label="Nombre del nuevo oficio"><button class="btn pink" data-act="jobAdd">Agregar</button></div><div class="err" id="err-j"></div></div>`}
 else if(at==='cat'){body=`${typeof cmcAdmin==='function'?cmcAdmin():''/* v287 */}<div class="cg"><h3>Categorías de tiendas</h3><p class="muted">Cambia el nombre o el color, elimina o agrega. Si renombras o eliminas una categoría, sus tiendas se actualizan solas.</p>${CATS.map((c,i)=>`<div class="catrow"><input type="color" id="ct-c-${i}" value="${c[2]}" aria-label="Color de ${esc(c[0])}"><input type="text" id="ct-n-${i}" maxlength="20" value="${esc(c[0])}" aria-label="Nombre de la categoría ${i+1}"><span class="cico sm" style="--c:${c[2]}">${catIcon(c)}</span><label class="btn ghost cfile">🖼️ Imagen<input type="file" accept="image/*" id="ct-f-${i}" hidden></label><button class="btn" id="ct-s-${i}" data-act="catSave" data-i="${i}" hidden>Guardar</button><button class="btn ghost" data-act="catDel" data-i="${i}">Eliminar</button></div>`).join('')}<h3 style="margin-top:14px">Agregar categoría</h3><div class="catrow"><input type="color" id="ct-newc" value="#1E4FBF" aria-label="Color de la nueva categoría"><input type="text" id="ct-new" maxlength="20" placeholder="Nombre" aria-label="Nombre de la nueva categoría"><span class="cico sm" id="ct-newp" style="--c:#1E4FBF">${newCatImg?`<img src="${newCatImg}" alt="">`:'🏷️'}</span><label class="btn ghost cfile">🖼️ Imagen<input type="file" accept="image/*" id="ct-newf" hidden></label><button class="btn pink" data-act="catAdd">Agregar</button></div><div class="err" id="err"></div></div>`}

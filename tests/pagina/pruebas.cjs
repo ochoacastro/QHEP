@@ -31,14 +31,14 @@ async function abrir({ dark = false, admin = false, user = null, seed = {} } = {
   await ctx.route(/workers\.dev|googleapis|firebaseio|accounts\.google|cdnjs|ytimg|fonts\.|maps\./, r => r.fulfill({ status: 500, body: '' }));
   if (admin) await ctx.route(/\/index\.html/, async r => { const res = await r.fetch(); let t = await res.text(); t = t.replace("if(k&&sha256(k)===ADMIN_HASH)return'admin'", "if(k)return'admin'"); r.fulfill({ response: res, body: t }) });
   await ctx.addInitScript(([d, u, s]) => { localStorage.setItem('qh_cookies', '1'); if (d) localStorage.setItem('qh_theme', 'dark'); window.__authUser = u; window.__seed = s }, [dark, admin ? { uid: ADMIN_UID, isAnonymous: false, email: 'admin@x.co' } : user, seed]);
-  const p = await ctx.newPage(); p.errores = [];
+  const p = await ctx.newPage(); p.errores = []; p.danados = [];
   p.on('pageerror', e => p.errores.push(e.message));
-  p.on('console', m => { if (/Content Security Policy|Refused to/.test(m.text())) p.errores.push(m.text().slice(0, 160)) });
+  p.on('console', m => { if (/Content Security Policy|Refused to/.test(m.text())) p.errores.push(m.text().slice(0, 160)); if (/^v413:/.test(m.text())) p.danados.push(m.text().slice(0, 160)) }); // v413: ninguna publicación bien hecha debe ser corregida
   await p.goto(base + '/index.html' + (admin ? '?admin=x' : '')); await p.waitForTimeout(3000);
   await p.evaluate(() => document.querySelectorAll('.qtour,.qhb').forEach(x => x.remove()));
   p.pedidos = pedidos; p.cerrar = () => ctx.close(); return p;
 }
-const sinErrores = (p, quien) => check(quien + ': sin errores', !p.errores.length, p.errores.join(' | '));
+const sinErrores = (p, quien) => check(quien + ': sin errores', !p.errores.length && (p.raros || !(p.danados || []).length), p.errores.concat(p.raros ? [] : p.danados || []).join(' | '));
 const conCuenta = p => p.evaluate(() => { roleShown = true; S.user = { id: 'd', name: 'Ana Pérez', email: 'ana@x.co', wa: '3155555233', pw: 1, k: 'kA' }; save(); try { syncUI() } catch (e) {} });
 
 const PRUEBAS = {
@@ -329,6 +329,62 @@ const PRUEBAS = {
     await q.evaluate(() => { closeModal(1); if (!S.mine.includes('s3')) S.mine.push('s3'); view = 'store'; cur = 's3'; render() }); await q.waitForTimeout(300);
     check('El dueño gratis ve «Agregar fotos 0 de 3» y el candado de más fotos y video', await q.evaluate(() => /0 de 3/.test(document.querySelector('.clug').textContent) && !!document.querySelector('.clug .cla.lock') && !document.querySelector('[data-clvid]')));
     sinErrores(q, 'Conoce el lugar (dueño)'); await q.cerrar();
+  },
+  async rolesPorRecuperar() { // v406 el administrador devuelve los roles a una ficha que quedó sin ellos
+    const fin = Date.now() + 300 * 864e5, cod = (c, o) => Object.assign({ c, use: 'merc', months: 12, days: 365, used: true, usedBy: 'kA', usedAt: Date.now() - 65 * 864e5, end: fin, ts: 1 }, o);
+    const seed = { 'plans/kA': { k: 'kA', name: 'Ana Pérez', email: 'ana@x.co', plan: 'free' }, 'plans/kB': { k: 'kB', name: 'Beto', email: 'beto@x.co', plan: 'free', acc: { news: fin } },
+      'codes/AAAABBBBCCCC': cod('AAAABBBBCCCC'), 'codes/DDDDEEEEFFFF': cod('DDDDEEEEFFFF', { use: 'news', months: 0 }), 'codes/GGGGHHHHJJJJ': cod('GGGGHHHHJJJJ', { use: 'news', months: 0, usedBy: 'kB' }),
+      'codes/KKKKLLLLMMMM': cod('KKKKLLLLMMMM', { use: 'serv', end: Date.now() - 864e5 }), 'codes/NNNNPPPPQQQQ': cod('NNNNPPPPQQQQ', { use: 'car', used: false, usedBy: '' }),
+      'codes/RRRRSSSSTTTT': cod('RRRRSSSSTTTT', { use: 'comu', months: 12, why: 'gratis', end: Date.now() + 5000 * 864e5 }) }; // fecha inflada a mano
+    const p = await abrir({ admin: true, seed });
+    await p.evaluate(() => { closeModal(1); at = 'usr'; view = 'admin'; render() }); await p.waitForTimeout(500);
+    const caja = () => p.evaluate(() => { const h = [...document.querySelectorAll('.aadp')].find(x => /Roles por recuperar/.test(x.textContent)); return h ? h.textContent : '' });
+    const t = await caja();
+    check('El administrador ve la cuenta con roles por recuperar', /Ana Pérez/.test(t) && /Redactor|Noticias/i.test(t), t.slice(0, 200));
+    check('No aparecen la cuenta que ya tiene su rol ni los códigos vencidos o sin usar', !/Beto/.test(t) && (t.match(/hasta el/g) || []).length === 3, t.slice(0, 300));
+    await p.click('[data-rolesfix]'); await p.waitForTimeout(900);
+    const acc = await p.evaluate(() => (QH.plans().find(x => x.k === 'kA') || {}).acc || {});
+    check('Al tocar «Recuperar» la ficha queda con los roles y sus fechas', acc.merc === fin && acc.mercF === fin && acc.news === fin && !acc.serv && !acc.car, JSON.stringify(acc));
+    check('Una fecha inflada en el código no sube el rol más allá de sus días', acc.comu > Date.now() + 299 * 864e5 && acc.comu < Date.now() + 301 * 864e5, String((acc.comu - Date.now()) / 864e5));
+    check('Después ya no hay roles por recuperar', (await caja()) === '');
+    sinErrores(p, 'Roles por recuperar'); await p.cerrar();
+  },
+  async datosRaros() { // v413 una publicación con campos de tipo equivocado (escrita por fuera de la página) no tumba la página
+    const raro = { desc: { a: 1 }, cat: 123, wa: ['x'], zone: { z: 1 }, addr: 5, products: 'x', hours: 'x', rates: 'zz', gal: 'x', vid: 9, pay: 'x', imgs: 'x', img: {}, price: 'caro', f: 'x', title: ['t'], text: ['a', 'b'], owner: { o: 1 }, link: { l: 1 }, type: 7, sub: 3, op: {}, cond: [], tags: 'x', cover: 4, logo: [], ts: 'ayer', exp: Date.now() + 864e5 };
+    const seed = { 'stores/s1': Object.assign({ id: 's1', name: 'Tienda rara', ownerKey: 'kZ', _o: 1 }, raro), 'stores/s2': { id: 's2', name: 'Panadería buena', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', addr: 'Calle 5', products: [], _o: 2 },
+      'products/s2__p1': Object.assign({ id: 'p1', name: 'Producto raro', sid: 's2', ownerKey: 'kZ' }, raro), 'products/s2__p2': { id: 'p2', sid: 's2' }, 'stores/s3': { id: 's3', _o: 3 }, 'services/v2': { id: 'v2' }, 'ads/a2': { id: 'a2' }, 'community/c3': { id: 'c3', exp: Date.now() + 864e5 }, 'services/v1': Object.assign({ id: 'v1', name: 'Servicio raro', ownerKey: 'kZ' }, raro),
+      'ads/a1': Object.assign({ id: 'a1', name: 'Anuncio raro', ownerKey: 'kZ' }, raro), 'community/c1': Object.assign({ id: 'c1', ownerKey: 'kZ', pl: 'free' }, raro),
+      'community/c2': { id: 'c2', ownerKey: 'kA', pl: 'free', title: 'Vendo bicicleta', text: 'Casi nueva', img: '', cat: 'var', ts: Date.now(), exp: Date.now() + 864e5 } };
+    const p = await abrir({ seed }); p.raros = true;
+    const ir = async (v, c, c2) => { await p.evaluate(([v, c, c2]) => { closeModal(1); view = v; if (v === 'ad') curAd = c; else { cur = c || null; curP = c2 || null } render() }, [v, c, c2]); await p.waitForTimeout(400) };
+    check('El inicio se dibuja', await p.evaluate(() => !!document.querySelector('.hub .hubhero h2')));
+    for (const [v, c, c2] of [['cats'], ['store', 's1'], ['store', 's2'], ['store', 's3'], ['prod', 's2', 'p1'], ['prod', 's2', 'p2'], ['serv'], ['ad', 'a1'], ['ad', 'a2'], ['map'], ['com'], ['home']]) { let e = ''; try { await ir(v, c, c2) } catch (x) { e = String(x.message).split('\n')[0] } if (e) check('Pantalla ' + v + ' ' + (c || '') + ' ' + (c2 || ''), false, e) }
+    check('Las publicaciones dañadas quedan anotadas', await p.evaluate(() => (window.docFixLog || []).length >= 8 && !window.docFixLog.some(x => /s2$|c2$/.test(x))), await p.evaluate(() => (window.docFixLog || []).join(',')));
+    await ir('com'); check('Clasificados sigue mostrando el anuncio bueno', await p.evaluate(() => /Vendo bicicleta/.test(document.getElementById('app').textContent)));
+    await ir('cats'); check('Las categorías se dibujan', await p.evaluate(() => /Categorías/.test(document.getElementById('app').textContent)));
+    await ir('store', 's2'); check('La tienda buena se abre con sus productos', await p.evaluate(() => /Panadería buena/.test(document.getElementById('app').textContent)));
+    await p.evaluate(() => { const i = document.querySelector('#q,input[type=search]'); if (i) { i.value = 'raro'; i.dispatchEvent(new Event('input', { bubbles: true })) } }); await p.waitForTimeout(600);
+    sinErrores(p, 'Datos raros'); await p.cerrar();
+  },
+  async salirMisDatos() { // v415 «Mis datos» y «Mis direcciones» también preguntan al salir con cambios
+    const p = await abrir(); await conCuenta(p);
+    await p.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<i class="qtour" hidden></i>')); // igual que en «borradores»
+    const hay = sel => p.evaluate(s => !!document.querySelector(s), sel);
+    await p.evaluate(() => { closeModal(1); pfForm() }); await p.waitForTimeout(400);
+    await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(300);
+    check('«Mis datos» sin cambios se cierra sin preguntar', !(await hay('#sgq')) && !(await hay('#ov')));
+    await p.evaluate(() => { closeModal(1); pfForm() }); await p.waitForTimeout(400);
+    await p.fill('#pf-n', 'Ana María Pérez'); await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(300);
+    check('«Mis datos» con cambios pregunta si guardar', await hay('#sgq'));
+    await p.click('#sgq [data-sgq="si"]'); await p.waitForTimeout(600);
+    check('«Guardar cambios» guarda el nombre nuevo', await p.evaluate(() => S.user.name === 'Ana María Pérez'), await p.evaluate(() => S.user.name + ' / ' + (($('#err') || {}).textContent || '')));
+    await p.evaluate(() => { closeModal(1); adrForm('new') }); await p.waitForTimeout(500);
+    check('Se abre el formulario de dirección', await hay('#ov [data-adsave]'));
+    await p.fill('#ad-dir', 'Calle 5 # 3-20'); await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+    check('La dirección con cambios pregunta si guardar', await hay('#sgq'));
+    await p.click('#sgq [data-sgq="no"]'); await p.waitForTimeout(300);
+    check('«No guardar» cierra el formulario de dirección', !(await hay('#sgq')) && !(await hay('#ov [data-adsave]')));
+    sinErrores(p, 'Salir de Mis datos'); await p.cerrar();
   },
   async sesionYAvisos() { // v400 entrar solo con el botón, campana solo con sesión, «Escríbenos» visible
     const p = await abrir();

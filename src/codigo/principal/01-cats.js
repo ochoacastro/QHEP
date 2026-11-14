@@ -95,7 +95,7 @@ const QH=(function(){
  function wfail(e){const c=(e&&e.code)||'';toast(c==='permission-denied'?'No tienes permiso para guardar ese cambio.':'No se pudo guardar ('+(c||'sin conexión')+'). Revisa tu internet.');rebuild();render(true)}
  /* ---- lo que llega de Firestore ---- */
  function rebuild(){
-  const g=(c,asc)=>Object.values(RAW[c]||{}).map(clean).sort((a,b)=>asc?(a._o||0)-(b._o||0):(b._o||0)-(a._o||0));
+  const g=(c,asc)=>Object.values(RAW[c]||{}).map(clean).map(o=>typeof docFix==='function'?docFix(c,o):o)/* v413 */.sort((a,b)=>asc?(a._o||0)-(b._o||0):(b._o||0)-(a._o||0));
   const pr={};g('products',1).forEach(p=>(pr[p.sid]=pr[p.sid]||[]).push(p));
   S.stores=g('stores').map(s=>(s.products=pr[s.id]||[],s));
   if(MODE!=='admin'){const k0=key();S.stores.forEach(s=>{if(k0&&s.ownerKey===k0)return;if(!shopLive(s)){s._off=1;s.products=[];delete s.cover}})}/* v259: plan vencido: solo el registro básico a la vista (el dueño y el admin ven todo) */
@@ -212,7 +212,7 @@ const QH=(function(){
  const token=async()=>{try{await authP;const u=auth&&auth.currentUser;return u?await u.getIdToken():''}catch(e){return ''}};
  /* v104: Clasificados — coleccion community/<id>; listener propio, fuera del diff de want()/flush() */
  const COM=[];let comUn=null;
- function comListen(){if(comUn||!ready)return;comUn=db.collection('community').where('exp','>',Date.now()-2*DAY).onSnapshot(snap=>{COM.length=0;snap.forEach(d=>{const o=Object.assign({},d.data(),{id:d.id});COM.push(typeof cmNorm==='function'?cmNorm(o):o)})/* v287: anuncios viejos a las categorías nuevas */;COM.sort((a,b)=>(b.ts||0)-(a.ts||0));if((view==='com'||view==='home'||(view==='admin'&&at==='ver'))&&!$('#ov'))render(true)},e=>{comUn=null;COM.length=0})}
+ function comListen(){if(comUn||!ready)return;comUn=db.collection('community').where('exp','>',Date.now()-2*DAY).onSnapshot(snap=>{COM.length=0;snap.forEach(d=>{const o=Object.assign({},d.data(),{id:d.id});COM.push(typeof cmNorm==='function'?cmNorm(typeof docFix==='function'?docFix('community',o):o/* v413 */):o)})/* v287: anuncios viejos a las categorías nuevas */;COM.sort((a,b)=>(b.ts||0)-(a.ts||0));if((view==='com'||view==='home'||(view==='admin'&&at==='ver'))&&!$('#ov'))render(true)},e=>{comUn=null;COM.length=0})}
  async function comPut(o){await authP;const u=auth&&auth.currentUser;if(!u||u.isAnonymous)throw{m:'Para publicar entra con tu correo y tu clave.'};o.ownerUid=u.uid;o.ttl=new Date(o.exp+2*DAY);await ref('community',o.id).set(o)}
  const comDel=async id=>{await authP;const o=COM.find(x=>x.id===id);await ref('community',id).delete();r2q(o);r2gc([want(),COM.filter(x=>x.id!==id),NEWS])};
 /* v163: Noticias — coleccion news/<id>; publican quienes tengan el acceso "news" (plans/<k>.acc.news, por código) */
