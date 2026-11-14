@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 123 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Todas pasan.
-- **PR abierto:** ninguno. El último fusionado es el **#144** (v410 a v412); antes, el **#143** (skills y v409). Todo hasta la v412 está en `main`. En la rama solo quedan cambios de este parte, sin PR.
+- **Pruebas:** 142 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último fusionado es el **#144** (v410 a v412). Todo hasta la v412 está en `main`. **La rama tiene la v406 y las v413 a v415 sin PR ni publicar:** falta que la dueña pida el PR y lo fusione.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v412)
+## 2. Lo que se hizo en esta etapa (v392 a v415)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -38,6 +38,10 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v410 | Nuevo medio de pago **Sistecrédito** (con su logo) en la tienda y en los pedidos; reglas **v51** | #144 |
 | v411 | Se quita la pausa de la tienda (v310). En su lugar, **letrero Abierto / Cerrado** que el dueño pone a mano, con nota opcional; el de cerrado manda sobre el horario | #144 |
 | v412 | Al salir de un formulario con cambios se pregunta «Guardar cambios», «No guardar» o «Seguir editando»; un toque afuera no cierra los formularios; «Continuar» (v399) queda solo para emergencias | #144 |
+| v406 | En el panel, **Usuarios → «Roles por recuperar»**: devuelve los roles a una ficha que quedó sin ellos aunque sus códigos sigan vigentes | sin PR |
+| v413 | **Datos sanos:** una publicación con campos de tipo equivocado (escrita por fuera de la página) ya no tumba la página; se corrige en memoria al leerla | sin PR |
+| v414 | Generador del modo oscuro: «white» y «black» dentro del nombre de una variable ya no se tratan como colores. No cambia ningún color visible | sin PR |
+| v415 | «Mis datos» y el formulario de «Mis direcciones» también preguntan al salir con cambios | sin PR |
 
 ---
 
@@ -51,7 +55,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - agregar el secreto `FB_SA` en GitHub;
    - el ID de cliente de Google One Tap;
    - configurar WhatsApp Business.
-5. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
+5. **Recuperar los roles de `contacto@mipradera.com.co`** (cuando la v406 esté publicada): entrar al panel, **Usuarios**, revisar la lista «Roles por recuperar» y tocar el botón. Ver la sección 4.
+6. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
 
 Ya hecho: las reglas v51 están publicadas en Firebase (14 de noviembre de 2026).
 
@@ -66,15 +71,11 @@ Ya hecho: las reglas v51 están publicadas en Firebase (14 de noviembre de 2026)
 - Los roles, en cambio, salen de la ficha de la cuenta (`plans/<llave>.acc`).
 - Si la ficha se borró y la página la volvió a crear, queda sin roles: las reglas no dejan crearla con roles, y la cuenta no puede recuperarlos sola, porque solo se guardan al usar un código nuevo.
 
-**Arreglo preparado, sin probar ni publicar:** `pendiente/v406-recuperar-roles.js`. En el panel de administrador, en **Usuarios**, muestra «Roles por recuperar» y un botón que devuelve a cada ficha el fin de cada rol según sus códigos vigentes. Solo sube fechas, nunca las baja.
+**Arreglo activado y probado con datos de prueba (v406), sin publicar:** `src/codigo/v406-recuperar-roles.js`. En el panel de administrador, en **Usuarios**, muestra «Roles por recuperar» y un botón que devuelve a cada ficha el fin de cada rol. Solo sube fechas, nunca las baja.
 
-**Para activarlo:**
-1. Copiar `pendiente/v406-recuperar-roles.js` a `src/codigo/`.
-2. Agregarlo a `src/orden.json` después de `codigo/v403-conoce-el-lugar.js`.
-3. En `src/codigo/principal/11-profilemodal.js`, en la pestaña `usr`, agregar al inicio de `body=`: `(typeof admRolesFix==='function'?admRolesFix():'')+`.
-4. Armar la página, probarla con datos de prueba (una ficha sin `acc` y códigos usados con `usedBy` igual a esa ficha) y publicar.
-
-**Mientras tanto:** la dueña puede revisar la tarjeta de esa cuenta en el panel (Usuarios) para confirmar que la ficha no tiene roles.
+- El fin de cada rol se calcula con los días de cada código, en el orden en que se usaron. La fecha `end` del código la escribe quien lo canjea y las reglas no la revisan, así que solo puede bajar el resultado, nunca subirlo.
+- La causa sigue siendo «probable»: no se ha visto la ficha real. Si en el panel la lista «Roles por recuperar» no muestra esa cuenta, la causa es otra y hay que revisar su tarjeta en Usuarios.
+- No evita que vuelva a pasar: si una cuenta se elimina y se vuelve a crear, su ficha nace sin roles y el administrador los recupera con el mismo botón.
 
 ---
 
@@ -83,18 +84,24 @@ Ya hecho: las reglas v51 están publicadas en Firebase (14 de noviembre de 2026)
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
 - **Letrero de cerrado (v411):**
   - no se quita solo; se queda hasta que el dueño ponga «Abierto»;
-  - el cliente sigue viendo los productos y puede hacer pedidos (la pausa anterior los bloqueaba). Se ofreció bloquear los pedidos con el letrero de cerrado; falta que la dueña decida.
-- **Preguntar al salir (v412):**
-  - cubre tienda nueva, editar tienda, anuncio, servicio, producto, editar producto y registro. «Mis direcciones» y «Mis datos» todavía se cierran sin preguntar;
+  - el cliente sigue viendo los productos y puede hacer pedidos (la pausa anterior los bloqueaba). El 14 de noviembre de 2026 se decidió dejarlo así: una tienda cerrada por horario también recibe pedidos, y el letrero se comporta igual.
+- **Preguntar al salir (v412, v415):**
+  - cubre tienda nueva, editar tienda, anuncio, servicio, producto, editar producto, registro, «Mis datos» y el formulario de dirección. En esos dos últimos el toque afuera tampoco cierra ya la ventana;
   - el botón «atrás» del teléfono no hace la pregunta: lo escrito queda en el borrador y aparece «Continuar»;
   - el toque afuera no cierra esos formularios; las demás ventanas sí se cierran al tocar afuera (la dueña lo pidió así).
 - **Mapa del inmueble (v409):** si el dueño respondió «No lo ubica bien» y el administrador aún no puso el código plus, el mapa no se muestra.
 
+- **Datos sanos (v413):**
+  - corrige en memoria, no en Firestore. En el modo administrador sí se guarda la corrección al guardar, para que el administrador pueda ver y borrar la publicación dañada;
+  - en el panel no toca las publicaciones propias;
+  - un anuncio con un tipo que no existe queda como arriendo oculto;
+  - cada corrección deja un aviso en la consola (`v413: publicación con datos dañados`), y las pruebas fallan si se corrige una publicación bien hecha.
+- **Reglas de Firestore:** siguen en la v51. La auditoría del 14 de noviembre de 2026 encontró que las reglas no revisan el tipo de la mayoría de los campos de tiendas, productos, servicios, anuncios y clasificados. No se cambiaron: una regla de tipos mal hecha impediría guardar a los comerciantes (la página guarda `null` en varios campos), y la v413 ya protege a los visitantes. Queda como mejora posible, con pruebas en el emulador.
+
 **Ideas ofrecidas que no se hicieron:**
-- **Generador del modo oscuro (v219):** tiene un error (`\bwhite\b` toca nombres de variables). Arreglarlo cambia algunos colores; falta que la dueña decida.
 - **Carga diferida de funciones poco usadas** (opción B de velocidad). No se hizo.
-- **Stash viejo:** `stash@{0}` («opcion C … en pausa») ya está publicado como v393 y se puede borrar.
-- **Skills que se recomendaron y no se instalaron:** `firebase-security-rules-auditor` y `firestore-rules-creation` (de `firebase/agent-skills`) y `workers-best-practices` (de `cloudflare/skills`). Sirven para auditar las reglas y el worker.
+- **Stash viejo:** `stash@{0}` («opcion C … en pausa») ya está publicado como v393 y se puede borrar. No se borró: falta que la dueña lo confirme.
+- **Otros hallazgos menores de la auditoría de reglas, sin cambiar:** cualquiera con sesión puede escribir la marca de presencia de otra persona (`presence`); los pedidos no limitan el tamaño de cada producto de la lista (`items`); el `end` de un código canjeado no se valida.
 - **Guardar el worker en el repositorio** (`tools/`, que GitHub Pages no publica). No se hizo: falta saber si la dueña lo dejó fuera a propósito.
 - **Pasar a Cloudflare Pages** para poder tener el repositorio privado sin pagar (ver la sección 7).
 
@@ -121,6 +128,8 @@ Ya hecho: las reglas v51 están publicadas en Firebase (14 de noviembre de 2026)
   - `find-skills`: buscar e instalar otras skills. Su buscador usa `skills.sh`, que la red de las sesiones en la nube bloquea; se puede listar un repositorio conocido con `npx skills add <dueño/repositorio> --list`;
   - `systematic-debugging`: método para buscar la causa de un error antes de arreglarlo;
   - `frontend-design` y `web-design-guidelines`: guía de diseño y revisión de la interfaz. Las preferencias de la dueña mandan sobre lo que digan.
+  - `firebase-security-rules-auditor` y `firestore-rules-creation` (de `firebase/agent-skills`): auditar y escribir reglas de Firestore. La segunda pide empezar negando todo y no dejar lecturas públicas; aquí las lecturas públicas de tiendas y anuncios son a propósito.
+  - `workers-best-practices` (de `cloudflare/skills`): revisar el worker de Cloudflare.
   - Para instalar otra: `npx skills add <dueño/repositorio> --skill <nombre> --agent claude-code -y`, leerla completa antes de hacer commit, y dejar `skills-lock.json` fuera de GitHub Pages (ya está en `_config.yml`).
   - No instalar `design-mobile-apps`: es un conector al servicio de pago sleek.design, pensado para React Native.
 - **Preferencias de la dueña:**
