@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 142 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último fusionado es el **#144** (v410 a v412). Todo hasta la v412 está en `main`. **La rama tiene la v406 y las v413 a v415 sin PR ni publicar:** falta que la dueña pida el PR y lo fusione.
+- **Pruebas:** 159 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último fusionado es el **#145** (v406 y v413 a v415), el 14 de noviembre de 2026; antes, el **#144** (v410 a v412). Todo hasta la v415 está en `main`. **La rama tiene la v416 (pedir y preguntar sin registro) sin PR ni publicar.**
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v415)
+## 2. Lo que se hizo en esta etapa (v392 a v416)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -38,43 +38,42 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v410 | Nuevo medio de pago **Sistecrédito** (con su logo) en la tienda y en los pedidos; reglas **v51** | #144 |
 | v411 | Se quita la pausa de la tienda (v310). En su lugar, **letrero Abierto / Cerrado** que el dueño pone a mano, con nota opcional; el de cerrado manda sobre el horario | #144 |
 | v412 | Al salir de un formulario con cambios se pregunta «Guardar cambios», «No guardar» o «Seguir editando»; un toque afuera no cierra los formularios; «Continuar» (v399) queda solo para emergencias | #144 |
-| v406 | En el panel, **Usuarios → «Roles por recuperar»**: devuelve los roles a una ficha que quedó sin ellos aunque sus códigos sigan vigentes | sin PR |
-| v413 | **Datos sanos:** una publicación con campos de tipo equivocado (escrita por fuera de la página) ya no tumba la página; se corrige en memoria al leerla | sin PR |
-| v414 | Generador del modo oscuro: «white» y «black» dentro del nombre de una variable ya no se tratan como colores. No cambia ningún color visible | sin PR |
-| v415 | «Mis datos» y el formulario de «Mis direcciones» también preguntan al salir con cambios | sin PR |
+| v406 | En el panel, **Usuarios → «Roles por recuperar»**: devuelve los roles a una ficha que quedó sin ellos aunque sus códigos sigan vigentes | #145 |
+| v413 | **Datos sanos:** una publicación con campos de tipo equivocado (escrita por fuera de la página) ya no tumba la página; se corrige en memoria al leerla | #145 |
+| v414 | Generador del modo oscuro: «white» y «black» dentro del nombre de una variable ya no se tratan como colores. No cambia ningún color visible | #145 |
+| v415 | «Mis datos» y el formulario de «Mis direcciones» también preguntan al salir con cambios | #145 |
+| v416 | **Pedir y preguntar sin registro:** sin cuenta, «Pedir por WhatsApp» abre «Tus datos para el pedido» (nombre, WhatsApp, barrio, dirección, indicaciones y mensaje) en vez de «Registrarme»; preguntar por un producto, servicio o anuncio pide nombre y WhatsApp solo la primera vez. Además, las ventanas abiertas desde el carrito ya no quedan tapadas por el carrito | sin PR |
 
 ---
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
-1. **Mirar en la página real el mapa del inmueble (v409):** abrir un arriendo o una venta que tenga dirección y confirmar que «Ubicación» muestra el mapa en el lugar correcto. En las pruebas Google Maps no carga, así que el mapa dibujado no se ha visto.
-2. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
-3. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
-4. **Pendientes de antes:**
+1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
+2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
+3. **Pendientes de antes:**
    - registrar la llave de App Check en Firebase y, cuando las métricas estén bien, tocar «Aplicar»;
    - agregar el secreto `FB_SA` en GitHub;
    - el ID de cliente de Google One Tap;
    - configurar WhatsApp Business.
-5. **Recuperar los roles de `contacto@mipradera.com.co`** (cuando la v406 esté publicada): entrar al panel, **Usuarios**, revisar la lista «Roles por recuperar» y tocar el botón. Ver la sección 4.
-6. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
+4. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
 
-Ya hecho: las reglas v51 están publicadas en Firebase (14 de noviembre de 2026).
+Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien.
 
 ---
 
-## 4. Problema abierto: roles que salen «Sin activar»
+## 4. Problema resuelto: roles que salían «Sin activar»
 
 **Síntoma:** en la cuenta `contacto@mipradera.com.co`, «Mis códigos» muestra **Comerciante · Varios negocios** y **Redactor de noticias** vigentes hasta noviembre de 2027. Pero «Publicar» y «Activar un rol» dicen **«Sin activar»** en todos los roles.
 
-**Causa probable:**
+**Causa (confirmada el 14 de noviembre de 2026):**
 - «Mis códigos» lee los códigos usados (colección `codes`).
 - Los roles, en cambio, salen de la ficha de la cuenta (`plans/<llave>.acc`).
 - Si la ficha se borró y la página la volvió a crear, queda sin roles: las reglas no dejan crearla con roles, y la cuenta no puede recuperarlos sola, porque solo se guardan al usar un código nuevo.
 
-**Arreglo activado y probado con datos de prueba (v406), sin publicar:** `src/codigo/v406-recuperar-roles.js`. En el panel de administrador, en **Usuarios**, muestra «Roles por recuperar» y un botón que devuelve a cada ficha el fin de cada rol. Solo sube fechas, nunca las baja.
+**Arreglo publicado (v406, PR #145) y usado en la página real:** `src/codigo/v406-recuperar-roles.js`. En el panel de administrador, en **Usuarios**, muestra «Roles por recuperar» y un botón que devuelve a cada ficha el fin de cada rol. Solo sube fechas, nunca las baja.
 
 - El fin de cada rol se calcula con los días de cada código, en el orden en que se usaron. La fecha `end` del código la escribe quien lo canjea y las reglas no la revisan, así que solo puede bajar el resultado, nunca subirlo.
-- La causa sigue siendo «probable»: no se ha visto la ficha real. Si en el panel la lista «Roles por recuperar» no muestra esa cuenta, la causa es otra y hay que revisar su tarjeta en Usuarios.
+- El 14 de noviembre de 2026 la dueña tocó «Recuperar el rol» en el panel para `contacto@mipradera.com.co` y funcionó: la cuenta apareció en «Roles por recuperar», así que la ficha sí había quedado sin roles.
 - No evita que vuelva a pasar: si una cuenta se elimina y se vuelve a crear, su ficha nace sin roles y el administrador los recupera con el mismo botón.
 
 ---
@@ -91,6 +90,14 @@ Ya hecho: las reglas v51 están publicadas en Firebase (14 de noviembre de 2026)
   - el toque afuera no cierra esos formularios; las demás ventanas sí se cierran al tocar afuera (la dueña lo pidió así).
 - **Mapa del inmueble (v409):** si el dueño respondió «No lo ubica bien» y el administrador aún no puso el código plus, el mapa no se muestra.
 
+- **Sin registro (v416):**
+  - los datos del visitante se guardan solo en su teléfono (`localStorage`, `qh_invitado`), no en Firebase; el formulario trae «Borrar mis datos»;
+  - el formulario del pedido se muestra cada vez (ya lleno) para confirmar la dirección; el de información solo la primera vez;
+  - al preguntar, el nombre y el WhatsApp van al final del mensaje («Mi nombre», «Mi WhatsApp»), no al inicio;
+  - sin cuenta, el pedido a una tienda que recibe por la aplicación sale por WhatsApp (guardar un pedido exige sesión);
+  - sin cuenta no se pregunta si Google Maps ubica bien la casa ni se manda el enlace del mapa: solo dirección, barrio e indicaciones;
+  - la invitación a crear cuenta sale una sola vez por teléfono, después del primer pedido;
+  - quien ya tiene cuenta no ve ningún cambio.
 - **Datos sanos (v413):**
   - corrige en memoria, no en Firestore. En el modo administrador sí se guarda la corrección al guardar, para que el administrador pueda ver y borrar la publicación dañada;
   - en el panel no toca las publicaciones propias;

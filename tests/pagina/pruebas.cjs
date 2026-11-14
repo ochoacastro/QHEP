@@ -88,9 +88,11 @@ const PRUEBAS = {
     const p = await abrir();
     await p.evaluate(() => { QH.push = () => {}; window.open = u => { window.__wa = decodeURIComponent(u) }; S.stores.push({ id: 'sw', name: 'Tienda WA', wa: '3001234567', pays: ['cash'], products: [{ id: 'p2', name: 'Arroz', price: 4000, imgs: [] }] }); S.cart = { 'sw|p2||': 2 }; save(); openCart() });
     await p.waitForTimeout(300); await p.evaluate(() => document.querySelector('[data-act="order"][data-id="sw"]').click()); await p.waitForTimeout(400);
-    check('Sin cuenta, pedir abre «Registrarme»', /Registrarme/.test(await p.evaluate(() => (document.querySelector('#ov .am-tab[aria-selected="true"]') || {}).textContent || '')));
-    await p.evaluate(() => { closeModal(1); S.user = { id: 'u9', name: 'Ana Pérez', email: 'a@x.co', wa: '3112223344', pw: 1, k: 'kN' }; save(); syncUI() }); await p.waitForTimeout(2200);
+    check('Sin cuenta, pedir abre «Tus datos para el pedido» (v416), no «Registrarme»', /Tus datos para el pedido/.test(await p.evaluate(() => (document.querySelector('#ov h2') || {}).textContent || '')));
+    await p.evaluate(() => { closeModal(1); S.user = { id: 'u9', name: 'Ana Pérez', email: 'a@x.co', wa: '3112223344', pw: 1, k: 'kN' }; save(); syncUI() }); await p.waitForTimeout(400);
+    await p.evaluate(() => { openCart(); document.querySelector('[data-act="order"][data-id="sw"]').click() }); await p.waitForTimeout(600);
     check('Con cuenta y sin dirección, pide la dirección', /dirección/i.test(await p.evaluate(() => (document.querySelector('#ov h2') || {}).textContent || '')));
+    check('La ventana de la dirección queda encima del carrito (v416)', await p.evaluate(() => { const h = document.querySelector('#ov h2'), r = h.getBoundingClientRect(), t = document.elementFromPoint(r.x + 5, r.y + 5); return !!t && !!t.closest('#ov') }));
     await p.evaluate(() => { const z = document.querySelector('#ov .znsel'); z.value = 'Centro'; z.dispatchEvent(new Event('change', { bubbles: true })); document.getElementById('ad-dir').value = 'Calle 5 # 3-20'; document.querySelector('[data-adok="1"]').click(); document.querySelector('[data-adsave]').click() });
     await p.waitForTimeout(2500);
     check('Con dirección, se abre el carrito resaltado', await p.evaluate(() => !!document.querySelector('#drawer.open .ordgo, #drawer .ordgo')));
@@ -385,6 +387,53 @@ const PRUEBAS = {
     await p.click('#sgq [data-sgq="no"]'); await p.waitForTimeout(300);
     check('«No guardar» cierra el formulario de dirección', !(await hay('#sgq')) && !(await hay('#ov [data-adsave]')));
     sinErrores(p, 'Salir de Mis datos'); await p.cerrar();
+  },
+  async sinRegistro() { // v416 pedir y preguntar por WhatsApp sin crear cuenta
+    const p = await abrir();
+    await p.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<i class="qtour" hidden></i>'));
+    const txt = sel => p.evaluate(s => (document.querySelector(s) || {}).textContent || '', sel);
+    await p.evaluate(() => { QH.push = () => {}; window.open = u => { window.__wa = decodeURIComponent(u) };
+      S.stores.push({ id: 'sw', name: 'Tienda WA', wa: '3001234567', pays: ['cash'], products: [{ id: 'p2', name: 'Arroz', price: 4000, imgs: [] }] });
+      S.stores.push({ id: 'sa', name: 'Tienda App', wa: '3007654321', pays: ['cash'], om: 'app', ownerUid: 'uT', pexp: Date.now() + 30 * 864e5, products: [{ id: 'p3', name: 'Pan', price: 500, imgs: [] }] });
+      S.services.push({ id: 'v1', name: 'Luis Plomero', job: 'Plomería', wa: '3009998877' });
+      S.cart = { 'sw|p2||': 2, 'sa|p3||': 1 }; save(); openCart() }); await p.waitForTimeout(400);
+    check('Sin cuenta, la tienda que recibe por la aplicación ofrece «Pedir por WhatsApp»', /Pedir por WhatsApp/.test(await txt('[data-act="order"][data-id="sa"]')));
+    await p.evaluate(() => document.querySelector('[data-act="order"][data-id="sw"]').click()); await p.waitForTimeout(500);
+    check('Se abre «Tus datos para el pedido» con nombre, WhatsApp, barrio, dirección y mensaje', await p.evaluate(() => ['iv-n', 'iv-w', 'iv-zone', 'iv-d', 'iv-r', 'iv-m'].every(i => document.getElementById(i)) && !!document.querySelector('#ov .znsel')));
+    await p.click('[data-ivgo="ped"]'); await p.waitForTimeout(200);
+    check('Sin nombre no se envía y lo dice', /nombre/i.test(await txt('#iv-err')) && !(await p.evaluate(() => window.__wa)));
+    await p.fill('#iv-n', 'Ana Pérez'); await p.fill('#iv-w', '300 111 22'); await p.click('[data-ivgo="ped"]'); await p.waitForTimeout(200);
+    check('Con el WhatsApp incompleto no se envía', /WhatsApp/.test(await txt('#iv-err')) && !(await p.evaluate(() => window.__wa)));
+    await p.fill('#iv-w', '300 111 2233'); await p.selectOption('#ov .znsel', { index: 1 }); await p.fill('#iv-d', 'Calle 5 # 3-20'); await p.fill('#iv-r', 'Casa azul'); await p.fill('#iv-m', 'Sin cebolla');
+    const barrio = await p.evaluate(() => document.getElementById('iv-zone').value);
+    await p.click('[data-ivgo="ped"]'); await p.waitForTimeout(1200);
+    const wa = await p.evaluate(() => window.__wa || '');
+    check('El WhatsApp va a la tienda con el pedido y el total', /wa\.me\/573001234567/.test(wa) && /2 x Arroz/.test(wa) && /Total:/.test(wa), wa.slice(0, 160));
+    check('Lleva cliente, teléfono, dirección, barrio, indicaciones y el mensaje', /Cliente: Ana Pérez/.test(wa) && /Teléfono: 3001112233/.test(wa) && wa.includes('Dirección de entrega: Calle 5 # 3-20, ' + barrio) && /Indicaciones: Casa azul/.test(wa) && /Nota: Sin cebolla/.test(wa) && barrio.length > 1, wa.slice(-260));
+    check('No se creó ninguna cuenta y el carrito de esa tienda quedó vacío', await p.evaluate(() => !S.user && !Object.keys(S.cart).some(k => k.indexOf('sw|') === 0) && !localStorage.getItem('qh_pend_order')));
+    check('Después de enviar se invita (sin obligar) a crear la cuenta', /Crear mi cuenta gratis/.test(await txt('#ov')) && /Ahora no/.test(await txt('#ov')));
+    await p.evaluate(() => { closeModal(1); window.__wa = ''; document.querySelector('[data-act="order"][data-id="sa"]').click() }); await p.waitForTimeout(500);
+    check('La próxima vez el formulario sale lleno', await p.evaluate(() => document.getElementById('iv-n').value === 'Ana Pérez' && document.getElementById('iv-w').value === '3001112233' && document.getElementById('iv-d').value === 'Calle 5 # 3-20'));
+    await p.click('[data-ivgo="ped"]'); await p.waitForTimeout(1200);
+    check('El pedido de la tienda «por la aplicación» también sale por WhatsApp, sin invitar otra vez', /wa\.me\/573007654321/.test(await p.evaluate(() => window.__wa || '')) && !(await p.evaluate(() => !!document.getElementById('ov'))));
+    // información
+    const preguntar = async () => { await p.evaluate(() => { window.__wa = ''; closeModal(1); document.querySelectorAll('#t-ct').forEach(x => x.remove()); document.body.insertAdjacentHTML('beforeend', '<button id="t-ct" class="btn" data-act="contact" data-id="v1">Contactar</button>'); document.getElementById('t-ct').click() }); await p.waitForTimeout(400) };
+    await preguntar();
+    let w2 = await p.evaluate(() => window.__wa || '');
+    check('Preguntar con los datos ya guardados abre WhatsApp directo y agrega nombre y WhatsApp', /wa\.me\/573009998877/.test(w2) && /quisiera más información/.test(w2) && /Mi nombre: Ana Pérez/.test(w2) && /Mi WhatsApp: 3001112233/.test(w2) && !(await p.evaluate(() => !!document.getElementById('ov'))), w2.slice(0, 200));
+    await p.evaluate(() => localStorage.removeItem('qh_invitado')); await preguntar();
+    check('La primera vez, preguntar pide nombre y WhatsApp y muestra el mensaje', await p.evaluate(() => /Tus datos/.test(document.querySelector('#ov h2').textContent) && /Plomería/.test(document.getElementById('iv-m').value) && !document.getElementById('iv-d') && !window.__wa));
+    await p.fill('#iv-n', 'Beto Ruiz'); await p.fill('#iv-w', '3105556677'); await p.fill('#iv-m', 'Hola, ¿trabaja los domingos?'); await p.click('[data-ivgo="info"]'); await p.waitForTimeout(400);
+    w2 = await p.evaluate(() => window.__wa || '');
+    check('Envía el mensaje cambiado con el nombre y el WhatsApp', /trabaja los domingos/.test(w2) && /Mi nombre: Beto Ruiz/.test(w2) && /Mi WhatsApp: 3105556677/.test(w2), w2.slice(0, 200));
+    await p.evaluate(() => { S.cart = { 'sw|p2||': 1 }; save(); openCart() }); await p.waitForTimeout(300);
+    await p.evaluate(() => document.querySelector('[data-act="order"][data-id="sw"]').click()); await p.waitForTimeout(400);
+    await p.click('[data-ivdel]'); await p.waitForTimeout(200);
+    check('«Borrar mis datos» vacía el formulario y el teléfono', await p.evaluate(() => !localStorage.getItem('qh_invitado') && document.getElementById('iv-n').value === '' && document.getElementById('iv-w').value === ''));
+    await conCuenta(p); await preguntar();
+    w2 = await p.evaluate(() => window.__wa || '');
+    check('Con cuenta, preguntar sigue igual que antes (WhatsApp directo, sin datos agregados)', /quisiera más información/.test(w2) && !/Mi nombre/.test(w2));
+    sinErrores(p, 'Sin registro'); await p.cerrar();
   },
   async sesionYAvisos() { // v400 entrar solo con el botón, campana solo con sesión, «Escríbenos» visible
     const p = await abrir();
