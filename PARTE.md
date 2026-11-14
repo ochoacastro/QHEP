@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`). Hay que confirmar que esté publicada en Firebase; ver la sección 3.
-- **Pruebas:** 113 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Todas pasan.
-- **PR abierto:** **#143** (skills, v409, v410 y v411). El último fusionado es el **#142**.
+- **Pruebas:** 121 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Todas pasan.
+- **PR abierto:** **#143** (skills y v409 a v412). El último fusionado es el **#142**.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`).
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v411)
+## 2. Lo que se hizo en esta etapa (v392 a v412)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -37,6 +37,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v409 | El anuncio de un inmueble muestra al visitante «Ubicación»: el mapa de Google Maps de su dirección y «Abrir en Google Maps» | #143 |
 | v410 | Nuevo medio de pago **Sistecrédito** (con su logo) en la tienda y en los pedidos; reglas **v51** | #143 |
 | v411 | Se quita la pausa de la tienda (v310). En su lugar, **letrero Abierto / Cerrado** que el dueño pone a mano, con nota opcional; el de cerrado manda sobre el horario | #143 |
+| v412 | Al salir de un formulario con cambios se pregunta «Guardar cambios», «No guardar» o «Seguir editando»; «Continuar» (v399) queda solo para emergencias | #143 |
 
 ---
 

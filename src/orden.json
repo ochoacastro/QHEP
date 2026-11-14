@@ -1381,6 +1381,15 @@
  },
  {
   "t": "js",
+  "tag": "<script id=\"v412-salir-guardar\">",
+  "f": "codigo/v412-salir-guardar.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
   "tag": "<script id=\"v402-pregunta-mapa\">",
   "f": "codigo/v402-pregunta-mapa.js"
  },
