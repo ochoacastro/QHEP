@@ -6,3 +6,4 @@ exclude:
   - README.md
   - PARTE.md
   - pendiente
+  - skills-lock.json
