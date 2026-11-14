@@ -11,7 +11,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 123 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Todas pasan.
 - **PR abierto:** ninguno. El último fusionado es el **#144** (v410 a v412); antes, el **#143** (skills y v409). Todo hasta la v412 está en `main`.
-- **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`).
+- **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
@@ -44,7 +44,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
 1. ~~Publicar las reglas v51~~ — hecho: la dueña las publicó el 14 de noviembre de 2026.
-2. **Actualizar el worker de Cloudflare** con el UID nuevo del administrador (`worker_v12_INSTALAR.js`, línea 50). Sin esto no llegan los avisos de pagos de roles.
+2. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 3. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 4. **Pendientes de antes:**
    - registrar la llave de App Check en Firebase y, cuando las métricas estén bien, tocar «Aplicar»;
