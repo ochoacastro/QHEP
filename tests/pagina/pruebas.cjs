@@ -366,6 +366,26 @@ const PRUEBAS = {
     await p.evaluate(() => { const i = document.querySelector('#q,input[type=search]'); if (i) { i.value = 'raro'; i.dispatchEvent(new Event('input', { bubbles: true })) } }); await p.waitForTimeout(600);
     sinErrores(p, 'Datos raros'); await p.cerrar();
   },
+  async salirMisDatos() { // v415 «Mis datos» y «Mis direcciones» también preguntan al salir con cambios
+    const p = await abrir(); await conCuenta(p);
+    await p.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<i class="qtour" hidden></i>')); // igual que en «borradores»
+    const hay = sel => p.evaluate(s => !!document.querySelector(s), sel);
+    await p.evaluate(() => { closeModal(1); pfForm() }); await p.waitForTimeout(400);
+    await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(300);
+    check('«Mis datos» sin cambios se cierra sin preguntar', !(await hay('#sgq')) && !(await hay('#ov')));
+    await p.evaluate(() => { closeModal(1); pfForm() }); await p.waitForTimeout(400);
+    await p.fill('#pf-n', 'Ana María Pérez'); await p.evaluate(() => document.querySelector('#ov [data-act=close]').click()); await p.waitForTimeout(300);
+    check('«Mis datos» con cambios pregunta si guardar', await hay('#sgq'));
+    await p.click('#sgq [data-sgq="si"]'); await p.waitForTimeout(600);
+    check('«Guardar cambios» guarda el nombre nuevo', await p.evaluate(() => S.user.name === 'Ana María Pérez'), await p.evaluate(() => S.user.name + ' / ' + (($('#err') || {}).textContent || '')));
+    await p.evaluate(() => { closeModal(1); adrForm('new') }); await p.waitForTimeout(500);
+    check('Se abre el formulario de dirección', await hay('#ov [data-adsave]'));
+    await p.fill('#ad-dir', 'Calle 5 # 3-20'); await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+    check('La dirección con cambios pregunta si guardar', await hay('#sgq'));
+    await p.click('#sgq [data-sgq="no"]'); await p.waitForTimeout(300);
+    check('«No guardar» cierra el formulario de dirección', !(await hay('#sgq')) && !(await hay('#ov [data-adsave]')));
+    sinErrores(p, 'Salir de Mis datos'); await p.cerrar();
+  },
   async sesionYAvisos() { // v400 entrar solo con el botón, campana solo con sesión, «Escríbenos» visible
     const p = await abrir();
     check('Sin sesión no se ve la campana', await p.evaluate(() => { const b = document.getElementById('nfBtn'); return !b || b.offsetParent === null }));

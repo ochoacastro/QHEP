@@ -4,11 +4,12 @@
    Un toque afuera de la ventana NO cierra estos formularios (con o sin cambios): hay que usar cerrar o «Cancelar».
    «Guardar cambios» toca el botón de guardar del formulario (si falta un dato, el formulario lo dice y sigue abierto).
    «No guardar» cierra y borra el borrador (v399), así no queda el aviso «Continuar». El borrador y «Continuar» quedan solo
-   para emergencias: se apagó el teléfono, se recargó o se cerró la página. Si algo falla, borra este bloque. */
+   para emergencias: se apagó el teléfono, se recargó o se cerró la página. Si algo falla, borra este bloque.
+   v415: también pregunta en «Mis datos» y en el formulario de «Mis direcciones» (antes se cerraban sin preguntar). */
 (function(){
-var ACTS=['saveShop','saveEditShop','saveAd','saveServ','saveProd','saveEdit','doReg'];
+var ACTS=['saveShop','saveEditShop','saveAd','saveServ','saveProd','saveEdit','doReg','pfSave'/* v415: «Mis datos» */];
 function M(){return document.querySelector('#ov .modal')}
-function saveBtn(m){if(!m)return null;for(var i=0;i<ACTS.length;i++){var b=m.querySelector('[data-act="'+ACTS[i]+'"]');if(b)return b}return null}
+function saveBtn(m){if(!m)return null;for(var i=0;i<ACTS.length;i++){var b=m.querySelector('[data-act="'+ACTS[i]+'"]');if(b)return b}return m.querySelector('[data-adsave]')/* v415: «Mis direcciones» */}
 function dirty(m){if(!m||!saveBtn(m))return false;if(m._sgq)return true;try{return !!(window.qhBorr&&qhBorr.dirty())}catch(e){return false}}
 /* cualquier cosa que la persona escriba, elija o marque en el formulario cuenta como cambio (también las fotos) */
 function touch(e){if(!e.isTrusted)return;var t=e.target,m=t&&t.closest&&t.closest('#ov .modal');if(m&&saveBtn(m))m._sgq=1}

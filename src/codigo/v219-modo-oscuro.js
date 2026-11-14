@@ -25,7 +25,9 @@ function shift(c,role){var p=parse(c);if(!p)return c;var hsl=rgb2hsl(p[0],p[1],p
  else if(role==='l'){if(l>.5){l=.17+(1-l)*.45;s=s*.6}else if(l<.2&&p[3]<.5){return out([255,255,255],Math.min(.16,p[3]*1.2))}else return c}
  return out(hsl2rgb(h,clamp(s),clamp(l)),p[3])}
 var COLRE=/#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|\bwhite\b|\bblack\b/g;
-function mapVal(v,role){return v.replace(COLRE,function(c){return shift(c,role)})}
+/* v414: «white» y «black» dentro del nombre de una variable (var(--color-fog-white)) no son colores: no se tocan */
+function mapVal(v,role){return v.replace(COLRE,function(c,i,t){if(/^[wb]/i.test(c)&&(t.charAt(i-1)==='-'||t.charAt(i+c.length)==='-'))return c;return shift(c,role)})}
+function hasLit(v){return /#[0-9a-fA-F]{3,8}\b|rgba?\(|\bwhite\b|\bblack\b/.test(String(v).replace(/--[\w-]+/g,''))}
 /* valores claros originales de las variables (:root). Si una variable "de texto" (p. ej. --ink) se usa como FONDO, se reemplaza por su
    valor original tratado como fondo (sigue oscura); y una variable "de fondo" usada como TEXTO, por su valor tratado como texto */
 var VARS={};
@@ -40,7 +42,7 @@ function ruleCSS(st){var o='',any=false;
   if(sh==='background'){var nsv=fixVars(mapVal(sv,'b'),'b');if(nsv!==sv)any=true;o+='background:'+nsv+imp+';'}
   else{/* de bordes y contornos solo se copia el color (el grosor y el estilo siguen saliendo de la regla original) */var cm=sv.match(/var\((?:[^()]|\([^()]*\))*\)|#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)/g);if(cm){var cv=mapVal(cm[cm.length-1],'l');o+=(sh==='outline'?'outline-color':sh==='border'||sh==='border-color'?'border-color':sh+'-color')+':'+cv+imp+';'}}}}
  for(var i=0;i<st.length;i++){var p=st[i],v=st.getPropertyValue(p),pr=st.getPropertyPriority(p);if(!v)continue;
-  var cust=p.indexOf('--')===0,role=cust?varRole(p):ROLE[p];if(!role)continue;var lit=/#[0-9a-fA-F]{3,8}\b|rgba?\(|\bwhite\b|\bblack\b/.test(v);
+  var cust=p.indexOf('--')===0,role=cust?varRole(p):ROLE[p];if(!role)continue;var lit=hasLit(v)/* v414 */;
   if(cust&&!lit)continue;if(cust&&/^(?::root|html)$/.test(st.parentRule&&st.parentRule.selectorText||''))VARS[p]=v.trim();
   var nv=(lit&&role!=='keep')?mapVal(v,role):v;if(!cust)nv=fixVars(nv,role);if(nv!==v)any=true;o+=p+':'+nv+(pr?' !important':'')+';'}return any||o&&o.length<4000?o:''}
 function walk(rules,acc){for(var i=0;i<rules.length;i++){var r=rules[i];
@@ -58,7 +60,7 @@ function flush(){if(!OUT){OUT=document.createElement('style');OUT.id='v219-oscur
 function scanAll(){var n=css.length;[].forEach.call(document.styleSheets,take);if(css.length!==n||!OUT||document.head.lastElementChild!==OUT)flush()}
 /* colores escritos en style="..." */
 var IN=/(background(?:-color)?|color|border(?:-[a-z]+)?-?color|border)\s*:\s*([^;]+)/g;
-function inl(el){var s=el.getAttribute('style');if(!s||!/#[0-9a-fA-F]{3,8}\b|rgba?\(|\bwhite\b|\bblack\b/.test(s))return;
+function inl(el){var s=el.getAttribute('style');if(!s||!hasLit(s)/* v414 */)return;
  if(H.classList.contains('dark')){if(el.dataset.dkO==null)el.dataset.dkO=s;var o=el.dataset.dkO,n=o.replace(IN,function(m,p,v){var role=/^color$/.test(p)?'f':/border/.test(p)?'l':'b';return p+':'+mapVal(v,role)});if(n!==s)el.setAttribute('style',n)}
  else if(el.dataset.dkO!=null){el.setAttribute('style',el.dataset.dkO);delete el.dataset.dkO}}
 function inlAll(root){if(root.nodeType!==1)return;if(root.hasAttribute('style'))inl(root);var l=root.querySelectorAll('[style]');for(var i=0;i<l.length;i++)inl(l[i])}
