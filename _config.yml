@@ -4,3 +4,5 @@ exclude:
   - tests
   - tools
   - README.md
+  - PARTE.md
+  - pendiente
