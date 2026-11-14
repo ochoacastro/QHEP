@@ -1788,6 +1788,17 @@ html.dark .ltr2 button[aria-pressed=true]{border-color:#0a84ff;box-shadow:inset 
 html.dark .ltrc .chip[aria-pressed=true]{background:#0a84ff!important;border-color:#0a84ff!important}
 .ltr,.ltr2 button,.ltrc .chip{border-radius:0!important}
 </style>
+<style id="v419-check-pagos">/* v419: MEDIOS DE PAGO EN UNA COLUMNA Y CON CASILLA. Se agrega «Tarjeta débito» (en 09-rateform.js y v320-pedidos.js) y los
+   medios de pago del formulario de la tienda van uno debajo del otro, todos del mismo ancho. En el formulario de la tienda, cada medio de pago (Efectivo, Bre-B, Nequi, tarjeta,
+   Sistecrédito) lleva una casilla a la izquierda: vacía si no está elegido, azul con el chulo si está elegido. Antes solo
+   cambiaba el fondo, y con los logos no se notaba bien cuál estaba marcado. Si algo falla, borra este <style>. */
+#x-pays.dayrow{flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:8px}
+#x-pays .dchip.pay{display:block}
+#x-pays .dchip.pay span{justify-content:flex-start;gap:10px;min-height:48px;text-align:left}
+.dchip.pay span::before{content:"";flex:0 0 auto;box-sizing:border-box;width:22px;height:22px;border:2px solid #8e8e93;background-color:transparent}
+.dchip.pay input:checked+span::before{border-color:#0071e3;background:#0071e3 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4 10.5l4 4 8-9' fill='none' stroke='%23fff' stroke-width='2.6'/%3E%3C/svg%3E") center/16px 16px no-repeat}
+.dchip.pay input:focus-visible+span{outline:2px solid #0071e3;outline-offset:2px}
+</style>
 
 <style id="v312-tablas-anuncios-css">
 /* v312: tablas de Mis inmuebles y Mis vehículos (usan el estilo .mst de la tabla de tiendas) */
@@ -2062,6 +2073,7 @@ html.dark .si-hd,html.dark .si-r{border-color:#3a3a3c!important}html.dark .si-hd
 html.dark .si-tags span{background:#2c2c2e!important;color:#e5e5ea!important}html.dark .si-i{background:#0a2540!important;color:#64a8ff!important}
 html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64a8ff!important}
 </style>
+
 
 
 
@@ -2665,6 +2677,11 @@ document.addEventListener('change',function(e){var t=e.target;if(!t)return;try{
    Si algo falla, borra este <script id="v232-breb"> y el <style id="v232-breb-css">. */
 (function(){
 var PRO={},SENT=[],RECV=[],subs=[],uidL='',tab='recv',KM='',PAY=null,LAST=null,QRD='',RED={};
+/* v418: PAGOS ENTRE USUARIOS APAGADOS (ITEM=false). Los usuarios solo se contactan por WhatsApp: ya no sale «Pagar con Bre-B / Nequi»
+   junto al WhatsApp de las publicaciones, ni «Pagos Bre-B y Nequi» en Mi cuenta, ni la pestaña «Cobrar». Quien ya tenía pagos
+   registrados con otros usuarios sigue viendo ese historial (Recibidos / Enviados) para cerrarlo. Los pagos de ROLES a Mi Pradera
+   y «Mis códigos» NO cambian. Para volver a encender los pagos entre usuarios: ITEM=true. */
+var ITEM=false;function viejos(){return RECV.concat(SENT).some(function(p){return p.kind!=='rol'})}
 function E(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function db(){return firebase.firestore()}
 function me(){try{var u=QH.authCur&&QH.authCur();return u&&!u.isAnonymous?u:null}catch(e){return null}}
@@ -2694,7 +2711,7 @@ function lbl(p){var v=vias(p);return v.length>1?'Bre-B o Nequi':v.length?VN(v[0]
 window.brebRoleOn=function(){return on()&&hasP(PRO[aid()])};
 /* si cambia si se pueden pagar roles aquí, se vuelve a pintar el texto de "Mis roles" */
 function roleTxt(){var rk=window.brebRoleOn()?'1':'0';if(rk===ADMK)return;ADMK=rk;try{var cb=document.getElementById('cdbox');if(cb&&typeof cdBox==='function')cb.innerHTML=cdBox();if(view==='comp'&&!document.querySelector('.overlay'))render(true)}catch(e){}}
-window.brebOn=on;window.brebPay=function(o){payOpen(o)};window.brebHas=function(u){return hasP(PRO[u])};window.brebMy=function(t){myOpen(t)};/* v320 */
+window.brebOn=on;window.brebItems=function(){return on()&&(ITEM||viejos())}/* v418: el menú de pagos entre usuarios */;window.brebPay=function(o){if(!ITEM&&o&&o.kind!=='rol')return;/* v418 */payOpen(o)};window.brebHas=function(u){return ITEM&&hasP(PRO[u])}/* v418 */;window.brebMy=function(t){myOpen(t)};/* v320 */
 /* v233: texto de "Mis roles" y de los planes de Clasificados según se pueda pagar aquí o no */
 window.payNote=function(c){var A=PRO[aid()];
  if(!window.brebRoleOn())return c?'Pagas por Nequi o transferencia y el administrador te entrega un código de 12 caracteres. Actívalo abajo y publica hasta el número de anuncios de tu plan.':'Pago único. No se renueva solo. Pagas por Nequi o transferencia y el administrador te entrega un código.';
@@ -2725,7 +2742,7 @@ function info(b){var a=b.dataset.act,id=b.dataset.id,x;try{
  if(a==='ask'){x=S.stores.find(function(o){return o.id===cur});var p=x&&(x.products||[]).find(function(o){return o.id===id});return p&&{o:x.ownerUid,n:x.name,amt:+p.price||0,what:p.name+' ('+x.name+')',wa:x.wa,item:'prod:'+x.id+'/'+id}}
 }catch(e){}return null}
 function inject(){var u=me(),l=document.querySelectorAll(SEL);for(var k=0;k<l.length;k++){var b=l[k];if(b.classList.contains('hscw')||b.closest('.overlay'))continue;
-  var nx=b.nextElementSibling,has=!!(nx&&nx.classList.contains('qbb')),i=on()&&info(b),ok=!!(i&&i.o&&hasP(PRO[i.o])&&!(u&&u.uid===i.o)),tx=ok?'💳 Pagar con '+lbl(PRO[i.o]):'';
+  var nx=b.nextElementSibling,has=!!(nx&&nx.classList.contains('qbb')),i=ITEM/* v418 */&&on()&&info(b),ok=!!(i&&i.o&&hasP(PRO[i.o])&&!(u&&u.uid===i.o)),tx=ok?'💳 Pagar con '+lbl(PRO[i.o]):'';
   if(ok&&!has){var q=document.createElement('button');q.type='button';q.className='btn ghost qbb';q.dataset.tx=tx;q.textContent=tx;if(b.style.width)q.style.cssText='width:100%;margin-top:8px';b.insertAdjacentElement('afterend',q)}
   else if(!ok&&has)nx.remove();else if(ok&&has&&nx.dataset.tx!==tx){nx.dataset.tx=tx;nx.textContent=tx}}
  /* pagar un rol: debajo de COMPRAR ACCESO / CONTINUAR en "Mis roles" */
@@ -2862,7 +2879,7 @@ function keyH(){var u=me();if(!u)return '<p class="muted">Para recibir pagos ent
   '<label for="qb-qr">Código QR de Bre-B (opcional)</label><img class="qbq" id="qb-qrv" src="'+E(p.qr||'')+'" alt="Código QR"'+(p.qr?'':' hidden')+'><input type="file" id="qb-qr" accept="image/*"><p class="muted" style="font-size:13px;margin:4px 0 0">Lo descargas desde la app de tu banco, en la opción Bre-B.</p>'+
   '<p class="err" id="qb-kerr" role="alert"></p><div class="row"><button type="button" class="btn pink" id="qb-ksave">Guardar</button>'+(hasP(p)?'<button type="button" class="btn ghost" id="qb-kdel">Quitar mis datos</button>':'')+'</div>'}
 function tabsH(){var n=RECV.filter(function(p){return p.kind!=='rol'&&p.st==='pend'}).length;
- return '<div class="qbt" role="tablist">'+[['recv','Recibidos'+(n?'<em>'+n+'</em>':'')],['sent','Enviados'],['key','Cobrar']].map(function(t){return '<button type="button" role="tab" data-qbtab="'+t[0]+'" aria-selected="'+(tab===t[0])+'">'+t[1]+'</button>'}).join('')+'</div>'}
+ return '<div class="qbt" role="tablist">'+[['recv','Recibidos'+(n?'<em>'+n+'</em>':'')],['sent','Enviados']].concat(ITEM?[['key','Cobrar']]:[])/* v418 */.map(function(t){return '<button type="button" role="tab" data-qbtab="'+t[0]+'" aria-selected="'+(tab===t[0])+'">'+t[1]+'</button>'}).join('')+'</div>'}
 function myOpen(t){if(!S.user){try{need(function(){myOpen(t)})}catch(e){}return}KM='';tab=t||'recv';pseeAll();/* v244 */
  modal('<h2>Pagos Bre-B y Nequi</h2><div id="qb-tabs">'+tabsH()+'</div><div id="qb-list"></div><div class="row" style="margin-top:12px"><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>');var md=document.querySelector('#ov .modal');if(md)md.classList.add('qwide')/* v241: más ancha para la tabla */;paintList(true)}
 function paintList(force){var el=document.getElementById('qb-list');if(!el)return;
@@ -4371,9 +4388,14 @@ window.qpopHide=hide;
      El cliente lo ve en Mi cuenta → Mis pedidos. Si paga con Bre-B o Nequi, sube el comprobante como los demás pagos.
    Campo de la tienda: om = 'wa' | 'app'. Si algo falla, borra este bloque. */
 (function(){
-var PAYN={cash:'Efectivo (contra entrega)',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta (datáfono)',siste:'Sistecrédito'/* v410 */},PAYS_={cash:'Efectivo',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta',siste:'Sistecrédito'};
+var PAYN={cash:'Efectivo (contra entrega)',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta de crédito (datáfono)',debit:'Tarjeta débito (datáfono)'/* v419 */,siste:'Sistecrédito'/* v410 */},PAYS_={cash:'Efectivo',bre:'Bre-B',nequi:'Nequi',card:'Tarjeta de crédito',debit:'Tarjeta débito'/* v419 */,siste:'Sistecrédito'};
 var STN={nuevo:'Nuevo',acep:'Aceptado · preparando',env:'Enviado',ent:'Entregado',canc:'Cancelado'},PSN={pend:'Pago pendiente',ok:'Pagado',no:'No pagó'};
 var ORD={},OT=[],OF=[],uidL='',subs=[],seen=null,FT='act',sf=0;
+/* v418: PEDIDOS POR LA APLICACIÓN APAGADOS (APP=false). Todos los pedidos salen por WhatsApp: el formulario de la tienda ya no
+   pregunta «¿Cómo quieres recibir los pedidos?» y el carrito siempre dice «Pedir por WhatsApp». Los pedidos que ya estaban
+   guardados se siguen viendo en Mi cuenta («Mis pedidos», «Pedidos de mi tienda») para poder cerrarlos; no se crean nuevos.
+   La forma de pago y la nota del carrito siguen yendo en el mensaje de WhatsApp. Para volver a encenderlos: APP=true. */
+var APP=false;
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 var M=function(n){try{return money(Number(n)||0)}catch(e){return '$'+n}};
 var D=function(t){try{return new Date(t).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
@@ -4381,7 +4403,7 @@ function me(){try{var u=firebase.auth().currentUser;return u&&!u.isAnonymous?u:n
 function st(id){return S.stores.find(function(x){return x.id===id})}
 /* v321: solo las tiendas que pagan (fecha de pago vigente + 3 días de gracia) reciben pedidos por la aplicación; la versión gratis va a WhatsApp */
 function paid(s){return !!s&&(Number(s.pexp)||0)+3*864e5>Date.now()}window.ordPaid=paid;
-window.ordMode=function(s){return s&&s.om==='app'&&s.ownerUid&&paid(s)?'app':'wa'};
+window.ordMode=function(s){return APP/* v418 */&&s&&s.om==='app'&&s.ownerUid&&paid(s)?'app':'wa'};
 function pays(s){var l=(s&&Array.isArray(s.pays)?s.pays:[]).filter(function(k){return PAYN[k]});return l.length?l:['cash']}
 function sel(sid){var s=st(sid),o=ORD[sid]||(ORD[sid]={});var l=pays(s);if(l.indexOf(o.pay)<0)o.pay=l[0];return o}
 /* ---- carrito ---- */
@@ -4431,7 +4453,7 @@ function paint(){var o=document.getElementById('ordbox');if(o)o.innerHTML=o.data
 /* ---- Mi cuenta ---- */
 window.ordMenu=function(it){var h='',ic='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>',ic2='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
  var mine=[];try{mine=shopsMine()}catch(e){}var n=OT.filter(function(p){return p.st==='nuevo'}).length;
- if(mine.length||OT.length)h+=it(ic2,'Pedidos de mi tienda',(OT.length?OT.length+(OT.length===1?' pedido':' pedidos'):'Aún no tienes pedidos')+(mine.some(function(s){return ordMode(s)==='app'})?'':' · actívalos en Editar tienda'),'ordTo','',n?{n:n,t:n+(n===1?' pedido nuevo':' pedidos nuevos')}:null);
+ if((APP&&mine.length)||OT.length/* v418 */)h+=it(ic2,'Pedidos de mi tienda',(OT.length?OT.length+(OT.length===1?' pedido':' pedidos'):'Aún no tienes pedidos')+(!APP||mine.some(function(s){return ordMode(s)==='app'})?'':' · actívalos en Editar tienda'),'ordTo','',n?{n:n,t:n+(n===1?' pedido nuevo':' pedidos nuevos')}:null);
  if(OF.length)h+=it(ic,'Mis pedidos',OF.length+(OF.length===1?' pedido':' pedidos'),'ordFrom','');return h};
 function tags(p){var c=p.st==='canc'?'no':p.st==='ent'?'ok':p.st==='nuevo'?'n':'w',pc=p.pst==='ok'?'ok':p.pst==='no'?'no':'w';return '<div class="ordtg"><span class="'+c+'">'+E(STN[p.st]||p.st)+'</span><span class="'+pc+'">'+E(PSN[p.pst]||'')+'</span><span>'+E(PAYN[p.pay]||p.pay)+'</span></div>'}
 function items(p){return '<ul>'+(p.items||[]).map(function(i){return '<li>'+E(i.q)+' × '+E(i.n)+(i.v?' · '+E(i.v):'')+' — '+E(M(i.p*i.q))+(i.c?' <small style="display:inline">('+E(i.c)+')</small>':'')+'</li>'}).join('')+'</ul>'}
@@ -4471,7 +4493,7 @@ addEventListener('click',async function(e){var t=e.target;if(!t.closest)return;v
  if((b=t.closest('[data-opaynow]'))){var p=OF.concat(OT).find(function(x){return x.id===b.dataset.opaynow})||null;var s=p&&st(p.sid);if(!p)return;closeModal(1);brebPay({to:p.to,toName:(s&&s.name)||p.sname,amt:p.total,what:'Pedido en '+p.sname,kind:'item',item:'ped:'+p.id,wa:s&&s.wa});return}},true);
 /* ---- formulario de la tienda: cómo recibe los pedidos ---- */
 window.omRead=function(){var i=document.querySelector('input[name="x-om"]:checked');return i?{om:i.value==='app'&&!i.disabled?'app':'wa'}:{}};
-function addOm(){var g=document.getElementById('x-pays');if(!g||document.getElementById('x-om'))return;var m=document.querySelector('#ov .modal');if(!m||!m.contains(g))return;
+function addOm(){if(!APP)return;/* v418 */var g=document.getElementById('x-pays');if(!g||document.getElementById('x-om'))return;var m=document.querySelector('#ov .modal');if(!m||!m.contains(g))return;
  var ed=!!m.querySelector('[data-act="saveEditShop"]'),s=ed?st(cur):null,can=false;try{can=MODE==='admin'||shopRole()}catch(e){}var v=can&&s&&s.om==='app'?'app':'wa';
  g.insertAdjacentHTML('afterend','<p class="omw" id="x-pw" hidden></p><label id="x-om-l" style="display:block;margin-top:14px">¿Cómo quieres recibir los pedidos?</label><div class="omg" id="x-om" role="radiogroup" aria-labelledby="x-om-l">'+
   '<label><input type="radio" name="x-om" value="wa"'+(v==='wa'?' checked':'')+'><span><b>Por WhatsApp</b><small>El cliente te escribe con su pedido y la forma de pago.</small></span></label>'+
@@ -4980,6 +5002,96 @@ document.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)r
  if(t.closest('[data-ivlog]')){e.preventDefault();closeModal(1);try{loginForm()}catch(x){}return}
  if(t.closest('[data-ivreg]')){e.preventDefault();closeModal(1);try{regForm()}catch(x){}}});
 document.head.insertAdjacentHTML('beforeend','<style id="v416-css">body:has(#drawer.open) #ov{z-index:55}#ov #iv-m{width:100%;min-height:76px;resize:vertical}#ov .ivp{margin:10px 0 0}#ov .ivp a{text-decoration:underline}</style>');
+})();
+</script>
+<script id="v417-por-pasos">/* v417: FORMULARIOS POR PASOS. «Crea tu tienda» era una sola ventana con todas las preguntas seguidas (más de seis pantallas
+   de alto en un celular). Ahora se muestra por partes, una sección a la vez, con «Continuar», «Omitir» (en las secciones
+   opcionales) y «Atrás», una barra de avance y «Paso 2 de 6».
+   - Crear tienda: Tu negocio → Categoría → Contacto → Ubicación → Horario → Entregas y pagos.
+   - Tus datos personales / Tu dirección principal: Tu teléfono (solo si falta) → Tu dirección → Tu casa en el mapa.
+   - Editar tienda: las mismas secciones como pestañas (se entra directo a la que se quiere cambiar) y «Guardar» siempre a la vista.
+   NO cambia los campos ni cómo se guarda: los formularios siguen siendo los mismos (mismos id, mismos botones de guardar,
+   borradores v399 y pregunta al salir v412); aquí solo se oculta lo que no es del paso actual (clase wz-off).
+   Si al guardar falta un dato, se vuelve solo al paso donde está. Mientras corre el tutorial «Hazlo conmigo» (v248) el
+   formulario se muestra completo, como antes.
+   Para las pruebas y otros bloques: qhPasos.ver(selector) muestra el paso donde está ese campo.
+   Si algo falla, borra este <script>: los formularios vuelven a salir completos en una sola ventana. */
+(function(){
+var val=function(id){var x=document.getElementById(id);return x?String(x.value||'').trim():''};
+var dig=function(id){return val(id).replace(/\D/g,'')};
+var FORMS=[
+ {id:'tienda',is:function(m){return !!m.querySelector('[data-act="saveShop"]')},
+  steps:function(){return [
+   {t:'Tu negocio',d:'El nombre y la imagen con que te van a reconocer.',need:function(){return !val('f-name')?'Ponle un nombre a tu tienda.':!val('f-desc')?'Escribe una descripción corta de tu negocio.':''}},
+   {t:'Categoría',d:'Para que te encuentren quienes buscan lo que vendes.',need:function(){var c='';try{c=pick.cat}catch(e){c='x'}var w=document.getElementById('f-newcat-w');return c||(w&&!w.hidden&&val('f-newcat'))?'':'Elige una categoría para tu tienda.'}},
+   {t:'Contacto',d:'A dónde te escriben tus clientes.',need:function(){return dig('f-wa').length<7?'Escribe el teléfono o WhatsApp de tu negocio.':''}},
+   {t:'Ubicación',d:'Dónde queda tu negocio. Si no atiendes en un local, puedes omitirlo.',opt:1},
+   {t:'Horario',d:'Los días y las horas en que atiendes.',opt:1},
+   {t:'Entregas y pagos',d:'Cómo entregas y cómo te pagan. Es el último paso.'}]},
+  anchors:function(){return [[/^Tipo de negocio/,0],[/^Categoría/,1],[/^Tu nombre/,2],[/^Barrio o corregimiento/,3],['#x-days-l',4],[/^Dirección del negocio/,3],[/^Domicilios/,5]]},
+  errs:[[/nombre de tu categor|categor/i,1],[/nombre|descripci/i,0],[/tel[eé]fono|whatsapp/i,2]]},
+ {id:'editar',libre:1,is:function(m){return !!m.querySelector('[data-act="saveEditShop"]')},
+  steps:function(){return [{t:'Tu negocio'},{t:'Contacto'},{t:'Ubicación'},{t:'Horario'},{t:'Entregas y pagos'}]},
+  anchors:function(){return [[/^Tipo de negocio/,0],[/^Barrio o corregimiento/,2],['#x-days-l',3],[/^Dirección del negocio/,2],[/^Domicilios/,4],[/^WhatsApp para recibir/,1]]},
+  errs:[[/nombre/i,0],[/tel[eé]fono|whatsapp/i,1]]},
+ {id:'datos',is:function(m){return !!m.querySelector('[data-adsave]')&&!!m.querySelector('h3.adsh')},
+  /* si el teléfono ya se conoce, no tiene paso propio: se muestra arriba del paso de la dirección */
+  tel:function(m){var w=m.querySelector('#ad-telw');return !m.querySelector('#ad-telk')||!w||!w.hidden?1:0},
+  steps:function(m){var T={t:'Tu teléfono',d:'La tienda te escribe aquí si necesita algo de tu pedido.',need:function(){return dig('ad-tel').length<7?'Escribe tu teléfono o WhatsApp.':''}},
+    D={t:'Tu dirección',d:'A dónde te llevan los pedidos.',need:function(){return val('ad-zone').length<2?'Elige tu barrio o corregimiento.':val('ad-dir').length<5?'Escribe tu dirección.':''}},
+    M={t:'Tu casa en el mapa',d:'Mira si el mapa marca bien tu casa. Es el último paso.'};return this.tel(m)?[T,D,M]:[D,M]},
+  anchors:function(m){var k=this.tel(m);return [[/^Tu teléfono/,0],[/^Tu dirección principal/,k?1:0],[/^Tu casa en el mapa/,k?2:1]]},
+  errs0:function(m){var k=this.tel(m);return [[/tel[eé]fono/i,0],[/barrio|direcci/i,k?1:0],[/Google Maps|mapa/i,k?2:1]]}}];
+var W=null;/* formulario por pasos abierto: {m, f, steps, cur, h, n, e, foot} */
+function tour(){return !!document.querySelector('.qtour:not([hidden])')}
+function quita(){if(!W)return;var m=W.m;[].forEach.call(m.querySelectorAll('.wz-off'),function(x){x.classList.remove('wz-off')});[].forEach.call(m.querySelectorAll('.wz'),function(x){x.remove()});if(W.ob)W.ob.disconnect();if(W.oe)W.oe.disconnect();W=null}
+function paso(el,A){for(var i=0;i<A.length;i++){var a=A[i][0];if(typeof a==='string'){if(el.matches(a))return A[i][1]}else if(/^(LABEL|H3|P)$/.test(el.tagName)&&a.test((el.textContent||'').trim()))return A[i][1]}return -1}
+/* reparte los hijos de la ventana entre los pasos y deja a la vista solo los del paso actual */
+function reparte(){if(!W)return;var m=W.m,A=W.f.anchors(m),s=-2,foot=false,last=W.cur===W.steps.length-1;
+ /* el botón «¿Cómo se hace?» se agrega después del título: la barra de avance va antes que él (se mueve una sola vez) */
+ var t0=m.querySelector(':scope > h2');if(t0&&t0.nextElementSibling!==W.h&&!W.mv){W.mv=1;t0.insertAdjacentElement('afterend',W.h)}
+ [].forEach.call(m.children,function(c){if(c.classList.contains('wz'))return;if(c.tagName==='H2'){c.classList.remove('wz-off');return}
+  if(!foot&&c.classList.contains('err'))foot=true;
+  if(foot){var fila=!c.classList.contains('err');c.classList.toggle('wz-off',fila&&!W.f.libre&&!last);return}
+  var p=paso(c,A);if(p>=0)s=p;var k=s<0?0:s;c._wz=k;c.classList.toggle('wz-off',k!==W.cur)})}
+function pinta(){if(!W)return;var S=W.steps,i=W.cur,st=S[i],n=S.length,last=i===n-1,lock=!!(document.getElementById('ov')||{dataset:{}}).dataset.lock;
+ if(W.f.libre){W.h.innerHTML='<div class="wztab" role="tablist" aria-label="Secciones">'+S.map(function(x,j){return '<button type="button" role="tab" data-wzir="'+j+'" aria-selected="'+(j===i)+'">'+x.t+'</button>'}).join('')+'</div>';W.n.innerHTML='';return}
+ W.h.innerHTML='<div class="wzb" role="progressbar" aria-valuemin="1" aria-valuemax="'+n+'" aria-valuenow="'+(i+1)+'" aria-label="Paso '+(i+1)+' de '+n+'">'+S.map(function(x,j){return '<i class="'+(j<i?'ok':j===i?'on':'')+'"></i>'}).join('')+'</div><p class="wzk">Paso '+(i+1)+' de '+n+'</p><h3 class="wzt" tabindex="-1">'+st.t+'</h3>'+(st.d?'<p class="wzd">'+st.d+'</p>':'');
+ W.n.innerHTML='<p class="err wze" role="alert"></p><div class="wzr">'+(i>0?'<button type="button" class="btn ghost" data-wz="atras">Atrás</button>':lock?'':'<button type="button" class="btn ghost" data-act="close">Cancelar</button>')+'<span class="wzs"></span>'+
+  (last?'':(st.opt?'<button type="button" class="btn ghost" data-wz="omitir">Omitir</button>':'')+'<button type="button" class="btn pink" data-wz="sigue">Continuar</button>')+'</div>'}
+function ir(i,quieto){if(!W)return;i=Math.max(0,Math.min(W.steps.length-1,i));var cambio=i!==W.cur;W.cur=i;pinta();reparte();
+ if(cambio&&!quieto){try{W.m.scrollTop=0;var o=document.getElementById('ov');if(o)o.scrollTop=0}catch(e){}var t=W.h.querySelector('.wzt,[aria-selected="true"]');if(t)try{t.focus({preventScroll:true})}catch(e){}}}
+function monta(m){var f=null;for(var i=0;i<FORMS.length;i++)if(FORMS[i].is(m)){f=FORMS[i];break}if(!f)return;
+ var h=document.createElement('div');h.className='wz wzh';var n=document.createElement('div');n.className='wz wzn';
+ var t=m.querySelector(':scope > h2'),e=m.querySelector(':scope > .err');if(!t||!e)return;
+ t.insertAdjacentElement('afterend',h);e.insertAdjacentElement('beforebegin',n);
+ W={m:m,f:f,steps:f.steps(m),cur:0,h:h,n:n,e:e};pinta();reparte();
+ /* campos que otros bloques agregan o envuelven después (lista de barrios, mapa…) caen en su paso */
+ W.ob=new MutationObserver(function(){if(!W)return;var k=W.f.steps(W.m).length;if(k!==W.steps.length){W.steps=W.f.steps(W.m);W.cur=Math.min(W.cur,k-1);pinta()}reparte()});W.ob.observe(m,{childList:true});
+ if(f.tel){var tw=m.querySelector('#ad-telw');if(tw)new MutationObserver(function(){if(W&&W.m===m){W.steps=W.f.steps(m);pinta();reparte()}}).observe(tw,{attributes:true,attributeFilter:['hidden']})}
+ /* si al guardar falta un dato, el formulario lo dice en su línea de error: se va al paso donde está ese dato */
+ W.oe=new MutationObserver(function(){if(!W)return;var x=(W.e.textContent||'').trim();if(!x)return;var L=W.f.errs0?W.f.errs0(W.m):W.f.errs||[];for(var j=0;j<L.length;j++)if(L[j][0].test(x)){if(L[j][1]!==W.cur)ir(L[j][1]);return}});
+ W.oe.observe(e,{childList:true,characterData:true,subtree:true})}
+function revisa(){var m=document.querySelector('#ov > .modal');
+ if(W&&(W.m!==m||!document.body.contains(W.m)||tour()))quita();
+ if(!W&&m&&!tour()&&!m.querySelector('.wz'))monta(m)}
+new MutationObserver(revisa).observe(document.documentElement,{childList:true,subtree:true});
+document.addEventListener('click',function(e){if(!W)return;var t=e.target,b=t&&t.closest&&t.closest('[data-wz],[data-wzir]');if(!b||!W.m.contains(b))return;e.preventDefault();
+ if(b.dataset.wzir!=null)return ir(+b.dataset.wzir);
+ var a=b.dataset.wz;W.e.textContent='';
+ if(a==='atras')return ir(W.cur-1);
+ if(a==='sigue'){var st=W.steps[W.cur],x=st.need?st.need():'';if(x){var z=W.n.querySelector('.wze');if(z)z.textContent=x;return}}
+ ir(W.cur+1)});
+window.qhPasos={n:function(){return W?W.steps.length:0},cur:function(){return W?W.cur:-1},ir:function(i){ir(i,true)},
+ ver:function(s){if(!W)return false;var el=typeof s==='string'?W.m.querySelector(s):s;while(el&&el.parentNode!==W.m)el=el.parentNode;if(!el||el._wz==null)return false;ir(el._wz,true);return true}};
+document.head.insertAdjacentHTML('beforeend','<style id="v417-css">'+
+ '#ov .modal > .wz-off{display:none!important}'+
+ '.wzh{margin:4px 0 14px}.wzb{display:flex;gap:4px;margin:0 0 12px}.wzb i{flex:1;height:6px;background:var(--color-pale-mist,#d9dde5)}.wzb i.on{background:var(--color-sapphire,#0071e3)}.wzb i.ok{background:var(--color-sapphire,#0071e3);opacity:.45}'+
+ '.wzk{margin:0;font-size:13px;font-weight:600;opacity:.7}.wzt{margin:2px 0 4px;font-size:21px;line-height:1.2;font-weight:800;outline:0}.wzd{margin:0;font-size:14.5px;line-height:1.4;opacity:.8}'+
+ '.wzn{margin-top:20px}.wzn .wze{margin:0 0 8px}.wzn .wze:empty{display:none}/* en celular los tres botones no caben en una fila: «Continuar» va arriba a todo el ancho y «Atrás» / «Omitir» debajo */.wzr{display:flex;flex-wrap:wrap;gap:8px}.wzr .wzs{display:none}.wzr .btn{flex:1 1 0;min-width:0;min-height:48px;margin:0;white-space:nowrap}.wzr .btn.pink{order:-1;flex:1 0 100%}'+
+ '.wztab{display:flex;gap:6px;overflow-x:auto;margin:0 0 4px;padding:0 0 6px;scrollbar-width:thin}.wztab button{flex:0 0 auto;min-height:44px;padding:8px 14px;border:1px solid var(--color-pale-mist,#d9dde5);background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer}'+
+ '.wztab button[aria-selected="true"]{border-color:var(--color-sapphire,#0071e3);color:var(--color-sapphire,#0071e3);box-shadow:inset 0 -3px 0 var(--color-sapphire,#0071e3)}.wztab button:focus-visible{outline:2px solid var(--color-sapphire,#0071e3);outline-offset:2px}'+
+ '.wzb i,.wztab button,.wzr .btn{border-radius:0!important}</style>');
 })();
 </script>
 <script id="v361-verificar-celular">
@@ -6674,7 +6786,7 @@ const pnRow=(t,sub,btns)=>`<div class="ci"><span><b>${esc(t)}</b>${sub?'<br><sma
 function nwMenuList(){const l=QH.NEWS.filter(x=>x.ownerKey===QH.key());if(typeof nwTableHTML==='function')return nwTableHTML(l);/* v302: tabla con portada, borradores y programadas */return `<div class="cg"><h3>📰 Mis noticias (${l.length})</h3><p class="muted">Tu acceso de Noticias está activo hasta el ${new Date(accEnd('news')).toLocaleDateString('es-CO')}: publica con foto y video.</p><div class="row" style="margin:14px 0 18px;gap:10px"><button class="btn pink" data-act="nwNew" style="flex:1 1 150px;text-align:center">+ Nueva noticia</button><a class="btn ghost" href="${BASE_URL}#/noticias" style="flex:1 1 130px;text-align:center;text-decoration:none;display:inline-block">Ver noticias</a></div>${l.length?l.map(n=>`<div class="ci" style="display:block;padding:14px;margin:10px 0;border:1px solid var(--line2,#c9d3ea);border-radius:14px"><div><b style="word-break:break-word">${esc(n.title)}</b><br><small class="muted">${esc(nwDate(n))}</small></div><div class="row" style="margin-top:12px;gap:10px"><button class="btn" data-act="nwEdit" data-id="${esc(n.id)}" style="flex:1 1 0;text-align:center">Editar</button><button class="btn ghost" data-act="nwDel" data-id="${esc(n.id)}" style="flex:1 1 0;text-align:center">Eliminar</button></div></div>`).join(''):'<p class="muted">Aún no has publicado noticias.</p>'}</div>`}
 function pnlMenu(){const u=S.user,ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),nf=favRows().length;QH.newsListen();nwWho();
 const it=(ic,t,sub,act,v,bd)=>`<button type="button" class="pnr" data-act="${act}"${v?` data-v="${v}"`:''}><i aria-hidden="true">${ic}${bd?`<em class="pnbd${bd.z?' z':''}">${bd.n}</em>`:''}</i><span>${t}${bd?`<span class="qh-sr"> (${bd.t})</span>`:''}<small>${sub}</small></span><b aria-hidden="true">›</b></button>`;/* v218: bd = numero en la esquina del icono */
-return `<div class="pnl">${''/* v381: los avisos (negocio, anuncio gratis, plan) pasaron a Notificaciones */}${typeof gdMenu==='function'?gdMenu(it):''/* v309 */}${typeof nfMenu==='function'?nfMenu(it):''/* v321 */}${typeof adrMenu==='function'?adrMenu(it):''/* v322 */}${typeof ordMenu==='function'?ordMenu(it):''/* v320 */}${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.93 4.93.71.71"/><path d="M12 12v6"/></svg>','Datos de emergencia','Tu contacto de emergencia y tipo de sangre (opcional)','emgMine')/* v257 */}${typeof myCodesOpen==='function'?it('🔑','Mis códigos','Tus códigos, los días que faltan y cómo va tu pago','myCodes','',codesBadge()):''/* v236, v243: debajo de Mis datos y con número de novedades */}${it('🔓','Mis roles','Comerciante, Clasificados, Comunidad y Redactor de noticias','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas',ms.length?pnQuota('store'):null/* v244: el número solo si la sección se usa */)}${(typeof brebOn==='function'&&brebOn())?it('💳','Pagos Bre-B y Nequi','Tus datos de cobro y los pagos que envías y recibes','brebOpen','',brebBadge())/* v233; v244: debajo de Mis tiendas */:''/* v232 */}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine','',comMine().some(a=>comActive(a)&&!a.hid)?pnQuota('com'):null/* v244 */)}${typeof adTableHTML==='function'?(()=>{const mi=adMine('inmuebles'),mv2=adMine('vehiculos'),sv=p=>'<svg class="qi" viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';return it(sv(hubIc.home),'Mis inmuebles',mi.length+(mi.length===1?' inmueble':' inmuebles'),'pnl','inmuebles',mi.length?pnQuota('ad'):null)+it(sv(hubIc.car),'Mis vehículos',mv2.length+(mv2.length===1?' vehículo':' vehículos'),'pnl','vehiculos',mv2.length?pnQuota('ad'):null)})()/* v312: dos tablas */:it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios',ma.length?pnQuota('ad'):null/* v244 */)}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios',mv.length?pnQuota('serv'):null/* v244 */)}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${it('🧭','Ayuda y guías','Tutorial y guías paso a paso','helpOpen')/* v229, v230 */}${NW?nwMenuList():''}<button type="button" class="pnr" data-act="delAcct" style="border-color:#c0392b"><i aria-hidden="true">🗑️</i><span style="color:#ff6b5e">Eliminar cuenta<small>Borra tu cuenta y tus publicaciones para siempre</small></span><b aria-hidden="true">›</b></button></div>`}
+return `<div class="pnl">${''/* v381: los avisos (negocio, anuncio gratis, plan) pasaron a Notificaciones */}${typeof gdMenu==='function'?gdMenu(it):''/* v309 */}${typeof nfMenu==='function'?nfMenu(it):''/* v321 */}${typeof adrMenu==='function'?adrMenu(it):''/* v322 */}${typeof ordMenu==='function'?ordMenu(it):''/* v320 */}${it('👤','Mis datos',esc(u.name)+(u.email?' · '+esc(u.email):''),'pfEdit')}${it('<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.93 4.93.71.71"/><path d="M12 12v6"/></svg>','Datos de emergencia','Tu contacto de emergencia y tipo de sangre (opcional)','emgMine')/* v257 */}${typeof myCodesOpen==='function'?it('🔑','Mis códigos','Tus códigos, los días que faltan y cómo va tu pago','myCodes','',codesBadge()):''/* v236, v243: debajo de Mis datos y con número de novedades */}${it('🔓','Mis roles','Comerciante, Clasificados, Comunidad y Redactor de noticias','pnl','plan')}${it('🏪','Mis tiendas',ms.length+(ms.length===1?' tienda':' tiendas'),'pnl','tiendas',ms.length?pnQuota('store'):null/* v244: el número solo si la sección se usa */)}${(typeof brebItems==='function'&&brebItems()/* v418: solo si quedan pagos viejos entre usuarios */)?it('💳','Pagos Bre-B y Nequi','Los pagos que enviaste y recibiste','brebOpen','',brebBadge())/* v233; v244: debajo de Mis tiendas */:''/* v232 */}${it('📢','Mis clasificados',comMine().length+(comMine().length===1?' anuncio':' anuncios'),'cmxMine','',comMine().some(a=>comActive(a)&&!a.hid)?pnQuota('com'):null/* v244 */)}${typeof adTableHTML==='function'?(()=>{const mi=adMine('inmuebles'),mv2=adMine('vehiculos'),sv=p=>'<svg class="qi" viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';return it(sv(hubIc.home),'Mis inmuebles',mi.length+(mi.length===1?' inmueble':' inmuebles'),'pnl','inmuebles',mi.length?pnQuota('ad'):null)+it(sv(hubIc.car),'Mis vehículos',mv2.length+(mv2.length===1?' vehículo':' vehículos'),'pnl','vehiculos',mv2.length?pnQuota('ad'):null)})()/* v312: dos tablas */:it('📋','Mis anuncios',ma.length+(ma.length===1?' abierto':' abiertos'),'pnl','anuncios',ma.length?pnQuota('ad'):null/* v244 */)}${it('🛠️','Mis servicios',mv.length+(mv.length===1?' servicio':' servicios'),'pnl','servicios',mv.length?pnQuota('serv'):null/* v244 */)}${it('⭐','Mis favoritos',nf+(nf===1?' guardado':' guardados'),'pnl','favs')}${it('🧭','Ayuda y guías','Tutorial y guías paso a paso','helpOpen')/* v229, v230 */}${NW?nwMenuList():''}<button type="button" class="pnr" data-act="delAcct" style="border-color:#c0392b"><i aria-hidden="true">🗑️</i><span style="color:#ff6b5e">Eliminar cuenta<small>Borra tu cuenta y tus publicaciones para siempre</small></span><b aria-hidden="true">›</b></button></div>`}
 function pnlModal(v){const ms=S.stores.filter(s=>S.mine.includes(s.id)),mv=S.services.filter(x=>S.myServ.includes(x.id)),ma=S.ads.filter(x=>S.myAds.includes(x.id)),cl='<div class="row" style="margin-top:12px"><button class="btn ghost" data-act="close">Cerrar</button></div>';let h='';
 if(v==='plan')h='<h2>Mis roles</h2>'+planCard();
 else if(v==='tiendas'&&typeof shopTableHTML==='function')h=shopTableHTML(ms);/* v284: tabla con Ver, Editar y Eliminar */
@@ -6732,7 +6844,7 @@ const REASONS=['Estafa o fraude','Contenido inapropiado o prohibido','Informaci�
 const DELIV=['','Sí, hago domicilios','Solo recoger en la tienda','A convenir'];
 const readDel=()=>{if($('#x-del').value!==DELIV[1])return{dfee:'',dcost:''};const f=$('#x-dfee').value,c=parseInt(String($('#x-dcost').value).replace(/\D/g,''),10);return{dfee:f==='free'||f==='paid'?f:'',dcost:f==='paid'&&c>0?Math.min(c,999999):''}};
 const delFeeTxt=s=>s.delivery!==DELIV[1]?'':s.dfee==='free'?' · Gratis':s.dfee==='paid'?(s.dcost?' · Costo '+money(s.dcost):' · Con costo'):'';
-const PAYS=[['cash','Efectivo'],['bre','Bre-B'],['nequi','Nequi'],['card','Tarjeta de crédito'],['siste','Sistecrédito']/* v410 */];
+const PAYS=[['cash','Efectivo'],['bre','Bre-B'],['nequi','Nequi'],['card','Tarjeta de crédito'],['debit','Tarjeta débito']/* v419 */,['siste','Sistecrédito']/* v410 */];
 const PAYIMG={bre:'img/pago-bre.jpg',nequi:'img/pago-nequi.jpg',siste:'img/pago-siste.jpg'/* v410 */};
 const readPays=()=>({pays:[...document.querySelectorAll('#x-pays input:checked')].map(i=>i.value).filter(v=>PAYS.some(p=>p[0]===v)),...(typeof omRead==='function'?omRead():{})/* v320: cómo recibe los pedidos */});
 const paysTxt=s=>(s.pays||[]).map(k=>(PAYS.find(p=>p[0]===k)||[])[1]).filter(Boolean).join(' · ');
