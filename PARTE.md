@@ -47,17 +47,16 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
-1. **Mirar en la página real el mapa del inmueble (v409):** abrir un arriendo o una venta que tenga dirección y confirmar que «Ubicación» muestra el mapa en el lugar correcto. En las pruebas Google Maps no carga, así que el mapa dibujado no se ha visto.
-2. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
-3. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
-4. **Pendientes de antes:**
+1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
+2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
+3. **Pendientes de antes:**
    - registrar la llave de App Check en Firebase y, cuando las métricas estén bien, tocar «Aplicar»;
    - agregar el secreto `FB_SA` en GitHub;
    - el ID de cliente de Google One Tap;
    - configurar WhatsApp Business.
-5. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
+4. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
 
-Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406.
+Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien.
 
 ---
 
