@@ -55,26 +55,25 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - agregar el secreto `FB_SA` en GitHub;
    - el ID de cliente de Google One Tap;
    - configurar WhatsApp Business.
-5. **Recuperar los roles de `contacto@mipradera.com.co`** (la v406 ya está publicada): entrar al panel, **Usuarios**, revisar la lista «Roles por recuperar» y tocar el botón. Ver la sección 4.
-6. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
+5. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
 
-Ya hecho: las reglas v51 están publicadas en Firebase (14 de noviembre de 2026).
+Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406.
 
 ---
 
-## 4. Problema abierto: roles que salen «Sin activar»
+## 4. Problema resuelto: roles que salían «Sin activar»
 
 **Síntoma:** en la cuenta `contacto@mipradera.com.co`, «Mis códigos» muestra **Comerciante · Varios negocios** y **Redactor de noticias** vigentes hasta noviembre de 2027. Pero «Publicar» y «Activar un rol» dicen **«Sin activar»** en todos los roles.
 
-**Causa probable:**
+**Causa (confirmada el 14 de noviembre de 2026):**
 - «Mis códigos» lee los códigos usados (colección `codes`).
 - Los roles, en cambio, salen de la ficha de la cuenta (`plans/<llave>.acc`).
 - Si la ficha se borró y la página la volvió a crear, queda sin roles: las reglas no dejan crearla con roles, y la cuenta no puede recuperarlos sola, porque solo se guardan al usar un código nuevo.
 
-**Arreglo publicado (v406, PR #145), probado solo con datos de prueba:** `src/codigo/v406-recuperar-roles.js`. En el panel de administrador, en **Usuarios**, muestra «Roles por recuperar» y un botón que devuelve a cada ficha el fin de cada rol. Solo sube fechas, nunca las baja.
+**Arreglo publicado (v406, PR #145) y usado en la página real:** `src/codigo/v406-recuperar-roles.js`. En el panel de administrador, en **Usuarios**, muestra «Roles por recuperar» y un botón que devuelve a cada ficha el fin de cada rol. Solo sube fechas, nunca las baja.
 
 - El fin de cada rol se calcula con los días de cada código, en el orden en que se usaron. La fecha `end` del código la escribe quien lo canjea y las reglas no la revisan, así que solo puede bajar el resultado, nunca subirlo.
-- La causa sigue siendo «probable»: no se ha visto la ficha real. Si en el panel la lista «Roles por recuperar» no muestra esa cuenta, la causa es otra y hay que revisar su tarjeta en Usuarios.
+- El 14 de noviembre de 2026 la dueña tocó «Recuperar el rol» en el panel para `contacto@mipradera.com.co` y funcionó: la cuenta apareció en «Roles por recuperar», así que la ficha sí había quedado sin roles.
 - No evita que vuelva a pasar: si una cuenta se elimina y se vuelve a crear, su ficha nace sin roles y el administrador los recupera con el mismo botón.
 
 ---
