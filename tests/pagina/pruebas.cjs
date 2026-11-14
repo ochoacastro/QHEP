@@ -171,14 +171,28 @@ const PRUEBAS = {
     check('Un aviso sin importancia no se guarda', (await p.evaluate(() => nfUnread())) === n0 + 1);
     sinErrores(p, 'Avisos'); await p.cerrar();
   },
-  async pausa() { // v310 tienda en pausa (ahora como ampliación explícita de storeView y prodView, v389)
-    const now = Date.now();
-    const p = await abrir({ seed: { 'stores/s1': { id: 's1', name: 'Tienda Pausada', ownerKey: 'kOtro', cat: 'Otros', wa: '3001234567', _o: 1, pause: now + 864e5, products: [{ id: 'p1', name: 'Arroz', price: 4000 }] }, 'stores/s2': { id: 's2', name: 'Tienda Abierta', ownerKey: 'kOtro', cat: 'Otros', wa: '3001234568', _o: 2, products: [] } } });
-    await p.evaluate(() => { view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(300);
-    check('Tienda en pausa: se avisa a los clientes', /pausa/i.test(await p.evaluate(() => document.getElementById('app').innerText)));
-    await p.evaluate(() => { view = 'store'; cur = 's2'; render() }); await p.waitForTimeout(300);
-    check('Tienda abierta: sin aviso de pausa', !/en pausa/i.test(await p.evaluate(() => document.getElementById('app').innerText)));
-    sinErrores(p, 'Pausa'); await p.cerrar();
+  async letrero() { // v411 letrero Abierto / Cerrado de la tienda (reemplaza la pausa de v310)
+    const tienda = (id, x) => Object.assign({ id, name: 'Tienda ' + id, ownerKey: 'kOtro', cat: 'Otros', wa: '3001234567', products: [{ id: 'p1', name: 'Arroz', price: 4000 }] }, x);
+    const p = await abrir({ seed: { 'stores/s1': tienda('s1', { _o: 1, shut: 1, shutN: 'Hoy no hay atención' }), 'stores/s2': tienda('s2', { _o: 2 }), 'stores/s3': tienda('s3', { _o: 3, pause: Date.now() + 864e5 }) } });
+    const ver = async id => { await p.evaluate(i => { closeModal(1); view = 'store'; cur = i; render() }, id); await p.waitForTimeout(300); return p.evaluate(() => { const l = document.querySelector('#app .ltr'); return l ? (l.classList.contains('off') ? 'CERRADO ' : 'ABIERTO ') + l.innerText : '' }) };
+    const c = await ver('s1');
+    check('Con el letrero de cerrado, el cliente ve «cerrada» y la nota', /^CERRADO/.test(c) && /Hoy no hay atención/.test(c), c);
+    check('El cliente sigue viendo la sección de productos', await p.evaluate(() => { const h = [...document.querySelectorAll('#app h3.ptitle')].find(x => /Productos/.test(x.textContent)); return !!h && getComputedStyle(h).display !== 'none' }));
+    check('La insignia del horario dice cerrado', await p.evaluate(() => /Cerrado ahora/.test(openBadge(S.stores.find(x => x.id === 's1')))));
+    check('El cliente no ve el botón «Cambiar letrero»', await p.evaluate(() => !document.querySelector('[data-ltr="menu"]')));
+    check('Sin letrero de cerrado, se ve abierto', /^ABIERTO/.test(await ver('s2')));
+    check('Una tienda con la pausa vieja ya no se ve en pausa', /^ABIERTO/.test(await ver('s3')) && await p.evaluate(() => !/en pausa/i.test(document.getElementById('app').innerText)));
+    await conCuenta(p); await p.evaluate(() => { S.mine.push('s2') }); await ver('s2');
+    check('El dueño ve «Cambiar letrero» y ya no «Pausar tienda»', await p.evaluate(() => !!document.querySelector('[data-ltr="menu"]') && !/Pausar tienda/.test(document.getElementById('app').innerText)));
+    await p.click('[data-ltr="menu"]'); await p.waitForTimeout(300);
+    await p.click('[data-ltr="pick"][data-v="1"]'); await p.click('[data-ltr="nota"][data-k="otro"]'); await p.fill('#ltr-o', 'Volvemos a las 3'); await p.waitForTimeout(200);
+    await p.click('[data-ltr="ok"]'); await p.waitForTimeout(400);
+    check('El dueño pone cerrado con su propia nota', await p.evaluate(() => { const s = S.stores.find(x => x.id === 's2'); return s.shut === 1 && s.shutN === 'Volvemos a las 3' && /Volvemos a las 3/.test(document.querySelector('#app .ltr.off').innerText) }));
+    await p.click('[data-ltr="menu"]'); await p.click('[data-ltr="nota"][data-k="none"]'); await p.click('[data-ltr="ok"]'); await p.waitForTimeout(400);
+    check('Puede dejar solo el letrero, sin nota', await p.evaluate(() => { const s = S.stores.find(x => x.id === 's2'); return s.shut === 1 && s.shutN === '' }));
+    await p.click('[data-ltr="menu"]'); await p.click('[data-ltr="pick"][data-v="0"]'); await p.click('[data-ltr="ok"]'); await p.waitForTimeout(400);
+    check('El dueño vuelve a poner abierto', await p.evaluate(() => { const s = S.stores.find(x => x.id === 's2'); return !s.shut && !!document.querySelector('#app .ltr.on') }));
+    sinErrores(p, 'Letrero'); await p.cerrar();
   },
   async carrusel() { // v391 el carrusel avanza solo en celulares táctiles y con «reducir movimiento»
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: 'reduce', serviceWorkers: 'block' });
