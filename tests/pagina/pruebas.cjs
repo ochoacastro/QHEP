@@ -184,7 +184,8 @@ const PRUEBAS = {
     check('El cliente no ve el botón «Cambiar letrero»', await p.evaluate(() => !document.querySelector('[data-ltr="menu"]')));
     check('Sin letrero de cerrado, se ve abierto', /^ABIERTO/.test(await ver('s2')));
     check('Una tienda con la pausa vieja ya no se ve en pausa', /^ABIERTO/.test(await ver('s3')) && await p.evaluate(() => !/en pausa/i.test(document.getElementById('app').innerText)));
-    await conCuenta(p); await p.evaluate(() => { S.mine.push('s2') }); await ver('s2');
+    await conCuenta(p); await p.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<i class="qtour" hidden></i>')); // así no se abre sola «Tu dirección principal» (v322) en medio de la prueba
+    await p.evaluate(() => { S.mine.push('s2') }); await ver('s2');
     check('El dueño ve «Cambiar letrero» y ya no «Pausar tienda»', await p.evaluate(() => !!document.querySelector('[data-ltr="menu"]') && !/Pausar tienda/.test(document.getElementById('app').innerText)));
     await p.click('[data-ltr="menu"]'); await p.waitForTimeout(300);
     await p.click('[data-ltr="pick"][data-v="1"]'); await p.click('[data-ltr="nota"][data-k="otro"]'); await p.fill('#ltr-o', 'Volvemos a las 3'); await p.waitForTimeout(200);
@@ -194,6 +195,22 @@ const PRUEBAS = {
     check('Puede dejar solo el letrero, sin nota', await p.evaluate(() => { const s = S.stores.find(x => x.id === 's2'); return s.shut === 1 && s.shutN === '' }));
     await p.click('[data-ltr="menu"]'); await p.click('[data-ltr="pick"][data-v="0"]'); await p.click('[data-ltr="ok"]'); await p.waitForTimeout(400);
     check('El dueño vuelve a poner abierto', await p.evaluate(() => { const s = S.stores.find(x => x.id === 's2'); return !s.shut && !!document.querySelector('#app .ltr.on') }));
+    // v421: abrir fuera del horario
+    await p.evaluate(() => { const hoy = (new Date().getDay() + 6) % 7; S.stores.push({ id: 's4', name: 'Tienda s4', ownerKey: 'kA', cat: 'Otros', wa: '3001234567', products: [], days: [(hoy + 1) % 7], open: '08:00', close: '18:00' }); S.mine.push('s4') });
+    check('Una tienda cerrada por horario se ve cerrada', /^CERRADO/.test(await ver('s4')) && await p.evaluate(() => /horario dice cerrado/.test(document.querySelector('#app .ltr').innerText)));
+    await p.click('[data-ltr="menu"]'); await p.waitForTimeout(300);
+    check('Al elegir «Abierto» con el horario cerrado, el menú lo explica y ofrece «Abrir ahora (vale por hoy)» ya marcado', await p.evaluate(() => { const b = [...document.querySelectorAll('[data-ltr="forz"]')]; return b.length === 2 && b[0].getAttribute('aria-pressed') === 'true' && /Abrir ahora \(vale por hoy\)/.test(b[0].textContent) && /Tu horario dice cerrado/.test(document.getElementById('ltr-b').innerText) }));
+    await p.click('[data-ltr="ok"]'); await p.waitForTimeout(400);
+    check('Guardar el letrero de abierto abre la tienda aunque el horario diga cerrado', await p.evaluate(() => { const x = S.stores.find(y => y.id === 's4'); return !x.shut && x.opn > Date.now() && x.opn < Date.now() + 25 * 36e5 && !!document.querySelector('#app .ltr.on') && /Abierto ahora/.test(openBadge(x)) && /Vale por hoy/.test(document.querySelector('#app .ltr').innerText) }));
+    await p.evaluate(() => { S.stores.find(y => y.id === 's4').opn = Date.now() - 1000 });
+    check('Cuando pasa el día, vuelve sola al horario (cerrada)', /^CERRADO/.test(await ver('s4')));
+    await p.click('[data-ltr="menu"]'); await p.waitForTimeout(200); await p.click('[data-ltr="forz"][data-v="0"]'); await p.click('[data-ltr="ok"]'); await p.waitForTimeout(400);
+    check('Con «Seguir mi horario» la tienda sigue cerrada', await p.evaluate(() => { const x = S.stores.find(y => y.id === 's4'); return !x.opn && !!document.querySelector('#app .ltr.off') }));
+    await p.evaluate(() => { const x = S.stores.find(y => y.id === 's4'); x.opn = Date.now() + 36e5; x.shut = 1 });
+    check('El letrero de cerrado sigue mandando sobre todo', /^CERRADO/.test(await ver('s4')) && await p.evaluate(() => /Cerrado ahora/.test(openBadge(S.stores.find(y => y.id === 's4')))));
+    await ver('s2'); await p.click('[data-ltr="menu"]'); await p.waitForTimeout(200);
+    check('Si el horario no dice cerrado, el menú no ofrece abrir por hoy', await p.evaluate(() => !document.querySelector('[data-ltr="forz"]')));
+    await p.evaluate(() => closeModal(1));
     sinErrores(p, 'Letrero'); await p.cerrar();
   },
   async carrusel() { // v391 el carrusel avanza solo en celulares táctiles y con «reducir movimiento»
@@ -465,7 +482,11 @@ const PRUEBAS = {
     await p.click('[data-wz="omitir"]'); await p.waitForTimeout(200);
     check('«Omitir» pasa a «Horario»', /Paso 5 de 6 · Horario/.test(await paso()) && await ve('#x-hrs') && !(await ve('#x-addr')));
     await p.click('[data-wz="omitir"]'); await p.waitForTimeout(200);
-    check('En el último paso está «Abrir tienda» y ya no hay «Continuar»', /Paso 6 de 6/.test(await paso()) && await ve('[data-act="saveShop"]') && (await bot()) === 'Atrás', (await paso()) + ' ' + (await bot()));
+    const fila = () => p.evaluate(() => { const r = document.querySelector('#ov .modal > .row.wz-fin'); if (!r) return 'sin fila'; const B = [...r.querySelectorAll('.btn')].filter(x => x.offsetParent).map(x => ({ t: x.textContent, r: x.getBoundingClientRect() })).sort((a, b) => a.r.top - b.r.top || a.r.left - b.r.left); return B.map(x => x.t).join(',') + '|' + (B.length > 1 && B[0].r.bottom <= B[1].r.top && B[0].r.width >= B[1].r.width && B[0].r.width > r.getBoundingClientRect().width - 2 ? 'arriba' : 'no') });
+    check('En el último paso ya no hay «Continuar» y «Abrir tienda» va arriba a todo el ancho, con «Atrás» y «Cancelar» debajo (v420)', /Paso 6 de 6/.test(await paso()) && (await bot()) === '' && (await fila()) === 'Abrir tienda,Atrás,Cancelar|arriba', (await paso()) + ' [' + (await bot()) + '] ' + (await fila()));
+    await p.click('#ov .modal > .row [data-wz="atras"]'); await p.waitForTimeout(200);
+    check('Ese «Atrás» vuelve al paso anterior y desaparece de la fila de guardar', /Paso 5 de 6/.test(await paso()) && !(await p.evaluate(() => !!document.querySelector('#ov .modal > .row [data-wz]'))));
+    await p.evaluate(() => qhPasos.ir(5)); await p.waitForTimeout(200);
     await p.evaluate(() => { document.getElementById('f-wa').value = '' }); await p.click('[data-act="saveShop"]'); await p.waitForTimeout(400);
     check('Si al guardar falta un dato, vuelve solo al paso donde está', /Paso 3 de 6 · Contacto/.test(await paso()) && /tel[eé]fono|WhatsApp/i.test(await p.evaluate(() => document.getElementById('err').textContent)), await paso());
     await p.fill('#f-wa', '3001234567'); await p.evaluate(() => qhPasos.ir(5)); await p.click('[data-act="saveShop"]'); await p.waitForTimeout(900);
@@ -476,7 +497,7 @@ const PRUEBAS = {
     await p.click('[data-wz="sigue"]'); await p.waitForTimeout(200);
     check('Sin barrio no deja continuar', /barrio/i.test(await p.evaluate(() => document.querySelector('.wze').textContent)));
     await p.evaluate(() => { const s = document.querySelector('#ov .znsel'); s.value = 'Centro'; s.dispatchEvent(new Event('change', { bubbles: true })) }); await p.fill('#ad-dir', 'Calle 5 # 3-20'); await p.click('[data-wz="sigue"]'); await p.waitForTimeout(250);
-    check('El último paso es el mapa, con «Guardar mis datos»', /Paso 2 de 2 · Tu casa en el mapa/.test(await paso()) && await ve('.adq') && await ve('[data-adsave]') && !(await ve('#ad-dir')));
+    check('El último paso es el mapa, con «Guardar mis datos»', /Paso 2 de 2 · Tu casa en el mapa/.test(await paso()) && await ve('.adq') && await ve('[data-adsave]') && !(await ve('#ad-dir')) && (await fila()) === 'Guardar mis datos,Atrás|arriba', await fila());
     // editar tienda: pestañas
     await p.evaluate(() => { closeModal(1); const s = S.stores.find(x => x.name === 'Dulces de la Abuela'); view = 'store'; cur = s.id; render(); editShop() }); await p.waitForTimeout(700);
     check('«Editar tienda» muestra las secciones como pestañas y «Guardar» siempre a la vista', await p.evaluate(() => [...document.querySelectorAll('.wztab [role=tab]')].map(b => b.textContent).join(',') === 'Tu negocio,Contacto,Ubicación,Horario,Entregas y pagos') && await ve('[data-act="saveEditShop"]') && await ve('#e-name') && !(await ve('#x-hrs')));
