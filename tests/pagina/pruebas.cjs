@@ -544,6 +544,39 @@ const PRUEBAS = {
     check('Con cuenta, la página ofrece «Activar un rol»', await p.evaluate(() => !!document.querySelector('.rlpa [data-act="codesModal"]') && !document.querySelector('.rlpa [data-act="regForm"]')));
     sinErrores(p, 'Roles y precios'); await p.cerrar();
   },
+  async movimiento() { // v427 transiciones entre ventanas, pantallas y pasos
+    const p = await abrir(); await conCuenta(p);
+    await p.evaluate(() => { S.stores.push({ id: 'sm', name: 'Tienda M', wa: '3001234567', pays: ['cash'], products: [{ id: 'p2', name: 'Arroz', price: 4000, imgs: [] }] }); modal('<h2 id="t-h">Uno</h2><button data-act="close" id="t-b" data-x="1">Cerrar</button>') });
+    check('Al abrir una ventana, el fondo se funde', await p.evaluate(() => /mv-fade/.test(getComputedStyle(document.getElementById('ov')).animationName) && !document.getElementById('ov').classList.contains('mv-swap')));
+    await p.evaluate(() => modal('<h2>Dos</h2><p>Otra ventana</p>')); await p.waitForTimeout(60);
+    check('De una ventana a otra, el fondo se queda y solo cambia el contenido', await p.evaluate(() => { const o = document.getElementById('ov'); return o.classList.contains('mv-swap') && getComputedStyle(o).animationName === 'none' && /mv-swap/.test(getComputedStyle(o.querySelector('.modal')).animationName) && !document.querySelector('.mvg') }));
+    await p.evaluate(() => closeModal(1)); await p.waitForTimeout(40);
+    check('Al cerrar, queda un instante una copia que se desvanece y no se puede tocar', await p.evaluate(() => { const g = document.querySelector('.mvg'); return !document.getElementById('ov') && !!g && g.hasAttribute('inert') && g.getAttribute('aria-hidden') === 'true' && /Dos/.test(g.textContent) && getComputedStyle(g).pointerEvents === 'none' && !g.classList.contains('overlay') }));
+    await p.evaluate(() => { closeModal(1); modal('<h2 id="t-h">Uno</h2><button data-act="close" id="t-b" data-x="1">Cerrar</button>'); closeModal(1) }); await p.waitForTimeout(40);
+    check('La copia no lleva id ni data-*, para que nada de la página la confunda con una ventana', await p.evaluate(() => !!document.querySelector('.mvg') && !document.querySelector('.mvg [id], .mvg [data-act], .mvg [data-x], [id="t-h"]')));
+    await p.waitForTimeout(350);
+    check('La copia se quita sola', await p.evaluate(() => !document.querySelector('.mvg')));
+    const app = () => p.evaluate(() => document.getElementById('app').className);
+    await p.evaluate(() => { view = 'store'; cur = 'sm'; render() }); await p.waitForTimeout(60);
+    check('Al entrar a una tienda, la pantalla entra suave', /mv-go/.test(await app()), await app());
+    await p.waitForTimeout(400); await p.evaluate(() => render(true)); await p.waitForTimeout(60);
+    check('Volver a dibujar la misma pantalla no la anima otra vez', !/mv-/.test(await app()), await app());
+    await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(60);
+    check('Al volver al inicio, entra desde el otro lado', /mv-back/.test(await app()), await app());
+    await p.waitForTimeout(400);
+    check('La clase se quita al terminar', !/mv-/.test(await app()), await app());
+    await p.evaluate(() => { closeModal(1); shopForm() }); await p.waitForTimeout(700);
+    await p.fill('#f-name', 'Dulces'); await p.fill('#f-desc', 'Dulces caseros'); await p.click('[data-wz="sigue"]'); await p.waitForTimeout(80);
+    const m = () => p.evaluate(() => document.querySelector('#ov .modal').className + ' | ' + (document.querySelector('.wzk') || {}).textContent);
+    check('«Continuar» en un formulario por pasos trae el paso nuevo desde la derecha', /mv-next/.test(await m()) && /Paso 2/.test(await m()), await m());
+    await p.waitForTimeout(350); await p.evaluate(() => [...document.querySelectorAll('.wzr button')].find(b => /Atrás/.test(b.textContent)).click()); await p.waitForTimeout(80);
+    check('«Atrás» lo trae desde la izquierda', /mv-prev/.test(await m()) && /Paso 1/.test(await m()), await m());
+    await p.emulateMedia({ reducedMotion: 'reduce' }); await p.evaluate(() => { closeModal(1); modal('<h2>Tres</h2>'); modal('<h2>Cuatro</h2>') }); await p.waitForTimeout(60);
+    const sw = await p.evaluate(() => document.getElementById('ov').classList.contains('mv-swap'));
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 'sm'; render() }); await p.waitForTimeout(60);
+    check('Con «reducir movimiento» no hay copia ni animaciones', !sw && await p.evaluate(() => !document.querySelector('.mvg')) && !/mv-/.test(await app()), await app());
+    sinErrores(p, 'Movimiento'); await p.cerrar();
+  },
   async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
     const p = await abrir(); await conCuenta(p);
     await p.evaluate(() => { closeModal(1); shopForm() }); await p.waitForTimeout(700);
