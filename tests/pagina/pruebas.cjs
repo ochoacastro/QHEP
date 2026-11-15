@@ -482,6 +482,68 @@ const PRUEBAS = {
     check('En todo el recorrido no se cargó Google Maps', mapas === 0, String(mapas));
     sinErrores(p, 'Sin dirección'); await p.cerrar();
   },
+  async registroParaPublicar() { // v425 sin cuenta no se puede publicar nada: primero «Registrarme»
+    const p = await abrir();
+    const ov = () => p.evaluate(() => { const o = document.getElementById('ov'); return o ? (o.querySelector('h2') || {}).textContent + ' | ' + ((o.querySelector('.rgpn') || {}).textContent || '') : '' });
+    const pide = async (nombre, abre, campo) => { await p.evaluate(a => { closeModal(1); after = null; eval(a) }, abre); await p.waitForTimeout(400); const x = await ov();
+      check('Sin cuenta, ' + nombre + ' pide registrarse y dice por qué', /Registrarme/.test(x) && /Para publicar necesitas una cuenta/.test(x) && await p.evaluate(c => !document.querySelector(c), campo), x) };
+    await pide('publicar un clasificado', 'comForm()', '#cm-t');
+    await pide('registrar una tienda', "gdOpen('shop')", '#f-name');
+    await pide('publicar un vehículo', "gdOpen('veh')", '#a-wa');
+    await pide('publicar un inmueble', "gdOpen('arr')", '[data-gdad]');
+    check('El aviso sale una sola vez y la pestaña «Iniciar sesión» sigue ahí', await p.evaluate(() => document.querySelectorAll('#ov .rgpn').length === 1 && !!document.querySelector('#ov [data-act="loginForm"]')));
+    await p.evaluate(() => { closeModal(1); after = null; view = 'sug'; render() }); await p.waitForTimeout(300);
+    await p.fill('#g-txt', 'Más bancas en el parque'); await p.click('[data-act="saveSug"]'); await p.waitForTimeout(400);
+    check('Sin cuenta, enviar una sugerencia pide registrarse y no la publica todavía', /Registrarme/.test(await ov()) && await p.evaluate(() => !S.ideas.some(x => /bancas/.test(x.txt))), await ov());
+    await conCuenta(p); await p.evaluate(() => { closeModal(1); const f = after; after = null; f() }); await p.waitForTimeout(900);
+    check('Al entrar, la sugerencia que había escrito se envía sola', await p.evaluate(() => S.ideas.some(x => /Más bancas en el parque/.test(x.txt))));
+    await p.evaluate(() => { closeModal(1); comForm() }); await p.waitForTimeout(400);
+    check('Con cuenta, el clasificado abre su formulario directo, sin aviso', await p.evaluate(() => !!document.querySelector('#ov #cm-t') && !document.querySelector('#ov .rgpn')), await ov());
+    await p.evaluate(() => { closeModal(1); gdOpen('shop') }); await p.waitForTimeout(700);
+    check('Con cuenta, la tienda abre su formulario directo', await p.evaluate(() => !!document.querySelector('#ov #f-name') && !document.querySelector('#ov .rgpn')), await ov());
+    await p.evaluate(() => { closeModal(1); S.user = null; save(); try { syncUI() } catch (e) {} comForm() }); await p.waitForTimeout(400);
+    await conCuenta(p); await p.evaluate(() => { closeModal(1); const f = after; after = null; f() }); await p.waitForTimeout(500);
+    check('Después de registrarse se abre solo el formulario del clasificado', await p.evaluate(() => !!document.querySelector('#ov #cm-t')), await ov());
+    sinErrores(p, 'Registro para publicar'); await p.cerrar();
+  },
+  async rolesYPrecios() { // v426 página pública «Roles y precios» (#/roles), sin necesidad de cuenta
+    const p = await abrir();
+    check('El pie de la página tiene el enlace «Roles y precios»', await p.evaluate(() => /Roles y precios/.test((document.querySelector('footer [data-rolv]') || {}).textContent || '')));
+    await p.evaluate(() => document.querySelector('footer [data-rolv]').click()); await p.waitForTimeout(400);
+    const txt = () => p.evaluate(() => document.getElementById('app').innerText);
+    let t = await txt();
+    check('Sin cuenta se abre la página, con su dirección #/roles', /Roles y precios/.test(t) && await p.evaluate(() => location.hash === '#/roles' && !document.getElementById('ov')), await p.evaluate(() => location.hash));
+    const roles = await p.evaluate(() => [...document.querySelectorAll('.rlpc')].map(c => c.dataset.rol).join());
+    check('Muestra lo gratis y los seis roles', roles === 'free,merc,home,car,com,comu,news', roles);
+    const visto = () => p.evaluate(() => [...document.querySelectorAll('.rlpc')].filter(c => c.offsetParent).map(c => c.dataset.rol).join() + ' | ' + (document.querySelector('.rlpk[aria-selected="true"]') || {}).textContent);
+    check('Se ve un rol a la vez y empieza por «Gratis»; la página ya no mide varias pantallas', (await visto()) === 'free | Gratis' && await p.evaluate(() => document.querySelector('.rlp').scrollHeight < 1500), await visto());
+    check('La barra tiene los siete roles y dos flechas; la de la izquierda empieza apagada', await p.evaluate(() => document.querySelectorAll('.rlps .rlpk').length === 7 && document.querySelectorAll('.rlpb .rlpf').length === 2 && document.querySelector('.rlpb .rlpf').disabled && !document.querySelectorAll('.rlpb .rlpf')[1].disabled));
+    check('En el primer rol «Anterior» está apagado y «Siguiente» dice a dónde va', await p.evaluate(() => { const b = document.querySelectorAll('.rlpc[data-rol="free"] .rlpv button'); return b[0].disabled && /Comerciante/.test(b[1].textContent) && /1 de 7/.test(document.querySelector('.rlpc[data-rol="free"] .rlpx').textContent) }));
+    await p.click('.rlpc[data-rol="free"] .rlpv button:last-child'); await p.waitForTimeout(500);
+    check('«Siguiente» pasa a Comerciante y lo marca en la barra', (await visto()) === 'merc | Comerciante', await visto());
+    await p.click('.rlpb .rlpf:last-child'); await p.waitForTimeout(700);
+    check('La flecha de la derecha corre la barra de roles', await p.evaluate(() => document.querySelector('.rlps').scrollLeft > 20 && !document.querySelector('.rlpb .rlpf').disabled));
+    await p.evaluate(() => [...document.querySelectorAll('.rlps .rlpk')].find(b => /Noticias/.test(b.textContent)).click()); await p.waitForTimeout(400);
+    check('Tocar un rol de la barra lo abre; en el último «Siguiente» está apagado', (await visto()) === 'news | Noticias' && await p.evaluate(() => document.querySelector('.rlpc[data-rol="news"] .rlpv button:last-child').disabled), await visto());
+    await p.click('.rlpc[data-rol="news"] .rlpv button:first-child'); await p.waitForTimeout(400);
+    check('«Anterior» vuelve al rol de antes', (await visto()) === 'comu | Comunidad', await visto());
+    await p.evaluate(() => qhRolIr('merc')); await p.waitForTimeout(200);
+    check('Comerciante trae los precios de «Un negocio» y «Varios negocios» por duración', await p.evaluate(() => { const r = [...document.querySelectorAll('.rlpc[data-rol="merc"] tbody tr')]; return r.length === 5 && /1 mes/.test(r[0].innerText) && /1 año/.test(r[4].innerText) && r.every(x => [...x.querySelectorAll('td')].length === 2 && [...x.querySelectorAll('td')].every(d => /\$\s?[\d.]+/.test(d.innerText))) }));
+    check('El precio es el mismo de la ventana «Roles»', await p.evaluate(() => document.querySelector('.rlpc[data-rol="merc"] tbody tr td:last-child').innerText.replace(/\s+/g, ' ') === money(codePriceNow('merc', 1)).replace(/\s+/g, ' ')));
+    check('Clasificados muestra el plan gratis y los pagados; Comunidad y Redactor dicen «Gratis»', await p.evaluate(() => document.querySelectorAll('.rlpc[data-rol="com"] tbody tr').length === 5 && /Gratis/.test(document.querySelector('.rlpc[data-rol="comu"] .rlpg').textContent) && /Gratis/.test(document.querySelector('.rlpc[data-rol="news"] .rlpg').textContent)));
+    check('Sin cuenta ofrece «Crear mi cuenta gratis» y «Ya tengo cuenta», y nada para comprar', await p.evaluate(() => !!document.querySelector('.rlpa [data-act="regForm"]') && !!document.querySelector('.rlpa [data-act="loginForm"]') && !document.querySelector('.rlp [data-act="codeBuy"], .rlp [data-act="cmxGo"]')));
+    check('La página cabe en el celular, sin desbordarse a los lados', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), String(await p.evaluate(() => document.documentElement.scrollWidth)));
+    await p.evaluate(() => { S.site = Object.assign({}, S.site, { accPrices: { merc_1: 33000 } }); render(true) }); await p.waitForTimeout(300);
+    check('Si el administrador cambia un precio, la página lo muestra', /33\.000/.test(await p.evaluate(() => document.querySelector('.rlpc[data-rol="merc"] tbody tr td:last-child').innerText)));
+    await p.evaluate(() => document.querySelector('.rlp [data-act="hubHome"]').click()); await p.waitForTimeout(300);
+    check('«← Inicio» vuelve a la página principal', await p.evaluate(() => view === 'home' && !document.querySelector('.rlp')));
+    await p.evaluate(() => { closeModal(1); comForm() }); await p.waitForTimeout(400);
+    await p.click('#ov [data-rolv]'); await p.waitForTimeout(400);
+    check('El aviso de «Para publicar necesitas una cuenta» lleva a la página de roles', await p.evaluate(() => view === 'roles' && !document.getElementById('ov') && !!document.querySelector('.rlp')));
+    await conCuenta(p); await p.evaluate(() => render(true)); await p.waitForTimeout(300);
+    check('Con cuenta, la página ofrece «Activar un rol»', await p.evaluate(() => !!document.querySelector('.rlpa [data-act="codesModal"]') && !document.querySelector('.rlpa [data-act="regForm"]')));
+    sinErrores(p, 'Roles y precios'); await p.cerrar();
+  },
   async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
     const p = await abrir(); await conCuenta(p);
     await p.evaluate(() => { closeModal(1); shopForm() }); await p.waitForTimeout(700);

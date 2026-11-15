@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 239 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. En la rama está la **v424** (la cuenta ya no pide dirección ni mapa), sin PR todavía. El último PR fusionado es el **#149** (v422 y v423), el 15 de noviembre de 2026. Todo hasta la v423 está en `main`.
+- **Pruebas:** 270 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#150** (v424), el 15 de noviembre de 2026. Todo hasta la v424 está en `main`. En la rama están la **v425** (registro para publicar) y la **v426** (página «Roles y precios»), sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v424)
+## 2. Lo que se hizo en esta etapa (v392 a v426)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -50,7 +50,9 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v421 | **Letrero: abrir fuera del horario.** Poner «Abierto» cuando el horario dice cerrado ahora sí abre la tienda, por hoy; después vuelve sola a seguir el horario | #148 |
 | v422 | **Lista de productos:** en la ficha de la tienda, el botón «Eliminar tienda» se cambia por «Lista de productos», que abre una lista con cada producto y sus botones «Editar» y «Eliminar» (pregunta antes de borrar). «Eliminar tienda» queda como enlace pequeño debajo de los botones | #149 |
 | v423 | **Preguntar antes de borrar:** la ✕ de un producto, «Quitar» en un servicio propio, quitar una sugerencia y «Borrar comentario» borraban de inmediato; ahora preguntan primero | #149 |
-| v424 | **La cuenta ya no pide dirección ni mapa:** los datos personales son solo nombre, correo y teléfono. Ya no se abre sola «Tu dirección principal» con el mapa de Google y la pregunta de confirmación; «Mis direcciones» sale de Mi cuenta. Al pedir, quien tiene cuenta ve el mismo formulario corto de quien pide sin registro, con su nombre y teléfono ya puestos | sin PR |
+| v424 | **La cuenta ya no pide dirección ni mapa:** los datos personales son solo nombre, correo y teléfono. Ya no se abre sola «Tu dirección principal» con el mapa de Google y la pregunta de confirmación; «Mis direcciones» sale de Mi cuenta. Al pedir, quien tiene cuenta ve el mismo formulario corto de quien pide sin registro, con su nombre y teléfono ya puestos | #150 |
+| v425 | **Para publicar hay que tener cuenta:** sin cuenta ya no se puede llenar un clasificado, una tienda, un inmueble o un vehículo, ni enviar una sugerencia; primero sale «Registrarme» con un aviso que dice por qué, y al entrar se abre solo lo que quería publicar | sin PR |
+| v426 | **Página «Roles y precios»** (`#/roles`): cualquiera, con o sin cuenta, ve qué ofrece cada rol y cuánto cuesta. Se ve un rol a la vez, con barra de roles, flechas y «Anterior» / «Siguiente». Enlace en el pie de la página y en el aviso de registro | sin PR |
 
 ---
 
@@ -91,6 +93,17 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 ## 5. Decisiones abiertas e ideas que no se hicieron
 
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
+- **Registro para publicar (v425):**
+  - activar o pagar un rol ya exigía cuenta (v232) y no cambió. Pedir y preguntar por WhatsApp sin cuenta (v416) tampoco: eso es comprar, no publicar;
+  - las sugerencias también piden cuenta ahora (se publican a la vista de todos). Lo escrito no se pierde: se envía solo al entrar. Si la dueña prefiere dejarlas sin cuenta, se quita ese bloque del archivo;
+  - calificar ya pedía cuenta;
+  - los borradores que alguien dejó guardados sin cuenta (v308, v255) siguen esperándolo y se publican cuando entre;
+  - es un archivo aparte (`v425-registro-para-publicar.js`): quitarlo de `src/orden.json` vuelve a dejar llenar sin cuenta.
+- **Roles y precios (v426):**
+  - es solo para mirar: no vende nada. Sin cuenta ofrece «Crear mi cuenta gratis»; con cuenta, «Activar un rol»;
+  - los precios salen de los mismos datos de la ventana «Roles»: si el administrador los cambia en el panel (o pone una promoción), la página cambia sola;
+  - los textos de qué ofrece cada rol están escritos en `v426-roles-y-precios.js`: si cambia lo que incluye un rol, hay que cambiarlos ahí;
+  - la ventana «Roles» de quien ya tiene cuenta no cambió.
 - **Sin dirección en la cuenta (v424):**
   - la dueña eligió «no pedirla nunca»: la cuenta no guarda dirección. En cada pedido la persona la escribe en «Tus datos para el pedido» (barrio, dirección, indicaciones), sin mapa ni confirmación;
   - lo que escribe queda guardado solo en su teléfono (`qh_invitado`), igual que para quien pide sin cuenta, y la próxima vez viene ya escrito. Si antes tenía una dirección principal guardada en ese teléfono, se usa para llenar el formulario la primera vez;
