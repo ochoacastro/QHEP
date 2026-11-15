@@ -1,0 +1,32 @@
+
+/* v427: MOVIMIENTO. Transiciones entre ventanas y pantallas. Todo dura entre 160 y 260 ms y solo mueve opacidad y posición.
+   Con «reducir movimiento» activado en el teléfono no se anima nada (regla general de v106-design.css). */
+:root{--mv-e:cubic-bezier(.2,.8,.2,1);--mv-s:cubic-bezier(.4,0,1,1)}
+/* 1. Ventanas: el fondo oscuro se funde al abrir (antes aparecía de golpe) */
+.overlay{animation:mv-fade .2s var(--mv-e)}
+/* 2. De una ventana a otra: el fondo se queda quieto y solo cambia el contenido, entrando desde la derecha */
+.overlay.mv-swap{animation:none}
+.overlay.mv-swap>.modal{animation:mv-swap .24s var(--mv-e)}
+/* 3. Al cerrar: la ventana baja un poco y se desvanece (antes desaparecía de golpe). «mvg» es una copia que no se puede tocar */
+.mvg{position:fixed;inset:0;z-index:39;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(0,0,0,.4);pointer-events:none;animation:mv-out .17s var(--mv-s) forwards}
+.mvg>.modal{animation:mv-drop .17s var(--mv-s) forwards}
+.mvg.mvg-lb{display:block;padding:0;background:#000000e6;z-index:69}
+/* 4. De una pantalla a otra (inicio, tienda, producto, clasificados…): el contenido entra suave */
+#app.mv-go>*{animation:mv-page .26s var(--mv-e)}
+#app.mv-back>*{animation:mv-pageb .26s var(--mv-e)}
+/* 5. Formularios por pasos (v417): los campos del paso nuevo entran; hacia atrás, desde el otro lado */
+.modal.mv-next>:not(.wzs):not(.wzh):not(.wzn){animation:mv-swap .22s var(--mv-e)}
+.modal.mv-prev>:not(.wzs):not(.wzh):not(.wzn){animation:mv-swapb .22s var(--mv-e)}
+/* 6. Cosas que se abren en su sitio: categorías de Clasificados (v408) y el rol elegido en «Roles y precios» (v426) */
+.cmcats:not(.cmcz){animation:mv-open .22s var(--mv-e)}
+.rlpc{animation:mv-open .22s var(--mv-e)}
+/* 7. La lista de productos (v422): al borrar uno, la lista no salta */
+.lpvr{animation:mv-fade .2s var(--mv-e)}
+@keyframes mv-fade{from{opacity:0}}
+@keyframes mv-out{to{opacity:0}}
+@keyframes mv-drop{to{opacity:0;transform:translateY(10px) scale(.98)}}
+@keyframes mv-swap{from{opacity:0;transform:translateX(18px)}}
+@keyframes mv-swapb{from{opacity:0;transform:translateX(-18px)}}
+@keyframes mv-page{from{opacity:0;transform:translateY(10px)}}
+@keyframes mv-pageb{from{opacity:0;transform:translateY(-8px)}}
+@keyframes mv-open{from{opacity:0;transform:translateY(-6px)}}

@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 270 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#150** (v424), el 15 de noviembre de 2026. Todo hasta la v424 está en `main`. En la rama están la **v425** (registro para publicar) y la **v426** (página «Roles y precios»), sin PR todavía.
+- **Pruebas:** 290 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#151** (v425 y v426), el 15 de noviembre de 2026. Todo hasta la v426 está en `main`. En la rama están la **v427** (movimiento) y la **v428** (ajustes visuales del inicio y la tienda), en un solo PR.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v426)
+## 2. Lo que se hizo en esta etapa (v392 a v428)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -51,8 +51,10 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v422 | **Lista de productos:** en la ficha de la tienda, el botón «Eliminar tienda» se cambia por «Lista de productos», que abre una lista con cada producto y sus botones «Editar» y «Eliminar» (pregunta antes de borrar). «Eliminar tienda» queda como enlace pequeño debajo de los botones | #149 |
 | v423 | **Preguntar antes de borrar:** la ✕ de un producto, «Quitar» en un servicio propio, quitar una sugerencia y «Borrar comentario» borraban de inmediato; ahora preguntan primero | #149 |
 | v424 | **La cuenta ya no pide dirección ni mapa:** los datos personales son solo nombre, correo y teléfono. Ya no se abre sola «Tu dirección principal» con el mapa de Google y la pregunta de confirmación; «Mis direcciones» sale de Mi cuenta. Al pedir, quien tiene cuenta ve el mismo formulario corto de quien pide sin registro, con su nombre y teléfono ya puestos | #150 |
-| v425 | **Para publicar hay que tener cuenta:** sin cuenta ya no se puede llenar un clasificado, una tienda, un inmueble o un vehículo, ni enviar una sugerencia; primero sale «Registrarme» con un aviso que dice por qué, y al entrar se abre solo lo que quería publicar | sin PR |
-| v426 | **Página «Roles y precios»** (`#/roles`): cualquiera, con o sin cuenta, ve qué ofrece cada rol y cuánto cuesta. Se ve un rol a la vez, con barra de roles, flechas y «Anterior» / «Siguiente». Enlace en el pie de la página y en el aviso de registro | sin PR |
+| v425 | **Para publicar hay que tener cuenta:** sin cuenta ya no se puede llenar un clasificado, una tienda, un inmueble o un vehículo, ni enviar una sugerencia; primero sale «Registrarme» con un aviso que dice por qué, y al entrar se abre solo lo que quería publicar | #151 |
+| v426 | **Página «Roles y precios»** (`#/roles`): cualquiera, con o sin cuenta, ve qué ofrece cada rol y cuánto cuesta. Se ve un rol a la vez, con barra de roles, flechas y «Anterior» / «Siguiente». Enlace en el pie de la página y en el aviso de registro | #151 |
+| v427 | **Movimiento:** el fondo de las ventanas se funde al abrir; al cerrar, la ventana baja y se desvanece (antes desaparecía de golpe); de una ventana a otra solo cambia el contenido; las pantallas (inicio, tienda, producto…) entran suave; los formularios por pasos traen el paso nuevo desde el lado hacia donde se va | en revisión |
+| v428 | **Ajustes visuales:** el inicio ya no deja un hueco en blanco bajo las pestañas (toman la altura de la pestaña abierta); el nombre del negocio sale completo en dos líneas; el producto sin foto tiene marco e ícono; en el carrusel el botón va al fondo de la tarjeta | en revisión |
 
 ---
 
@@ -93,6 +95,18 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 ## 5. Decisiones abiertas e ideas que no se hicieron
 
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
+- **Ajustes visuales (v428):**
+  - la dueña aprobó los cuatro arreglos el 15 de noviembre de 2026, después de ver las hojas de «antes y después»;
+  - no se cambiaron colores ni letras. Los íconos de categorías de varios colores se dejaron igual;
+  - las pestañas del inicio usan un archivo pequeño (`v428-ajustes-visuales.js`) que recalcula la altura al pasar de pestaña, al girar el teléfono y cuando cargan fotos; lo demás es solo CSS;
+  - el marco del producto sin foto usa `:has()`; en navegadores muy viejos se ve como antes.
+- **Movimiento (v427):**
+  - se usaron las skills `frontend-design` y `web-design-guidelines`. Regla seguida: solo se anima lo que responde a un toque (abrir, cerrar, pasar de pantalla o de paso); nada se mueve solo;
+  - todo dura entre 170 y 260 ms y solo cambia opacidad y posición. Con «reducir movimiento» activado en el teléfono no se anima nada;
+  - no se cambiaron colores, letras ni la forma de los botones;
+  - al cerrar una ventana queda 170 ms una copia que se desvanece (clase `mvg`): no tiene id ni `data-*` y no se puede tocar. En las pruebas, después de cerrar una ventana hay que esperar al menos 200 ms antes de buscar algo por clase;
+  - el archivo solo mira lo que la página hace y pone clases; no cambia cómo se abre ni se cierra nada. Quitar `v427-movimiento.js` y su CSS de `src/orden.json` lo apaga;
+  - revisado contra la guía de interfaz: solo `transform` y `opacity`, respeta «reducir movimiento» y la página no usa `transition: all` en ningún estilo.
 - **Registro para publicar (v425):**
   - activar o pagar un rol ya exigía cuenta (v232) y no cambió. Pedir y preguntar por WhatsApp sin cuenta (v416) tampoco: eso es comprar, no publicar;
   - las sugerencias también piden cuenta ahora (se publican a la vista de todos). Lo escrito no se pierde: se envía solo al entrar. Si la dueña prefiere dejarlas sin cuenta, se quita ese bloque del archivo;

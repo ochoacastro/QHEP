@@ -1854,6 +1854,53 @@ html.dark .rlpp,html.dark .rlpa{border-color:#4da3ff}
 html.dark .rlpk[aria-selected=true]{background:#0a84ff;border-color:#0a84ff}html.dark .rlpf{border-color:#4da3ff;color:#4da3ff}
 .rlpc,.rlpp,.rlpa,.rlpk,.rlpf{border-radius:0!important}
 </style>
+<style id="v427-movimiento-css">
+/* v427: MOVIMIENTO. Transiciones entre ventanas y pantallas. Todo dura entre 160 y 260 ms y solo mueve opacidad y posición.
+   Con «reducir movimiento» activado en el teléfono no se anima nada (regla general de v106-design.css). */
+:root{--mv-e:cubic-bezier(.2,.8,.2,1);--mv-s:cubic-bezier(.4,0,1,1)}
+/* 1. Ventanas: el fondo oscuro se funde al abrir (antes aparecía de golpe) */
+.overlay{animation:mv-fade .2s var(--mv-e)}
+/* 2. De una ventana a otra: el fondo se queda quieto y solo cambia el contenido, entrando desde la derecha */
+.overlay.mv-swap{animation:none}
+.overlay.mv-swap>.modal{animation:mv-swap .24s var(--mv-e)}
+/* 3. Al cerrar: la ventana baja un poco y se desvanece (antes desaparecía de golpe). «mvg» es una copia que no se puede tocar */
+.mvg{position:fixed;inset:0;z-index:39;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(0,0,0,.4);pointer-events:none;animation:mv-out .17s var(--mv-s) forwards}
+.mvg>.modal{animation:mv-drop .17s var(--mv-s) forwards}
+.mvg.mvg-lb{display:block;padding:0;background:#000000e6;z-index:69}
+/* 4. De una pantalla a otra (inicio, tienda, producto, clasificados…): el contenido entra suave */
+#app.mv-go>*{animation:mv-page .26s var(--mv-e)}
+#app.mv-back>*{animation:mv-pageb .26s var(--mv-e)}
+/* 5. Formularios por pasos (v417): los campos del paso nuevo entran; hacia atrás, desde el otro lado */
+.modal.mv-next>:not(.wzs):not(.wzh):not(.wzn){animation:mv-swap .22s var(--mv-e)}
+.modal.mv-prev>:not(.wzs):not(.wzh):not(.wzn){animation:mv-swapb .22s var(--mv-e)}
+/* 6. Cosas que se abren en su sitio: categorías de Clasificados (v408) y el rol elegido en «Roles y precios» (v426) */
+.cmcats:not(.cmcz){animation:mv-open .22s var(--mv-e)}
+.rlpc{animation:mv-open .22s var(--mv-e)}
+/* 7. La lista de productos (v422): al borrar uno, la lista no salta */
+.lpvr{animation:mv-fade .2s var(--mv-e)}
+@keyframes mv-fade{from{opacity:0}}
+@keyframes mv-out{to{opacity:0}}
+@keyframes mv-drop{to{opacity:0;transform:translateY(10px) scale(.98)}}
+@keyframes mv-swap{from{opacity:0;transform:translateX(18px)}}
+@keyframes mv-swapb{from{opacity:0;transform:translateX(-18px)}}
+@keyframes mv-page{from{opacity:0;transform:translateY(10px)}}
+@keyframes mv-pageb{from{opacity:0;transform:translateY(-8px)}}
+@keyframes mv-open{from{opacity:0;transform:translateY(-6px)}}
+</style>
+<style id="v428-ajustes-visuales-css">
+/* v428: AJUSTES VISUALES del inicio y de la tienda. No cambia colores ni letras.
+   1. Pestañas del inicio (Lo más reciente, Clasificados…): la caja toma la altura de la pestaña abierta (la pone
+      v428-ajustes-visuales.js); antes tomaba la de la más larga y dejaba un hueco en blanco bajo las cortas. */
+.hswp{overflow-y:hidden}
+/* 2. Negocios del inicio: el nombre completo, hasta en dos líneas (antes se cortaba con «…» en una) */
+.hnegt>strong{white-space:normal!important;overflow:hidden!important;text-overflow:clip!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.2!important}
+/* 3. Producto sin foto: marco cuadrado con ícono de imagen (antes «Sin foto», el «+» y el corazón quedaban flotando) */
+.prod .pic:has(>.nop){border:1px solid var(--line);border-radius:0!important}
+.prod .pic>.nop{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;opacity:.75}
+.prod .pic>.nop::before{content:"";width:44px;height:44px;background:currentColor;opacity:.55;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14'/%3E%3Ccircle cx='8.5' cy='10' r='1.6'/%3E%3Cpath d='M21 16l-5-5-8 8'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14'/%3E%3Ccircle cx='8.5' cy='10' r='1.6'/%3E%3Cpath d='M21 16l-5-5-8 8'/%3E%3C/svg%3E") center/contain no-repeat}
+/* 4. Carrusel del inicio: el botón va al fondo de la tarjeta (antes quedaba una franja vacía debajo en las tarjetas cortas) */
+.bzt>.bzb,.bzt>.bzr{margin-top:auto}
+</style>
 
 <style id="v312-tablas-anuncios-css">
 /* v312: tablas de Mis inmuebles y Mis vehículos (usan el estilo .mst de la tabla de tiendas) */
@@ -2128,6 +2175,8 @@ html.dark .si-hd,html.dark .si-r{border-color:#3a3a3c!important}html.dark .si-hd
 html.dark .si-tags span{background:#2c2c2e!important;color:#e5e5ea!important}html.dark .si-i{background:#0a2540!important;color:#64a8ff!important}
 html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64a8ff!important}
 </style>
+
+
 
 
 
@@ -5095,6 +5144,66 @@ window.adrMenu=function(){return ''};   /* Mi cuenta: sin «Mis direcciones» */
 window.adrFoot=function(){return ''};   /* carrito: sin «¿A dónde lo enviamos?» */
 window.adrPick=function(){return null}; /* el pedido no lleva la dirección guardada en la cuenta: lleva la del formulario */
 try{localStorage.removeItem('qh_pend_order')}catch(e){} /* v363: ya no hay pedidos esperando a que se registre una dirección */
+})();
+</script>
+<script id="v427-movimiento">
+/* v427: MOVIMIENTO. Transiciones entre ventanas y pantallas (el diseño está en v427-movimiento-css.css).
+   Este archivo solo mira lo que la página ya hace y le pone la clase que corresponde; no cambia cómo se abre ni se cierra nada:
+   - ventana que reemplaza a otra → «mv-swap» (el fondo no vuelve a aparecer, solo cambia el contenido);
+   - ventana que se cierra → deja 170 ms una copia que se desvanece («mvg»). La copia no tiene id ni data-*, no se puede
+     tocar y los lectores de pantalla no la ven;
+   - cambio de pantalla (view, tienda, producto, anuncio o noticia distintos) → «mv-go» (o «mv-back» al volver al inicio);
+   - cambio de paso en un formulario por pasos (v417) → «mv-next» / «mv-prev».
+   Con «reducir movimiento» activado no hace nada. Para quitarlo: borra este archivo y su CSS de src/orden.json. */
+(function(){
+var quieto=function(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+function esVentana(n){return n&&n.nodeType===1&&n.classList&&(n.classList.contains('overlay')||n.classList.contains('lb'))&&!n.classList.contains('mvg')}
+function copia(o){var g=o.cloneNode(true),lb=o.classList.contains('lb');g.className='mvg'+(lb?' mvg-lb':'');g.removeAttribute('id');g.removeAttribute('style');g.setAttribute('aria-hidden','true');g.setAttribute('inert','');
+ [].forEach.call(g.querySelectorAll('*'),function(x){[].slice.call(x.attributes).forEach(function(a){if(a.name==='id'||a.name==='name'||a.name==='for'||a.name==='role'||a.name==='autofocus'||a.name.indexOf('data-')===0||a.name.indexOf('aria-')===0)x.removeAttribute(a.name)})});
+ [].forEach.call(g.querySelectorAll('iframe,video,audio,script'),function(x){x.remove()});
+ document.body.appendChild(g);setTimeout(function(){g.remove()},190)}
+function cuerpo(){new MutationObserver(function(L){if(quieto())return;var sale=[],entra=[];
+  L.forEach(function(m){[].forEach.call(m.removedNodes,function(n){if(esVentana(n))sale.push(n)});[].forEach.call(m.addedNodes,function(n){if(esVentana(n))entra.push(n)})});
+  sale=sale.filter(function(n){return !n.isConnected});if(!sale.length)return;
+  var nueva=entra.filter(function(n){return n.isConnected&&n.id==='ov'})[0],vieja=sale.filter(function(n){return n.id==='ov'})[0];
+  if(nueva&&vieja){nueva.classList.add('mv-swap');return}
+  if(entra.some(function(n){return n.isConnected}))return;
+  copia(sale[sale.length-1])}).observe(document.body,{childList:true})}
+/* pantallas */
+var antes='';
+function llave(){try{return [view,cur,curP,curAd,curN].join('|')}catch(e){return ''}}
+function app(){var a=document.getElementById('app');if(!a)return;antes=llave();
+ new MutationObserver(function(){var k=llave();if(k===antes)return;var v0=antes.split('|')[0];antes=k;if(quieto()||!v0)return;
+  var c=k.split('|')[0]==='home'?'mv-back':'mv-go';a.classList.remove('mv-go','mv-back');void a.offsetWidth;a.classList.add(c);
+  clearTimeout(app.t);app.t=setTimeout(function(){a.classList.remove('mv-go','mv-back')},320)}).observe(a,{childList:true})}
+/* formularios por pasos: el rótulo «Paso N de M» cambia → se sabe hacia dónde va */
+var paso={};
+function pasos(){new MutationObserver(function(){if(quieto())return;var k=document.querySelector('#ov .wzk'),m=k&&k.closest('.modal');if(!m)return;
+  var n=parseInt((k.textContent.match(/\d+/)||[0])[0],10)||0;if(paso.m!==m){paso={m:m,n:n};return}if(n===paso.n)return;
+  var c=n>paso.n?'mv-next':'mv-prev';paso.n=n;m.classList.remove('mv-next','mv-prev');void m.offsetWidth;m.classList.add(c);
+  setTimeout(function(){m.classList.remove('mv-next','mv-prev')},280)}).observe(document.body,{childList:true,subtree:true,characterData:true})}
+function inicia(){if(inicia.ya)return;inicia.ya=1;try{cuerpo();app();pasos()}catch(e){}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inicia);else inicia();
+})();
+</script>
+<script id="v428-ajustes-visuales">
+/* v428: pestañas del inicio (.hswp) — la caja toma la altura de la pestaña que se está viendo. Antes tomaba la de la pestaña
+   más larga y bajo las cortas quedaba un hueco en blanco (hasta 1.000 px) antes de «Escríbenos».
+   Se recalcula al dibujar la pantalla, al pasar de pestaña, al girar el teléfono y cuando una pestaña crece (fotos que cargan).
+   El resto de la v428 es solo CSS (v428-ajustes-visuales-css.css). Para quitarlo: borra los dos archivos de src/orden.json. */
+(function(){
+var ro=null,visto=null,t=0;
+function caja(){return document.querySelector('#app .hswp')}
+function ajusta(){var w=caja();if(!w||!w.children.length)return;var c0=w.children[0],paso=Math.max(1,c0.offsetWidth+14),i=Math.max(0,Math.min(w.children.length-1,Math.round(w.scrollLeft/paso))),c=w.children[i],h=c?c.offsetHeight:0;
+ if(h>0&&w.style.height!==h+'px')w.style.height=h+'px';
+ if(ro&&visto!==w){ro.disconnect();[].forEach.call(w.children,function(x){ro.observe(x)});visto=w}}
+function pronto(){cancelAnimationFrame(t);t=requestAnimationFrame(ajusta)}
+window.qhHswFit=ajusta;
+function inicia(){if(inicia.ya)return;inicia.ya=1;try{if(window.ResizeObserver)ro=new ResizeObserver(pronto)}catch(e){}
+ var a=document.getElementById('app');if(a)new MutationObserver(pronto).observe(a,{childList:true,subtree:true});
+ document.addEventListener('scroll',function(e){if(e.target&&e.target.classList&&e.target.classList.contains('hswp'))pronto()},true);
+ addEventListener('resize',pronto);pronto()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inicia);else inicia();
 })();
 </script>
 <script id="v426-roles-y-precios">

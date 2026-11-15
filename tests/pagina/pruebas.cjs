@@ -544,6 +544,56 @@ const PRUEBAS = {
     check('Con cuenta, la página ofrece «Activar un rol»', await p.evaluate(() => !!document.querySelector('.rlpa [data-act="codesModal"]') && !document.querySelector('.rlpa [data-act="regForm"]')));
     sinErrores(p, 'Roles y precios'); await p.cerrar();
   },
+  async movimiento() { // v427 transiciones entre ventanas, pantallas y pasos
+    const p = await abrir(); await conCuenta(p);
+    await p.evaluate(() => { S.stores.push({ id: 'sm', name: 'Tienda M', wa: '3001234567', pays: ['cash'], products: [{ id: 'p2', name: 'Arroz', price: 4000, imgs: [] }] }); modal('<h2 id="t-h">Uno</h2><button data-act="close" id="t-b" data-x="1">Cerrar</button>') });
+    check('Al abrir una ventana, el fondo se funde', await p.evaluate(() => /mv-fade/.test(getComputedStyle(document.getElementById('ov')).animationName) && !document.getElementById('ov').classList.contains('mv-swap')));
+    await p.evaluate(() => modal('<h2>Dos</h2><p>Otra ventana</p>')); await p.waitForTimeout(60);
+    check('De una ventana a otra, el fondo se queda y solo cambia el contenido', await p.evaluate(() => { const o = document.getElementById('ov'); return o.classList.contains('mv-swap') && getComputedStyle(o).animationName === 'none' && /mv-swap/.test(getComputedStyle(o.querySelector('.modal')).animationName) && !document.querySelector('.mvg') }));
+    await p.evaluate(() => closeModal(1)); await p.waitForTimeout(40);
+    check('Al cerrar, queda un instante una copia que se desvanece y no se puede tocar', await p.evaluate(() => { const g = document.querySelector('.mvg'); return !document.getElementById('ov') && !!g && g.hasAttribute('inert') && g.getAttribute('aria-hidden') === 'true' && /Dos/.test(g.textContent) && getComputedStyle(g).pointerEvents === 'none' && !g.classList.contains('overlay') }));
+    await p.evaluate(() => { closeModal(1); modal('<h2 id="t-h">Uno</h2><button data-act="close" id="t-b" data-x="1">Cerrar</button>'); closeModal(1) }); await p.waitForTimeout(40);
+    check('La copia no lleva id ni data-*, para que nada de la página la confunda con una ventana', await p.evaluate(() => !!document.querySelector('.mvg') && !document.querySelector('.mvg [id], .mvg [data-act], .mvg [data-x], [id="t-h"]')));
+    await p.waitForTimeout(350);
+    check('La copia se quita sola', await p.evaluate(() => !document.querySelector('.mvg')));
+    const app = () => p.evaluate(() => document.getElementById('app').className);
+    await p.evaluate(() => { view = 'store'; cur = 'sm'; render() }); await p.waitForTimeout(60);
+    check('Al entrar a una tienda, la pantalla entra suave', /mv-go/.test(await app()), await app());
+    await p.waitForTimeout(400); await p.evaluate(() => render(true)); await p.waitForTimeout(60);
+    check('Volver a dibujar la misma pantalla no la anima otra vez', !/mv-/.test(await app()), await app());
+    await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(60);
+    check('Al volver al inicio, entra desde el otro lado', /mv-back/.test(await app()), await app());
+    await p.waitForTimeout(400);
+    check('La clase se quita al terminar', !/mv-/.test(await app()), await app());
+    await p.evaluate(() => { closeModal(1); shopForm() }); await p.waitForTimeout(700);
+    await p.fill('#f-name', 'Dulces'); await p.fill('#f-desc', 'Dulces caseros'); await p.click('[data-wz="sigue"]'); await p.waitForTimeout(80);
+    const m = () => p.evaluate(() => document.querySelector('#ov .modal').className + ' | ' + (document.querySelector('.wzk') || {}).textContent);
+    check('«Continuar» en un formulario por pasos trae el paso nuevo desde la derecha', /mv-next/.test(await m()) && /Paso 2/.test(await m()), await m());
+    await p.waitForTimeout(350); await p.evaluate(() => [...document.querySelectorAll('.wzr button')].find(b => /Atrás/.test(b.textContent)).click()); await p.waitForTimeout(80);
+    check('«Atrás» lo trae desde la izquierda', /mv-prev/.test(await m()) && /Paso 1/.test(await m()), await m());
+    await p.emulateMedia({ reducedMotion: 'reduce' }); await p.evaluate(() => { closeModal(1); modal('<h2>Tres</h2>'); modal('<h2>Cuatro</h2>') }); await p.waitForTimeout(60);
+    const sw = await p.evaluate(() => document.getElementById('ov').classList.contains('mv-swap'));
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 'sm'; render() }); await p.waitForTimeout(60);
+    check('Con «reducir movimiento» no hay copia ni animaciones', !sw && await p.evaluate(() => !document.querySelector('.mvg')) && !/mv-/.test(await app()), await app());
+    sinErrores(p, 'Movimiento'); await p.cerrar();
+  },
+  async ajustesVisuales() { // v428 inicio sin hueco bajo las pestañas, nombre del negocio completo, marco en producto sin foto, carrusel
+    const st = (id, n, o) => ({ id, name: n, desc: 'x', ownerKey: 'k' + id, cat: 'Otros', wa: '3001234567', pexp: Date.now() + 30 * 864e5, _o: o, pays: ['cash'], products: [] });
+    const p = await abrir({ seed: { 'stores/s1': st('s1', 'Ferretería La Tuerca de Oro', 1), 'stores/s2': st('s2', 'Panadería El Trigal', 2), 'stores/s3': st('s3', 'Dulces de la Abuela', 3), 'products/s1__p1': { id: 'p1', sid: 's1', name: 'Martillo', price: 28000, imgs: [], ownerKey: 'ks1', _o: 1 } } });
+    await p.waitForTimeout(500);
+    const m = () => p.evaluate(() => { const w = document.querySelector('#app .hswp'), c = [...w.children].map(x => x.offsetHeight), i = Math.round(w.scrollLeft / (w.children[0].offsetWidth + 14)); return { h: w.offsetHeight, c, i, max: Math.max(...c) } });
+    let x = await m();
+    check('Las pestañas del inicio miden lo que mide la pestaña abierta, no la más larga', x.i === 0 && Math.abs(x.h - x.c[0]) <= 2 && x.max > x.c[0] + 100, JSON.stringify(x));
+    check('Ya no queda un hueco grande antes del pie de la página', await p.evaluate(() => { const w = document.querySelector('#app .hsw'), f = document.querySelector('footer'); return f.getBoundingClientRect().top - w.getBoundingClientRect().bottom < 200 }));
+    await p.evaluate(() => { const w = document.querySelector('#app .hswp'); w.scrollLeft = (w.children[0].offsetWidth + 14) * (w.children.length - 1) }); await p.waitForTimeout(500);
+    x = await m();
+    check('Al pasar a otra pestaña, la caja toma la altura de esa pestaña', x.i === x.c.length - 1 && Math.abs(x.h - x.c[x.i]) <= 2, JSON.stringify(x));
+    check('El nombre del negocio sale completo, en dos líneas, sin «…»', await p.evaluate(() => { const s = [...document.querySelectorAll('.hnegc .hnegt>strong')].find(e => /Tuerca de Oro/.test(e.textContent)); return !!s && s.scrollWidth <= s.clientWidth + 1 && s.offsetHeight > 30 && s.scrollHeight <= s.clientHeight + 1 }));
+    check('En el carrusel, el botón queda al fondo de cada tarjeta', await p.evaluate(() => [...document.querySelectorAll('.bzc')].every(c => { const t = c.querySelector('.bzt'), b = t.lastElementChild; return !!b.querySelector('button, a') || b.matches('button, a') ? t.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom < 6 : true }) && document.querySelectorAll('.bzc').length >= 2));
+    await p.evaluate(() => { view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(500);
+    check('Un producto sin foto tiene marco e ícono', await p.evaluate(() => { const c = document.querySelector('.prod .pic'), n = c.querySelector('.nop'); return parseFloat(getComputedStyle(c).borderTopWidth) >= 1 && getComputedStyle(n, '::before').width === '44px' && /Sin foto/.test(n.textContent) }));
+    sinErrores(p, 'Ajustes visuales'); await p.cerrar();
+  },
   async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
     const p = await abrir(); await conCuenta(p);
     await p.evaluate(() => { closeModal(1); shopForm() }); await p.waitForTimeout(700);
