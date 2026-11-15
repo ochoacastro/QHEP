@@ -8,7 +8,7 @@ setInterval(function(){try{var P=pend();if(!P)return;if(Date.now()-(P.ts||0)>864
  if(!Object.keys(S.cart||{}).some(function(k){return k.indexOf(P.sid+'|')===0}))return clr();
  if(!S.user||document.getElementById('ov')||document.querySelector('.qtour'))return;
  var ad=typeof adrGet==='function'?adrGet('main'):null,tl=typeof telCO==='function'?telCO(S.user.wa||''):'';
- if(!ad||tl.length<7){if(typeof adrForm==='function')adrForm('main',null,true);return}
+ if(!window.qhSinDir/* v424 */&&(!ad||tl.length<7)){if(typeof adrForm==='function')adrForm('main',null,true);return}
  clr();try{sessionStorage.setItem('qh_buying','1')}catch(e){}try{openCart()}catch(e){return}
  setTimeout(function(){var b=document.querySelector('#drawer [data-act="order"][data-id="'+P.sid+'"]');if(b){b.scrollIntoView({block:'center',behavior:'smooth'});b.classList.add('ordgo')}},450);
  try{toast('¡Listo, ya tienes tu cuenta! Toca «Pedir por WhatsApp» para enviar tu pedido.')}catch(e){}}catch(e){}},1500);
