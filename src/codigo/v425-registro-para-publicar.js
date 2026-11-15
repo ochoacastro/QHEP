@@ -15,10 +15,9 @@ function aviso(){var m=document.querySelector('#ov .modal');if(!m||m.querySelect
 function pedir(f){after=f;regForm();aviso();setTimeout(aviso,80)}
 window.qhPedirCuenta=pedir;
 /* clasificado nuevo */
-/* (comForm se define después de este archivo: se engancha cuando la página termina de cargar) */
-function clasif(){if(window.__rgpC||typeof window.comForm!=='function')return;window.__rgpC=1;var c0=window.comForm;
- window.comForm=function(a){if(sinCuenta()&&!a)return pedir(function(){comForm()});return c0.apply(this,arguments)}}
-document.addEventListener('DOMContentLoaded',clasif);setTimeout(clasif,0);
+/* clasificado nuevo: lo pregunta el propio comForm (16-cmfeat.js) llamando a qhPedirCuenta. v429: antes se enganchaba desde
+   aquí «cuando la página terminaba de cargar» y, al llegar por ?panel#/clasificado (el enlace del botón «Publicar»), el
+   formulario alcanzaba a abrirse sin cuenta, porque el panel abre esa ruta durante el arranque. */
 /* tienda, inmueble o vehículo desde el inicio */
 var g0=window.gdOpen;if(typeof g0==='function')window.gdOpen=function(k){if(sinCuenta())return pedir(function(){gdOpen(k)});return g0.apply(this,arguments)};
 /* sugerencia: se guarda lo escrito y se envía sola al entrar */

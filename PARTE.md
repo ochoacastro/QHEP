@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 290 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#151** (v425 y v426), el 15 de noviembre de 2026. Todo hasta la v426 está en `main`. En la rama están la **v427** (movimiento) y la **v428** (ajustes visuales del inicio y la tienda), en un solo PR.
+- **Pruebas:** 302 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#152** (v427 y v428), el 15 de noviembre de 2026. Todo hasta la v428 está en `main`. En la rama está la **v429** (dos errores arreglados en la revisión de lógica), sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v428)
+## 2. Lo que se hizo en esta etapa (v392 a v429)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -53,8 +53,9 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v424 | **La cuenta ya no pide dirección ni mapa:** los datos personales son solo nombre, correo y teléfono. Ya no se abre sola «Tu dirección principal» con el mapa de Google y la pregunta de confirmación; «Mis direcciones» sale de Mi cuenta. Al pedir, quien tiene cuenta ve el mismo formulario corto de quien pide sin registro, con su nombre y teléfono ya puestos | #150 |
 | v425 | **Para publicar hay que tener cuenta:** sin cuenta ya no se puede llenar un clasificado, una tienda, un inmueble o un vehículo, ni enviar una sugerencia; primero sale «Registrarme» con un aviso que dice por qué, y al entrar se abre solo lo que quería publicar | #151 |
 | v426 | **Página «Roles y precios»** (`#/roles`): cualquiera, con o sin cuenta, ve qué ofrece cada rol y cuánto cuesta. Se ve un rol a la vez, con barra de roles, flechas y «Anterior» / «Siguiente». Enlace en el pie de la página y en el aviso de registro | #151 |
-| v427 | **Movimiento:** el fondo de las ventanas se funde al abrir; al cerrar, la ventana baja y se desvanece (antes desaparecía de golpe); de una ventana a otra solo cambia el contenido; las pantallas (inicio, tienda, producto…) entran suave; los formularios por pasos traen el paso nuevo desde el lado hacia donde se va | en revisión |
-| v428 | **Ajustes visuales:** el inicio ya no deja un hueco en blanco bajo las pestañas (toman la altura de la pestaña abierta); el nombre del negocio sale completo en dos líneas; el producto sin foto tiene marco e ícono; en el carrusel el botón va al fondo de la tarjeta | en revisión |
+| v427 | **Movimiento:** el fondo de las ventanas se funde al abrir; al cerrar, la ventana baja y se desvanece (antes desaparecía de golpe); de una ventana a otra solo cambia el contenido; las pantallas (inicio, tienda, producto…) entran suave; los formularios por pasos traen el paso nuevo desde el lado hacia donde se va | #152 |
+| v428 | **Ajustes visuales:** el inicio ya no deja un hueco en blanco bajo las pestañas (toman la altura de la pestaña abierta); el nombre del negocio sale completo en dos líneas; el producto sin foto tiene marco e ícono; en el carrusel el botón va al fondo de la tarjeta | #152 |
+| v429 | **Revisión de lógica: dos errores arreglados.** «Categorías» no abría en una tienda sin categorías guardadas (toda tienda recién creada). Y al llegar al panel por el enlace del botón «Publicar» (`?panel#/clasificado`), el formulario del clasificado se abría sin cuenta, saltándose la v425 | sin PR |
 
 ---
 
@@ -93,6 +94,15 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 ---
 
 ## 5. Decisiones abiertas e ideas que no se hicieron
+
+**Revisión de lógica del 15 de noviembre de 2026 (v429):**
+- Cómo se hizo: con la skill `systematic-debugging`. Un recorrido automático abrió cada pantalla y tocó cada botón distinto una vez, anotando los errores de JavaScript: inicio y panel, con y sin cuenta, y las 12 pestañas del administrador (unos 2.000 toques). Además, dos recorridos de principio a fin en el panel: crear tienda, categorías, editar, producto nuevo y editado, carrito, pedido, calificación y los formularios de publicar.
+- Error 1, «Categorías»: `mcModal` (13-af.js) leía la lista `mc` de la tienda, que solo se crea al guardar la primera categoría. En una tienda sin categorías el botón no hacía nada. Venía de antes de esta etapa. Arreglo: la lista se crea vacía al abrir la ventana.
+- Error 2, clasificado sin cuenta: la v425 enganchaba `comForm` «cuando la página terminaba de cargar», pero el panel abre la ruta `#/clasificado` durante el arranque, antes de ese momento. Arreglo: lo pregunta el propio `comForm` (16-cmfeat.js) llamando a `qhPedirCuenta`.
+- Lo demás pasó sin errores: el recorrido no encontró más fallas de JavaScript. Los únicos avisos fueron del Firebase falso de las pruebas (no tiene «Continuar con Google»).
+- Lo que esta revisión no cubre: las reglas de Firestore (no cambiaron; siguen en la v51), el worker de Cloudflare, Google Maps, WhatsApp y el correo de verificación reales, y cómo se ve en un teléfono de verdad.
+- Las pruebas de la página ahora pueden abrir el panel: `abrir({ ruta: '?panel#/clasificado' })`.
+- Nota: si alguien sin cuenta toca «Publicar», se registra con correo y vuelve desde el enlace del correo en otra pestaña, no se le abre solo el formulario (la página se cargó de nuevo); tiene que tocar «Publicar» otra vez.
 
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
 - **Ajustes visuales (v428):**
