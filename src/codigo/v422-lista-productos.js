@@ -24,7 +24,7 @@ function lista(){var s=st();if(!s||!mineOf(s))return;var l=s.products||[];
   '<div class="row" style="margin-top:12px"><button type="button" class="btn pink" data-act="addProd">+ Producto</button><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>')}
 window.qhListaProductos=lista;
 /* borra con la acción de siempre (delProd), para no repetir aquí cómo se borra un producto */
-function borrar(id){var b=document.createElement('button');b.hidden=true;b.dataset.act='delProd';b.dataset.id=id;document.body.appendChild(b);b.click();b.remove()}
+function borrar(id){var b=document.createElement('button');b.hidden=true;b.dataset.act='delProd';b.dataset.id=id;b.dataset.cfok='1';/* v423: aquí ya se preguntó */document.body.appendChild(b);b.click();b.remove()}
 addEventListener('click',async function(e){var q=e.target.closest&&e.target.closest('[data-lpv]');if(!q)return;e.preventDefault();e.stopImmediatePropagation();var a=q.dataset.lpv,s=st();
  if(a==='open')return lista();
  if(a==='del'){if(!s||!mineOf(s))return;var id=q.dataset.id,p=(s.products||[]).find(function(x){return x.id===id});if(!p)return lista();

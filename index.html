@@ -2115,6 +2115,7 @@ html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64
 
 
 
+
 <style id="v329-crecer-css">
 /* v329: los cuadros de texto crecen solos con lo que se escribe */
 textarea.qgrow{overflow-y:hidden;resize:none;transition:height .08s}
@@ -5153,12 +5154,41 @@ function lista(){var s=st();if(!s||!mineOf(s))return;var l=s.products||[];
   '<div class="row" style="margin-top:12px"><button type="button" class="btn pink" data-act="addProd">+ Producto</button><button type="button" class="btn ghost" data-act="close">Cerrar</button></div>')}
 window.qhListaProductos=lista;
 /* borra con la acción de siempre (delProd), para no repetir aquí cómo se borra un producto */
-function borrar(id){var b=document.createElement('button');b.hidden=true;b.dataset.act='delProd';b.dataset.id=id;document.body.appendChild(b);b.click();b.remove()}
+function borrar(id){var b=document.createElement('button');b.hidden=true;b.dataset.act='delProd';b.dataset.id=id;b.dataset.cfok='1';/* v423: aquí ya se preguntó */document.body.appendChild(b);b.click();b.remove()}
 addEventListener('click',async function(e){var q=e.target.closest&&e.target.closest('[data-lpv]');if(!q)return;e.preventDefault();e.stopImmediatePropagation();var a=q.dataset.lpv,s=st();
  if(a==='open')return lista();
  if(a==='del'){if(!s||!mineOf(s))return;var id=q.dataset.id,p=(s.products||[]).find(function(x){return x.id===id});if(!p)return lista();
   if(!(await askC('¿Eliminar «'+(p.name||'este producto')+'» de tu tienda?\nNo se puede deshacer.','Eliminar')))return;
   borrar(id);lista();toast('Producto eliminado')}},true);
+})();
+</script>
+<script id="v423-confirmar-borrar">
+/* v423: PREGUNTAR ANTES DE BORRAR. Cuatro botones borraban de inmediato, sin preguntar, y un toque por error bastaba:
+   la ✕ de un producto en la tienda (delProd), «Quitar» en un servicio propio (delServ), «Quitar la mía» / «Eliminar» en una
+   sugerencia (delSug) y «Borrar comentario» en las opiniones de un clasificado (data-fbd, v225).
+   Este bloque detiene ese toque, pregunta con la misma ventana de «¿Eliminar tu tienda…?» (askC) y, solo si la persona
+   acepta, deja pasar el toque a la acción de siempre. No cambia cómo se borra nada.
+   La lista de productos (v422) ya pregunta por su cuenta: marca su toque con data-cfok para que no se pregunte dos veces.
+   Para quitarlo: borra este archivo de src/orden.json. */
+(function(){
+var SEL='[data-act="delProd"],[data-act="delServ"],[data-act="delSug"],.cmfb [data-fbd]';
+function msg(b){var a=b.dataset.act,id=b.dataset.id,x;
+ if(a==='delProd'){try{x=(S.stores.find(function(s){return s.id===cur}).products||[]).find(function(p){return p.id===id})}catch(e){}
+  return '¿Eliminar «'+((x&&x.name)||'este producto')+'» de tu tienda?\nNo se puede deshacer.'}
+ if(a==='delServ'){try{x=S.services.find(function(s){return s.id===id})}catch(e){}
+  return '¿Quitar el servicio'+(x&&x.name?' de «'+x.name+'»':'')+'?\nNo se puede deshacer.'}
+ if(a==='delSug')return '¿Eliminar esta sugerencia?\nNo se puede deshacer.';
+ return '¿Borrar este comentario?'}
+addEventListener('click',function(e){var b=e.target.closest&&e.target.closest(SEL);if(!b||b.dataset.cfok)return;
+ var cb=b.closest('.cmfb'),ad=cb?cb.dataset.ad:'';
+ e.preventDefault();e.stopImmediatePropagation();
+ askC(msg(b),b.dataset.act==='delServ'?'Quitar':b.dataset.act?'Eliminar':'Borrar').then(function(ok){if(!ok)return;
+  var t=b;
+  /* si la pantalla se volvió a dibujar mientras se preguntaba, el botón ya no está: se busca el mismo botón de nuevo
+     (comentarios) o se usa uno igual, oculto (las demás acciones) */
+  if(!t.isConnected&&!b.dataset.act){t=[].slice.call(document.querySelectorAll('.cmfb [data-fbd]')).find(function(x){return x.dataset.fbd===b.dataset.fbd&&x.closest('.cmfb').dataset.ad===ad});if(!t)return toast('Vuelve a tocar «Borrar comentario».')}
+  if(!t.isConnected){t=document.createElement('button');t.hidden=true;t.dataset.act=b.dataset.act;t.dataset.id=b.dataset.id||'';document.body.appendChild(t)}
+  t.dataset.cfok='1';try{t.click()}finally{delete t.dataset.cfok;if(t!==b)t.remove()}})},true);
 })();
 </script>
 <script id="v361-verificar-celular">

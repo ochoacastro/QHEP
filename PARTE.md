@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 215 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#148** (v420 y v421), el 15 de noviembre de 2026. Todo hasta la v421 está en `main`. En la rama está la **v422** (lista de productos) y cambios de este parte, sin PR todavía.
+- **Pruebas:** 226 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#148** (v420 y v421), el 15 de noviembre de 2026. Todo hasta la v421 está en `main`. En la rama están la **v422** (lista de productos), la **v423** (preguntar antes de borrar) y cambios de este parte, sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v422)
+## 2. Lo que se hizo en esta etapa (v392 a v423)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -49,6 +49,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v420 | En el último paso de los formularios por pasos, el botón de guardar («Abrir tienda», «Guardar mis datos») va arriba a todo el ancho y «Atrás» pasa debajo, junto a «Cancelar» (pedido por la dueña al verlo en su teléfono) | #148 |
 | v421 | **Letrero: abrir fuera del horario.** Poner «Abierto» cuando el horario dice cerrado ahora sí abre la tienda, por hoy; después vuelve sola a seguir el horario | #148 |
 | v422 | **Lista de productos:** en la ficha de la tienda, el botón «Eliminar tienda» se cambia por «Lista de productos», que abre una lista con cada producto y sus botones «Editar» y «Eliminar» (pregunta antes de borrar). «Eliminar tienda» queda como enlace pequeño debajo de los botones | sin PR |
+| v423 | **Preguntar antes de borrar:** la ✕ de un producto, «Quitar» en un servicio propio, quitar una sugerencia y «Borrar comentario» borraban de inmediato; ahora preguntan primero | sin PR |
 
 ---
 
@@ -91,10 +92,14 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
 - **Lista de productos (v422):**
   - «Eliminar tienda» no se quitó del todo: quedó como un enlace pequeño en rojo debajo de los botones, para que el dueño todavía pueda eliminar su tienda. Si la dueña no lo quiere ahí, se puede pasar a «Editar tienda» o quitar;
-  - «Eliminar» en la lista pregunta antes de borrar; la ✕ de cada tarjeta de producto sigue borrando sin preguntar, como antes;
+  - «Eliminar» en la lista pregunta antes de borrar;
   - la lista muestra todos los productos de la tienda, sin buscador ni filtro por categoría;
   - no guarda nada nuevo ni necesita reglas nuevas: usa las mismas acciones de editar y borrar de siempre;
   - las clases del CSS empiezan por `lpv`: `pls…` ya lo usaba otro módulo.
+- **Preguntar antes de borrar (v423):**
+  - revisión del 15 de noviembre de 2026 de todos los botones que borran: «Eliminar tienda» ya preguntaba, igual que anuncios, clasificados, noticias, categorías, cuenta, direcciones, mensajes, fotos de «Conoce el lugar» y lo del panel de administrador;
+  - los cuatro que no preguntaban se arreglaron en `v423-confirmar-borrar.js`: detiene el toque, pregunta y, si la persona acepta, lo deja pasar a la acción de siempre;
+  - se dejaron sin pregunta, a propósito: «Cerrar sesión»; la ✕ de una notificación; quitar de favoritos; quitar una foto dentro de un formulario (no se pierde hasta tocar «Guardar»); «Borrar mis datos» del visitante sin cuenta (solo borra lo guardado en su teléfono); «Descartar reporte» del administrador.
 - **Letrero de abierto fuera del horario (v421):**
   - vale «por hoy»: hasta las 4:00 a. m. siguientes (para no cortar a los negocios que atienden pasada la medianoche). Después la tienda vuelve a seguir su horario, para que no quede abierta por olvido;
   - el menú lo ofrece ya marcado («Abrir ahora (vale por hoy)») con la alternativa «Seguir mi horario»;

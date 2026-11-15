@@ -535,6 +535,34 @@ const PRUEBAS = {
     check('El enlace «Eliminar tienda» sigue preguntando antes de eliminar', await p.evaluate(() => /¿Eliminar tu tienda/.test((document.getElementById('cfm-t') || {}).textContent || '')));
     await p.click('#cfm-no'); await p.waitForTimeout(200);
     check('Si cancela, la tienda sigue', await p.evaluate(() => !!S.stores.find(x => x.id === 's1')));
+    // v423: los botones que borraban sin preguntar ahora preguntan
+    const preg = () => p.evaluate(() => (document.getElementById('cfm-t') || {}).textContent || '');
+    await p.click('#app .prod .x[data-act="delProd"]'); await p.waitForTimeout(300);
+    check('v423: la ✕ de un producto pregunta antes de borrar', /¿Eliminar «Arroz» de tu tienda/.test(await preg()), await preg());
+    await p.click('#cfm-no'); await p.waitForTimeout(200);
+    check('v423: si cancela, el producto sigue', await p.evaluate(() => S.stores.find(x => x.id === 's1').products.length === 2));
+    await p.click('#app .prod .x[data-act="delProd"]'); await p.waitForTimeout(300); await p.click('#cfm-ok'); await p.waitForTimeout(400);
+    check('v423: si acepta, el producto se borra', await p.evaluate(() => S.stores.find(x => x.id === 's1').products.map(x => x.id).join() === 'p3' && !document.getElementById('cfm-t')));
+    await p.evaluate(() => { S.services.push({ id: 'vv1', name: 'Luis Plomero', job: 'Plomería', wa: '3009998877' }); S.myServ.push('vv1'); S.ideas.push({ id: 'ii1', txt: 'Más bancas en el parque', ts: 1 }); S.myIdeas.push('ii1');
+      document.body.insertAdjacentHTML('beforeend', '<button id="t-serv" data-act="delServ" data-id="vv1">Quitar</button><button id="t-sug" data-act="delSug" data-id="ii1">Quitar la mía</button>') });
+    await p.evaluate(() => document.getElementById('t-serv').click()); await p.waitForTimeout(300);
+    check('v423: «Quitar» un servicio pregunta, con el nombre', /¿Quitar el servicio de «Luis Plomero»/.test(await preg()), await preg());
+    await p.click('#cfm-no'); await p.waitForTimeout(200);
+    check('v423: si cancela, el servicio sigue', await p.evaluate(() => S.services.some(x => x.id === 'vv1')));
+    await p.evaluate(() => document.getElementById('t-serv').click()); await p.waitForTimeout(300); await p.click('#cfm-ok'); await p.waitForTimeout(300);
+    check('v423: si acepta, el servicio se quita', await p.evaluate(() => !S.services.some(x => x.id === 'vv1')));
+    await p.evaluate(() => document.getElementById('t-sug').click()); await p.waitForTimeout(300);
+    check('v423: quitar una sugerencia pregunta', /¿Eliminar esta sugerencia/.test(await preg()), await preg());
+    await p.click('#cfm-no'); await p.waitForTimeout(200);
+    check('v423: si cancela, la sugerencia sigue', await p.evaluate(() => S.ideas.some(x => x.id === 'ii1')));
+    await p.evaluate(() => document.getElementById('t-sug').click()); await p.waitForTimeout(300); await p.click('#cfm-ok'); await p.waitForTimeout(300);
+    check('v423: si acepta, la sugerencia se quita', await p.evaluate(() => !S.ideas.some(x => x.id === 'ii1')));
+    // la caja de opiniones (v225) se vuelve a dibujar sola: el botón se pone justo antes de cada toque
+    const caja = () => { let c = document.getElementById('t-cm'); if (!c) { document.body.insertAdjacentHTML('beforeend', '<div class="cmfb" id="t-cm" data-ad="zz"></div>'); c = document.getElementById('t-cm') } c.innerHTML = '<button data-fbd="otro">Borrar comentario</button>'; return c.firstChild };
+    await p.evaluate(c => { window.__fb = 0; addEventListener('click', e => { if (e.target.closest('[data-fbd]')) window.__fb++ }, true); eval('(' + c + ')')().click() }, caja.toString()); await p.waitForTimeout(300);
+    check('v423: «Borrar comentario» pregunta y no borra todavía', /¿Borrar este comentario/.test(await preg()) && await p.evaluate(() => window.__fb === 0), await preg());
+    await p.evaluate(c => { eval('(' + c + ')')(); document.getElementById('cfm-ok').click() }, caja.toString()); await p.waitForTimeout(300);
+    check('v423: al aceptar, el toque llega al botón de borrar aunque la caja se haya vuelto a dibujar', await p.evaluate(() => window.__fb === 1 && !document.getElementById('cfm-t')), String(await p.evaluate(() => window.__fb)));
     sinErrores(p, 'Lista de productos'); await p.cerrar();
   },
   async soloWhatsapp() { // v418 sin pagos entre usuarios ni pedidos por la aplicación; los roles siguen igual
