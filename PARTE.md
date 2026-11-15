@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 202 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** el **#148** (v420 y v421), creado el 14 de noviembre de 2026; falta que la dueña lo fusione. El último PR fusionado es el **#147** (v417 a v419). Todo hasta la v419 está en `main` y publicado; la v420 y la v421 todavía no.
+- **Pruebas:** 226 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#148** (v420 y v421), el 15 de noviembre de 2026. Todo hasta la v421 está en `main`. En la rama están la **v422** (lista de productos), la **v423** (preguntar antes de borrar) y cambios de este parte, sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v421)
+## 2. Lo que se hizo en esta etapa (v392 a v423)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -46,16 +46,16 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v417 | **Formularios por pasos:** «Crea tu tienda» pasa de una ventana de más de 5.000 px a 6 pasos (Tu negocio, Categoría, Contacto, Ubicación, Horario, Entregas y pagos) con «Continuar», «Omitir» y «Atrás»; «Tus datos personales» va en 2 o 3 pasos; «Editar tienda» muestra las mismas secciones como pestañas | #147 |
 | v418 | **Solo WhatsApp entre usuarios:** se apagan los pagos entre usuarios (botón «Pagar con Bre-B / Nequi» junto al WhatsApp, «Pagos Bre-B y Nequi» en Mi cuenta, pestaña «Cobrar») y los pedidos por la aplicación (todos salen por WhatsApp). Los pagos de roles a Mi Pradera y «Mis códigos» no cambian | #147 |
 | v419 | Medios de pago de la tienda: nuevo **«Tarjeta débito»**; van en una sola columna y cada uno lleva una casilla (vacía sin elegir, azul con el chulo al elegirlo) | #147 |
-| v420 | En el último paso de los formularios por pasos, el botón de guardar («Abrir tienda», «Guardar mis datos») va arriba a todo el ancho y «Atrás» pasa debajo, junto a «Cancelar» (pedido por la dueña al verlo en su teléfono) | #148, abierto |
-| v421 | **Letrero: abrir fuera del horario.** Poner «Abierto» cuando el horario dice cerrado ahora sí abre la tienda, por hoy; después vuelve sola a seguir el horario | #148, abierto |
+| v420 | En el último paso de los formularios por pasos, el botón de guardar («Abrir tienda», «Guardar mis datos») va arriba a todo el ancho y «Atrás» pasa debajo, junto a «Cancelar» (pedido por la dueña al verlo en su teléfono) | #148 |
+| v421 | **Letrero: abrir fuera del horario.** Poner «Abierto» cuando el horario dice cerrado ahora sí abre la tienda, por hoy; después vuelve sola a seguir el horario | #148 |
+| v422 | **Lista de productos:** en la ficha de la tienda, el botón «Eliminar tienda» se cambia por «Lista de productos», que abre una lista con cada producto y sus botones «Editar» y «Eliminar» (pregunta antes de borrar). «Eliminar tienda» queda como enlace pequeño debajo de los botones | sin PR |
+| v423 | **Preguntar antes de borrar:** la ✕ de un producto, «Quitar» en un servicio propio, quitar una sugerencia y «Borrar comentario» borraban de inmediato; ahora preguntan primero | sin PR |
 
 ---
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
-0. **Fusionar el PR #148** (v420 y v421) y, ya publicado, probar en un teléfono real lo que las pruebas no pueden comprobar:
-   - poner el letrero en «Abierto» a una hora en que el horario diga cerrado y ver que la tienda se muestra abierta (v421);
-   - crear una tienda de prueba recorriendo los 6 pasos (v417, v420);
+0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (el PR #148 ya está fusionado):
    - hacer un pedido sin cuenta y ver que WhatsApp se abre con el mensaje (v416).
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
@@ -66,7 +66,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - configurar WhatsApp Business.
 4. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
 
-Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien.
+Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien. El 15 de noviembre de 2026 probó en su teléfono el letrero de «Abierto» fuera del horario (v421) y creó una tienda recorriendo los 6 pasos (v417, v420); las dos cosas funcionaron.
 
 ---
 
@@ -90,6 +90,16 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 ## 5. Decisiones abiertas e ideas que no se hicieron
 
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
+- **Lista de productos (v422):**
+  - «Eliminar tienda» no se quitó del todo: quedó como un enlace pequeño en rojo debajo de los botones, para que el dueño todavía pueda eliminar su tienda. Si la dueña no lo quiere ahí, se puede pasar a «Editar tienda» o quitar;
+  - «Eliminar» en la lista pregunta antes de borrar;
+  - la lista muestra todos los productos de la tienda, sin buscador ni filtro por categoría;
+  - no guarda nada nuevo ni necesita reglas nuevas: usa las mismas acciones de editar y borrar de siempre;
+  - las clases del CSS empiezan por `lpv`: `pls…` ya lo usaba otro módulo.
+- **Preguntar antes de borrar (v423):**
+  - revisión del 15 de noviembre de 2026 de todos los botones que borran: «Eliminar tienda» ya preguntaba, igual que anuncios, clasificados, noticias, categorías, cuenta, direcciones, mensajes, fotos de «Conoce el lugar» y lo del panel de administrador;
+  - los cuatro que no preguntaban se arreglaron en `v423-confirmar-borrar.js`: detiene el toque, pregunta y, si la persona acepta, lo deja pasar a la acción de siempre;
+  - se dejaron sin pregunta, a propósito: «Cerrar sesión»; la ✕ de una notificación; quitar de favoritos; quitar una foto dentro de un formulario (no se pierde hasta tocar «Guardar»); «Borrar mis datos» del visitante sin cuenta (solo borra lo guardado en su teléfono); «Descartar reporte» del administrador.
 - **Letrero de abierto fuera del horario (v421):**
   - vale «por hoy»: hasta las 4:00 a. m. siguientes (para no cortar a los negocios que atienden pasada la medianoche). Después la tienda vuelve a seguir su horario, para que no quede abierta por olvido;
   - el menú lo ofrece ya marcado («Abrir ahora (vale por hoy)») con la alternativa «Seguir mi horario»;
