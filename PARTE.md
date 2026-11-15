@@ -54,7 +54,6 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
 0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (el PR #148 ya está fusionado):
-   - crear una tienda de prueba recorriendo los 6 pasos (v417, v420);
    - hacer un pedido sin cuenta y ver que WhatsApp se abre con el mensaje (v416).
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
@@ -65,7 +64,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - configurar WhatsApp Business.
 4. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
 
-Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien. El 15 de noviembre de 2026 probó en su teléfono el letrero de «Abierto» fuera del horario (v421) y funcionó.
+Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien. El 15 de noviembre de 2026 probó en su teléfono el letrero de «Abierto» fuera del horario (v421) y creó una tienda recorriendo los 6 pasos (v417, v420); las dos cosas funcionaron.
 
 ---
 
