@@ -10,7 +10,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 202 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#148** (v420 y v421), el 15 de noviembre de 2026. Todo hasta la v421 está en `main` y publicado. En la rama solo quedan cambios de este parte, sin PR.
+- **PR abierto:** el **#148** (v420 y v421), creado el 14 de noviembre de 2026; falta que la dueña lo fusione. El último PR fusionado es el **#147** (v417 a v419). Todo hasta la v419 está en `main` y publicado; la v420 y la v421 todavía no.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -46,14 +46,14 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v417 | **Formularios por pasos:** «Crea tu tienda» pasa de una ventana de más de 5.000 px a 6 pasos (Tu negocio, Categoría, Contacto, Ubicación, Horario, Entregas y pagos) con «Continuar», «Omitir» y «Atrás»; «Tus datos personales» va en 2 o 3 pasos; «Editar tienda» muestra las mismas secciones como pestañas | #147 |
 | v418 | **Solo WhatsApp entre usuarios:** se apagan los pagos entre usuarios (botón «Pagar con Bre-B / Nequi» junto al WhatsApp, «Pagos Bre-B y Nequi» en Mi cuenta, pestaña «Cobrar») y los pedidos por la aplicación (todos salen por WhatsApp). Los pagos de roles a Mi Pradera y «Mis códigos» no cambian | #147 |
 | v419 | Medios de pago de la tienda: nuevo **«Tarjeta débito»**; van en una sola columna y cada uno lleva una casilla (vacía sin elegir, azul con el chulo al elegirlo) | #147 |
-| v420 | En el último paso de los formularios por pasos, el botón de guardar («Abrir tienda», «Guardar mis datos») va arriba a todo el ancho y «Atrás» pasa debajo, junto a «Cancelar» (pedido por la dueña al verlo en su teléfono) | #148 |
-| v421 | **Letrero: abrir fuera del horario.** Poner «Abierto» cuando el horario dice cerrado ahora sí abre la tienda, por hoy; después vuelve sola a seguir el horario | #148 |
+| v420 | En el último paso de los formularios por pasos, el botón de guardar («Abrir tienda», «Guardar mis datos») va arriba a todo el ancho y «Atrás» pasa debajo, junto a «Cancelar» (pedido por la dueña al verlo en su teléfono) | #148, abierto |
+| v421 | **Letrero: abrir fuera del horario.** Poner «Abierto» cuando el horario dice cerrado ahora sí abre la tienda, por hoy; después vuelve sola a seguir el horario | #148, abierto |
 
 ---
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
-0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (el PR #148 ya está fusionado):
+0. **Fusionar el PR #148** (v420 y v421) y, ya publicado, probar en un teléfono real lo que las pruebas no pueden comprobar:
    - poner el letrero en «Abierto» a una hora en que el horario diga cerrado y ver que la tienda se muestra abierta (v421);
    - crear una tienda de prueba recorriendo los 6 pasos (v417, v420);
    - hacer un pedido sin cuenta y ver que WhatsApp se abre con el mensaje (v416).
