@@ -1887,6 +1887,20 @@ html.dark .rlpk[aria-selected=true]{background:#0a84ff;border-color:#0a84ff}html
 @keyframes mv-pageb{from{opacity:0;transform:translateY(-8px)}}
 @keyframes mv-open{from{opacity:0;transform:translateY(-6px)}}
 </style>
+<style id="v428-ajustes-visuales-css">
+/* v428: AJUSTES VISUALES del inicio y de la tienda. No cambia colores ni letras.
+   1. Pestañas del inicio (Lo más reciente, Clasificados…): la caja toma la altura de la pestaña abierta (la pone
+      v428-ajustes-visuales.js); antes tomaba la de la más larga y dejaba un hueco en blanco bajo las cortas. */
+.hswp{overflow-y:hidden}
+/* 2. Negocios del inicio: el nombre completo, hasta en dos líneas (antes se cortaba con «…» en una) */
+.hnegt>strong{white-space:normal!important;overflow:hidden!important;text-overflow:clip!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.2!important}
+/* 3. Producto sin foto: marco cuadrado con ícono de imagen (antes «Sin foto», el «+» y el corazón quedaban flotando) */
+.prod .pic:has(>.nop){border:1px solid var(--line);border-radius:0!important}
+.prod .pic>.nop{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;opacity:.75}
+.prod .pic>.nop::before{content:"";width:44px;height:44px;background:currentColor;opacity:.55;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14'/%3E%3Ccircle cx='8.5' cy='10' r='1.6'/%3E%3Cpath d='M21 16l-5-5-8 8'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14'/%3E%3Ccircle cx='8.5' cy='10' r='1.6'/%3E%3Cpath d='M21 16l-5-5-8 8'/%3E%3C/svg%3E") center/contain no-repeat}
+/* 4. Carrusel del inicio: el botón va al fondo de la tarjeta (antes quedaba una franja vacía debajo en las tarjetas cortas) */
+.bzt>.bzb,.bzt>.bzr{margin-top:auto}
+</style>
 
 <style id="v312-tablas-anuncios-css">
 /* v312: tablas de Mis inmuebles y Mis vehículos (usan el estilo .mst de la tabla de tiendas) */
@@ -2161,6 +2175,7 @@ html.dark .si-hd,html.dark .si-r{border-color:#3a3a3c!important}html.dark .si-hd
 html.dark .si-tags span{background:#2c2c2e!important;color:#e5e5ea!important}html.dark .si-i{background:#0a2540!important;color:#64a8ff!important}
 html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64a8ff!important}
 </style>
+
 
 
 
@@ -5168,6 +5183,26 @@ function pasos(){new MutationObserver(function(){if(quieto())return;var k=docume
   var c=n>paso.n?'mv-next':'mv-prev';paso.n=n;m.classList.remove('mv-next','mv-prev');void m.offsetWidth;m.classList.add(c);
   setTimeout(function(){m.classList.remove('mv-next','mv-prev')},280)}).observe(document.body,{childList:true,subtree:true,characterData:true})}
 function inicia(){if(inicia.ya)return;inicia.ya=1;try{cuerpo();app();pasos()}catch(e){}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inicia);else inicia();
+})();
+</script>
+<script id="v428-ajustes-visuales">
+/* v428: pestañas del inicio (.hswp) — la caja toma la altura de la pestaña que se está viendo. Antes tomaba la de la pestaña
+   más larga y bajo las cortas quedaba un hueco en blanco (hasta 1.000 px) antes de «Escríbenos».
+   Se recalcula al dibujar la pantalla, al pasar de pestaña, al girar el teléfono y cuando una pestaña crece (fotos que cargan).
+   El resto de la v428 es solo CSS (v428-ajustes-visuales-css.css). Para quitarlo: borra los dos archivos de src/orden.json. */
+(function(){
+var ro=null,visto=null,t=0;
+function caja(){return document.querySelector('#app .hswp')}
+function ajusta(){var w=caja();if(!w||!w.children.length)return;var c0=w.children[0],paso=Math.max(1,c0.offsetWidth+14),i=Math.max(0,Math.min(w.children.length-1,Math.round(w.scrollLeft/paso))),c=w.children[i],h=c?c.offsetHeight:0;
+ if(h>0&&w.style.height!==h+'px')w.style.height=h+'px';
+ if(ro&&visto!==w){ro.disconnect();[].forEach.call(w.children,function(x){ro.observe(x)});visto=w}}
+function pronto(){cancelAnimationFrame(t);t=requestAnimationFrame(ajusta)}
+window.qhHswFit=ajusta;
+function inicia(){if(inicia.ya)return;inicia.ya=1;try{if(window.ResizeObserver)ro=new ResizeObserver(pronto)}catch(e){}
+ var a=document.getElementById('app');if(a)new MutationObserver(pronto).observe(a,{childList:true,subtree:true});
+ document.addEventListener('scroll',function(e){if(e.target&&e.target.classList&&e.target.classList.contains('hswp'))pronto()},true);
+ addEventListener('resize',pronto);pronto()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inicia);else inicia();
 })();
 </script>

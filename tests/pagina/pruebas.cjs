@@ -577,6 +577,23 @@ const PRUEBAS = {
     check('Con «reducir movimiento» no hay copia ni animaciones', !sw && await p.evaluate(() => !document.querySelector('.mvg')) && !/mv-/.test(await app()), await app());
     sinErrores(p, 'Movimiento'); await p.cerrar();
   },
+  async ajustesVisuales() { // v428 inicio sin hueco bajo las pestañas, nombre del negocio completo, marco en producto sin foto, carrusel
+    const st = (id, n, o) => ({ id, name: n, desc: 'x', ownerKey: 'k' + id, cat: 'Otros', wa: '3001234567', pexp: Date.now() + 30 * 864e5, _o: o, pays: ['cash'], products: [] });
+    const p = await abrir({ seed: { 'stores/s1': st('s1', 'Ferretería La Tuerca de Oro', 1), 'stores/s2': st('s2', 'Panadería El Trigal', 2), 'stores/s3': st('s3', 'Dulces de la Abuela', 3), 'products/s1__p1': { id: 'p1', sid: 's1', name: 'Martillo', price: 28000, imgs: [], ownerKey: 'ks1', _o: 1 } } });
+    await p.waitForTimeout(500);
+    const m = () => p.evaluate(() => { const w = document.querySelector('#app .hswp'), c = [...w.children].map(x => x.offsetHeight), i = Math.round(w.scrollLeft / (w.children[0].offsetWidth + 14)); return { h: w.offsetHeight, c, i, max: Math.max(...c) } });
+    let x = await m();
+    check('Las pestañas del inicio miden lo que mide la pestaña abierta, no la más larga', x.i === 0 && Math.abs(x.h - x.c[0]) <= 2 && x.max > x.c[0] + 100, JSON.stringify(x));
+    check('Ya no queda un hueco grande antes del pie de la página', await p.evaluate(() => { const w = document.querySelector('#app .hsw'), f = document.querySelector('footer'); return f.getBoundingClientRect().top - w.getBoundingClientRect().bottom < 200 }));
+    await p.evaluate(() => { const w = document.querySelector('#app .hswp'); w.scrollLeft = (w.children[0].offsetWidth + 14) * (w.children.length - 1) }); await p.waitForTimeout(500);
+    x = await m();
+    check('Al pasar a otra pestaña, la caja toma la altura de esa pestaña', x.i === x.c.length - 1 && Math.abs(x.h - x.c[x.i]) <= 2, JSON.stringify(x));
+    check('El nombre del negocio sale completo, en dos líneas, sin «…»', await p.evaluate(() => { const s = [...document.querySelectorAll('.hnegc .hnegt>strong')].find(e => /Tuerca de Oro/.test(e.textContent)); return !!s && s.scrollWidth <= s.clientWidth + 1 && s.offsetHeight > 30 && s.scrollHeight <= s.clientHeight + 1 }));
+    check('En el carrusel, el botón queda al fondo de cada tarjeta', await p.evaluate(() => [...document.querySelectorAll('.bzc')].every(c => { const t = c.querySelector('.bzt'), b = t.lastElementChild; return !!b.querySelector('button, a') || b.matches('button, a') ? t.getBoundingClientRect().bottom - b.getBoundingClientRect().bottom < 6 : true }) && document.querySelectorAll('.bzc').length >= 2));
+    await p.evaluate(() => { view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(500);
+    check('Un producto sin foto tiene marco e ícono', await p.evaluate(() => { const c = document.querySelector('.prod .pic'), n = c.querySelector('.nop'); return parseFloat(getComputedStyle(c).borderTopWidth) >= 1 && getComputedStyle(n, '::before').width === '44px' && /Sin foto/.test(n.textContent) }));
+    sinErrores(p, 'Ajustes visuales'); await p.cerrar();
+  },
   async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
     const p = await abrir(); await conCuenta(p);
     await p.evaluate(() => { closeModal(1); shopForm() }); await p.waitForTimeout(700);

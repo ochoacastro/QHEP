@@ -984,6 +984,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v428-ajustes-visuales-css\">",
+  "f": "estilos/v428-ajustes-visuales-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v411-letrero\">",
   "f": "codigo/v411-letrero.js"
@@ -1311,6 +1320,15 @@
   "t": "js",
   "tag": "<script id=\"v427-movimiento\">",
   "f": "codigo/v427-movimiento.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v428-ajustes-visuales\">",
+  "f": "codigo/v428-ajustes-visuales.js"
  },
  {
   "t": "txt",
