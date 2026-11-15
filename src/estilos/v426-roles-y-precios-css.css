@@ -1,0 +1,38 @@
+
+/* v426: página «Roles y precios» */
+.rlp{max-width:860px;margin:0 auto}
+.rlpc{border:1px solid var(--line);padding:16px;margin:0 0 14px;background:#fff}
+.rlpc h3{display:flex;align-items:center;gap:10px;margin:0 0 4px;font-size:20px;line-height:1.25}
+.rlpi{flex:none;color:#0071e3}
+.rlpd{margin:0 0 10px;font-size:15px;line-height:1.45;opacity:.85}
+.rlpl{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:6px}
+.rlpl li{display:flex;gap:8px;align-items:flex-start;font-size:15px;line-height:1.4}
+.rlpl svg{flex:none;margin-top:3px;color:#0e9f4b}
+.rlpw{overflow-x:auto;margin:0 0 8px}
+.rlpt{width:100%;border-collapse:collapse;font-size:15px}
+.rlpt th,.rlpt td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+.rlpt thead th{background:#f3f4f6;font-size:13px;text-transform:uppercase;letter-spacing:.3px}
+.rlpt td{font-weight:600;white-space:nowrap}.rlpt td:nth-child(2):not(:last-child){font-weight:400;white-space:normal}
+.rlpt tbody th{font-weight:600;white-space:nowrap}
+.rlpt .pold{font-weight:400;opacity:.65;margin-right:4px}
+.rlpn{margin:6px 0 0;font-size:14px;line-height:1.45;opacity:.85}
+.rlpg{margin:0;font-size:18px;font-weight:700;color:#0e7a3a}
+.rlpp{margin:0 0 14px;padding:10px 12px;border:2px solid #0071e3;font-size:15px}
+.rlpa{margin:18px 0 8px;padding:16px;border:2px solid #0071e3;text-align:center}
+.rlpa b{display:block;font-size:17px;margin-bottom:10px}.rlpa .row{justify-content:center}
+html.dark .rlpc{background:#16171b}html.dark .rlpt thead th{background:#22242a}
+html.dark .rlpi{color:#4da3ff}html.dark .rlpl svg{color:#4ade80}html.dark .rlpg{color:#4ade80}
+html.dark .rlpp,html.dark .rlpa{border-color:#4da3ff}
+.rlpb{display:flex;align-items:stretch;gap:6px;margin:0 0 14px}
+.rlps{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth}.rlps::-webkit-scrollbar{display:none}
+.rlpk{flex:none;min-height:46px;padding:8px 14px;border:2px solid var(--line);background:transparent;color:inherit;font:inherit;font-size:15px;font-weight:600;white-space:nowrap;cursor:pointer}
+.rlpk[aria-selected=true]{background:#0071e3;border-color:#0071e3;color:#fff}
+.rlpf{flex:none;width:46px;min-height:46px;display:flex;align-items:center;justify-content:center;border:2px solid #0071e3;background:transparent;color:#0071e3;cursor:pointer;padding:0}
+.rlpf:disabled{opacity:.3;cursor:default}
+.rlpv{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin:16px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+.rlpv .btn{margin:0;min-height:46px;width:100%;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 6px;font-size:14px;line-height:1.15}
+.rlpv .btn:disabled{opacity:.35;cursor:default}.rlpv .btn svg{flex:none}
+.rlpx{font-size:14px;opacity:.75;white-space:nowrap}
+.rlpc[hidden]{display:none}
+html.dark .rlpk[aria-selected=true]{background:#0a84ff;border-color:#0a84ff}html.dark .rlpf{border-color:#4da3ff;color:#4da3ff}
+.rlpc,.rlpp,.rlpa,.rlpk,.rlpf{border-radius:0!important}

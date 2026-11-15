@@ -966,6 +966,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v426-roles-y-precios-css\">",
+  "f": "estilos/v426-roles-y-precios-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v411-letrero\">",
   "f": "codigo/v411-letrero.js"
@@ -1284,6 +1293,24 @@
   "t": "js",
   "tag": "<script id=\"v424-sin-direccion\">",
   "f": "codigo/v424-sin-direccion.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v426-roles-y-precios\">",
+  "f": "codigo/v426-roles-y-precios.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v425-registro-para-publicar\">",
+  "f": "codigo/v425-registro-para-publicar.js"
  },
  {
   "t": "txt",
