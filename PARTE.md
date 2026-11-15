@@ -1,6 +1,6 @@
 # Parte de trabajo — Mi Pradera
 
-Actualizado: 14 de noviembre de 2026 · Rama de trabajo: `claude/page-review-improve-hshx7j`
+Actualizado: 15 de noviembre de 2026 · Rama de trabajo: `claude/page-review-improve-hshx7j`
 
 Este archivo resume en qué va la página, lo que falta y cómo seguir trabajando. Sirve para retomar el trabajo en otra sesión sin perder el hilo.
 
@@ -10,7 +10,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 202 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#147** (v417 a v419). Todo hasta la v419 está en `main`. **La rama tiene la v420 (orden de los botones del último paso) y la v421 (abrir fuera del horario con el letrero) sin PR ni publicar.**
+- **PR abierto:** el **#148** (v420 y v421), creado el 14 de noviembre de 2026; falta que la dueña lo fusione. El último PR fusionado es el **#147** (v417 a v419). Todo hasta la v419 está en `main` y publicado; la v420 y la v421 todavía no.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -46,13 +46,17 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v417 | **Formularios por pasos:** «Crea tu tienda» pasa de una ventana de más de 5.000 px a 6 pasos (Tu negocio, Categoría, Contacto, Ubicación, Horario, Entregas y pagos) con «Continuar», «Omitir» y «Atrás»; «Tus datos personales» va en 2 o 3 pasos; «Editar tienda» muestra las mismas secciones como pestañas | #147 |
 | v418 | **Solo WhatsApp entre usuarios:** se apagan los pagos entre usuarios (botón «Pagar con Bre-B / Nequi» junto al WhatsApp, «Pagos Bre-B y Nequi» en Mi cuenta, pestaña «Cobrar») y los pedidos por la aplicación (todos salen por WhatsApp). Los pagos de roles a Mi Pradera y «Mis códigos» no cambian | #147 |
 | v419 | Medios de pago de la tienda: nuevo **«Tarjeta débito»**; van en una sola columna y cada uno lleva una casilla (vacía sin elegir, azul con el chulo al elegirlo) | #147 |
-| v420 | En el último paso de los formularios por pasos, el botón de guardar («Abrir tienda», «Guardar mis datos») va arriba a todo el ancho y «Atrás» pasa debajo, junto a «Cancelar» (pedido por la dueña al verlo en su teléfono) | sin PR |
-| v421 | **Letrero: abrir fuera del horario.** Poner «Abierto» cuando el horario dice cerrado ahora sí abre la tienda, por hoy; después vuelve sola a seguir el horario | sin PR |
+| v420 | En el último paso de los formularios por pasos, el botón de guardar («Abrir tienda», «Guardar mis datos») va arriba a todo el ancho y «Atrás» pasa debajo, junto a «Cancelar» (pedido por la dueña al verlo en su teléfono) | #148, abierto |
+| v421 | **Letrero: abrir fuera del horario.** Poner «Abierto» cuando el horario dice cerrado ahora sí abre la tienda, por hoy; después vuelve sola a seguir el horario | #148, abierto |
 
 ---
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
+0. **Fusionar el PR #148** (v420 y v421) y, ya publicado, probar en un teléfono real lo que las pruebas no pueden comprobar:
+   - poner el letrero en «Abierto» a una hora en que el horario diga cerrado y ver que la tienda se muestra abierta (v421);
+   - crear una tienda de prueba recorriendo los 6 pasos (v417, v420);
+   - hacer un pedido sin cuenta y ver que WhatsApp se abre con el mensaje (v416).
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 3. **Pendientes de antes:**
@@ -99,7 +103,6 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - el botón «atrás» del teléfono no hace la pregunta: lo escrito queda en el borrador y aparece «Continuar»;
   - el toque afuera no cierra esos formularios; las demás ventanas sí se cierran al tocar afuera (la dueña lo pidió así).
 - **Mapa del inmueble (v409):** si el dueño respondió «No lo ubica bien» y el administrador aún no puso el código plus, el mapa no se muestra.
-
 - **Solo WhatsApp (v418):**
   - son dos interruptores apagados, no código borrado: `ITEM=false` en `v232-breb.js` (pagos entre usuarios) y `APP=false` en `v320-pedidos.js` (pedidos por la aplicación). Ponerlos en `true` los vuelve a encender;
   - quien ya tenía pagos con otros usuarios o pedidos guardados los sigue viendo en Mi cuenta para cerrarlos; no se crean nuevos;
@@ -155,7 +158,8 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 - **Cada cambio nuevo va en su propio archivo** `src/codigo/vNNN-nombre.js`, con un comentario arriba que diga qué hace y cómo quitarlo.
 - **Al publicar:** commit con el pie de coautoría, push a la rama y un PR que la dueña fusiona. Si el PR anterior ya está fusionado, antes de seguir hay que poner la rama al día con `main`.
 - **Notas para las pruebas:**
-  - a una cuenta de prueba sin dirección se le abre sola «Tu dirección principal» cada 2,5 segundos cuando no hay otra ventana abierta (v322). Si una prueba cierra ventanas y luego revisa la pantalla, puede fallar a ratos; la prueba `borradores` lo evita agregando un elemento oculto con la clase `qtour`;
+  - a una cuenta de prueba sin dirección se le abre sola «Tu dirección principal» cada 2,5 segundos cuando no hay otra ventana abierta (v322). Si una prueba cierra ventanas y luego revisa la pantalla, puede fallar a ratos; las pruebas `borradores`, `letrero`, `salirMisDatos`, `sinRegistro` y `soloWhatsapp` lo evitan agregando un elemento oculto con la clase `qtour` (oculto, para que los formularios por pasos no lo tomen por el tutorial);
+  - los formularios por pasos (v417) ocultan los campos de los otros pasos: antes de tocar un campo, la prueba llama `qhPasos.ver('#campo')`;
   - Google Maps no carga en el entorno de pruebas: se comprueba la dirección que se le pide al mapa, no el dibujo.
 - **Skills instaladas** en `.claude/skills/` (se cargan solas en las sesiones nuevas):
   - `find-skills`: buscar e instalar otras skills. Su buscador usa `skills.sh`, que la red de las sesiones en la nube bloquea; se puede listar un repositorio conocido con `npx skills add <dueño/repositorio> --list`;
