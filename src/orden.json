@@ -957,6 +957,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v422-lista-productos-css\">",
+  "f": "estilos/v422-lista-productos-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v411-letrero\">",
   "f": "codigo/v411-letrero.js"
@@ -1275,6 +1284,15 @@
   "t": "js",
   "tag": "<script id=\"v417-por-pasos\">",
   "f": "codigo/v417-por-pasos.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v422-lista-productos\">",
+  "f": "codigo/v422-lista-productos.js"
  },
  {
   "t": "txt",

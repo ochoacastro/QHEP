@@ -505,6 +505,38 @@ const PRUEBAS = {
     check('Tocar «Horario» muestra solo el horario', await ve('#x-hrs') && !(await ve('#e-name')) && await ve('[data-act="saveEditShop"]') && await p.evaluate(() => document.querySelector('.wztab [aria-selected="true"]').textContent === 'Horario'));
     sinErrores(p, 'Por pasos'); await p.cerrar();
   },
+  async listaProductos() { // v422 «Lista de productos» en vez de «Eliminar tienda»: editar o eliminar productos desde una lista
+    const tienda = { id: 's1', name: 'Tienda s1', ownerKey: 'kOtro', cat: 'Otros', wa: '3001234567', pexp: Date.now() + 30 * 864e5, _o: 1, products: [] }, pr = (id, x) => Object.assign({ id, sid: 's1', imgs: [], ownerKey: 'kOtro' }, x);
+    const p = await abrir({ seed: { 'stores/s1': tienda, 'products/s1__p1': pr('p1', { name: 'Arroz', price: 4000, c1: 'Granos', _o: 1 }), 'products/s1__p2': pr('p2', { name: 'Panela', price: 3500, out: 1, _o: 2 }), 'products/s1__p3': pr('p3', { name: 'Café', price: 12000, _o: 3 }) } });
+    const ver = async () => { await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(300) };
+    await ver();
+    check('El cliente no ve «Lista de productos» ni «Eliminar tienda»', await p.evaluate(() => !document.querySelector('[data-lpv]') && !document.querySelector('[data-act="delShop"]')));
+    await conCuenta(p); await p.evaluate(() => document.body.insertAdjacentHTML('beforeend', '<i class="qtour" hidden></i>')); // así no se abre sola «Tu dirección principal» (v322)
+    await p.evaluate(() => { S.mine.push('s1') }); await ver();
+    check('El dueño ve «Lista de productos» entre los botones y ya no el botón «Eliminar tienda»', await p.evaluate(() => { const g = document.querySelector('#app .acts-grid'); return !!g.querySelector('[data-lpv="open"]') && !g.querySelector('[data-act="delShop"]') && /Lista de productos/i.test(g.innerText) }));
+    check('«Eliminar tienda» queda como enlace pequeño debajo de los botones', await p.evaluate(() => { const x = document.querySelector('#app .lpvx[data-act="delShop"]'); return !!x && !x.closest('.acts-grid') && x.getBoundingClientRect().height >= 44 }));
+    await p.click('[data-lpv="open"]'); await p.waitForTimeout(300);
+    const filas = () => p.evaluate(() => [...document.querySelectorAll('#ov .lpvr')].map(r => r.querySelector('.lpvt').innerText.replace(/\s+/g, ' ')).join(' | '));
+    const f = await filas();
+    check('La lista muestra los tres productos con precio, categoría y «Agotado»', /Arroz .*4\.000 Granos \| Panela .*3\.500 · Agotado \| Café .*12\.000/.test(f), f);
+    check('Cada producto tiene «Editar» y «Eliminar»', await p.evaluate(() => [...document.querySelectorAll('#ov .lpvr')].every(r => r.querySelector('[data-act="editProd"]') && r.querySelector('[data-lpv="del"]'))));
+    check('La lista cabe en el celular, sin desbordarse a los lados', await p.evaluate(() => { const m = document.querySelector('#ov .modal'); return m.scrollWidth <= m.clientWidth + 1 }));
+    await p.click('#ov .lpvr:nth-child(3) [data-act="editProd"]'); await p.waitForTimeout(400);
+    check('«Editar» abre el formulario del producto', await p.evaluate(() => { const i = document.querySelector('#ov input[id$="-name"]'); return !!i && i.value === 'Café' }));
+    await p.evaluate(() => { closeModal(1); qhListaProductos() }); await p.waitForTimeout(300);
+    await p.click('#ov .lpvr:nth-child(2) [data-lpv="del"]'); await p.waitForTimeout(300);
+    check('«Eliminar» pregunta antes de borrar', await p.evaluate(() => /¿Eliminar «Panela»/.test((document.getElementById('cfm-t') || {}).textContent || '')));
+    await p.click('#cfm-no'); await p.waitForTimeout(200);
+    check('Si cancela, no se borra nada', await p.evaluate(() => S.stores.find(x => x.id === 's1').products.length === 3 && document.querySelectorAll('#ov .lpvr').length === 3));
+    await p.click('#ov .lpvr:nth-child(2) [data-lpv="del"]'); await p.waitForTimeout(300); await p.click('#cfm-ok'); await p.waitForTimeout(400);
+    const f2 = await filas();
+    check('Al confirmar se borra el producto y la lista sigue abierta sin él', await p.evaluate(() => S.stores.find(x => x.id === 's1').products.map(x => x.id).join() === 'p1,p3') && /^Arroz[^|]*\| Café[^|]*$/.test(f2) && await p.evaluate(() => /Tienes 2 productos/.test(document.querySelector('#ov').innerText)), f2);
+    await p.evaluate(() => closeModal(1)); await p.click('#app .lpvx'); await p.waitForTimeout(300);
+    check('El enlace «Eliminar tienda» sigue preguntando antes de eliminar', await p.evaluate(() => /¿Eliminar tu tienda/.test((document.getElementById('cfm-t') || {}).textContent || '')));
+    await p.click('#cfm-no'); await p.waitForTimeout(200);
+    check('Si cancela, la tienda sigue', await p.evaluate(() => !!S.stores.find(x => x.id === 's1')));
+    sinErrores(p, 'Lista de productos'); await p.cerrar();
+  },
   async soloWhatsapp() { // v418 sin pagos entre usuarios ni pedidos por la aplicación; los roles siguen igual
     const U = { uid: 'uA', isAnonymous: false, email: 'ana@x.co', emailVerified: true };
     const tienda = { id: 'sa', name: 'Tienda App', wa: '3007654321', pays: ['cash', 'bre'], om: 'app', ownerUid: 'uT', ownerKey: 'kT', pexp: Date.now() + 30 * 864e5, cat: 'Otros', products: [], _o: 1 };
