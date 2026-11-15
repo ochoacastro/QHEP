@@ -23,7 +23,7 @@ let browser, base, fallas = 0, total = 0;
 const check = (nombre, ok, detalle) => { total++; if (ok) console.log('  ✔ ' + nombre); else { fallas++; console.log('  ✘ ' + nombre + (detalle ? '  → ' + detalle : '')) } };
 
 // abre la página: dark = modo oscuro; admin = modo administrador con sesión; user = sesión de Firebase; seed = documentos iniciales
-async function abrir({ dark = false, admin = false, user = null, seed = {} } = {}) {
+async function abrir({ dark = false, admin = false, user = null, seed = {}, ruta = '' } = {}) { // ruta: por ejemplo '?panel#/clasificado' (v429)
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: dark ? 'dark' : 'light', serviceWorkers: 'block' });
   await ctx.route(/gstatic\.com\/firebasejs\//, r => r.fulfill({ body: /app-compat/.test(r.request().url()) ? FB : '', contentType: 'application/javascript' }));
   const pedidos = { recaptcha: 0 };
@@ -34,7 +34,7 @@ async function abrir({ dark = false, admin = false, user = null, seed = {} } = {
   const p = await ctx.newPage(); p.errores = []; p.danados = [];
   p.on('pageerror', e => p.errores.push(e.message));
   p.on('console', m => { if (/Content Security Policy|Refused to/.test(m.text())) p.errores.push(m.text().slice(0, 160)); if (/^v413:/.test(m.text())) p.danados.push(m.text().slice(0, 160)) }); // v413: ninguna publicación bien hecha debe ser corregida
-  await p.goto(base + '/index.html' + (admin ? '?admin=x' : '')); await p.waitForTimeout(3000);
+  await p.goto(base + '/index.html' + (admin ? '?admin=x' : ruta)); await p.waitForTimeout(3000);
   await p.evaluate(() => document.querySelectorAll('.qtour,.qhb').forEach(x => x.remove()));
   p.pedidos = pedidos; p.cerrar = () => ctx.close(); return p;
 }
@@ -593,6 +593,24 @@ const PRUEBAS = {
     await p.evaluate(() => { view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(500);
     check('Un producto sin foto tiene marco e ícono', await p.evaluate(() => { const c = document.querySelector('.prod .pic'), n = c.querySelector('.nop'); return parseFloat(getComputedStyle(c).borderTopWidth) >= 1 && getComputedStyle(n, '::before').width === '44px' && /Sin foto/.test(n.textContent) }));
     sinErrores(p, 'Ajustes visuales'); await p.cerrar();
+  },
+  async auditoria() { // v429 errores encontrados en la revisión del 15 de noviembre de 2026
+    // 1. «Categorías» en una tienda que nunca tuvo categorías (toda tienda recién creada)
+    let p = await abrir({ seed: { 'stores/s1': { id: 's1', name: 'Tienda nueva', ownerKey: 'kOtro', cat: 'Otros', wa: '3001234567', pexp: Date.now() + 30 * 864e5, _o: 1, products: [] } } });
+    await conCuenta(p); await p.evaluate(() => { S.mine.push('s1'); closeModal(1); view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(300);
+    await p.click('[data-act="mcats"]'); await p.waitForTimeout(400);
+    check('«Categorías» abre en una tienda sin categorías guardadas', await p.evaluate(() => /Categorías del menú/.test((document.querySelector('#ov h2') || {}).textContent || '') && /Aún no tienes categorías/.test(document.getElementById('ov').innerText)), p.errores.join(' | '));
+    await p.fill('#mc-new', 'Dulces'); await p.evaluate(() => document.querySelector('[data-act="mcAdd"]').click()); await p.waitForTimeout(400);
+    check('Se puede crear la primera categoría', await p.evaluate(() => { const s = S.stores.find(x => x.id === 's1'); return Array.isArray(s.mc) && s.mc.length === 1 && s.mc[0].n === 'Dulces' }));
+    sinErrores(p, 'Categorías'); await p.cerrar();
+    // 2. llegar al panel por el enlace del botón «Publicar» sin cuenta: debe pedir la cuenta (v425), no abrir el formulario
+    for (const ruta of ['?panel#/clasificado', '?panel#/negocio', '?panel&reg=1#/negocio', '?panel#/publicar-inmueble']) {
+      p = await abrir({ ruta }); const x = await p.evaluate(() => { const o = document.getElementById('ov'); return o ? (o.querySelector('h2') || {}).textContent + (o.querySelector('.rgpn') ? ' +aviso' : '') + (o.querySelector('#cm-t,#f-name,#a-wa') ? ' +FORMULARIO' : '') : '(sin ventana)' });
+      check('Sin cuenta, ' + ruta + ' pide registrarse', x === 'Registrarme +aviso', x);
+      if (ruta === '?panel#/clasificado') { await conCuenta(p); await p.evaluate(() => { closeModal(1); const f = after; after = null; f && f() }); await p.waitForTimeout(500);
+        check('Al entrar, se abre el formulario del clasificado', await p.evaluate(() => !!document.querySelector('#ov #cm-t'))) }
+      sinErrores(p, 'Panel ' + ruta); await p.cerrar();
+    }
   },
   async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
     const p = await abrir(); await conCuenta(p);
