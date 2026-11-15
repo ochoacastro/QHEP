@@ -2116,6 +2116,7 @@ html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64
 
 
 
+
 <style id="v329-crecer-css">
 /* v329: los cuadros de texto crecen solos con lo que se escribe */
 textarea.qgrow{overflow-y:hidden;resize:none;transition:height .08s}
@@ -4693,7 +4694,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  if(b.dataset.adother){adrForm('tmp',function(){PICK[sid]='tmp';try{openCart()}catch(x){}});return}
  PICK[sid]=b.dataset.adpick;b.parentNode.querySelectorAll('[data-adpick]').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))})});
 /* ---- obligatoria: se pide al entrar si no hay dirección ---- */
-var asked=0;setInterval(function(){try{if(asked||MODE==='admin'||!S.user||document.getElementById('ov')||document.querySelector('.qtour'))return;var k=K();if(!k||adrGet('main')&&ld().tel)return;/* v332: también si falta el teléfono */
+var asked=0;setInterval(function(){try{if(asked||window.qhSinDir/* v424 */||MODE==='admin'||!S.user||document.getElementById('ov')||document.querySelector('.qtour'))return;var k=K();if(!k||adrGet('main')&&ld().tel)return;/* v332: también si falta el teléfono */
  asked=1;adrForm('main',function(){toast('¡Listo! Tu dirección quedó guardada. Puedes cambiarla en Mi cuenta → Mis direcciones.')},true)}catch(e){}},2500);
 /* el campo de barrio usa la lista de barrios y corregimientos (v317) */
 })();
@@ -4945,7 +4946,7 @@ setInterval(function(){try{var P=pend();if(!P)return;if(Date.now()-(P.ts||0)>864
  if(!Object.keys(S.cart||{}).some(function(k){return k.indexOf(P.sid+'|')===0}))return clr();
  if(!S.user||document.getElementById('ov')||document.querySelector('.qtour'))return;
  var ad=typeof adrGet==='function'?adrGet('main'):null,tl=typeof telCO==='function'?telCO(S.user.wa||''):'';
- if(!ad||tl.length<7){if(typeof adrForm==='function')adrForm('main',null,true);return}
+ if(!window.qhSinDir/* v424 */&&(!ad||tl.length<7)){if(typeof adrForm==='function')adrForm('main',null,true);return}
  clr();try{sessionStorage.setItem('qh_buying','1')}catch(e){}try{openCart()}catch(e){return}
  setTimeout(function(){var b=document.querySelector('#drawer [data-act="order"][data-id="'+P.sid+'"]');if(b){b.scrollIntoView({block:'center',behavior:'smooth'});b.classList.add('ordgo')}},450);
  try{toast('¡Listo, ya tienes tu cuenta! Toca «Pedir por WhatsApp» para enviar tu pedido.')}catch(e){}}catch(e){}},1500);
@@ -4977,7 +4978,7 @@ function arriba(){var o=document.getElementById('ov');if(o)o.style.zIndex=55}
 function sinCuenta(){try{return !S.user}catch(e){return false}}
 window.invGet=get;
 /* pie común: privacidad, borrar los datos guardados y entrar si ya tiene cuenta */
-function pie(quien){var g=get();return '<p class="adhint ivp">Tus datos solo se envían a '+quien+' por WhatsApp y quedan guardados en este teléfono para la próxima vez.'+(g.name?' <a href="#" data-ivdel="1">Borrar mis datos</a>':'')+'</p><p class="adhint ivp">¿Ya tienes cuenta? <a href="#" data-ivlog="1">Entrar</a></p>'}
+function pie(quien){var g=get();return '<p class="adhint ivp">Tus datos solo se envían a '+quien+' por WhatsApp y quedan guardados en este teléfono para la próxima vez.'+(g.name?' <a href="#" data-ivdel="1">Borrar mis datos</a>':'')+'</p>'+(sinCuenta()?'<p class="adhint ivp">¿Ya tienes cuenta? <a href="#" data-ivlog="1">Entrar</a></p>':'')/* v424 */}
 function campos(g){return '<label for="iv-n">Tu nombre</label><input id="iv-n" type="text" maxlength="60" autocomplete="name" value="'+E(g.name||'')+'" placeholder="Ej: Ana Pérez">'+
  '<label for="iv-w">Tu WhatsApp</label><input id="iv-w" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" value="'+E(g.wa||'')+'" placeholder="Ej: 3001234567">'}
 /* nombre y WhatsApp: devuelve null y escribe el error si falta algo */
@@ -4987,7 +4988,9 @@ function leeBase(er){var n=val('iv-n'),w=tel(val('iv-w'));
  return {name:n.slice(0,60),wa:w}}
 /* ---- PEDIDO ---- */
 window.invPedido=function(id){var s=null;try{s=S.stores.find(function(x){return x.id===id})}catch(e){}if(!s)return;var g=get(),nt=document.querySelector('[data-onote="'+id+'"]');
- modal('<h2>Tus datos para el pedido</h2><p class="adhint">No necesitas crear una cuenta. '+E(s.name)+' recibe estos datos por WhatsApp para saber quién pide y a dónde llevarlo.</p>'+campos(g)+
+ /* v424: quien tiene cuenta usa este mismo formulario, con su nombre y su teléfono ya puestos */
+ if(!sinCuenta()){g=Object.assign({},g);try{g.name=S.user.name||g.name;var w0=tel(S.user.wa||'');if(w0.length>=10)g.wa=w0;if(!g.dir&&typeof adrGet==='function'){var a0=adrGet('main');if(a0){g.zone=a0.zone||'';g.dir=a0.dir||'';g.ref=a0.ref||''}}}catch(e){}}
+ modal('<h2>Tus datos para el pedido</h2><p class="adhint">'+(sinCuenta()?'No necesitas crear una cuenta. ':'')+E(s.name)+' recibe estos datos por WhatsApp para saber quién pide y a dónde llevarlo.</p>'+campos(g)+
   '<label for="iv-zone">Barrio o corregimiento</label><input id="iv-zone" type="text" maxlength="40" value="'+E(g.zone||'')+'" placeholder="Ej: Centro">'+
   '<label for="iv-d">Dirección de envío</label><input id="iv-d" type="text" maxlength="120" autocomplete="street-address" value="'+E(g.dir||'')+'" placeholder="Ej: Calle 5 # 3-20">'+
   '<label for="iv-r">Indicaciones para llegar (opcional)</label><input id="iv-r" type="text" maxlength="160" value="'+E(g.ref||'')+'" placeholder="Ej: Casa azul de dos pisos, frente al parque">'+
@@ -5006,10 +5009,11 @@ function enviaPedido(id){var er=document.getElementById('iv-err'),b=leeBase(er);
  setTimeout(invita,700)}
 /* después de enviar (no antes) se invita a crear la cuenta; una sola vez por teléfono */
 function invita(){try{if(!sinCuenta()||document.getElementById('ov')||localStorage.getItem('qh_inv_ya'))return;localStorage.setItem('qh_inv_ya','1')}catch(e){return}
- modal('<h2>Tu pedido va por WhatsApp</h2><p>Envía el mensaje que quedó escrito en WhatsApp para que la tienda lo reciba.</p><p class="adhint">Si quieres guardar tus direcciones y ver tus pedidos, crea tu cuenta gratis. No es obligatorio.</p><div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-ivreg="1">Crear mi cuenta gratis</button><button type="button" class="btn ghost" data-act="close">Ahora no</button></div>');arriba()}
+ modal('<h2>Tu pedido va por WhatsApp</h2><p>Envía el mensaje que quedó escrito en WhatsApp para que la tienda lo reciba.</p><p class="adhint">Si quieres, crea tu cuenta gratis. No es obligatorio.</p><div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-ivreg="1">Crear mi cuenta gratis</button><button type="button" class="btn ghost" data-act="close">Ahora no</button></div>');arriba()}
 /* sin cuenta, el pedido siempre sale por WhatsApp, y el mensaje lleva los datos del formulario */
 var om0=window.ordMode;if(typeof om0==='function')window.ordMode=function(s){return sinCuenta()?'wa':om0(s)};
-var ow0=window.ordWaLine;window.ordWaLine=function(sid){var b=typeof ow0==='function'?ow0(sid):'';if(!sinCuenta())return b;var g=get();if(!g.name)return b;
+var ow0=window.ordWaLine;window.ordWaLine=function(sid){var b=typeof ow0==='function'?ow0(sid):'',reg=!sinCuenta();if(reg&&!window.qhSinDir)return b;var g=get();if(!g.name)return b;
+ if(reg)b=b.replace(/^\n\nCliente: [^\n]*(\nTeléfono: [^\n]*)?/,'');/* v424: con cuenta, el nombre y el teléfono salen del formulario, una sola vez */
  return '\n\nCliente: '+g.name+'\nTeléfono: '+g.wa+b+(g.dir?'\nDirección de entrega: '+g.dir+(g.zone?', '+g.zone:'')+(g.ref?'\nIndicaciones: '+g.ref:''):'')};
 /* ---- INFORMACIÓN ---- */
 function firma(g){return '\n\nMi nombre: '+g.name+'\nMi WhatsApp: '+g.wa}
@@ -5031,6 +5035,25 @@ document.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)r
  if(t.closest('[data-ivlog]')){e.preventDefault();closeModal(1);try{loginForm()}catch(x){}return}
  if(t.closest('[data-ivreg]')){e.preventDefault();closeModal(1);try{regForm()}catch(x){}}});
 document.head.insertAdjacentHTML('beforeend','<style id="v416-css">body:has(#drawer.open) #ov{z-index:55}#ov #iv-m{width:100%;min-height:76px;resize:vertical}#ov .ivp{margin:10px 0 0}#ov .ivp a{text-decoration:underline}</style>');
+})();
+</script>
+<script id="v424-sin-direccion">
+/* v424: LA CUENTA YA NO PIDE DIRECCIÓN NI MAPA. Los datos personales de quien se registra son solo nombre, correo y teléfono
+   («Mis datos»). Antes, a quien tenía cuenta se le abría sola la ventana «Tus datos personales / Tu dirección principal»,
+   con el mapa de Google y la pregunta «¿Google Maps muestra bien tu casa?», y sin eso no podía pedir.
+   Con este interruptor encendido (qhSinDir):
+   - esa ventana ya no se abre sola ni al pedir (v322-direcciones.js, v363-pedido-pendiente.js y la acción «order» de 15-norm.js);
+   - «Mis direcciones» sale de Mi cuenta y el carrito ya no pregunta «¿A dónde lo enviamos?»;
+   - al tocar «Pedir por WhatsApp», quien tiene cuenta ve el mismo formulario corto de quien pide sin registro
+     («Tus datos para el pedido», v416-sin-registro.js) con su nombre y su teléfono ya puestos, y escribe ahí barrio,
+     dirección e indicaciones. No hay mapa ni confirmación. Eso queda guardado solo en su teléfono para la próxima vez.
+   No se borró nada: el formulario de direcciones sigue en v322. Para volver a como estaba, quita este archivo de src/orden.json. */
+(function(){
+window.qhSinDir=true;
+window.adrMenu=function(){return ''};   /* Mi cuenta: sin «Mis direcciones» */
+window.adrFoot=function(){return ''};   /* carrito: sin «¿A dónde lo enviamos?» */
+window.adrPick=function(){return null}; /* el pedido no lleva la dirección guardada en la cuenta: lleva la del formulario */
+try{localStorage.removeItem('qh_pend_order')}catch(e){} /* v363: ya no hay pedidos esperando a que se registre una dirección */
 })();
 </script>
 <script id="v417-por-pasos">/* v417: FORMULARIOS POR PASOS. «Crea tu tienda» era una sola ventana con todas las preguntas seguidas (más de seis pantallas
@@ -7699,9 +7722,9 @@ else if(a==='saveRate'){if(!rt.n)return $('#err').textContent='Elige de 1 a 5 es
 else if(a==='order'){const s=S.stores.find(x=>x.id===id);if(!s.wa)return toast('Esta tienda aún no tiene WhatsApp registrado');
  /* v356: para pedir por WhatsApp hay que tener cuenta, teléfono y dirección: así la tienda sabe quién pide y a dónde llevarlo */
  const again=()=>setTimeout(()=>{const bb=document.querySelector('[data-act="order"][data-id="'+id+'"]');if(bb)bb.click();else{try{openCart()}catch(e){}}},400);
- if(!S.user&&typeof invPedido==='function'&&!window.invGo)return invPedido(id);/* v416: sin cuenta no hay que registrarse: se piden los datos básicos y sale por WhatsApp */
+ if((!S.user||window.qhSinDir/* v424: con cuenta también */)&&typeof invPedido==='function'&&!window.invGo)return invPedido(id);/* v416: sin cuenta no hay que registrarse: se piden los datos básicos y sale por WhatsApp */
  if(!S.user&&!window.invGo){toast('Para enviar tu pedido crea tu cuenta gratis (o entra si ya tienes una): así la tienda sabe quién eres y a dónde llevarlo.');try{localStorage.setItem('qh_pend_order',JSON.stringify({sid:id,ts:Date.now()}))}catch(e){}/* v363: pedido pendiente: al tener cuenta y dirección se abre el carrito */return regForm()/* v360: directo a «Registrarme» */}
- const ad0=S.user&&typeof adrPick==='function'?adrPick(id):null,tl0=!S.user?'':typeof telCO==='function'?telCO(S.user.wa||''):String(S.user.wa||'');if(S.user/* v416 */&&typeof adrForm==='function'&&(!ad0||tl0.length<7)){closeModal(1);try{localStorage.setItem('qh_pend_order',JSON.stringify({sid:id,ts:Date.now()}))}catch(e){}return adrForm('main',null,true)}
+ const ad0=S.user&&typeof adrPick==='function'?adrPick(id):null,tl0=!S.user?'':typeof telCO==='function'?telCO(S.user.wa||''):String(S.user.wa||'');if(S.user/* v416 */&&!window.qhSinDir/* v424 */&&typeof adrForm==='function'&&(!ad0||tl0.length<7)){closeModal(1);try{localStorage.setItem('qh_pend_order',JSON.stringify({sid:id,ts:Date.now()}))}catch(e){}return adrForm('main',null,true)}
  let t=0,l=Object.entries(S.cart).filter(([k])=>k.startsWith(id+'|')).map(([k,q])=>{const p=s.products.find(x=>x.id===k.split('|')[1]);t+=p.price*q;return `• ${q} x ${p.name}${vTx(k)?' - '+vTx(k):''} (${money(p.price*q)})\n   ${(c=>(c?'ID: '+vId(p,c):'Código: '+pCode(p))+(skuOf(p,c)?' · SKU: '+skuOf(p,c):''))(k.split('|')[3])}\n   ${pLink(s.id,p,k.split('|')[3]||'',k.split('|')[2]||'')/* v305: con foto si la página del producto ya existe */}`});
  const num=s.wa.length===10?'57'+s.wa:s.wa;window.open(`https://wa.me/${num}?text=${encodeURIComponent(`Hola ${s.name}, vi su tienda en Mi Pradera y quiero pedir:\n${l.join('\n')}\nTotal: ${money(t)}${typeof ordWaLine==='function'?ordWaLine(id):''/* v320 */}`)}`,'_blank');
  Object.keys(S.cart).forEach(k=>k.startsWith(id+'|')&&delete S.cart[k]);refreshCart();try{localStorage.removeItem('qh_pend_order')}catch(e){}/* v363 */}

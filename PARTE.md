@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 226 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#148** (v420 y v421), el 15 de noviembre de 2026. Todo hasta la v421 está en `main`. En la rama están la **v422** (lista de productos), la **v423** (preguntar antes de borrar) y cambios de este parte, sin PR todavía.
+- **Pruebas:** 239 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** el de la **v424** (la cuenta ya no pide dirección ni mapa), en la rama. El último PR fusionado es el **#149** (v422 y v423), el 15 de noviembre de 2026. Todo hasta la v423 está en `main`.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v423)
+## 2. Lo que se hizo en esta etapa (v392 a v424)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -48,8 +48,9 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v419 | Medios de pago de la tienda: nuevo **«Tarjeta débito»**; van en una sola columna y cada uno lleva una casilla (vacía sin elegir, azul con el chulo al elegirlo) | #147 |
 | v420 | En el último paso de los formularios por pasos, el botón de guardar («Abrir tienda», «Guardar mis datos») va arriba a todo el ancho y «Atrás» pasa debajo, junto a «Cancelar» (pedido por la dueña al verlo en su teléfono) | #148 |
 | v421 | **Letrero: abrir fuera del horario.** Poner «Abierto» cuando el horario dice cerrado ahora sí abre la tienda, por hoy; después vuelve sola a seguir el horario | #148 |
-| v422 | **Lista de productos:** en la ficha de la tienda, el botón «Eliminar tienda» se cambia por «Lista de productos», que abre una lista con cada producto y sus botones «Editar» y «Eliminar» (pregunta antes de borrar). «Eliminar tienda» queda como enlace pequeño debajo de los botones | sin PR |
-| v423 | **Preguntar antes de borrar:** la ✕ de un producto, «Quitar» en un servicio propio, quitar una sugerencia y «Borrar comentario» borraban de inmediato; ahora preguntan primero | sin PR |
+| v422 | **Lista de productos:** en la ficha de la tienda, el botón «Eliminar tienda» se cambia por «Lista de productos», que abre una lista con cada producto y sus botones «Editar» y «Eliminar» (pregunta antes de borrar). «Eliminar tienda» queda como enlace pequeño debajo de los botones | #149 |
+| v423 | **Preguntar antes de borrar:** la ✕ de un producto, «Quitar» en un servicio propio, quitar una sugerencia y «Borrar comentario» borraban de inmediato; ahora preguntan primero | #149 |
+| v424 | **La cuenta ya no pide dirección ni mapa:** los datos personales son solo nombre, correo y teléfono. Ya no se abre sola «Tu dirección principal» con el mapa de Google y la pregunta de confirmación; «Mis direcciones» sale de Mi cuenta. Al pedir, quien tiene cuenta ve el mismo formulario corto de quien pide sin registro, con su nombre y teléfono ya puestos | en revisión |
 
 ---
 
@@ -90,6 +91,14 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 ## 5. Decisiones abiertas e ideas que no se hicieron
 
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
+- **Sin dirección en la cuenta (v424):**
+  - la dueña eligió «no pedirla nunca»: la cuenta no guarda dirección. En cada pedido la persona la escribe en «Tus datos para el pedido» (barrio, dirección, indicaciones), sin mapa ni confirmación;
+  - lo que escribe queda guardado solo en su teléfono (`qh_invitado`), igual que para quien pide sin cuenta, y la próxima vez viene ya escrito. Si antes tenía una dirección principal guardada en ese teléfono, se usa para llenar el formulario la primera vez;
+  - es un interruptor (`qhSinDir` en `v424-sin-direccion.js`), no código borrado: el formulario de direcciones con mapa sigue en `v322-direcciones.js`. Quitar el archivo de `src/orden.json` lo vuelve a encender;
+  - el mensaje de WhatsApp ya no lleva «Ubicación en el mapa» ni código plus: solo dirección, barrio e indicaciones;
+  - en el panel, las «direcciones por ubicar» de personas dejan de llegar (las de negocios e inmuebles siguen igual);
+  - el mapa de la tienda y el del inmueble (v394–v396, v409) no cambian: esto es solo para los datos de las personas;
+  - si se vuelven a encender los pedidos por la aplicación (`APP` en `v320-pedidos.js`), hay que decidir de dónde sale la dirección del pedido guardado.
 - **Lista de productos (v422):**
   - «Eliminar tienda» no se quitó del todo: quedó como un enlace pequeño en rojo debajo de los botones, para que el dueño todavía pueda eliminar su tienda. Si la dueña no lo quiere ahí, se puede pasar a «Editar tienda» o quitar;
   - «Eliminar» en la lista pregunta antes de borrar;
@@ -168,7 +177,7 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 - **Cada cambio nuevo va en su propio archivo** `src/codigo/vNNN-nombre.js`, con un comentario arriba que diga qué hace y cómo quitarlo.
 - **Al publicar:** commit con el pie de coautoría, push a la rama y un PR que la dueña fusiona. Si el PR anterior ya está fusionado, antes de seguir hay que poner la rama al día con `main`.
 - **Notas para las pruebas:**
-  - a una cuenta de prueba sin dirección se le abre sola «Tu dirección principal» cada 2,5 segundos cuando no hay otra ventana abierta (v322). Si una prueba cierra ventanas y luego revisa la pantalla, puede fallar a ratos; las pruebas `borradores`, `letrero`, `salirMisDatos`, `sinRegistro` y `soloWhatsapp` lo evitan agregando un elemento oculto con la clase `qtour` (oculto, para que los formularios por pasos no lo tomen por el tutorial);
+  - desde la v424 ya no se abre sola «Tu dirección principal» a una cuenta de prueba sin dirección. Antes (v322) se abría cada 2,5 segundos y hacía fallar a ratos las pruebas que cerraban ventanas; las pruebas `borradores`, `letrero`, `salirMisDatos`, `sinRegistro` y `soloWhatsapp` todavía agregan un elemento oculto con la clase `qtour` (oculto, para que los formularios por pasos no lo tomen por el tutorial);
   - los formularios por pasos (v417) ocultan los campos de los otros pasos: antes de tocar un campo, la prueba llama `qhPasos.ver('#campo')`;
   - Google Maps no carga en el entorno de pruebas: se comprueba la dirección que se le pide al mapa, no el dibujo.
 - **Skills instaladas** en `.claude/skills/` (se cargan solas en las sesiones nuevas):

@@ -23,7 +23,7 @@ function arriba(){var o=document.getElementById('ov');if(o)o.style.zIndex=55}
 function sinCuenta(){try{return !S.user}catch(e){return false}}
 window.invGet=get;
 /* pie común: privacidad, borrar los datos guardados y entrar si ya tiene cuenta */
-function pie(quien){var g=get();return '<p class="adhint ivp">Tus datos solo se envían a '+quien+' por WhatsApp y quedan guardados en este teléfono para la próxima vez.'+(g.name?' <a href="#" data-ivdel="1">Borrar mis datos</a>':'')+'</p><p class="adhint ivp">¿Ya tienes cuenta? <a href="#" data-ivlog="1">Entrar</a></p>'}
+function pie(quien){var g=get();return '<p class="adhint ivp">Tus datos solo se envían a '+quien+' por WhatsApp y quedan guardados en este teléfono para la próxima vez.'+(g.name?' <a href="#" data-ivdel="1">Borrar mis datos</a>':'')+'</p>'+(sinCuenta()?'<p class="adhint ivp">¿Ya tienes cuenta? <a href="#" data-ivlog="1">Entrar</a></p>':'')/* v424 */}
 function campos(g){return '<label for="iv-n">Tu nombre</label><input id="iv-n" type="text" maxlength="60" autocomplete="name" value="'+E(g.name||'')+'" placeholder="Ej: Ana Pérez">'+
  '<label for="iv-w">Tu WhatsApp</label><input id="iv-w" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" value="'+E(g.wa||'')+'" placeholder="Ej: 3001234567">'}
 /* nombre y WhatsApp: devuelve null y escribe el error si falta algo */
@@ -33,7 +33,9 @@ function leeBase(er){var n=val('iv-n'),w=tel(val('iv-w'));
  return {name:n.slice(0,60),wa:w}}
 /* ---- PEDIDO ---- */
 window.invPedido=function(id){var s=null;try{s=S.stores.find(function(x){return x.id===id})}catch(e){}if(!s)return;var g=get(),nt=document.querySelector('[data-onote="'+id+'"]');
- modal('<h2>Tus datos para el pedido</h2><p class="adhint">No necesitas crear una cuenta. '+E(s.name)+' recibe estos datos por WhatsApp para saber quién pide y a dónde llevarlo.</p>'+campos(g)+
+ /* v424: quien tiene cuenta usa este mismo formulario, con su nombre y su teléfono ya puestos */
+ if(!sinCuenta()){g=Object.assign({},g);try{g.name=S.user.name||g.name;var w0=tel(S.user.wa||'');if(w0.length>=10)g.wa=w0;if(!g.dir&&typeof adrGet==='function'){var a0=adrGet('main');if(a0){g.zone=a0.zone||'';g.dir=a0.dir||'';g.ref=a0.ref||''}}}catch(e){}}
+ modal('<h2>Tus datos para el pedido</h2><p class="adhint">'+(sinCuenta()?'No necesitas crear una cuenta. ':'')+E(s.name)+' recibe estos datos por WhatsApp para saber quién pide y a dónde llevarlo.</p>'+campos(g)+
   '<label for="iv-zone">Barrio o corregimiento</label><input id="iv-zone" type="text" maxlength="40" value="'+E(g.zone||'')+'" placeholder="Ej: Centro">'+
   '<label for="iv-d">Dirección de envío</label><input id="iv-d" type="text" maxlength="120" autocomplete="street-address" value="'+E(g.dir||'')+'" placeholder="Ej: Calle 5 # 3-20">'+
   '<label for="iv-r">Indicaciones para llegar (opcional)</label><input id="iv-r" type="text" maxlength="160" value="'+E(g.ref||'')+'" placeholder="Ej: Casa azul de dos pisos, frente al parque">'+
@@ -52,10 +54,11 @@ function enviaPedido(id){var er=document.getElementById('iv-err'),b=leeBase(er);
  setTimeout(invita,700)}
 /* después de enviar (no antes) se invita a crear la cuenta; una sola vez por teléfono */
 function invita(){try{if(!sinCuenta()||document.getElementById('ov')||localStorage.getItem('qh_inv_ya'))return;localStorage.setItem('qh_inv_ya','1')}catch(e){return}
- modal('<h2>Tu pedido va por WhatsApp</h2><p>Envía el mensaje que quedó escrito en WhatsApp para que la tienda lo reciba.</p><p class="adhint">Si quieres guardar tus direcciones y ver tus pedidos, crea tu cuenta gratis. No es obligatorio.</p><div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-ivreg="1">Crear mi cuenta gratis</button><button type="button" class="btn ghost" data-act="close">Ahora no</button></div>');arriba()}
+ modal('<h2>Tu pedido va por WhatsApp</h2><p>Envía el mensaje que quedó escrito en WhatsApp para que la tienda lo reciba.</p><p class="adhint">Si quieres, crea tu cuenta gratis. No es obligatorio.</p><div class="row" style="margin-top:8px"><button type="button" class="btn pink" data-ivreg="1">Crear mi cuenta gratis</button><button type="button" class="btn ghost" data-act="close">Ahora no</button></div>');arriba()}
 /* sin cuenta, el pedido siempre sale por WhatsApp, y el mensaje lleva los datos del formulario */
 var om0=window.ordMode;if(typeof om0==='function')window.ordMode=function(s){return sinCuenta()?'wa':om0(s)};
-var ow0=window.ordWaLine;window.ordWaLine=function(sid){var b=typeof ow0==='function'?ow0(sid):'';if(!sinCuenta())return b;var g=get();if(!g.name)return b;
+var ow0=window.ordWaLine;window.ordWaLine=function(sid){var b=typeof ow0==='function'?ow0(sid):'',reg=!sinCuenta();if(reg&&!window.qhSinDir)return b;var g=get();if(!g.name)return b;
+ if(reg)b=b.replace(/^\n\nCliente: [^\n]*(\nTeléfono: [^\n]*)?/,'');/* v424: con cuenta, el nombre y el teléfono salen del formulario, una sola vez */
  return '\n\nCliente: '+g.name+'\nTeléfono: '+g.wa+b+(g.dir?'\nDirección de entrega: '+g.dir+(g.zone?', '+g.zone:'')+(g.ref?'\nIndicaciones: '+g.ref:''):'')};
 /* ---- INFORMACIÓN ---- */
 function firma(g){return '\n\nMi nombre: '+g.name+'\nMi WhatsApp: '+g.wa}

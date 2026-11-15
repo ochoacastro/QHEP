@@ -84,19 +84,17 @@ const PRUEBAS = {
     check('Al confirmar el correo entra solo', u === 'ana@x.co|3155555233', u);
     sinErrores(p, 'Registro'); await p.cerrar();
   },
-  async pedido() { // v363 si se registra para pedir, al tener cuenta y dirección se abre el carrito
+  async pedido() { // pedir por WhatsApp sin cuenta (v416) y con cuenta (v424: ya no se pide la dirección con mapa)
     const p = await abrir();
     await p.evaluate(() => { QH.push = () => {}; window.open = u => { window.__wa = decodeURIComponent(u) }; S.stores.push({ id: 'sw', name: 'Tienda WA', wa: '3001234567', pays: ['cash'], products: [{ id: 'p2', name: 'Arroz', price: 4000, imgs: [] }] }); S.cart = { 'sw|p2||': 2 }; save(); openCart() });
     await p.waitForTimeout(300); await p.evaluate(() => document.querySelector('[data-act="order"][data-id="sw"]').click()); await p.waitForTimeout(400);
     check('Sin cuenta, pedir abre «Tus datos para el pedido» (v416), no «Registrarme»', /Tus datos para el pedido/.test(await p.evaluate(() => (document.querySelector('#ov h2') || {}).textContent || '')));
     await p.evaluate(() => { closeModal(1); S.user = { id: 'u9', name: 'Ana Pérez', email: 'a@x.co', wa: '3112223344', pw: 1, k: 'kN' }; save(); syncUI() }); await p.waitForTimeout(400);
     await p.evaluate(() => { openCart(); document.querySelector('[data-act="order"][data-id="sw"]').click() }); await p.waitForTimeout(600);
-    check('Con cuenta y sin dirección, pide la dirección', /dirección/i.test(await p.evaluate(() => (document.querySelector('#ov h2') || {}).textContent || '')));
-    check('La ventana de la dirección queda encima del carrito (v416)', await p.evaluate(() => { const h = document.querySelector('#ov h2'), r = h.getBoundingClientRect(), t = document.elementFromPoint(r.x + 5, r.y + 5); return !!t && !!t.closest('#ov') }));
-    await p.evaluate(() => { const z = document.querySelector('#ov .znsel'); z.value = 'Centro'; z.dispatchEvent(new Event('change', { bubbles: true })); document.getElementById('ad-dir').value = 'Calle 5 # 3-20'; document.querySelector('[data-adok="1"]').click(); document.querySelector('[data-adsave]').click() });
-    await p.waitForTimeout(2500);
-    check('Con dirección, se abre el carrito resaltado', await p.evaluate(() => !!document.querySelector('#drawer.open .ordgo, #drawer .ordgo')));
-    await p.evaluate(() => document.querySelector('#drawer .ordgo').click()); await p.waitForTimeout(400);
+    check('Con cuenta, pedir abre «Tus datos para el pedido», sin dirección con mapa (v424)', /Tus datos para el pedido/.test(await p.evaluate(() => (document.querySelector('#ov h2') || {}).textContent || '')) && await p.evaluate(() => !document.querySelector('#ov #ad-map, #ov .adq')));
+    check('La ventana queda encima del carrito (v416)', await p.evaluate(() => { const h = document.querySelector('#ov h2'), r = h.getBoundingClientRect(), t = document.elementFromPoint(r.x + 5, r.y + 5); return !!t && !!t.closest('#ov') }));
+    await p.evaluate(() => { const z = document.querySelector('#ov .znsel'); z.value = 'Centro'; z.dispatchEvent(new Event('change', { bubbles: true })); document.getElementById('iv-d').value = 'Calle 5 # 3-20'; document.querySelector('[data-ivgo="ped"]').click() });
+    await p.waitForTimeout(1200);
     const wa = await p.evaluate(() => window.__wa || '');
     check('El WhatsApp lleva cliente, teléfono y dirección', /Cliente: Ana Pérez/.test(wa) && /3112223344/.test(wa) && /Calle 5/.test(wa), wa.slice(0, 120));
     sinErrores(p, 'Pedido'); await p.cerrar();
@@ -452,6 +450,37 @@ const PRUEBAS = {
     w2 = await p.evaluate(() => window.__wa || '');
     check('Con cuenta, preguntar sigue igual que antes (WhatsApp directo, sin datos agregados)', /quisiera más información/.test(w2) && !/Mi nombre/.test(w2));
     sinErrores(p, 'Sin registro'); await p.cerrar();
+  },
+  async sinDireccion() { // v424 la cuenta ya no pide dirección ni mapa: los datos personales son nombre, correo y teléfono
+    const p = await abrir(); let mapas = 0; p.on('request', r => { if (/maps\.google|google\.com\/maps/.test(r.url())) mapas++ });
+    const txt = sel => p.evaluate(s => (document.querySelector(s) || {}).textContent || '', sel);
+    await conCuenta(p); await p.waitForTimeout(4000); // antes, a los 2,5 s se abría sola «Tu dirección principal»
+    check('Con cuenta y sin dirección, ya no se abre sola la ventana de la dirección', await p.evaluate(() => !document.getElementById('ov')), await txt('#ov h2'));
+    check('Mi cuenta ya no ofrece «Mis direcciones» y el carrito no pregunta a dónde enviar', await p.evaluate(() => adrMenu(() => 'X') === '' && adrFoot('sw') === ''));
+    await p.evaluate(() => pfForm()); await p.waitForTimeout(400);
+    const campos = await p.evaluate(() => [...document.querySelectorAll('#ov label[for]')].map(l => l.htmlFor).filter(i => /^pf-[nwe]$/.test(i)).join());
+    check('«Mis datos» pide nombre, teléfono y correo, sin dirección ni mapa', campos === 'pf-n,pf-w,pf-e' && await p.evaluate(() => !document.querySelector('#ov iframe, #ov #ad-map, #ov .adq, #ov #ad-dir')), campos);
+    await p.evaluate(() => { closeModal(1); QH.push = () => {}; window.open = u => { window.__wa = decodeURIComponent(u) };
+      S.stores.push({ id: 'sw', name: 'Tienda WA', wa: '3001234567', pays: ['cash'], products: [{ id: 'p2', name: 'Arroz', price: 4000, imgs: [] }] });
+      S.cart = { 'sw|p2||': 2 }; save(); openCart() }); await p.waitForTimeout(400);
+    check('El carrito no muestra «¿A dónde lo enviamos?»', await p.evaluate(() => !/A dónde lo enviamos/.test(document.getElementById('drawer').innerText)));
+    await p.evaluate(() => document.querySelector('[data-act="order"][data-id="sw"]').click()); await p.waitForTimeout(500);
+    check('Al pedir con cuenta se abre «Tus datos para el pedido», no la dirección con mapa', /Tus datos para el pedido/.test(await txt('#ov h2')) && await p.evaluate(() => !document.querySelector('#ov iframe, #ov #ad-map, #ov .adq')), await txt('#ov h2'));
+    check('El nombre y el teléfono de la cuenta ya vienen puestos', await p.evaluate(() => document.getElementById('iv-n').value === 'Ana Pérez' && document.getElementById('iv-w').value === '3155555233'));
+    check('No le habla de crear cuenta ni de entrar: ya tiene cuenta', await p.evaluate(() => !/No necesitas crear una cuenta|Ya tienes cuenta/.test(document.getElementById('ov').innerText)));
+    await p.click('[data-ivgo="ped"]'); await p.waitForTimeout(200);
+    check('Sin barrio ni dirección no se envía y lo dice', /barrio/i.test(await txt('#iv-err')) && !(await p.evaluate(() => window.__wa)));
+    await p.selectOption('#ov .znsel', { index: 1 }); await p.fill('#iv-d', 'Calle 5 # 3-20'); await p.fill('#iv-r', 'Casa azul');
+    await p.click('[data-ivgo="ped"]'); await p.waitForTimeout(1200);
+    const wa = await p.evaluate(() => window.__wa || '');
+    check('El WhatsApp sale con el pedido, el cliente, el teléfono y la dirección escrita', /wa\.me\/573001234567/.test(wa) && /2 x Arroz/.test(wa) && /Cliente: Ana Pérez/.test(wa) && /Teléfono: 3155555233/.test(wa) && /Dirección de entrega: Calle 5 # 3-20, /.test(wa) && /Indicaciones: Casa azul/.test(wa), wa.slice(-260));
+    check('El cliente y el teléfono salen una sola vez y no va ningún enlace de mapa', wa.split('Cliente:').length === 2 && wa.split('Teléfono:').length === 2 && !/Ubicación en el mapa|google\.com\/maps/.test(wa), wa.slice(-260));
+    check('El carrito de esa tienda quedó vacío y no se invita a crear cuenta', await p.evaluate(() => !Object.keys(S.cart).some(k => k.indexOf('sw|') === 0) && !document.getElementById('ov')));
+    await p.evaluate(() => { S.cart = { 'sw|p2||': 1 }; save(); openCart() }); await p.waitForTimeout(300);
+    await p.evaluate(() => document.querySelector('[data-act="order"][data-id="sw"]').click()); await p.waitForTimeout(400);
+    check('La próxima vez la dirección ya viene escrita (guardada en el teléfono)', await p.evaluate(() => document.getElementById('iv-d').value === 'Calle 5 # 3-20' && document.getElementById('iv-r').value === 'Casa azul'));
+    check('En todo el recorrido no se cargó Google Maps', mapas === 0, String(mapas));
+    sinErrores(p, 'Sin dirección'); await p.cerrar();
   },
   async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
     const p = await abrir(); await conCuenta(p);

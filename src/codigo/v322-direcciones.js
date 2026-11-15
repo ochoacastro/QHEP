@@ -95,7 +95,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  if(b.dataset.adother){adrForm('tmp',function(){PICK[sid]='tmp';try{openCart()}catch(x){}});return}
  PICK[sid]=b.dataset.adpick;b.parentNode.querySelectorAll('[data-adpick]').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))})});
 /* ---- obligatoria: se pide al entrar si no hay dirección ---- */
-var asked=0;setInterval(function(){try{if(asked||MODE==='admin'||!S.user||document.getElementById('ov')||document.querySelector('.qtour'))return;var k=K();if(!k||adrGet('main')&&ld().tel)return;/* v332: también si falta el teléfono */
+var asked=0;setInterval(function(){try{if(asked||window.qhSinDir/* v424 */||MODE==='admin'||!S.user||document.getElementById('ov')||document.querySelector('.qtour'))return;var k=K();if(!k||adrGet('main')&&ld().tel)return;/* v332: también si falta el teléfono */
  asked=1;adrForm('main',function(){toast('¡Listo! Tu dirección quedó guardada. Puedes cambiarla en Mi cuenta → Mis direcciones.')},true)}catch(e){}},2500);
 /* el campo de barrio usa la lista de barrios y corregimientos (v317) */
 })();
