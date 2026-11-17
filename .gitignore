@@ -1,0 +1,3 @@
+# Archivos que crean las herramientas al trabajar; no van al repositorio.
+.playwright-mcp/
+.taste-skill/
