@@ -1,6 +1,6 @@
 # Parte de trabajo — Mi Pradera
 
-Actualizado: 15 de noviembre de 2026 · Rama de trabajo: `claude/page-review-improve-hshx7j`
+Actualizado: 17 de noviembre de 2026 · Rama de trabajo: `claude/page-review-improve-hshx7j`
 
 Este archivo resume en qué va la página, lo que falta y cómo seguir trabajando. Sirve para retomar el trabajo en otra sesión sin perder el hilo.
 
@@ -10,7 +10,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 352 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#158** (v435 y v436), el 17 de noviembre de 2026. Todo hasta la v436 está en `main`. En la rama solo quedan cambios de este parte, sin PR.
+- **PR abierto:** ninguno. El último PR fusionado es el **#159** (solo el parte), el 17 de noviembre de 2026. Todo hasta la v436 está en `main`, y la rama de trabajo está igual que `main`.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -68,20 +68,20 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
-0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (todo hasta el PR #158 ya está fusionado):
+0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (todo hasta el PR #159 ya está fusionado):
    - hacer un pedido sin cuenta y ver que WhatsApp se abre con el mensaje (v416);
    - hacer un pedido con cuenta: debe salir «Tus datos para el pedido» con el nombre y el teléfono puestos, sin mapa (v424);
    - sin cuenta, tocar «Publicar» en la barra de abajo: debe salir «Registrarme» con el aviso, no el formulario (v425, v429);
-   - abrir «Roles y precios» desde el pie de la página y revisar que los precios sean los del panel (v426);
+   - abrir «Planes y precios» desde el pie de la página y revisar que los precios sean los del panel (v426, v432);
    - abrir y cerrar ventanas y entrar a una tienda: el movimiento debe sentirse rápido, no lento (v427);
    - mirar el inicio con los datos reales: las pestañas sin hueco en blanco y el carrusel (v428);
    - en una tienda recién creada, tocar «Categorías» y crear la primera (v429);
-   - en una tienda propia, usar «Lista de productos» y borrar un producto con la ✕: debe preguntar antes (v422, v423).
+   - en una tienda propia, usar «Lista de productos» y borrar un producto con la ✕: debe preguntar antes (v422, v423);
    - en el celular: el encabezado en una fila con el buscador debajo, una tienda con los productos en filas y «Agregar al carrito», y el botón de emergencias solo con la sirena (v431);
-   - en el computador: buscar desde el encabezado y abrir un producto para ver la caja de compra a la derecha (v430).
+   - en el computador: buscar desde el encabezado y abrir un producto para ver la caja de compra a la derecha (v430);
    - sin cuenta, abrir el menú y tocar «Planes»: debe abrir «Planes y precios» sin pedir registro (v432);
    - con avisos sin leer, el cuadro rojo debe quedar sobre la campana (v433);
-   - tocar «Escríbenos» en el menú: debe bajar al formulario del pie, ya abierto (v434).
+   - tocar «Escríbenos» en el menú: debe bajar al formulario del pie, ya abierto (v434);
    - entrar con una cuenta de Google que nunca haya entrado a Mi Pradera: debe salir «Términos y condiciones» y entrar solo después de marcar las dos casillas (v436);
    - el botón «Escríbenos» del pie: «+» cerrado y «−» abierto; el carrusel de banners de arriba con rayas debajo de la imagen (v435).
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
@@ -91,7 +91,9 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - agregar el secreto `FB_SA` en GitHub;
    - el ID de cliente de Google One Tap;
    - configurar WhatsApp Business.
-4. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
+4. **Revisar su cuenta de ElevenLabs:** al hacer los videos de publicidad (16 de noviembre de 2026), ElevenLabs respondió varias veces «se detectó actividad inusual en su cuenta y se desactivó el acceso gratuito». Algunas voces salieron y otras no. Si se van a hacer más videos con voz, hay que revisar la cuenta o pasar a un plan de pago.
+5. **Decidir sobre Taste Skill y cuatro skills que no aplican** (sección 6): siguen instaladas mientras la dueña no diga otra cosa.
+6. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
 
 Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien. El 15 de noviembre de 2026 probó en su teléfono el letrero de «Abierto» fuera del horario (v421) y creó una tienda recorriendo los 6 pasos (v417, v420); las dos cosas funcionaron.
 
@@ -251,6 +253,9 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 - **Otros hallazgos menores de la auditoría de reglas, sin cambiar:** cualquiera con sesión puede escribir la marca de presencia de otra persona (`presence`); los pedidos no limitan el tamaño de cada producto de la lista (`items`); el `end` de un código canjeado no se valida.
 - **Guardar el worker en el repositorio** (`tools/`, que GitHub Pages no publica). No se hizo: falta saber si la dueña lo dejó fuera a propósito.
 - **Pasar a Cloudflare Pages** para poder tener el repositorio privado sin pagar (ver la sección 7).
+- **Sección de citas («tipo Tinder»)** (16 de noviembre de 2026): se desaconsejó por el riesgo con menores de edad, el acoso, el trabajo de moderación, los datos sensibles (Ley 1581) y la marca. Se ofrecieron tres alternativas sin hacer: una agenda de eventos del pueblo, grupos por interés con enlace a WhatsApp, y una categoría «Busco compañía para…» en Clasificados.
+
+**Hecho fuera del repositorio (16 de noviembre de 2026):** tres videos de publicidad para TikTok (verticales, de unos 20 segundos): uno con la página real en un teléfono y la voz «Lina»; uno animado para compradores (con voz de «Lina», con voz de «Brayan Jackson» y sin voz); y uno animado para comerciantes con la voz de «Lina» y música de fondo. Las voces y la música se hicieron con ElevenLabs (unos 2.500 créditos en total). Los videos se entregaron a la dueña en el chat; no están en el repositorio. Los negocios y productos que aparecen en ellos son de ejemplo.
 
 ---
 
