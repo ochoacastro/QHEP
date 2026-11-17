@@ -1,0 +1,49 @@
+
+/* v431: diseño de tienda en línea también en celular y tableta (la forma de las tiendas grandes, con la marca de Mi Pradera).
+   1. Encabezado compacto (menos de 1024 px): menú, logo pequeño, cuenta, avisos, carrito y tema en una fila; debajo, el buscador,
+      que ahora queda siempre en el encabezado, también en el inicio (lo mueve v430-diseno-escritorio.js). */
+@media (max-width:1023px){
+ header,body.qinhub header{grid-template-columns:40px auto minmax(0,1fr) auto 40px 40px;
+  grid-template-areas:"hmb logo acct nf cart thm" "qw qw qw qw qw qw" "hbn hbn hbn hbn hbn hbn";gap:8px 6px;padding:8px 10px 10px}
+ .hmb{width:40px}
+ #home{justify-self:start}
+ #home img{height:36px;width:auto}
+ #userBtn{justify-self:end;font-size:14px}
+ #nfBtn{grid-area:nf;position:static!important}
+ #cartBtn{justify-self:center}
+ #themeBtn{width:40px;height:40px}
+ header .qw{max-width:none;margin:0}
+}
+@media (max-width:399px){#userBtn{font-size:13px;gap:4px}
+ /* el texto puede ir en dos líneas («Iniciar / sesión»): cabe con cualquier letra del teléfono (en la revisión de GitHub, sin la letra
+    Inter, en una sola línea se cortaba) */
+ #ut{white-space:normal;line-height:1.15;text-align:left;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:clip}}
+@media (max-width:359px){#ut{display:none}}/* en pantallas muy angostas, solo el ícono de la cuenta */
+#hubsrch:empty{display:none}
+
+/* 2. Productos en filas (menos de 640 px): foto a la izquierda; a la derecha nombre, precio y «Agregar al carrito» */
+@media (max-width:639px){
+ .pgrid:not(.hrow){grid-template-columns:minmax(0,1fr)!important;gap:10px}
+ .pgrid:not(.hrow) .prod:not(.fx){display:grid;grid-template-columns:42% minmax(0,1fr);grid-template-rows:auto auto auto minmax(0,1fr) auto;
+  column-gap:14px;row-gap:4px;padding:12px;align-items:start}
+ .pgrid:not(.hrow) .prod:not(.fx)>:not(.pic):not(.x):not(.plus){padding-left:0;padding-right:0}
+ .pgrid:not(.hrow) .prod:not(.fx) .pic{grid-column:1;grid-row:1 / 6;margin:0;align-self:center;width:100%}
+ .pgrid:not(.hrow) .prod:not(.fx) h3{grid-column:2;grid-row:1;font-size:16px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+ .pgrid:not(.hrow) .prod:not(.fx) .price{grid-column:2;grid-row:2;font-size:24px}
+ .pgrid:not(.hrow) .prod:not(.fx) .meta{grid-column:2;grid-row:3}
+ .pgrid:not(.hrow) .prod:not(.fx) .muted{grid-column:2;grid-row:4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ .pgrid:not(.hrow) .prod:not(.fx) .plus,.pgrid:not(.hrow) .prod:not(.fx) .soldout,.pgrid:not(.hrow) .prod:not(.fx)>.btn{grid-column:2;grid-row:5;align-self:end;margin:8px 0 0}
+ /* el «+» se vuelve un botón ancho con texto (su nombre accesible ya dice «Agregar … al carrito») */
+ .pgrid:not(.hrow) .prod:not(.fx) .plus{position:static;width:100%;height:auto;min-height:44px;border:0;border-radius:0;background:#0071e3;color:#fff;font-size:0;line-height:1;padding:0 10px}
+ .pgrid:not(.hrow) .prod:not(.fx) .plus::before{content:"Agregar al carrito";font-size:15px;font-weight:700}
+ .pgrid:not(.hrow) .prod:not(.fx) .soldout{display:block;text-align:center;min-height:44px;line-height:44px}
+ /* lápiz y equis del dueño: sobre la foto, no sobre el nombre */
+ .pgrid:not(.hrow) .prod:not(.fx) .x{right:auto!important;left:18px;top:18px}
+ .pgrid:not(.hrow) .prod:not(.fx) .x[style]{left:60px}
+}
+
+/* 3. Botón flotante de emergencias (v257): solo la sirena, sin las letras «SOS», y más pequeño (antes 52 px de alto con texto).
+   Su nombre para lectores de pantalla no cambia («Emergencias: llamar a Policía, Bomberos o a tu contacto»). */
+button.emgfab{width:44px;height:44px;padding:0;justify-content:center;gap:0}
+button.emgfab>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+button.emgfab svg{width:22px;height:22px}

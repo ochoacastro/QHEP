@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 302 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#153** (v429), el 15 de noviembre de 2026. Todo hasta la v429 está en `main`. En la rama solo quedan cambios de este parte, sin PR.
+- **Pruebas:** 328 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#154** (solo el parte), el 15 de noviembre de 2026. Todo hasta la v429 está en `main`. En la rama están las skills nuevas, el servidor MCP de Playwright (sección 6) la **v430** (diseño de tienda en línea para computador) y la **v431** (lo mismo en celular, y el botón de emergencias más pequeño), sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v429)
+## 2. Lo que se hizo en esta etapa (v392 a v431)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -56,6 +56,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v427 | **Movimiento:** el fondo de las ventanas se funde al abrir; al cerrar, la ventana baja y se desvanece (antes desaparecía de golpe); de una ventana a otra solo cambia el contenido; las pantallas (inicio, tienda, producto…) entran suave; los formularios por pasos traen el paso nuevo desde el lado hacia donde se va | #152 |
 | v428 | **Ajustes visuales:** el inicio ya no deja un hueco en blanco bajo las pestañas (toman la altura de la pestaña abierta); el nombre del negocio sale completo en dos líneas; el producto sin foto tiene marco e ícono; en el carrusel el botón va al fondo de la tarjeta | #152 |
 | v429 | **Revisión de lógica: dos errores arreglados.** «Categorías» no abría en una tienda sin categorías guardadas (toda tienda recién creada). Y al llegar al panel por el enlace del botón «Publicar» (`?panel#/clasificado`), el formulario del clasificado se abría sin cuenta, saltándose la v425 | #153 |
+| v430 | **Diseño de tienda en línea y responsive:** en computador (1024 px o más) el encabezado va en una fila (logo, buscador siempre visible, cuenta, carrito) con una segunda fila de enlaces (Inicio, Clasificados, Mi cuenta, Publicar); la ficha de producto va en dos columnas con una caja de compra fija a la derecha; contenido hasta 1200 px. En todos los tamaños los productos van en tarjetas con borde y precio grande; en tableta las categorías van en 6 columnas | sin PR |
+| v431 | **Diseño de tienda en línea en celular** (la dueña mandó capturas de Amazon): encabezado compacto con menú, logo pequeño, cuenta y carrito en una fila y el buscador debajo, siempre visible, también en el inicio; productos de una tienda en filas (foto a la izquierda; nombre, precio y «Agregar al carrito» a la derecha). El botón flotante de emergencias queda solo con la sirena, sin las letras «SOS», y más pequeño (44 px) | sin PR |
 
 ---
 
@@ -112,6 +114,21 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 - Nota: si alguien sin cuenta toca «Publicar», se registra con correo y vuelve desde el enlace del correo en otra pestaña, no se le abre solo el formulario (la página se cargó de nuevo); tiene que tocar «Publicar» otra vez.
 
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
+- **Diseño de tienda en línea (v430):**
+  - la dueña pidió «un mejor diseño como MercadoLibre». Se tomó la forma de un marketplace (buscador siempre arriba, ficha en dos columnas, tarjetas de producto) pero no su marca: los colores, el logo, el diseño cuadrado y el modo oscuro siguen siendo los de Mi Pradera;
+  - en celular solo cambian las tarjetas de producto (borde y precio más grande); lo demás se ve igual;
+  - `v430-diseno-escritorio.js` mueve tres piezas sin cambiar qué hacen: el buscador al encabezado, la barra de abajo (#bnav) al encabezado y las piezas de la ficha a dos cajas (.pvmain y .pvbuy). En celular las cajas no cuentan (display:contents) y cada pieza conserva su orden con `style.order`;
+  - ojo en código y pruebas: en la ficha hay dos botones con la clase `.pvbtn` en cajas distintas; para «Comprar ahora» usar `.pvbuy .pvbtn`;
+  - dentro de una tienda el encabezado sigue escondido (cada tienda tiene su barra), así que en computador ahí no salen los enlaces;
+  - el botón SOS tapaba un poco las categorías a la izquierda; en la v431 quedó más pequeño (solo la sirena).
+- **Diseño en celular (v431):**
+  - se tomó la forma de la página de Amazon que mandó la dueña, no su marca: ni su logo ni sus colores (verde, amarillo, fucsia). Los botones siguen cuadrados y azules;
+  - el buscador queda siempre en el encabezado, también en el inicio; el hueco que dejaba en el centro del inicio se esconde (`#hubsrch:empty`);
+  - las filas de productos son solo para pantallas de menos de 640 px y para las cuadrículas de una tienda (`.pgrid`), no para las filas que se deslizan de lado (`.hrow`) ni para las tarjetas de ropa (`.fx`);
+  - el «+» de cada producto se vuelve el botón «Agregar al carrito» solo con CSS; su nombre accesible ya decía «Agregar … al carrito»;
+  - en pantallas de menos de 360 px, la cuenta muestra solo el ícono (no cabe «Iniciar sesión»); de 360 a 399 px el texto puede ir en dos líneas («Iniciar / sesión»);
+  - la revisión de GitHub del PR #155 falló porque esa máquina no tiene la letra Inter: con su letra, más ancha, «Iniciar sesión» se cortaba a 360 px (en algunos teléfonos pasaría igual). Por eso el texto ahora puede ir en dos líneas, y una prueba lo revisa con una letra ancha (DejaVu Sans). Las pruebas locales tienen Inter instalada: un diseño que cabe «justo» aquí puede no caber allá;
+  - las letras «SOS» siguen en el botón para los lectores de pantalla; solo se esconden a la vista.
 - **Ajustes visuales (v428):**
   - la dueña aprobó los cuatro arreglos el 15 de noviembre de 2026, después de ver las hojas de «antes y después»;
   - no se cambiaron colores ni letras. Los íconos de categorías de varios colores se dejaron igual;
@@ -232,6 +249,14 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - `workers-best-practices` (de `cloudflare/skills`): revisar el worker de Cloudflare.
   - Para instalar otra: `npx skills add <dueño/repositorio> --skill <nombre> --agent claude-code -y`, leerla completa antes de hacer commit, y dejar `skills-lock.json` fuera de GitHub Pages (ya está en `_config.yml`).
   - No instalar `design-mobile-apps`: es un conector al servicio de pago sleek.design, pensado para React Native.
+- **Servidores MCP** (17 de noviembre de 2026):
+  - **Figma:** es un conector de claude.ai, no vive en el repositorio. Ya está conectado a la cuenta de Figma de la dueña;
+  - **Playwright:** está en `.mcp.json`, en la raíz del repositorio, y se carga en las sesiones nuevas. Usa la versión fija `@playwright/mcp@0.0.85`, sin ventana, con el Chromium que ya trae la máquina de la nube (`/opt/pw-browsers/chromium`): no instalar otro navegador. Probado: arranca, ofrece 25 herramientas y abre páginas. Si una sesión nueva pide permiso para usarlo, hay que aceptarlo una vez. Las pruebas de la página (`tests/pagina/pruebas.cjs`) no lo usan: siguen con Playwright directo.
+  - **Instaladas el 17 de noviembre de 2026, a pedido de la dueña:**
+    - de `emilkowalski/skills` (20): `animate`, `animation-performance`, `animation-vocabulary`, `apple-design`, `ask-emil`, `break-ui`, `choreograph`, `emil-design-eng`, `find-animation-opportunities`, `gestures`, `improve-animations`, `learn-taste`, `mobile-native`, `prototype`, `remove-animations`, `review-animations`, y cuatro que no aplican a esta página pero vienen en el repositorio: `write-swift` (Swift, iOS), `animate-expo` (React Native), `ask-sonner` y `pick-ui-library` (librerías de React). Solo traen instrucciones, sin programas;
+    - `impeccable` (de `pbakaus/impeccable`, 2,4 MB): diseño y revisión de interfaz con comandos (`critique`, `audit`, `polish`, `animate`, `layout`…). Su script `scripts/impeccable` descarga la primera vez un programa desde las versiones publicadas en GitHub y lo verifica con sumas de control. Tiene un «gancho» opcional que revisa cada archivo editado; solo se enciende si se pide (`impeccable hooks on`). Pide archivos PRODUCT.md y DESIGN.md en la raíz si se usa a fondo: no se han creado;
+    - `design-taste-frontend` (de `Leonxlnx/taste-skill`, unos 40 MB y 1.631 archivos, casi todo imágenes y ejemplos): hecha para construir sitios de empresa desde cero, con fotos de muestra y su propio sistema de diseño. Mientras se usa, al final de cada respuesta corre una comprobación con Node (`scripts/gate.mjs`); si no hay un trabajo suyo armado (`.taste-skill/build.json`), termina al instante. Varias de sus reglas chocan con esta página (pide contactos en `.example`, sin teléfonos reales, fotos en cada sección, bordes redondeados): mandan las preferencias de la dueña. Sus scripts abren Chrome sin ventana y descargan fotos de Wikimedia y tipografías;
+    - revisadas antes de guardarlas: no encontré órdenes ocultas ni envío de datos a terceros; varias advierten justamente contra textos que intenten dar órdenes. GitHub Pages no las publica (las carpetas que empiezan con punto no se publican).
 - **Preferencias de la dueña:**
   - respuestas en español, con las líneas cambiadas y capturas;
   - diseño cuadrado y modo oscuro;
