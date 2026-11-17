@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 352 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#159** (solo el parte), el 17 de noviembre de 2026. Todo hasta la v436 está en `main`, y la rama de trabajo está igual que `main`.
+- **Pruebas:** 353 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#159** (solo el parte), el 17 de noviembre de 2026. Todo hasta la v436 está en `main`. La rama de trabajo tiene además la **v437** (sin PR todavía).
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v436)
+## 2. Lo que se hizo en esta etapa (v392 a v437)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -63,6 +63,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v434 | **«Sugerencias» se une con «Escríbenos»:** en los menús, «Sugerencias» se cambia por «Escríbenos», que abre el formulario completo del pie (nombre, correo, teléfono, asunto y mensaje) ya desplegado. La ventana pública de sugerencias deja de usarse; un enlace viejo a `#/sugerencias` también lleva a «Escríbenos» | #157 |
 | v435 | **Signo de «Escríbenos» y rayas del carrusel:** el botón del pie cambia de «+» a «−» al abrir y de «−» a «+» al cerrar (antes, al primer toque, el signo se trababa en «+» y salía un error). El carrusel de banners de arriba usa rayas debajo de la imagen (verde la que se ve, grises las otras) en vez de puntos sobre la imagen, como los demás carruseles | #158 |
 | v436 | **Términos y condiciones al entrar por primera vez con Google** (o Apple o Facebook): antes de quedar adentro sale una ventana con dos casillas (Términos de uso; tratamiento de datos y Política de privacidad) y «Aceptar», que solo se activa con las dos marcadas. Antes quedaba registrado sin marcar nada | #158 |
+| v437 | **Términos con Google a quien no los haya aceptado:** la v436 solo preguntaba si Firebase decía que la cuenta era nueva, y a la dueña no le salió al probarla (su cuenta de Google ya había entrado antes). Ahora la fecha en que acepta queda guardada en la cuenta de Firebase y se pregunta a toda cuenta de Google que no la tenga, una vez, en cualquier teléfono | — |
 
 ---
 
@@ -82,7 +83,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - sin cuenta, abrir el menú y tocar «Planes»: debe abrir «Planes y precios» sin pedir registro (v432);
    - con avisos sin leer, el cuadro rojo debe quedar sobre la campana (v433);
    - tocar «Escríbenos» en el menú: debe bajar al formulario del pie, ya abierto (v434);
-   - entrar con una cuenta de Google que nunca haya entrado a Mi Pradera: debe salir «Términos y condiciones» y entrar solo después de marcar las dos casillas (v436);
+   - entrar con Google (con una cuenta que ya haya entrado antes también sirve): debe salir «Términos y condiciones» y entrar solo después de marcar las dos casillas; al volver a entrar, ya no debe salir (v436, v437);
    - el botón «Escríbenos» del pie: «+» cerrado y «−» abierto; el carrusel de banners de arriba con rayas debajo de la imagen (v435).
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
@@ -136,6 +137,12 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - si cancela, no entra; como su cuenta de Google ya quedó creada en Firebase, el teléfono recuerda (`qh_tyc_pend`) que falta aceptar y vuelve a preguntar. En otro teléfono no sabría que falta: entraría directo;
   - sirve igual para Apple y Facebook (mismo camino en `10-ed.js`) y para Google One Tap (`v369`);
   - la fecha en que acepta se guarda como antes, en `consent` de la cuenta (solo en el teléfono).
+- **Términos por cuenta (v437):**
+  - la dueña probó la v436 el 17 de noviembre de 2026 y no le salió: su cuenta de Google ya existía en Firebase, así que no era «nueva». Se consideró preguntar antes de abrir Google, pero ahí la página no sabe quién es y le preguntaría a todos; la dueña eligió la v437;
+  - la fecha queda en el perfil de la cuenta de Firebase (`displayName`, el JSON de la v261, campo `t`). No necesita reglas nuevas;
+  - no se le pregunta a quien tiene la clave de correo en su cuenta (`password`): ya marcó la casilla del registro;
+  - las cuentas que ya entraron con Google, incluso las que aceptaron con la v436, verán la ventana una vez más;
+  - «Mis datos» (08-pflock.js) y el cambio de teléfono (v346) reescriben ese perfil: ahora conservan `t`. Si otro código lo reescribe, debe conservarla también.
 - **«Planes» en el menú (v432):**
   - lo pidió la dueña: que cualquiera, con o sin cuenta, vea los planes y sus precios antes de comprar uno;
   - quien ya tiene cuenta también llega a la página pública, y su botón «Activar un rol» abre la ventana de siempre para canjear o comprar;
