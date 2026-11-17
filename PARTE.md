@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 315 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#154** (solo el parte), el 15 de noviembre de 2026. Todo hasta la v429 está en `main`. En la rama están las skills nuevas, el servidor MCP de Playwright (sección 6) y la **v430** (diseño de tienda en línea para computador), sin PR todavía.
+- **Pruebas:** 326 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#154** (solo el parte), el 15 de noviembre de 2026. Todo hasta la v429 está en `main`. En la rama están las skills nuevas, el servidor MCP de Playwright (sección 6) la **v430** (diseño de tienda en línea para computador) y la **v431** (lo mismo en celular, y el botón de emergencias más pequeño), sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v430)
+## 2. Lo que se hizo en esta etapa (v392 a v431)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -57,6 +57,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v428 | **Ajustes visuales:** el inicio ya no deja un hueco en blanco bajo las pestañas (toman la altura de la pestaña abierta); el nombre del negocio sale completo en dos líneas; el producto sin foto tiene marco e ícono; en el carrusel el botón va al fondo de la tarjeta | #152 |
 | v429 | **Revisión de lógica: dos errores arreglados.** «Categorías» no abría en una tienda sin categorías guardadas (toda tienda recién creada). Y al llegar al panel por el enlace del botón «Publicar» (`?panel#/clasificado`), el formulario del clasificado se abría sin cuenta, saltándose la v425 | #153 |
 | v430 | **Diseño de tienda en línea y responsive:** en computador (1024 px o más) el encabezado va en una fila (logo, buscador siempre visible, cuenta, carrito) con una segunda fila de enlaces (Inicio, Clasificados, Mi cuenta, Publicar); la ficha de producto va en dos columnas con una caja de compra fija a la derecha; contenido hasta 1200 px. En todos los tamaños los productos van en tarjetas con borde y precio grande; en tableta las categorías van en 6 columnas | sin PR |
+| v431 | **Diseño de tienda en línea en celular** (la dueña mandó capturas de Amazon): encabezado compacto con menú, logo pequeño, cuenta y carrito en una fila y el buscador debajo, siempre visible, también en el inicio; productos de una tienda en filas (foto a la izquierda; nombre, precio y «Agregar al carrito» a la derecha). El botón flotante de emergencias queda solo con la sirena, sin las letras «SOS», y más pequeño (44 px) | sin PR |
 
 ---
 
@@ -119,7 +120,14 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - `v430-diseno-escritorio.js` mueve tres piezas sin cambiar qué hacen: el buscador al encabezado, la barra de abajo (#bnav) al encabezado y las piezas de la ficha a dos cajas (.pvmain y .pvbuy). En celular las cajas no cuentan (display:contents) y cada pieza conserva su orden con `style.order`;
   - ojo en código y pruebas: en la ficha hay dos botones con la clase `.pvbtn` en cajas distintas; para «Comprar ahora» usar `.pvbuy .pvbtn`;
   - dentro de una tienda el encabezado sigue escondido (cada tienda tiene su barra), así que en computador ahí no salen los enlaces;
-  - el botón SOS sigue tapando un poco las categorías a la izquierda en celular y computador; no se tocó.
+  - el botón SOS tapaba un poco las categorías a la izquierda; en la v431 quedó más pequeño (solo la sirena).
+- **Diseño en celular (v431):**
+  - se tomó la forma de la página de Amazon que mandó la dueña, no su marca: ni su logo ni sus colores (verde, amarillo, fucsia). Los botones siguen cuadrados y azules;
+  - el buscador queda siempre en el encabezado, también en el inicio; el hueco que dejaba en el centro del inicio se esconde (`#hubsrch:empty`);
+  - las filas de productos son solo para pantallas de menos de 640 px y para las cuadrículas de una tienda (`.pgrid`), no para las filas que se deslizan de lado (`.hrow`) ni para las tarjetas de ropa (`.fx`);
+  - el «+» de cada producto se vuelve el botón «Agregar al carrito» solo con CSS; su nombre accesible ya decía «Agregar … al carrito»;
+  - en pantallas de menos de 360 px, la cuenta muestra solo el ícono (no cabe «Iniciar sesión»);
+  - las letras «SOS» siguen en el botón para los lectores de pantalla; solo se esconden a la vista.
 - **Ajustes visuales (v428):**
   - la dueña aprobó los cuatro arreglos el 15 de noviembre de 2026, después de ver las hojas de «antes y después»;
   - no se cambiaron colores ni letras. Los íconos de categorías de varios colores se dejaron igual;

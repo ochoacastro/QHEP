@@ -1963,6 +1963,53 @@ html.dark .rlpk[aria-selected=true]{background:#0a84ff;border-color:#0a84ff}html
 }
 @media (min-width:1024px) and (prefers-reduced-motion:reduce){.pgrid .prod:not(.fx),.psecs .prod:not(.fx){transition:none}}
 </style>
+<style id="v431-diseno-celular-css">
+/* v431: diseño de tienda en línea también en celular y tableta (la forma de las tiendas grandes, con la marca de Mi Pradera).
+   1. Encabezado compacto (menos de 1024 px): menú, logo pequeño, cuenta, avisos, carrito y tema en una fila; debajo, el buscador,
+      que ahora queda siempre en el encabezado, también en el inicio (lo mueve v430-diseno-escritorio.js). */
+@media (max-width:1023px){
+ header,body.qinhub header{grid-template-columns:40px auto minmax(0,1fr) auto 40px 40px;
+  grid-template-areas:"hmb logo acct nf cart thm" "qw qw qw qw qw qw" "hbn hbn hbn hbn hbn hbn";gap:8px 6px;padding:8px 10px 10px}
+ .hmb{width:40px}
+ #home{justify-self:start}
+ #home img{height:36px;width:auto}
+ #userBtn{justify-self:end;font-size:14px}
+ #nfBtn{grid-area:nf;position:static!important}
+ #cartBtn{justify-self:center}
+ #themeBtn{width:40px;height:40px}
+ header .qw{max-width:none;margin:0}
+}
+@media (max-width:399px){#userBtn{font-size:13px;gap:4px}}
+@media (max-width:359px){#ut{display:none}}/* en pantallas muy angostas, solo el ícono de la cuenta */
+#hubsrch:empty{display:none}
+
+/* 2. Productos en filas (menos de 640 px): foto a la izquierda; a la derecha nombre, precio y «Agregar al carrito» */
+@media (max-width:639px){
+ .pgrid:not(.hrow){grid-template-columns:minmax(0,1fr)!important;gap:10px}
+ .pgrid:not(.hrow) .prod:not(.fx){display:grid;grid-template-columns:42% minmax(0,1fr);grid-template-rows:auto auto auto minmax(0,1fr) auto;
+  column-gap:14px;row-gap:4px;padding:12px;align-items:start}
+ .pgrid:not(.hrow) .prod:not(.fx)>:not(.pic):not(.x):not(.plus){padding-left:0;padding-right:0}
+ .pgrid:not(.hrow) .prod:not(.fx) .pic{grid-column:1;grid-row:1 / 6;margin:0;align-self:center;width:100%}
+ .pgrid:not(.hrow) .prod:not(.fx) h3{grid-column:2;grid-row:1;font-size:16px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+ .pgrid:not(.hrow) .prod:not(.fx) .price{grid-column:2;grid-row:2;font-size:24px}
+ .pgrid:not(.hrow) .prod:not(.fx) .meta{grid-column:2;grid-row:3}
+ .pgrid:not(.hrow) .prod:not(.fx) .muted{grid-column:2;grid-row:4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ .pgrid:not(.hrow) .prod:not(.fx) .plus,.pgrid:not(.hrow) .prod:not(.fx) .soldout,.pgrid:not(.hrow) .prod:not(.fx)>.btn{grid-column:2;grid-row:5;align-self:end;margin:8px 0 0}
+ /* el «+» se vuelve un botón ancho con texto (su nombre accesible ya dice «Agregar … al carrito») */
+ .pgrid:not(.hrow) .prod:not(.fx) .plus{position:static;width:100%;height:auto;min-height:44px;border:0;border-radius:0;background:#0071e3;color:#fff;font-size:0;line-height:1;padding:0 10px}
+ .pgrid:not(.hrow) .prod:not(.fx) .plus::before{content:"Agregar al carrito";font-size:15px;font-weight:700}
+ .pgrid:not(.hrow) .prod:not(.fx) .soldout{display:block;text-align:center;min-height:44px;line-height:44px}
+ /* lápiz y equis del dueño: sobre la foto, no sobre el nombre */
+ .pgrid:not(.hrow) .prod:not(.fx) .x{right:auto!important;left:18px;top:18px}
+ .pgrid:not(.hrow) .prod:not(.fx) .x[style]{left:60px}
+}
+
+/* 3. Botón flotante de emergencias (v257): solo la sirena, sin las letras «SOS», y más pequeño (antes 52 px de alto con texto).
+   Su nombre para lectores de pantalla no cambia («Emergencias: llamar a Policía, Bomberos o a tu contacto»). */
+button.emgfab{width:44px;height:44px;padding:0;justify-content:center;gap:0}
+button.emgfab>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+button.emgfab svg{width:22px;height:22px}
+</style>
 
 <style id="v312-tablas-anuncios-css">
 /* v312: tablas de Mis inmuebles y Mis vehículos (usan el estilo .mst de la tabla de tiendas) */
@@ -5272,8 +5319,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script id="v430-diseno-escritorio">
 /* v430: DISEÑO DE TIENDA EN LÍNEA PARA COMPUTADOR (estilo de los grandes marketplaces, con la marca de Mi Pradera).
    El diseño está en v430-diseno-escritorio-css.css; este archivo solo mueve tres piezas que ya existen, sin cambiar qué hacen:
-   1. El buscador (.qw y sus sugerencias #sr): en computador (1024 px o más) queda siempre en el encabezado, también en el
-      inicio. En celular y tableta sigue como antes: en el inicio baja al centro de la página (15-norm.js, srSlot).
+   1. El buscador (.qw y sus sugerencias #sr): queda siempre en el encabezado, también en el inicio (antes, en el inicio bajaba
+      al centro de la página: 15-norm.js, srSlot). v431: también en celular y tableta, como en las tiendas grandes.
    2. La barra de abajo (#bnav: Inicio, Buscar, Publicar, Clasificados, Mi cuenta): en computador se muestra dentro del
       encabezado como una segunda fila de enlaces. En celular y tableta vuelve a su lugar, abajo.
    3. La ficha de producto (article.pv): agrupa sus piezas en dos cajas, .pvmain (fotos, medios de pago, preguntas, opiniones)
@@ -5285,8 +5332,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 var MQ=matchMedia('(min-width:1024px)'),$=function(s){return document.querySelector(s)};
 var bnavSitio=null;/* dónde estaba #bnav antes de subirlo al encabezado */
 function buscador(){var qw=$('.qw'),sr=$('#sr'),hd=$('header'),u=$('#userBtn');if(!qw||!hd)return;
- if(MQ.matches){if(qw.parentNode!==hd){hd.insertBefore(qw,u&&u.parentNode===hd?u:null);if(sr)hd.insertBefore(sr,qw.nextSibling)}document.body.classList.remove('qinhub')}
- else{var s=$('#hubsrch');if(s&&qw.parentNode!==s){s.appendChild(qw);if(sr)s.appendChild(sr);document.body.classList.add('qinhub')}}}
+ if(qw.parentNode!==hd){hd.insertBefore(qw,u&&u.parentNode===hd?u:null);if(sr)hd.insertBefore(sr,qw.nextSibling)}document.body.classList.remove('qinhub')}
 function barra(){var b=$('#bnav'),hd=$('header');if(!b||!hd)return;
  if(MQ.matches){if(b.parentNode!==hd){bnavSitio={p:b.parentNode,n:b.nextSibling};hd.appendChild(b)}}
  else if(b.parentNode===hd){var s=bnavSitio;if(s&&s.p&&s.p.isConnected)s.p.insertBefore(b,s.n&&s.n.parentNode===s.p?s.n:null);else document.body.appendChild(b)}}

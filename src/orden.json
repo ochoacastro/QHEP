@@ -1002,6 +1002,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v431-diseno-celular-css\">",
+  "f": "estilos/v431-diseno-celular-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v411-letrero\">",
   "f": "codigo/v411-letrero.js"

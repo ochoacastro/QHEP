@@ -1,8 +1,8 @@
 
 /* v430: DISEÑO DE TIENDA EN LÍNEA PARA COMPUTADOR (estilo de los grandes marketplaces, con la marca de Mi Pradera).
    El diseño está en v430-diseno-escritorio-css.css; este archivo solo mueve tres piezas que ya existen, sin cambiar qué hacen:
-   1. El buscador (.qw y sus sugerencias #sr): en computador (1024 px o más) queda siempre en el encabezado, también en el
-      inicio. En celular y tableta sigue como antes: en el inicio baja al centro de la página (15-norm.js, srSlot).
+   1. El buscador (.qw y sus sugerencias #sr): queda siempre en el encabezado, también en el inicio (antes, en el inicio bajaba
+      al centro de la página: 15-norm.js, srSlot). v431: también en celular y tableta, como en las tiendas grandes.
    2. La barra de abajo (#bnav: Inicio, Buscar, Publicar, Clasificados, Mi cuenta): en computador se muestra dentro del
       encabezado como una segunda fila de enlaces. En celular y tableta vuelve a su lugar, abajo.
    3. La ficha de producto (article.pv): agrupa sus piezas en dos cajas, .pvmain (fotos, medios de pago, preguntas, opiniones)
@@ -14,8 +14,7 @@
 var MQ=matchMedia('(min-width:1024px)'),$=function(s){return document.querySelector(s)};
 var bnavSitio=null;/* dónde estaba #bnav antes de subirlo al encabezado */
 function buscador(){var qw=$('.qw'),sr=$('#sr'),hd=$('header'),u=$('#userBtn');if(!qw||!hd)return;
- if(MQ.matches){if(qw.parentNode!==hd){hd.insertBefore(qw,u&&u.parentNode===hd?u:null);if(sr)hd.insertBefore(sr,qw.nextSibling)}document.body.classList.remove('qinhub')}
- else{var s=$('#hubsrch');if(s&&qw.parentNode!==s){s.appendChild(qw);if(sr)s.appendChild(sr);document.body.classList.add('qinhub')}}}
+ if(qw.parentNode!==hd){hd.insertBefore(qw,u&&u.parentNode===hd?u:null);if(sr)hd.insertBefore(sr,qw.nextSibling)}document.body.classList.remove('qinhub')}
 function barra(){var b=$('#bnav'),hd=$('header');if(!b||!hd)return;
  if(MQ.matches){if(b.parentNode!==hd){bnavSitio={p:b.parentNode,n:b.nextSibling};hd.appendChild(b)}}
  else if(b.parentNode===hd){var s=bnavSitio;if(s&&s.p&&s.p.isConnected)s.p.insertBefore(b,s.n&&s.n.parentNode===s.p?s.n:null);else document.body.appendChild(b)}}

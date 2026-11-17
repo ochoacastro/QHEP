@@ -631,11 +631,30 @@ const PRUEBAS = {
     await p.evaluate(() => { view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(300);
     check('Computador: dentro de una tienda no aparecen los enlaces del encabezado', await p.evaluate(() => !document.getElementById('bnav').offsetParent));
     await p.setViewportSize({ width: 390, height: 844 }); await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(500);
-    check('Al pasar a celular, la barra vuelve abajo y el buscador al centro del inicio', await p.evaluate(() => document.getElementById('bnav').parentNode.tagName !== 'HEADER' && document.querySelector('.qw').parentNode.id === 'hubsrch'));
+    check('Al pasar a celular, la barra vuelve abajo y el buscador sigue arriba (v431)', await p.evaluate(() => document.getElementById('bnav').parentNode.tagName !== 'HEADER' && document.querySelector('.qw').parentNode.tagName === 'HEADER'));
     sinErrores(p, 'Diseño computador'); await p.cerrar();
     // tableta: categorías del inicio en 6 columnas
     p = await abrir({ seed, ancho: 768, alto: 1024 });
     check('Tableta: las categorías del inicio van en 6 columnas', await p.evaluate(() => getComputedStyle(document.querySelector('.hubg.hubg2')).gridTemplateColumns.split(' ').length === 6));
+    await p.cerrar();
+    // v431 celular: encabezado compacto y productos en filas, como las tiendas grandes
+    for (const w of [320, 360, 390]) {
+      p = await abrir({ seed, ancho: w, alto: 780 });
+      const c = await p.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect(); const lg = r('#home'), ct = r('#cartBtn'), q = r('header .qw'), u = document.getElementById('ut');
+        return { fila: Math.abs((lg.top + lg.bottom) / 2 - (ct.top + ct.bottom) / 2) < 10, debajo: q.top > lg.bottom - 2, enHeader: document.querySelector('.qw').parentNode.tagName === 'HEADER', corta: u.offsetParent ? u.scrollWidth > u.clientWidth + 1 : false, alto: document.querySelector('header').offsetHeight } });
+      check(`Celular ${w}px: logo y carrito en una fila, buscador debajo y «Iniciar sesión» sin cortarse`, c.fila && c.debajo && c.enHeader && !c.corta && c.alto < 150, JSON.stringify(c));
+      await p.evaluate(() => { view = 'store'; cur = 's1'; render(); scrollTo(0, 0) }); await p.waitForTimeout(300);
+      const f = await p.evaluate(() => { const pr = document.querySelector('.pgrid .prod'); const r = s => pr.querySelector(s).getBoundingClientRect(); const pic = r('.pic'), h = r('h3'), b = r('.plus');
+        return { lado: h.left > pic.right - 1 && b.left > pic.right - 1, boton: getComputedStyle(pr.querySelector('.plus'), '::before').content, ancho: Math.round(b.width), cols: getComputedStyle(document.querySelector('.pgrid')).gridTemplateColumns.split(' ').length } });
+      check(`Celular ${w}px: productos en filas con la foto a la izquierda y «Agregar al carrito»`, f.lado && /Agregar al carrito/.test(f.boton) && f.ancho > 100 && f.cols === 1, JSON.stringify(f));
+      if (w === 360) { await p.click('.pgrid .prod .plus'); await p.waitForTimeout(300); check('Celular: «Agregar al carrito» agrega el producto', await p.evaluate(() => Object.values(S.cart).reduce((a, b) => a + b, 0) === 1)) }
+      sinErrores(p, `Celular ${w}px`); await p.cerrar();
+    }
+    // v431: el botón de emergencias es solo la sirena, más pequeño, y conserva su nombre
+    p = await abrir({ seed });
+    const sos = await p.evaluate(() => { const b = document.getElementById('emgfab'); if (!b) return null; const r = b.getBoundingClientRect(), s = b.querySelector('span');
+      return { w: Math.round(r.width), h: Math.round(r.height), letras: s ? s.getBoundingClientRect().width > 2 : false, nombre: b.getAttribute('aria-label') || '' } });
+    check('El botón de emergencias se ve sin las letras «SOS», de 44 px, y sigue diciendo para qué es', !!sos && sos.w <= 46 && sos.h <= 46 && !sos.letras && /Emergencias/.test(sos.nombre), JSON.stringify(sos));
     await p.cerrar();
     // celular: la ficha conserva su orden de siempre
     p = await abrir({ seed });
