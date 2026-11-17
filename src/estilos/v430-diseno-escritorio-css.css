@@ -24,7 +24,7 @@
  #home img{height:46px;width:auto}
  header .qw{grid-area:qw;max-width:none;margin:0;width:100%}
  #userBtn{grid-area:acct;justify-self:end}
- #nfBtn{grid-area:nf;position:static!important;inset:auto!important;justify-self:center}
+ #nfBtn{grid-area:nf;position:relative!important;inset:auto!important;justify-self:center}/* v433: relative (no static): el cuadro rojo se ubica respecto a la campana */
  #cartBtn{grid-area:cart}
  header #bnav{grid-area:nav;position:static;display:flex!important;align-items:center;gap:4px;height:auto;margin:0;padding:0;border:0;
   background:none;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;z-index:auto}

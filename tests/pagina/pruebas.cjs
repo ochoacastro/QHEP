@@ -492,11 +492,7 @@ const PRUEBAS = {
     await pide('publicar un vehículo', "gdOpen('veh')", '#a-wa');
     await pide('publicar un inmueble', "gdOpen('arr')", '[data-gdad]');
     check('El aviso sale una sola vez y la pestaña «Iniciar sesión» sigue ahí', await p.evaluate(() => document.querySelectorAll('#ov .rgpn').length === 1 && !!document.querySelector('#ov [data-act="loginForm"]')));
-    await p.evaluate(() => { closeModal(1); after = null; view = 'sug'; render() }); await p.waitForTimeout(300);
-    await p.fill('#g-txt', 'Más bancas en el parque'); await p.click('[data-act="saveSug"]'); await p.waitForTimeout(400);
-    check('Sin cuenta, enviar una sugerencia pide registrarse y no la publica todavía', /Registrarme/.test(await ov()) && await p.evaluate(() => !S.ideas.some(x => /bancas/.test(x.txt))), await ov());
-    await conCuenta(p); await p.evaluate(() => { closeModal(1); const f = after; after = null; f() }); await p.waitForTimeout(900);
-    check('Al entrar, la sugerencia que había escrito se envía sola', await p.evaluate(() => S.ideas.some(x => /Más bancas en el parque/.test(x.txt))));
+    await p.evaluate(() => { closeModal(1); after = null }); await conCuenta(p); // v434: la ventana de sugerencias ya no existe (se unió con «Escríbenos»)
     await p.evaluate(() => { closeModal(1); comForm() }); await p.waitForTimeout(400);
     check('Con cuenta, el clasificado abre su formulario directo, sin aviso', await p.evaluate(() => !!document.querySelector('#ov #cm-t') && !document.querySelector('#ov .rgpn')), await ov());
     await p.evaluate(() => { closeModal(1); gdOpen('shop') }); await p.waitForTimeout(700);
@@ -508,11 +504,11 @@ const PRUEBAS = {
   },
   async rolesYPrecios() { // v426 página pública «Roles y precios» (#/roles), sin necesidad de cuenta
     const p = await abrir();
-    check('El pie de la página tiene el enlace «Roles y precios»', await p.evaluate(() => /Roles y precios/.test((document.querySelector('footer [data-rolv]') || {}).textContent || '')));
+    check('El pie de la página tiene el enlace «Planes y precios» (v432)', await p.evaluate(() => /Planes y precios/.test((document.querySelector('footer [data-rolv]') || {}).textContent || '')));
     await p.evaluate(() => document.querySelector('footer [data-rolv]').click()); await p.waitForTimeout(400);
     const txt = () => p.evaluate(() => document.getElementById('app').innerText);
     let t = await txt();
-    check('Sin cuenta se abre la página, con su dirección #/roles', /Roles y precios/.test(t) && await p.evaluate(() => location.hash === '#/roles' && !document.getElementById('ov')), await p.evaluate(() => location.hash));
+    check('Sin cuenta se abre la página, con su dirección #/roles', /Planes y precios/.test(t) && await p.evaluate(() => location.hash === '#/roles' && !document.getElementById('ov')), await p.evaluate(() => location.hash));
     const roles = await p.evaluate(() => [...document.querySelectorAll('.rlpc')].map(c => c.dataset.rol).join());
     check('Muestra lo gratis y los seis roles', roles === 'free,merc,home,car,com,comu,news', roles);
     const visto = () => p.evaluate(() => [...document.querySelectorAll('.rlpc')].filter(c => c.offsetParent).map(c => c.dataset.rol).join() + ' | ' + (document.querySelector('.rlpk[aria-selected="true"]') || {}).textContent);
@@ -543,6 +539,19 @@ const PRUEBAS = {
     await conCuenta(p); await p.evaluate(() => render(true)); await p.waitForTimeout(300);
     check('Con cuenta, la página ofrece «Activar un rol»', await p.evaluate(() => !!document.querySelector('.rlpa [data-act="codesModal"]') && !document.querySelector('.rlpa [data-act="regForm"]')));
     sinErrores(p, 'Roles y precios'); await p.cerrar();
+    // v432: «Planes» en el menú principal, también sin cuenta
+    const m = await abrir();
+    await m.click('#hmb'); await m.waitForTimeout(300);
+    const menu = await m.evaluate(() => [...document.querySelectorAll('#ov [data-act="hmtab"]')].map(b => b.textContent.trim()));
+    check('El menú principal dice «Planes» y ya no «Roles»', menu.includes('Planes') && !menu.includes('Roles'), menu.join(', '));
+    await m.evaluate(() => [...document.querySelectorAll('#ov [data-act="hmtab"]')].find(b => b.textContent.trim() === 'Planes').click()); await m.waitForTimeout(400);
+    check('Sin cuenta, «Planes» abre la página de planes y precios sin pedir registro', await m.evaluate(() => view === 'roles' && !!document.querySelector('.rlp') && !document.getElementById('ov') && /Planes y precios/.test(document.getElementById('app').innerText)));
+    await m.evaluate(() => { moreOpen = true; view = 'home'; render() }); await m.waitForTimeout(200);
+    const b2 = await m.evaluate(() => { const b = document.querySelector('[data-act="menuPlanes"]'); return b ? b.textContent.trim() : '(no se muestra)' });
+    check('La barra de secciones tampoco dice «Roles»', b2 !== 'Roles', b2);
+    if (b2 === 'Planes') { await m.evaluate(() => document.querySelector('[data-act="menuPlanes"]').click()); await m.waitForTimeout(400);
+      check('«Planes» de la barra de secciones abre la misma página', await m.evaluate(() => view === 'roles' && !document.getElementById('ov'))) }
+    sinErrores(m, 'Menú: Planes'); await m.cerrar();
   },
   async movimiento() { // v427 transiciones entre ventanas, pantallas y pasos
     const p = await abrir(); await conCuenta(p);
@@ -658,6 +667,15 @@ const PRUEBAS = {
       check(`Celular ${w}px con una letra más ancha: «Iniciar sesión» no se corta`, !u.corta && /DejaVu/.test(u.letra), JSON.stringify(u));
       await p.cerrar();
     }
+    // v433: el cuadro rojo de avisos va sobre la esquina de la campana (en la v431 se iba a la esquina del encabezado)
+    for (const [w, h] of [[390, 844], [1280, 800]]) {
+      p = await abrir({ seed, ancho: w, alto: h }); await conCuenta(p);
+      await p.evaluate(() => { const b = document.getElementById('nfBtn'); b.style.display = ''; const e = b.querySelector('em'); e.hidden = false; e.textContent = '1' }); await p.waitForTimeout(200);
+      const r = await p.evaluate(() => { const b = document.getElementById('nfBtn').getBoundingClientRect(), e = document.querySelector('#nfBtn em').getBoundingClientRect();
+        return { campana: [Math.round(b.right), Math.round(b.top)], cuadro: [Math.round(e.right), Math.round(e.top)], visible: b.width > 0 } });
+      check(`${w}px: el cuadro rojo de avisos queda sobre la esquina de la campana`, r.visible && Math.abs(r.cuadro[0] - r.campana[0]) <= 12 && Math.abs(r.cuadro[1] - r.campana[1]) <= 12, JSON.stringify(r));
+      await p.cerrar();
+    }
     // v431: el botón de emergencias es solo la sirena, más pequeño, y conserva su nombre
     p = await abrir({ seed });
     const sos = await p.evaluate(() => { const b = document.getElementById('emgfab'); if (!b) return null; const r = b.getBoundingClientRect(), s = b.querySelector('span');
@@ -678,6 +696,24 @@ const PRUEBAS = {
       await p.cerrar();
     }
     check('Ninguna pantalla se desborda a los lados, de 320 px a 1920 px, en claro y oscuro', !malos.length, malos.join(' | '));
+  },
+  async escribenosMenu() { // v434 «Sugerencias» se une con «Escríbenos», el formulario del pie de la página
+    const p = await abrir();
+    const abierto = () => p.evaluate(() => { const w = document.querySelector('.qctw'), n = document.getElementById('qct-n'); return !!w && !w.classList.contains('qcl-h') && !!n && n.offsetParent !== null && !document.getElementById('ov') });
+    await p.click('#hmb'); await p.waitForTimeout(300);
+    const menu = await p.evaluate(() => [...document.querySelectorAll('#ov [data-act="hmtab"]')].map(b => b.textContent.trim()));
+    check('El menú principal tiene «Escríbenos» y ya no «Sugerencias»', menu.includes('Escríbenos') && !menu.includes('Sugerencias'), menu.join(', '));
+    await p.evaluate(() => [...document.querySelectorAll('#ov [data-act="hmtab"]')].find(b => b.textContent.trim() === 'Escríbenos').click()); await p.waitForTimeout(700);
+    check('«Escríbenos» del menú abre el formulario del pie, ya desplegado', await abierto());
+    check('El formulario trae nombre, correo, teléfono, asunto (con «Sugerencia») y mensaje', await p.evaluate(() => ['qct-n', 'qct-c', 'qct-t', 'qct-a', 'qct-m'].every(i => document.getElementById(i)) && [...document.querySelectorAll('#qct-a option')].some(o => /Sugerencia/.test(o.textContent))));
+    await p.evaluate(() => { const b = document.querySelector('.qcl-ct'); if (b && b.getAttribute('aria-expanded') === 'true') b.click(); location.hash = '#/sugerencias' }); await p.waitForTimeout(900);
+    check('Un enlace viejo a #/sugerencias lleva al inicio y abre «Escríbenos»', await p.evaluate(() => view === 'home') && await abierto());
+    await p.evaluate(() => { const b = document.querySelector('.qcl-ct'); if (b && b.getAttribute('aria-expanded') === 'true') b.click(); view = 'sug'; render() }); await p.waitForTimeout(600);
+    check('Ningún botón puede abrir la ventana vieja de sugerencias', await p.evaluate(() => view === 'home' && !document.getElementById('g-txt')) && await abierto());
+    await p.evaluate(() => { const b = document.querySelector('.qcl-ct'); if (b && b.getAttribute('aria-expanded') === 'true') b.click(); document.body.insertAdjacentHTML('beforeend', '<button id="t-mn" data-act="menu">m</button>'); document.getElementById('t-mn').click() }); await p.waitForTimeout(300);
+    const m2 = await p.evaluate(() => [...document.querySelectorAll('#ov [data-v]')].map(b => b.dataset.v).join());
+    check('El otro menú (Inicio, Tiendas…) también tiene «Escríbenos» en vez de «Sugerencias»', /escribenos/.test(m2) && !/\bsug\b/.test(m2), m2);
+    sinErrores(p, 'Escríbenos en el menú'); await p.cerrar();
   },
   async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
     const p = await abrir(); await conCuenta(p);

@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 328 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#155** (v430, v431, skills nuevas y Playwright MCP), el 17 de noviembre de 2026. Todo hasta la v431 está en `main`. En la rama solo quedan cambios de este parte, sin PR.
+- **Pruebas:** 339 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#156** (solo el parte), el 17 de noviembre de 2026. Todo hasta la v431 está en `main`. En la rama están la **v432** («Planes» en el menú), la **v433** (cuadro rojo de la campana) y la **v434** («Sugerencias» se une con «Escríbenos»), sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v431)
+## 2. Lo que se hizo en esta etapa (v392 a v434)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -58,6 +58,9 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v429 | **Revisión de lógica: dos errores arreglados.** «Categorías» no abría en una tienda sin categorías guardadas (toda tienda recién creada). Y al llegar al panel por el enlace del botón «Publicar» (`?panel#/clasificado`), el formulario del clasificado se abría sin cuenta, saltándose la v425 | #153 |
 | v430 | **Diseño de tienda en línea y responsive:** en computador (1024 px o más) el encabezado va en una fila (logo, buscador siempre visible, cuenta, carrito) con una segunda fila de enlaces (Inicio, Clasificados, Mi cuenta, Publicar); la ficha de producto va en dos columnas con una caja de compra fija a la derecha; contenido hasta 1200 px. En todos los tamaños los productos van en tarjetas con borde y precio grande; en tableta las categorías van en 6 columnas | #155 |
 | v431 | **Diseño de tienda en línea en celular** (la dueña mandó capturas de Amazon): encabezado compacto con menú, logo pequeño, cuenta y carrito en una fila y el buscador debajo, siempre visible, también en el inicio; productos de una tienda en filas (foto a la izquierda; nombre, precio y «Agregar al carrito» a la derecha). El botón flotante de emergencias queda solo con la sirena, sin las letras «SOS», y más pequeño (44 px) | #155 |
+| v432 | **«Planes» en el menú principal:** la opción «Roles» del menú (☰) pasa a llamarse «Planes» y abre la página pública de precios, que se ve sin cuenta (antes abría la ventana «Roles», que pedía entrar). La página se llama ahora «Planes y precios», también en el pie y en el aviso de registro | sin PR |
+| v433 | **Cuadro rojo de la campana:** el número de avisos sin leer vuelve a quedar sobre la esquina de la campana; desde la v431 salía en la esquina del encabezado (se le había quitado a la campana su posición propia) | sin PR |
+| v434 | **«Sugerencias» se une con «Escríbenos»:** en los menús, «Sugerencias» se cambia por «Escríbenos», que abre el formulario completo del pie (nombre, correo, teléfono, asunto y mensaje) ya desplegado. La ventana pública de sugerencias deja de usarse; un enlace viejo a `#/sugerencias` también lleva a «Escríbenos» | sin PR |
 
 ---
 
@@ -116,6 +119,17 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 - Nota: si alguien sin cuenta toca «Publicar», se registra con correo y vuelve desde el enlace del correo en otra pestaña, no se le abre solo el formulario (la página se cargó de nuevo); tiene que tocar «Publicar» otra vez.
 
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
+- **«Planes» en el menú (v432):**
+  - lo pidió la dueña: que cualquiera, con o sin cuenta, vea los planes y sus precios antes de comprar uno;
+  - quien ya tiene cuenta también llega a la página pública, y su botón «Activar un rol» abre la ventana de siempre para canjear o comprar;
+  - solo cambió el nombre visible: la dirección sigue siendo `#/roles` y cada plan conserva su nombre (Comerciante, Vendedor de inmuebles…);
+  - también se cambió en la barra de secciones antigua (`tabs()` en 05-mlc.js), que hoy no se muestra.
+- **Campana (v433):** la v431 puso `position:static` a `#nfBtn` para acomodarla en la fila del encabezado, y su número (`#nfBtn em`, con posición absoluta) se ubicó respecto a todo el encabezado. Ahora es `position:relative`, en celular (v431) y en computador (v430). Una prueba revisa que el cuadro quede sobre la esquina de la campana.
+- **«Escríbenos» en vez de «Sugerencias» (v434):**
+  - lo pidió la dueña: una sola vía para comentarios, sugerencias y errores. El formulario ya traía «Sugerencia» entre los asuntos y llega al administrador (Administrador → Sugerencias → «Mensajes de Escríbenos»);
+  - las sugerencias públicas viejas ya no se ven en la página, pero no se borraron: el administrador las sigue viendo en esa misma pestaña;
+  - se cambió en los tres menús (☰, el menú de «Inicio, Tiendas…» y la barra de secciones antigua). `v434-escribenos-menu.js` abre el formulario y lleva a «Escríbenos» si algo intenta abrir la ventana vieja (`view='sug'`);
+  - el código de la ventana vieja (`sugView`) sigue en el archivo principal, pero ya no se llega a ella.
 - **Diseño de tienda en línea (v430):**
   - la dueña pidió «un mejor diseño como MercadoLibre». Se tomó la forma de un marketplace (buscador siempre arriba, ficha en dos columnas, tarjetas de producto) pero no su marca: los colores, el logo, el diseño cuadrado y el modo oscuro siguen siendo los de Mi Pradera;
   - en celular solo cambian las tarjetas de producto (borde y precio más grande); lo demás se ve igual;

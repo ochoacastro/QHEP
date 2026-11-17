@@ -6,7 +6,8 @@
    Es solo para mirar: no vende nada. Abajo ofrece «Crear mi cuenta gratis» (o «Activar un rol» a quien ya tiene cuenta).
    Los precios salen de los mismos datos que la ventana «Roles» (codePrice, comPrice, promoción): si el administrador los
    cambia en el panel, aquí cambian solos.
-   Se llega desde: el pie de la página («Roles y precios»), el aviso de «Para publicar necesitas una cuenta» (v425) y el
+   v432: se llama «Planes y precios» y se abre también desde «Planes» del menú principal (antes «Roles», que pedía la cuenta).
+   Se llega desde: el pie de la página («Planes y precios»), el aviso de «Para publicar necesitas una cuenta» (v425) y el
    enlace mipradera.com.co/#/roles.
    Enganches fuera de este archivo: la ruta y el dibujo de la vista «roles» (12-s.js y 13-af.js) y el enlace del pie (html/04.html).
    Para quitarla: borra este archivo y su CSS de src/orden.json y el enlace del pie. */
@@ -52,9 +53,9 @@ window.rolesPubView=function(){setTimeout(flechas,0);var u=null,pr=null,nota='';
  var cl='';try{cl='<div class="rlpw"><table class="rlpt"><thead><tr><th scope="col">Plan</th><th scope="col">Qué incluye</th><th scope="col">Precio</th></tr></thead><tbody><tr><th scope="row">Gratis</th><td>1 anuncio al día, dura 24 horas</td><td>Gratis</td></tr>'+
   COM_USES.map(function(c){return '<tr><th scope="row">'+esc(COMU[c].n)+'</th><td>'+COM_DAYS[c]+' anuncios al día durante '+COM_DAYS[c]+' días</td><td>'+money(comPrice(c))+'</td></tr>'}).join('')+'</tbody></table></div>'}catch(e){}
  return '<div class="rlp"><div class="hubbar"><button class="btn ghost" data-act="hubHome">← Inicio</button></div>'+
-  '<div class="shead"><div><h2>Roles y precios</h2><p class="muted">Mira qué puedes publicar en Mi Pradera, qué ofrece cada rol y cuánto cuesta. Para publicar necesitas una cuenta; crearla es gratis.</p></div></div>'+
+  '<div class="shead"><div><h2>Planes y precios</h2><p class="muted">Mira qué puedes publicar en Mi Pradera, qué ofrece cada plan y cuánto cuesta. Para publicar necesitas una cuenta; crearla es gratis.</p></div></div>'+
   barra()+(pr?'<p class="rlpp"><b>Promoción:</b> '+pr.pct+'% de descuento en los roles pagados hasta el '+new Date(pr.until).toLocaleDateString('es-CO')+'.</p>':'')+
-  card('free','Gratis con tu cuenta','No necesitas ningún rol para esto.',li(['Registrar tu negocio: nombre, logo, dirección, teléfono, descripción y 3 fotos del lugar','Publicar 1 clasificado al día, que dura 24 horas','Calificar tiendas, productos y servicios']))+
+  card('free','Gratis con tu cuenta','No necesitas ningún plan para esto.',li(['Registrar tu negocio: nombre, logo, dirección, teléfono, descripción y 3 fotos del lugar','Publicar 1 clasificado al día, que dura 24 horas','Calificar tiendas, productos y servicios']))+
   card('merc','Comerciante','Para vender con tu tienda: productos con fotos y precios, y más.',li(['Tienda con productos, fotos y precios','Comidas, peluquería y servicios','Inmuebles y vehículos incluidos','Hasta 10 fotos del lugar y un video','Con «Varios negocios» por 6 meses o más: tu tienda sale destacada'])+tabla('merc','Un negocio','Varios negocios')+'<p class="rlpn">Un negocio: 1 tienda con productos, 1 servicio, 1 inmueble y 1 vehículo. Varios negocios: sin límite.</p>')+
   card('home','Vendedor de inmuebles','Para arrendar o vender casa, apartamento, habitación, local o lote.',li(['Anuncio con fotos, precio y ubicación en el mapa','Un inmueble: para el dueño de una sola propiedad (uno a la vez)','Varios inmuebles: inmobiliarias y dueños de varias propiedades, sin límite'])+tabla('home','Un inmueble','Varios inmuebles'))+
   card('car','Vendedor de vehículos','Para vender carro, moto, bicicleta u otro vehículo.',li(['Anuncio con fotos y precio','Un vehículo: para quien vende su carro o su moto (uno a la vez)','Varios vehículos: concesionarios y negocios de vehículos, sin límite'])+tabla('car','Un vehículo','Varios vehículos'))+
