@@ -1,0 +1,10 @@
+
+/* v435: los indicadores del carrusel de banners de arriba (.tbd) son rayas, como los demás carruseles (v306, v316, v350): una raya
+   verde más larga para la imagen que se ve y rayas grises para las otras, debajo de la imagen. Antes eran puntos blancos en una
+   cápsula oscura encima de la imagen. Siguen sin poder tocarse, como antes: el carrusel se pasa deslizando. */
+html body .tbd{position:static;transform:none;justify-content:center;width:max-content;max-width:100%;margin:10px auto 0;gap:8px;
+ padding:0;background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-radius:0}
+html body .tbd i{width:26px;height:6px;border-radius:0;background:#c7c7cc;transition:width .2s,background-color .2s}
+html body .tbd i.on{width:40px;background:#16a34a}
+html.dark body .tbd i{background:#48484a}html.dark body .tbd i.on{background:#4ade80}
+@media (prefers-reduced-motion:reduce){html body .tbd i{transition:none}}

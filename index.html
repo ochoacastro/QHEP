@@ -2013,6 +2013,17 @@ button.emgfab{width:44px;height:44px;padding:0;justify-content:center;gap:0}
 button.emgfab>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 button.emgfab svg{width:22px;height:22px}
 </style>
+<style id="v435-indicadores-css">
+/* v435: los indicadores del carrusel de banners de arriba (.tbd) son rayas, como los demás carruseles (v306, v316, v350): una raya
+   verde más larga para la imagen que se ve y rayas grises para las otras, debajo de la imagen. Antes eran puntos blancos en una
+   cápsula oscura encima de la imagen. Siguen sin poder tocarse, como antes: el carrusel se pasa deslizando. */
+html body .tbd{position:static;transform:none;justify-content:center;width:max-content;max-width:100%;margin:10px auto 0;gap:8px;
+ padding:0;background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-radius:0}
+html body .tbd i{width:26px;height:6px;border-radius:0;background:#c7c7cc;transition:width .2s,background-color .2s}
+html body .tbd i.on{width:40px;background:#16a34a}
+html.dark body .tbd i{background:#48484a}html.dark body .tbd i.on{background:#4ade80}
+@media (prefers-reduced-motion:reduce){html body .tbd i{transition:none}}
+</style>
 
 <style id="v312-tablas-anuncios-css">
 /* v312: tablas de Mis inmuebles y Mis vehículos (usan el estilo .mst de la tabla de tiendas) */
@@ -2287,6 +2298,7 @@ html.dark .si-hd,html.dark .si-r{border-color:#3a3a3c!important}html.dark .si-hd
 html.dark .si-tags span{background:#2c2c2e!important;color:#e5e5ea!important}html.dark .si-i{background:#0a2540!important;color:#64a8ff!important}
 html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64a8ff!important}
 </style>
+
 
 
 
@@ -5384,6 +5396,46 @@ function inicia(){if(inicia.ya)return;inicia.ya=1;var a=$('#app');if(a)new Mutat
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inicia);else inicia();
 })();
 </script>
+<script id="v436-terminos-google">
+/* v436: TÉRMINOS Y CONDICIONES AL ENTRAR POR PRIMERA VEZ CON GOOGLE (o Apple o Facebook). Quien se registra a mano marca la casilla
+   «Acepto los Términos…» (10-ed.js); quien entraba con Google por primera vez quedaba registrado sin marcar nada (solo una nota
+   «Al continuar con Google aceptas…»). Ahora, la primera vez, antes de quedar adentro, sale la ventana «Términos y condiciones»
+   con dos casillas (los Términos de uso; el tratamiento de datos personales y la Política de privacidad, Ley 1581 de 2012) y
+   «Aceptar», que solo se activa con las dos marcadas. Se pueden leer los textos completos ahí mismo.
+   «Primera vez» = Firebase dice que la cuenta es nueva (additionalUserInfo.isNewUser). Quien se registró a mano y luego entra con
+   Google ya aceptó, y no se le pregunta. Si la persona cancela, no entra; y como la cuenta de Google ya quedó creada, este teléfono
+   recuerda (qh_tyc_pend) que falta aceptar, para preguntar otra vez la próxima vez que entre.
+   Se usa desde 10-ed.js (botón «Continuar con Google», Apple y Facebook) y v369-google-un-toque.js (Google One Tap).
+   Para quitarlo: borra este archivo de src/orden.json; los dos lugares vuelven solos a entrar sin preguntar (miran si existe qhTyC). */
+(function(){
+var K='qh_tyc_pend';
+var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function pend(em){try{return localStorage.getItem(K)===em}catch(e){return false}}
+window.qhTyC={
+ falta:function(r,em){return !!(r&&r.additionalUserInfo&&r.additionalUserInfo.isNewUser)||pend(em)},
+ pedir:function(em,fin){try{localStorage.setItem(K,em)}catch(e){}
+  var leer=function(k){try{return legalHTML(k)}catch(e){return ''}};
+  modal('<div class="tyc"><h2>Términos y condiciones</h2><p class="muted">Es la primera vez que entras con <b>'+E(em)+'</b>. Para crear tu cuenta en Mi Pradera, acepta:</p>'+
+   '<label class="tyc-r" for="tyc-1"><input type="checkbox" id="tyc-1"><span>Acepto los <b>Términos de uso</b> de Mi Pradera.</span></label>'+
+   '<label class="tyc-r" for="tyc-2"><input type="checkbox" id="tyc-2"><span>Autorizo el <b>tratamiento de mis datos personales</b> según la <b>Política de privacidad</b> (Ley 1581 de 2012).</span></label>'+
+   '<details class="legal"><summary>Leer los Términos y la Política</summary><p><b>Términos de uso</b></p>'+leer('terms')+'<p><b>Política de privacidad</b></p>'+leer('priv')+'</details>'+
+   '<button type="button" class="btn pink tyc-ok" data-tyc="ok" disabled>Aceptar</button><button type="button" class="btn ghost tyc-no" data-tyc="no">Cancelar</button></div>');
+  var ov=document.getElementById('ov');if(ov)ov.dataset.lock='1';/* un toque afuera no la cierra */
+  qhTyC._fin=fin;qhTyC._em=em}
+};
+document.addEventListener('change',function(e){if(!e.target||!/^tyc-[12]$/.test(e.target.id))return;var a=document.getElementById('tyc-1'),b=document.getElementById('tyc-2'),ok=document.querySelector('[data-tyc="ok"]');if(ok)ok.disabled=!(a&&a.checked&&b&&b.checked)});
+addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-tyc]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();
+ if(b.dataset.tyc==='ok'){var a=document.getElementById('tyc-1'),c=document.getElementById('tyc-2');if(!(a&&a.checked&&c&&c.checked))return;
+  try{localStorage.removeItem(K)}catch(x){}var f=qhTyC._fin;qhTyC._fin=null;if(typeof f==='function')f();return}
+ /* cancelar: no entra (la sesión de Google se cierra) y la próxima vez se vuelve a preguntar */
+ qhTyC._fin=null;try{firebase.auth().signOut()}catch(x){}try{closeModal(1)}catch(x){}
+ try{toast('No entraste. Para crear tu cuenta hay que aceptar los Términos y la Política de privacidad.')}catch(x){}},true);
+document.head.insertAdjacentHTML('beforeend','<style id="v436-css">.tyc h2{margin:0 0 6px}.tyc .muted{margin:0 0 10px}'+
+ '.tyc-r{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line,#e2e5ea);font-size:16px;line-height:1.45;font-weight:400;cursor:pointer}'+
+ '.tyc-r input{width:24px;height:24px;margin:1px 0 0;accent-color:#0071e3}.tyc .legal{margin:12px 0 4px}'+
+ '.tyc-ok{width:100%;margin:14px 0 0;min-height:48px}.tyc-ok:disabled{opacity:.45;cursor:not-allowed}.tyc-no{width:100%;margin:8px 0 0;min-height:44px}</style>');
+})();
+</script>
 <script id="v426-roles-y-precios">
 /* v426: PÁGINA «ROLES Y PRECIOS» (#/roles). Cualquier visitante, tenga cuenta o no, puede ver qué ofrece cada rol y cuánto
    cuesta, sin registrarse: lo que es gratis con la cuenta, Comerciante, Vendedor de inmuebles, Vendedor de vehículos,
@@ -5793,8 +5845,9 @@ async function onCred(resp){var er=document.getElementById('err');if(er)er.textC
   var a=smsApp.auth(),r=await a.signInWithCredential(cred),u=r.user,em=String(u.email||(u.providerData[0]||{}).email||'').toLowerCase();
   try{await firebase.auth().signInWithCredential(cred)}catch(x){}try{await a.signOut()}catch(x){}
   if(!em){if(er)er.textContent='No recibimos tu correo de Google. Usa otro método.';return}
-  var dd=dnRead(u);S.user={id:DEV,name:String(dd.n||u.displayName&&!/^\{/.test(u.displayName)&&u.displayName||em.split('@')[0]).slice(0,30),wa:String(dd.w||''),email:em,consent:Date.now()};
-  PEND=null;QH.derive();save();closeModal();syncUI();toast('¡Listo! Entraste con Google.');var f=after;after=null;f&&f();if(MODE==='panel')render()}
+  var dd=dnRead(u),fin=function(){S.user={id:DEV,name:String(dd.n||u.displayName&&!/^\{/.test(u.displayName)&&u.displayName||em.split('@')[0]).slice(0,30),wa:String(dd.w||''),email:em,consent:Date.now()};
+  PEND=null;QH.derive();save();closeModal();syncUI();toast('¡Listo! Entraste con Google.');var f=after;after=null;f&&f();if(MODE==='panel')render()};
+  if(typeof qhTyC==='object'&&qhTyC.falta(r,em)){qhTyC.pedir(em,fin);return}/* v436: la primera vez, los términos */fin()}
  catch(e){var c=e&&e.code||'';var m=c==='auth/operation-not-allowed'||c==='auth/unauthorized-domain'?'Este ingreso aún no está activado.':c==='auth/network-request-failed'?'Sin conexión. Revisa tu internet.':'No se pudo entrar con Google ('+(c||'error')+'). Usa el botón «Continuar con Google».';
   var er2=document.getElementById('err');if(er2)er2.textContent=m;else toast(m)}}
 setInterval(function(){try{var open=!!document.querySelector('#ov .am .sob.gg');
@@ -5847,11 +5900,11 @@ document.head.insertAdjacentHTML('beforeend','<style id="v370-css">'+
 'html.qcl .hubph .btn.ghost{border:0!important;background:none!important;text-transform:none!important;letter-spacing:0!important;font-weight:600!important;font-size:15px!important;padding:6px 0!important;min-height:0!important;box-shadow:none!important;color:#0066cc!important}'+
 'html.qcl .hswh{display:none!important}'+
 '.qcl-ct{display:flex;align-items:center;gap:14px;width:100%;max-width:680px;margin:8px auto 18px;padding:16px 18px;border:0;background:#0071e3;font:inherit;font-size:16px;font-weight:600;color:#fff;text-align:left;cursor:pointer;box-shadow:0 6px 18px #0071e340}.qcl-ct .qcl-i{flex:none;display:grid;place-items:center;width:44px;height:44px;background:#ffffff26}.qcl-ct .qcl-i svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.qcl-ct b{display:block;font-size:19px;font-weight:800;line-height:1.2}.qcl-ct small{display:block;font-size:14px;font-weight:500;opacity:.92}.qcl-ct .qcl-t{flex:1;min-width:0}.qcl-ct[aria-expanded=true]{background:#005bbf}'+/* v400: más visible */
-'.qcl-ct>span:last-child{flex:none;color:#fff;font-size:26px;font-weight:400;line-height:1}.qctw.qcl-h{display:none}'+
+'.qcl-ct>.qcl-s{flex:none;color:#fff;font-size:26px;font-weight:400;line-height:1}.qctw.qcl-h{display:none}'+
 'html.dark.qcl .hubhero>p{color:#a1a1a6!important}html.dark.qcl .hubt{color:#f5f5f7!important}'+
 'html.dark.qcl .hubi svg{color:color-mix(in srgb,var(--c) 62%,#fff)!important;stroke:color-mix(in srgb,var(--c) 62%,#fff)!important}'+
 'html.dark.qcl .hubi{background:#1c1c1e!important}html.dark.qcl .hneed button{background:#1c1c1e!important;color:#f5f5f7!important}'+
-'html.dark.qcl .hubph .btn.ghost,html.dark .qcl-ct>span:last-child{color:#fff!important}html.dark .qcl-ct{background:#0a84ff!important;color:#fff!important;box-shadow:none}html.dark .qcl-ct[aria-expanded=true]{background:#0071e3!important}'+
+'html.dark.qcl .hubph .btn.ghost,html.dark .qcl-ct>.qcl-s{color:#fff!important}html.dark .qcl-ct{background:#0a84ff!important;color:#fff!important;box-shadow:none}html.dark .qcl-ct[aria-expanded=true]{background:#0071e3!important}'+
 '@media (prefers-color-scheme:dark){html:not(.light).qcl .hubi{background:#1c1c1e}}'+
 '</style>');
 function tidy(){var h=document.querySelector('.hub');document.documentElement.classList.toggle('qcl',!!h);
@@ -5860,8 +5913,8 @@ function tidy(){var h=document.querySelector('.hub');document.documentElement.cl
   var empty=!!s.querySelector('.nwc0')||(!!s.querySelector('.cg>p.muted')&&/^Aquí aparecen/.test(s.querySelector('.cg>p.muted').textContent.trim())&&!s.querySelector('article,.card,.cmc,.nwi,img'));
   s.classList.toggle('qcl-x',empty)});
  var w=document.querySelector('.qctw');if(w&&!w.dataset.qcl){w.dataset.qcl='1';w.classList.add('qcl-h');var b=document.createElement('button');b.type='button';b.className='qcl-ct';b.setAttribute('aria-expanded','false');
-  b.innerHTML='<span class="qcl-i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></span><span class="qcl-t"><b>Escríbenos</b><small>Comentarios, sugerencias o errores</small></span><span aria-hidden="true">+</span>';/* v400 */
-  b.addEventListener('click',function(){var o=w.classList.toggle('qcl-h');b.setAttribute('aria-expanded',String(!o));b.querySelector('span:last-child').textContent=o?'+':'−';if(!o){var f=w.querySelector('input,select,textarea');f&&f.focus()}});
+  b.innerHTML='<span class="qcl-i" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></span><span class="qcl-t"><b>Escríbenos</b><small>Comentarios, sugerencias o errores</small></span><span class="qcl-s" aria-hidden="true">+</span>';/* v400; v435: el signo con clase propia */
+  b.addEventListener('click',function(){var o=w.classList.toggle('qcl-h');b.setAttribute('aria-expanded',String(!o));b.querySelector('.qcl-s').textContent=o?'+':'−';if(!o){var f=w.querySelector('input,select,textarea');f&&f.focus()}});
   w.parentNode.insertBefore(b,w)}}
 var t=0;new MutationObserver(function(){if(t)return;t=1;requestAnimationFrame(function(){t=0;tidy()})}).observe(document.documentElement,{childList:true,subtree:true});tidy();
 })();
@@ -7473,7 +7526,8 @@ function oauthIn(k){const err=$('#err'),n=($('#u-name')||$('#r-name')||{}).value
  a.languageCode='es';err.textContent='Abriendo '+nm+'…';
  a.signInWithPopup(pr).then(r=>{const u=r.user,em=String(u.email||(u.providerData[0]||{}).email||'').toLowerCase();try{if(r.credential)firebase.auth().signInWithCredential(r.credential).catch(function(){})}catch(e){}try{a.signOut()}catch(e){}
   if(!em){err.textContent='No recibimos tu correo de '+nm+'. Usa otro método.';return}
-  const dd=dnRead(u)/* v261 */;S.user={id:DEV,name:String(n.trim()||dd.n||em.split('@')[0]).slice(0,30),wa:String(dd.w||''),email:em,consent:Date.now()};PEND=null;QH.derive();save();closeModal();syncUI();const f=after;after=null;f&&f();if(MODE==='panel')render()
+  const dd=dnRead(u)/* v261 */,fin=()=>{S.user={id:DEV,name:String(n.trim()||dd.n||em.split('@')[0]).slice(0,30),wa:String(dd.w||''),email:em,consent:Date.now()};PEND=null;QH.derive();save();closeModal();syncUI();const f=after;after=null;f&&f();if(MODE==='panel')render()};
+  if(typeof qhTyC==='object'&&qhTyC.falta(r,em))return qhTyC.pedir(em,fin)/* v436: la primera vez, los términos */;fin()
  }).catch(e=>{const c=e&&e.code||'';err.textContent=c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request'?'Cancelaste el ingreso.':c==='auth/popup-blocked'?'Tu navegador bloqueó la ventana. Permite ventanas emergentes e intenta de nuevo.':c==='auth/operation-not-allowed'||c==='auth/unauthorized-domain'?'Este ingreso aún no está activado.':'No se pudo ingresar ('+(c||'error')+'). Intenta de nuevo.'})}
 /* ===== Cuentas con correo/celular + clave (Firebase Authentication guarda la clave cifrada) ===== */
 let REG=null;
