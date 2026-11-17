@@ -10,7 +10,7 @@
 (function(){
 function sinCuenta(){try{return MODE!=='admin'&&!S.user}catch(e){return false}}
 function aviso(){var m=document.querySelector('#ov .modal');if(!m||m.querySelector('.rgpn'))return;
- m.insertAdjacentHTML('afterbegin','<p class="shpnote rgpn" role="status"><b>Para publicar necesitas una cuenta.</b> Crea tu cuenta gratis (toma un minuto) o inicia sesión si ya tienes una. Al terminar seguimos con tu publicación.'+(typeof rolesPubView==='function'?' <a href="#/roles" data-rolv="1">Ver los roles y sus precios</a>':'')/* v426 */+'</p>')}
+ m.insertAdjacentHTML('afterbegin','<p class="shpnote rgpn" role="status"><b>Para publicar necesitas una cuenta.</b> Crea tu cuenta gratis (toma un minuto) o inicia sesión si ya tienes una. Al terminar seguimos con tu publicación.'+(typeof rolesPubView==='function'?' <a href="#/roles" data-rolv="1">Ver los planes y sus precios</a>':'')/* v426 */+'</p>')}
 /* pide la cuenta y deja pendiente lo que se iba a hacer */
 function pedir(f){after=f;regForm();aviso();setTimeout(aviso,80)}
 window.qhPedirCuenta=pedir;

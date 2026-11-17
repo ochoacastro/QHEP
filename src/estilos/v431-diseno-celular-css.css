@@ -9,7 +9,7 @@
  #home{justify-self:start}
  #home img{height:36px;width:auto}
  #userBtn{justify-self:end;font-size:14px}
- #nfBtn{grid-area:nf;position:static!important}
+ #nfBtn{grid-area:nf;position:relative!important;inset:auto!important}/* v433: relative (no static): el cuadro rojo se ubica respecto a la campana */
  #cartBtn{justify-self:center}
  #themeBtn{width:40px;height:40px}
  header .qw{max-width:none;margin:0}
