@@ -993,6 +993,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v430-diseno-escritorio-css\">",
+  "f": "estilos/v430-diseno-escritorio-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v411-letrero\">",
   "f": "codigo/v411-letrero.js"
@@ -1329,6 +1338,15 @@
   "t": "js",
   "tag": "<script id=\"v428-ajustes-visuales\">",
   "f": "codigo/v428-ajustes-visuales.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v430-diseno-escritorio\">",
+  "f": "codigo/v430-diseno-escritorio.js"
  },
  {
   "t": "txt",

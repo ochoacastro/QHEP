@@ -23,8 +23,8 @@ let browser, base, fallas = 0, total = 0;
 const check = (nombre, ok, detalle) => { total++; if (ok) console.log('  ✔ ' + nombre); else { fallas++; console.log('  ✘ ' + nombre + (detalle ? '  → ' + detalle : '')) } };
 
 // abre la página: dark = modo oscuro; admin = modo administrador con sesión; user = sesión de Firebase; seed = documentos iniciales
-async function abrir({ dark = false, admin = false, user = null, seed = {}, ruta = '' } = {}) { // ruta: por ejemplo '?panel#/clasificado' (v429)
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: dark ? 'dark' : 'light', serviceWorkers: 'block' });
+async function abrir({ dark = false, admin = false, user = null, seed = {}, ruta = '', ancho = 390, alto = 844 } = {}) { // ancho/alto: tamaño de pantalla (v430) // ruta: por ejemplo '?panel#/clasificado' (v429)
+  const ctx = await browser.newContext({ viewport: { width: ancho, height: alto }, colorScheme: dark ? 'dark' : 'light', serviceWorkers: 'block' });
   await ctx.route(/gstatic\.com\/firebasejs\//, r => r.fulfill({ body: /app-compat/.test(r.request().url()) ? FB : '', contentType: 'application/javascript' }));
   const pedidos = { recaptcha: 0 };
   await ctx.route(/google\.com\/recaptcha/, r => { pedidos.recaptcha++; r.fulfill({ contentType: 'application/javascript', body: 'window.grecaptcha={ready:f=>f(),execute:async()=>"TOKEN"}' }) });
@@ -611,6 +611,46 @@ const PRUEBAS = {
         check('Al entrar, se abre el formulario del clasificado', await p.evaluate(() => !!document.querySelector('#ov #cm-t'))) }
       sinErrores(p, 'Panel ' + ruta); await p.cerrar();
     }
+  },
+  async disenoEscritorio() { // v430 diseño de tienda en línea en computador y sin desbordes en ningún tamaño
+    const now = Date.now();
+    const seed = { 'stores/s1': { id: 's1', name: 'Dulces de la Abuela', desc: 'Dulces', cat: 'Otros', wa: '3001234567', ownerKey: 'kO', pexp: now + 30 * 864e5, pays: ['cash'], products: [], _o: 1 },
+      'products/s1__p1': { id: 'p1', sid: 's1', name: 'Arequipe casero', price: 9000, imgs: [], ownerKey: 'kO', _o: 1 }, 'products/s1__p2': { id: 'p2', sid: 's1', name: 'Torta de la casa', price: 28000, old: 32000, imgs: [], ownerKey: 'kO', _o: 2 } };
+    let p = await abrir({ seed, ancho: 1280, alto: 800 });
+    const caja = s => p.evaluate(x => { const e = document.querySelector(x); if (!e) return null; const r = e.getBoundingClientRect(); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) } }, s);
+    const lg = await caja('#home'), qw = await caja('header .qw'), us = await caja('#userBtn'), ct = await caja('#cartBtn');
+    check('Computador: logo, buscador, cuenta y carrito en una sola fila del encabezado', !!lg && !!qw && Math.abs(lg.y + lg.h / 2 - (qw.y + qw.h / 2)) < 12 && qw.x > lg.x && us.x > qw.x && ct.x > us.x && qw.w > 400, JSON.stringify({ lg, qw, us, ct }));
+    check('Computador: en el inicio el buscador sigue arriba, no baja al centro', await p.evaluate(() => document.querySelector('.qw').parentNode.tagName === 'HEADER' && !document.body.classList.contains('qinhub')));
+    check('Computador: los enlaces van en el encabezado, sin «Buscar» y con «Publicar» al final', await p.evaluate(() => { const b = document.getElementById('bnav'); const v = [...b.querySelectorAll('button')].filter(x => x.offsetParent).map(x => x.dataset.v); return b.parentNode.tagName === 'HEADER' && v.join() === 'home,com,me,pub' || v.join() === 'home,pub,com,me' && getComputedStyle(b.querySelector('.bnp')).order === '9' }));
+    await p.fill('header #q', 'torta'); await p.press('header #q', 'Enter'); await p.waitForTimeout(500);
+    check('Computador: buscar desde el encabezado funciona', await p.evaluate(() => /Torta de la casa/.test(document.getElementById('app').innerText)));
+    await p.evaluate(() => { view = 'prod'; cur = 's1'; curP = 'p2'; render(); scrollTo(0, 0) }); await p.waitForTimeout(400);
+    const gal = await caja('.pvg'), buy = await caja('.pvbuy');
+    check('Computador: la ficha de producto va en dos columnas, fotos a la izquierda y caja de compra a la derecha', !!gal && !!buy && buy.x > gal.x + gal.w && buy.w >= 300 && Math.abs(buy.y - gal.y) < 80, JSON.stringify({ gal, buy }));
+    check('Computador: la caja de compra tiene título, precio y «Comprar ahora»', await p.evaluate(() => { const b = document.querySelector('.pvbuy'); return !!b.querySelector('.pvt') && /28\.000/.test(b.querySelector('.pvp').innerText) && /Comprar ahora/i.test(b.innerText) }));
+    await p.evaluate(() => { view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(300);
+    check('Computador: dentro de una tienda no aparecen los enlaces del encabezado', await p.evaluate(() => !document.getElementById('bnav').offsetParent));
+    await p.setViewportSize({ width: 390, height: 844 }); await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(500);
+    check('Al pasar a celular, la barra vuelve abajo y el buscador al centro del inicio', await p.evaluate(() => document.getElementById('bnav').parentNode.tagName !== 'HEADER' && document.querySelector('.qw').parentNode.id === 'hubsrch'));
+    sinErrores(p, 'Diseño computador'); await p.cerrar();
+    // tableta: categorías del inicio en 6 columnas
+    p = await abrir({ seed, ancho: 768, alto: 1024 });
+    check('Tableta: las categorías del inicio van en 6 columnas', await p.evaluate(() => getComputedStyle(document.querySelector('.hubg.hubg2')).gridTemplateColumns.split(' ').length === 6));
+    await p.cerrar();
+    // celular: la ficha conserva su orden de siempre
+    p = await abrir({ seed });
+    await p.evaluate(() => { view = 'prod'; cur = 's1'; curP = 'p2'; render(); scrollTo(0, 0) }); await p.waitForTimeout(400);
+    check('Celular: la ficha conserva el orden de siempre (título, foto, precio, comprar, tienda, preguntar)', await p.evaluate(() => { const y = s => { const e = document.querySelector(s); return e ? e.getBoundingClientRect().top : -1 }; const a = [y('.pvt'), y('.pvg'), y('.pvp'), y('.pvbuy .pvbtn'), y('.pvs'), y('.pvmain .pvbtn')]; return a.every(v => v >= 0) && a.every((v, i) => !i || v > a[i - 1]) }));
+    sinErrores(p, 'Ficha celular'); await p.cerrar();
+    // ningún tamaño se desborda a los lados, en claro y en oscuro
+    const malos = [];
+    for (const dark of [false, true]) for (const [w, h] of [[320, 640], [360, 780], [768, 1024], [1024, 768], [1280, 800], [1920, 1080]]) {
+      p = await abrir({ seed, dark, ancho: w, alto: h });
+      for (const v of ['home', 'store', 'prod', 'com']) { await p.evaluate(v => { closeModal(1); view = v; cur = 's1'; curP = 'p2'; render() }, v); await p.waitForTimeout(150);
+        const sw = await p.evaluate(() => document.documentElement.scrollWidth); if (sw > w + 1) malos.push(`${dark ? 'oscuro' : 'claro'} ${w}px ${v}: ${sw}`) }
+      await p.cerrar();
+    }
+    check('Ninguna pantalla se desborda a los lados, de 320 px a 1920 px, en claro y oscuro', !malos.length, malos.join(' | '));
   },
   async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
     const p = await abrir(); await conCuenta(p);

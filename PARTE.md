@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 302 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#154** (solo el parte), el 15 de noviembre de 2026. Todo hasta la v429 está en `main`. En la rama están las skills nuevas del 17 de noviembre de 2026 (sección 6), sin PR todavía.
+- **Pruebas:** 315 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#154** (solo el parte), el 15 de noviembre de 2026. Todo hasta la v429 está en `main`. En la rama están las skills nuevas, el servidor MCP de Playwright (sección 6) y la **v430** (diseño de tienda en línea para computador), sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v429)
+## 2. Lo que se hizo en esta etapa (v392 a v430)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -56,6 +56,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v427 | **Movimiento:** el fondo de las ventanas se funde al abrir; al cerrar, la ventana baja y se desvanece (antes desaparecía de golpe); de una ventana a otra solo cambia el contenido; las pantallas (inicio, tienda, producto…) entran suave; los formularios por pasos traen el paso nuevo desde el lado hacia donde se va | #152 |
 | v428 | **Ajustes visuales:** el inicio ya no deja un hueco en blanco bajo las pestañas (toman la altura de la pestaña abierta); el nombre del negocio sale completo en dos líneas; el producto sin foto tiene marco e ícono; en el carrusel el botón va al fondo de la tarjeta | #152 |
 | v429 | **Revisión de lógica: dos errores arreglados.** «Categorías» no abría en una tienda sin categorías guardadas (toda tienda recién creada). Y al llegar al panel por el enlace del botón «Publicar» (`?panel#/clasificado`), el formulario del clasificado se abría sin cuenta, saltándose la v425 | #153 |
+| v430 | **Diseño de tienda en línea y responsive:** en computador (1024 px o más) el encabezado va en una fila (logo, buscador siempre visible, cuenta, carrito) con una segunda fila de enlaces (Inicio, Clasificados, Mi cuenta, Publicar); la ficha de producto va en dos columnas con una caja de compra fija a la derecha; contenido hasta 1200 px. En todos los tamaños los productos van en tarjetas con borde y precio grande; en tableta las categorías van en 6 columnas | sin PR |
 
 ---
 
@@ -112,6 +113,13 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 - Nota: si alguien sin cuenta toca «Publicar», se registra con correo y vuelve desde el enlace del correo en otra pestaña, no se le abre solo el formulario (la página se cargó de nuevo); tiene que tocar «Publicar» otra vez.
 
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
+- **Diseño de tienda en línea (v430):**
+  - la dueña pidió «un mejor diseño como MercadoLibre». Se tomó la forma de un marketplace (buscador siempre arriba, ficha en dos columnas, tarjetas de producto) pero no su marca: los colores, el logo, el diseño cuadrado y el modo oscuro siguen siendo los de Mi Pradera;
+  - en celular solo cambian las tarjetas de producto (borde y precio más grande); lo demás se ve igual;
+  - `v430-diseno-escritorio.js` mueve tres piezas sin cambiar qué hacen: el buscador al encabezado, la barra de abajo (#bnav) al encabezado y las piezas de la ficha a dos cajas (.pvmain y .pvbuy). En celular las cajas no cuentan (display:contents) y cada pieza conserva su orden con `style.order`;
+  - ojo en código y pruebas: en la ficha hay dos botones con la clase `.pvbtn` en cajas distintas; para «Comprar ahora» usar `.pvbuy .pvbtn`;
+  - dentro de una tienda el encabezado sigue escondido (cada tienda tiene su barra), así que en computador ahí no salen los enlaces;
+  - el botón SOS sigue tapando un poco las categorías a la izquierda en celular y computador; no se tocó.
 - **Ajustes visuales (v428):**
   - la dueña aprobó los cuatro arreglos el 15 de noviembre de 2026, después de ver las hojas de «antes y después»;
   - no se cambiaron colores ni letras. Los íconos de categorías de varios colores se dejaron igual;
