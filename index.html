@@ -2333,6 +2333,7 @@ html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64
 
 
 
+
 <style id="v329-crecer-css">
 /* v329: los cuadros de texto crecen solos con lo que se escribe */
 textarea.qgrow{overflow-y:hidden;resize:none;transition:height .08s}
@@ -4809,7 +4810,7 @@ window.telCO=function(v){var d=String(v==null?'':v).replace(/\D/g,'');if(d.lengt
 /* v348: el teléfono de «Tu dirección principal» y el de «Mis datos» son el mismo: al guardar uno se actualiza el otro.
    Quien ya lo había guardado solo en la dirección lo ve también en Mis datos al abrir la página. */
 window.waSync=function(w){try{var u=S.user;w=telCO(w);if(!u||w.length<7||u.wa===w)return;if(typeof pfLock==='function'&&pfLock(u))return;
- QH.key();u.wa=w;save();try{var cu=QH.authCur();if(cu&&!cu.isAnonymous&&typeof dnRead==='function'){var o=dnRead(cu);cu.updateProfile({displayName:JSON.stringify({n:u.name,e:o.e||u.email||'',w:w})}).catch(function(){})}}catch(e){}
+ QH.key();u.wa=w;save();try{var cu=QH.authCur();if(cu&&!cu.isAnonymous&&typeof dnRead==='function'){var o=dnRead(cu);cu.updateProfile({displayName:JSON.stringify({n:u.name,e:o.e||u.email||'',w:w,t:o.t/* v437 */})}).catch(function(){})}}catch(e){}
  try{QH.planProf(u.name,w)}catch(e){}try{syncUI()}catch(e){}}catch(e){}};
 setInterval(function(){try{if(!S.user||S.user.wa||MODE==='admin')return;var k=QH.key();if(!k)return;var o=JSON.parse(localStorage.getItem('qh_dir_'+k)||'{}');if(o&&o.tel)waSync(o.tel)}catch(e){}},3000);
 </script>
@@ -5434,6 +5435,28 @@ document.head.insertAdjacentHTML('beforeend','<style id="v436-css">.tyc h2{margi
  '.tyc-r{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line,#e2e5ea);font-size:16px;line-height:1.45;font-weight:400;cursor:pointer}'+
  '.tyc-r input{width:24px;height:24px;margin:1px 0 0;accent-color:#0071e3}.tyc .legal{margin:12px 0 4px}'+
  '.tyc-ok{width:100%;margin:14px 0 0;min-height:48px}.tyc-ok:disabled{opacity:.45;cursor:not-allowed}.tyc-no{width:100%;margin:8px 0 0;min-height:44px}</style>');
+})();
+</script>
+<script id="v437-terminos-cuenta">
+/* v437: TÉRMINOS CON GOOGLE A QUIEN NO LOS HAYA ACEPTADO (no solo a la cuenta «nueva»). La v436 preguntaba solo cuando Firebase
+   decía que la cuenta de Google era nueva (isNewUser). Una cuenta de Google que ya había entrado antes (por ejemplo, en una prueba,
+   o antes de la v436) no es nueva y entraba directo sin haber aceptado nunca. Ahora la aceptación queda guardada en la propia cuenta
+   de Firebase (en su perfil, el mismo lugar donde la v261 guarda nombre, correo y teléfono: campo «t» = fecha en que aceptó), así
+   que se pregunta a toda cuenta de Google que no la tenga, en cualquier teléfono, una sola vez.
+   No pregunta a quien se registró con correo y clave (ya marcó la casilla del registro). No necesita reglas nuevas de Firestore.
+   Para quitarlo: borra este archivo de src/orden.json; vuelve a preguntar solo a las cuentas nuevas (v436). */
+(function(){
+if(typeof qhTyC!=='object')return;
+var T=qhTyC,falta0=T.falta,pedir0=T.pedir;
+function dn(u){try{return dnRead(u)||{}}catch(e){return {}}}
+function acepto(u){if(!u)return true;if(dn(u).t)return true;
+ return (u.providerData||[]).some(function(p){return p&&p.providerId==='password'})}
+/* guarda la fecha en el perfil de la cuenta que acaba de entrar (la conexión principal termina de entrar unos instantes después) */
+function guardar(em,n){var cu=null;try{cu=firebase.auth().currentUser}catch(e){}
+ if(!cu||cu.isAnonymous||String(cu.email||'').toLowerCase()!==em){if(n<10)setTimeout(function(){guardar(em,n+1)},1000);return}
+ var o=dn(cu);if(o.t)return;o.t=Date.now();try{cu.updateProfile({displayName:JSON.stringify(o)}).catch(function(){})}catch(e){}}
+T.falta=function(r,em){return falta0(r,em)||!acepto(r&&r.user)};
+T.pedir=function(em,fin){pedir0(em,function(){guardar(em,0);if(typeof fin==='function')fin()})};
 })();
 </script>
 <script id="v426-roles-y-precios">
@@ -7359,7 +7382,7 @@ const pfPrev=(d,n)=>d?`<img src="${d}" alt="">`:esc(String(n||'?').charAt(0).toU
 function pfForm(){const u=S.user;if(!u)return;const lk=pfLock(u);pff=u.img||'';modal(`<h2>Mis datos</h2><div class="pfph"><span class="pfpv" id="pf-prev">${pfPrev(pff,u.name)}</span><div class="pfpb"><label class="btn ghost" for="pf-img" style="cursor:pointer;text-align:center">📷 Subir foto</label><input id="pf-img" type="file" accept="image/*" hidden><button type="button" class="btn ghost" data-act="pfImgDel">Quitar foto</button></div></div><label for="pf-n">Nombre</label><input id="pf-n" type="text" maxlength="30" autocomplete="name" value="${esc(u.name)}"><label for="pf-w">Teléfono / WhatsApp (10 dígitos)</label><input id="pf-w" type="tel" inputmode="numeric" maxlength="14" autocomplete="tel" value="${esc(u.wa||'')}"${lk?' readonly':''}>${lk?'<p class="muted">Con este teléfono entras a tu cuenta, por eso no se puede cambiar aquí.</p>':'<p class="muted">Se usa como contacto al publicar. Se guarda en este dispositivo.</p>'}<label for="pf-e">Correo</label><input id="pf-e" type="email" value="${esc(u.email||'')}" readonly><p class="muted">El correo identifica tu cuenta y tus publicaciones, por eso no se puede cambiar aquí.</p>${u.pw?'':'<p class="muted">Tu cuenta no usa contraseña (entras con Google o con un código).</p>'}<div class="err" id="err"></div><div class="row" style="margin-top:10px"><button type="button" class="btn pink" data-act="pfSave">Guardar</button>${u.pw?'<button type="button" class="btn" data-act="passForm">Cambiar contraseña</button>':''}<button type="button" class="btn ghost" data-act="close">Cancelar</button></div>`)}
 function pfSave(){const u=S.user,err=$('#err');if(!u)return;const n=$('#pf-n').value.trim().replace(/\s+/g,' '),w=($('#pf-w').value||'').replace(/\D/g,''),lk=pfLock(u);
 if(n.length<2)return err.textContent='Escribe tu nombre (mínimo 2 letras).';if(!lk&&w&&w.length!==10)return err.textContent='El teléfono debe tener 10 dígitos.';
-QH.key();u.name=n.slice(0,30);if(!lk){u.wa=w;if(w)try{adrTelSet(w)}catch(e){}/* v348: también en Mis direcciones */}if(pff)u.img=pff;else delete u.img;save();try{const cu=QH.authCur();if(cu&&!cu.isAnonymous){const o=dnRead(cu);cu.updateProfile({displayName:JSON.stringify({n:u.name,e:o.e||u.email||'',w:lk?(o.w||u.wa||''):(u.wa||'')})}).catch(()=>{})}}catch(e){}try{QH.planProf(u.name,u.wa||'')}catch(e){}delete u.nm0;save();closeModal();syncUI();render(true);toast('Datos actualizados')}
+QH.key();u.name=n.slice(0,30);if(!lk){u.wa=w;if(w)try{adrTelSet(w)}catch(e){}/* v348: también en Mis direcciones */}if(pff)u.img=pff;else delete u.img;save();try{const cu=QH.authCur();if(cu&&!cu.isAnonymous){const o=dnRead(cu);cu.updateProfile({displayName:JSON.stringify({n:u.name,e:o.e||u.email||'',w:lk?(o.w||u.wa||''):(u.wa||''),t:o.t/* v437 */})}).catch(()=>{})}}catch(e){}try{QH.planProf(u.name,u.wa||'')}catch(e){}delete u.nm0;save();closeModal();syncUI();render(true);toast('Datos actualizados')}
 document.addEventListener('change',async e=>{if(e.target.id!=='pf-img')return;const f=e.target.files[0];if(!f)return;const p=$('#pf-prev'),nm=S.user&&S.user.name;if(p)p.innerHTML='…';const d=await resize(f,256,.8,1);if(!d){if(p)p.innerHTML=pfPrev(pff,nm);return toast('No se pudo leer esa imagen')}pff=d;if(p)p.innerHTML=pfPrev(d,nm)});
 /* v169: ELIMINAR CUENTA (panel) — borra tiendas, servicios, anuncios, clasificados, noticias, sugerencias, favoritos, el acceso (Firebase Auth) y los datos de este dispositivo */
 function delAcctForm(){const u=S.user;if(!u)return;modal(`<h2>Eliminar cuenta</h2><p class="muted">Se borrarán de forma <b>permanente</b> tus tiendas, productos, servicios, anuncios, clasificados y noticias, tus favoritos y tus datos guardados en este dispositivo. Esta acción no se puede deshacer.</p>${u.pw?'<label for="da-p">Tu contraseña</label><input id="da-p" type="password" autocomplete="current-password">':''}<label for="da-t">Para confirmar, escribe ELIMINAR</label><input id="da-t" type="text" autocomplete="off" autocapitalize="characters"><div class="err" id="err"></div><div class="row" style="margin-top:10px"><button type="button" class="btn" id="da-go" style="background:#c0392b;color:#fff" data-act="delAcctGo">Eliminar mi cuenta</button><button type="button" class="btn ghost" data-act="close">Cancelar</button></div>`)}

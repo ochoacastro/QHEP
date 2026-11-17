@@ -10,6 +10,6 @@ window.telCO=function(v){var d=String(v==null?'':v).replace(/\D/g,'');if(d.lengt
 /* v348: el teléfono de «Tu dirección principal» y el de «Mis datos» son el mismo: al guardar uno se actualiza el otro.
    Quien ya lo había guardado solo en la dirección lo ve también en Mis datos al abrir la página. */
 window.waSync=function(w){try{var u=S.user;w=telCO(w);if(!u||w.length<7||u.wa===w)return;if(typeof pfLock==='function'&&pfLock(u))return;
- QH.key();u.wa=w;save();try{var cu=QH.authCur();if(cu&&!cu.isAnonymous&&typeof dnRead==='function'){var o=dnRead(cu);cu.updateProfile({displayName:JSON.stringify({n:u.name,e:o.e||u.email||'',w:w})}).catch(function(){})}}catch(e){}
+ QH.key();u.wa=w;save();try{var cu=QH.authCur();if(cu&&!cu.isAnonymous&&typeof dnRead==='function'){var o=dnRead(cu);cu.updateProfile({displayName:JSON.stringify({n:u.name,e:o.e||u.email||'',w:w,t:o.t/* v437 */})}).catch(function(){})}}catch(e){}
  try{QH.planProf(u.name,w)}catch(e){}try{syncUI()}catch(e){}}catch(e){}};
 setInterval(function(){try{if(!S.user||S.user.wa||MODE==='admin')return;var k=QH.key();if(!k)return;var o=JSON.parse(localStorage.getItem('qh_dir_'+k)||'{}');if(o&&o.tel)waSync(o.tel)}catch(e){}},3000);

@@ -739,8 +739,8 @@ const PRUEBAS = {
   async terminosGoogle() { // v436 la primera vez que se entra con Google salen los Términos y condiciones con sus casillas
     const p = await abrir();
     // Google falso: la ventana de Google responde con una cuenta nueva o una que ya existía
-    const google = nuevo => p.evaluate(nv => { firebase.auth.GoogleAuthProvider = function () { this.addScope = () => {}; this.setCustomParameters = () => {} };
-      smsApp = { auth: () => ({ languageCode: '', signOut: async () => {}, signInWithPopup: async () => ({ user: { email: 'nuevo@gmail.com', providerData: [], displayName: 'Ana Nueva' }, additionalUserInfo: { isNewUser: nv }, credential: null }) }) } }, nuevo);
+    const google = (nuevo, dn) => p.evaluate(([nv, dn]) => { firebase.auth.GoogleAuthProvider = function () { this.addScope = () => {}; this.setCustomParameters = () => {} };
+      smsApp = { auth: () => ({ languageCode: '', signOut: async () => {}, signInWithPopup: async () => ({ user: { email: 'nuevo@gmail.com', providerData: [], displayName: dn || 'Ana Nueva' }, additionalUserInfo: { isNewUser: nv }, credential: null }) }) } }, [nuevo, dn]);
     const entrar = async () => { await p.evaluate(() => { closeModal(1); S.user = null; save(); loginForm() }); await p.waitForTimeout(300);
       await p.evaluate(() => { const b = [...document.querySelectorAll('#ov button')].find(x => /Continuar con Google/.test(x.textContent)); b.click() }); await p.waitForTimeout(600) };
     const est = () => p.evaluate(() => { const ov = document.getElementById('ov'), ok = document.querySelector('[data-tyc="ok"]');
@@ -755,8 +755,8 @@ const PRUEBAS = {
     check('Con las dos casillas, «Aceptar» se enciende', e.aceptar === 'encendido', JSON.stringify(e));
     await p.click('[data-tyc="ok"]'); await p.waitForTimeout(400);
     check('Al aceptar entra, con su nombre y la fecha en que aceptó', await p.evaluate(() => !!S.user && S.user.email === 'nuevo@gmail.com' && S.user.consent > Date.now() - 60000 && !document.getElementById('ov')));
-    // cuenta que ya existía (se registró a mano o ya había aceptado): entra directo
-    await google(false); await entrar(); e = await est();
+    // cuenta que ya existía y ya había aceptado (v437: la fecha «t» en su perfil): entra directo
+    await google(false, JSON.stringify({ n: 'Ana Nueva', t: 1 })); await entrar(); e = await est();
     check('Si la cuenta ya existía, entra directo sin preguntar', e.dentro && e.titulo !== 'Términos y condiciones', JSON.stringify(e));
     // cancelar: no entra, y en este teléfono se vuelve a preguntar la próxima vez aunque la cuenta ya no sea nueva
     await google(true); await entrar(); await p.click('[data-tyc="no"]'); await p.waitForTimeout(300); e = await est();
@@ -764,6 +764,28 @@ const PRUEBAS = {
     await google(false); await entrar(); e = await est();
     check('Después de cancelar, la próxima vez vuelve a preguntar', e.titulo === 'Términos y condiciones' && !e.dentro, JSON.stringify(e));
     sinErrores(p, 'Términos con Google'); await p.cerrar();
+  },
+  async terminosCuenta() { // v437 los términos salen a toda cuenta de Google que no los haya aceptado, no solo a la nueva
+    const p = await abrir();
+    const google = (user) => p.evaluate(u => { firebase.auth.GoogleAuthProvider = function () { this.addScope = () => {}; this.setCustomParameters = () => {} };
+      smsApp = { auth: () => ({ languageCode: '', signOut: async () => {}, signInWithPopup: async () => ({ user: u, additionalUserInfo: { isNewUser: false }, credential: null }) }) };
+      // la conexión principal ya entró con esa cuenta de Google: guarda lo que se escribe en su perfil
+      window.__perfil = null; const fa = firebase.auth(); fa.currentUser = { uid: 'g1', isAnonymous: false, email: u.email, displayName: u.displayName, updateProfile: async o => { window.__perfil = o.displayName } } }, user);
+    const entrar = async () => { await p.evaluate(() => { closeModal(1); S.user = null; save(); loginForm() }); await p.waitForTimeout(300);
+      await p.evaluate(() => { const b = [...document.querySelectorAll('#ov button')].find(x => /Continuar con Google/.test(x.textContent)); b.click() }); await p.waitForTimeout(600) };
+    const pide = () => p.evaluate(() => !!document.querySelector('.tyc') && !S.user);
+    await google({ email: 'vieja@gmail.com', providerData: [{ providerId: 'google.com' }], displayName: 'Ana Vieja' }); await entrar();
+    check('Una cuenta de Google que ya existía pero nunca aceptó ve «Términos y condiciones»', await pide());
+    await p.check('#tyc-1'); await p.check('#tyc-2'); await p.click('[data-tyc="ok"]'); await p.waitForTimeout(400);
+    const pf = await p.evaluate(() => { try { return JSON.parse(window.__perfil) } catch (e) { return null } });
+    check('Al aceptar entra y la fecha queda guardada en el perfil de la cuenta, sin perder el nombre', await p.evaluate(() => !!S.user) && !!pf && pf.n === 'Ana Vieja' && pf.t > Date.now() - 60000, JSON.stringify(pf));
+    await google({ email: 'vieja@gmail.com', providerData: [{ providerId: 'google.com' }], displayName: JSON.stringify(pf) }); await entrar();
+    check('Con la fecha guardada en la cuenta entra directo (también en otro teléfono)', await p.evaluate(() => !!S.user && !document.querySelector('.tyc')));
+    await google({ email: 'clave@gmail.com', providerData: [{ providerId: 'password' }, { providerId: 'google.com' }], displayName: JSON.stringify({ n: 'Ana Clave', e: 'clave@gmail.com', w: '3001234567' }) }); await entrar();
+    check('Quien se registró con correo y clave (ya marcó la casilla) entra directo con Google', await p.evaluate(() => !!S.user && !document.querySelector('.tyc')));
+    const src = await p.evaluate(() => [...document.querySelectorAll('script')].map(s => s && s.textContent || '').join(''));
+    check('«Mis datos» y el cambio de teléfono conservan la fecha al reescribir el perfil', (src.match(/t:o\.t\/\* v437/g) || []).length === 2);
+    sinErrores(p, 'Términos por cuenta'); await p.cerrar();
   },
   async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
     const p = await abrir(); await conCuenta(p);
