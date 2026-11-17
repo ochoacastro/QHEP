@@ -641,7 +641,7 @@ const PRUEBAS = {
     for (const w of [320, 360, 390]) {
       p = await abrir({ seed, ancho: w, alto: 780 });
       const c = await p.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect(); const lg = r('#home'), ct = r('#cartBtn'), q = r('header .qw'), u = document.getElementById('ut');
-        return { fila: Math.abs((lg.top + lg.bottom) / 2 - (ct.top + ct.bottom) / 2) < 10, debajo: q.top > lg.bottom - 2, enHeader: document.querySelector('.qw').parentNode.tagName === 'HEADER', corta: u.offsetParent ? u.scrollWidth > u.clientWidth + 1 : false, alto: document.querySelector('header').offsetHeight } });
+        return { fila: Math.abs((lg.top + lg.bottom) / 2 - (ct.top + ct.bottom) / 2) < 10, debajo: q.top > lg.bottom - 2, enHeader: document.querySelector('.qw').parentNode.tagName === 'HEADER', corta: u.offsetParent ? (u.scrollWidth > u.clientWidth + 1 || u.scrollHeight > u.clientHeight + 1) : false, alto: document.querySelector('header').offsetHeight } });
       check(`Celular ${w}px: logo y carrito en una fila, buscador debajo y «Iniciar sesión» sin cortarse`, c.fila && c.debajo && c.enHeader && !c.corta && c.alto < 150, JSON.stringify(c));
       await p.evaluate(() => { view = 'store'; cur = 's1'; render(); scrollTo(0, 0) }); await p.waitForTimeout(300);
       const f = await p.evaluate(() => { const pr = document.querySelector('.pgrid .prod'); const r = s => pr.querySelector(s).getBoundingClientRect(); const pic = r('.pic'), h = r('h3'), b = r('.plus');
@@ -649,6 +649,14 @@ const PRUEBAS = {
       check(`Celular ${w}px: productos en filas con la foto a la izquierda y «Agregar al carrito»`, f.lado && /Agregar al carrito/.test(f.boton) && f.ancho > 100 && f.cols === 1, JSON.stringify(f));
       if (w === 360) { await p.click('.pgrid .prod .plus'); await p.waitForTimeout(300); check('Celular: «Agregar al carrito» agrega el producto', await p.evaluate(() => Object.values(S.cart).reduce((a, b) => a + b, 0) === 1)) }
       sinErrores(p, `Celular ${w}px`); await p.cerrar();
+    }
+    // la revisión de GitHub no tiene la letra Inter: con una letra más ancha «Iniciar sesión» tampoco debe cortarse
+    for (const w of [360, 390]) {
+      p = await abrir({ seed, ancho: w, alto: 780 });
+      await p.addStyleTag({ content: ':root,html,body{--font-rubik:"DejaVu Sans",sans-serif!important}' }); await p.waitForTimeout(200);
+      const u = await p.evaluate(() => { const e = document.getElementById('ut'); return { corta: e.offsetParent ? (e.scrollWidth > e.clientWidth + 1 || e.scrollHeight > e.clientHeight + 1) : false, letra: getComputedStyle(e).fontFamily } });
+      check(`Celular ${w}px con una letra más ancha: «Iniciar sesión» no se corta`, !u.corta && /DejaVu/.test(u.letra), JSON.stringify(u));
+      await p.cerrar();
     }
     // v431: el botón de emergencias es solo la sirena, más pequeño, y conserva su nombre
     p = await abrir({ seed });

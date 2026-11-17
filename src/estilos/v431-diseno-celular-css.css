@@ -14,7 +14,10 @@
  #themeBtn{width:40px;height:40px}
  header .qw{max-width:none;margin:0}
 }
-@media (max-width:399px){#userBtn{font-size:13px;gap:4px}}
+@media (max-width:399px){#userBtn{font-size:13px;gap:4px}
+ /* el texto puede ir en dos líneas («Iniciar / sesión»): cabe con cualquier letra del teléfono (en la revisión de GitHub, sin la letra
+    Inter, en una sola línea se cortaba) */
+ #ut{white-space:normal;line-height:1.15;text-align:left;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:clip}}
 @media (max-width:359px){#ut{display:none}}/* en pantallas muy angostas, solo el ícono de la cuenta */
 #hubsrch:empty{display:none}
 

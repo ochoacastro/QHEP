@@ -9,7 +9,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 326 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **Pruebas:** 328 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
 - **PR abierto:** ninguno. El último PR fusionado es el **#154** (solo el parte), el 15 de noviembre de 2026. Todo hasta la v429 está en `main`. En la rama están las skills nuevas, el servidor MCP de Playwright (sección 6) la **v430** (diseño de tienda en línea para computador) y la **v431** (lo mismo en celular, y el botón de emergencias más pequeño), sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
@@ -126,7 +126,8 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - el buscador queda siempre en el encabezado, también en el inicio; el hueco que dejaba en el centro del inicio se esconde (`#hubsrch:empty`);
   - las filas de productos son solo para pantallas de menos de 640 px y para las cuadrículas de una tienda (`.pgrid`), no para las filas que se deslizan de lado (`.hrow`) ni para las tarjetas de ropa (`.fx`);
   - el «+» de cada producto se vuelve el botón «Agregar al carrito» solo con CSS; su nombre accesible ya decía «Agregar … al carrito»;
-  - en pantallas de menos de 360 px, la cuenta muestra solo el ícono (no cabe «Iniciar sesión»);
+  - en pantallas de menos de 360 px, la cuenta muestra solo el ícono (no cabe «Iniciar sesión»); de 360 a 399 px el texto puede ir en dos líneas («Iniciar / sesión»);
+  - la revisión de GitHub del PR #155 falló porque esa máquina no tiene la letra Inter: con su letra, más ancha, «Iniciar sesión» se cortaba a 360 px (en algunos teléfonos pasaría igual). Por eso el texto ahora puede ir en dos líneas, y una prueba lo revisa con una letra ancha (DejaVu Sans). Las pruebas locales tienen Inter instalada: un diseño que cabe «justo» aquí puede no caber allá;
   - las letras «SOS» siguen en el botón para los lectores de pantalla; solo se esconden a la vista.
 - **Ajustes visuales (v428):**
   - la dueña aprobó los cuatro arreglos el 15 de noviembre de 2026, después de ver las hojas de «antes y después»;
