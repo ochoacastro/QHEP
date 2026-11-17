@@ -10,7 +10,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 302 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#153** (v429), el 15 de noviembre de 2026. Todo hasta la v429 está en `main`. En la rama solo quedan cambios de este parte, sin PR.
+- **PR abierto:** ninguno. El último PR fusionado es el **#154** (solo el parte), el 15 de noviembre de 2026. Todo hasta la v429 está en `main`. En la rama están las skills nuevas del 17 de noviembre de 2026 (sección 6), sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -232,6 +232,11 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - `workers-best-practices` (de `cloudflare/skills`): revisar el worker de Cloudflare.
   - Para instalar otra: `npx skills add <dueño/repositorio> --skill <nombre> --agent claude-code -y`, leerla completa antes de hacer commit, y dejar `skills-lock.json` fuera de GitHub Pages (ya está en `_config.yml`).
   - No instalar `design-mobile-apps`: es un conector al servicio de pago sleek.design, pensado para React Native.
+  - **Instaladas el 17 de noviembre de 2026, a pedido de la dueña:**
+    - de `emilkowalski/skills` (20): `animate`, `animation-performance`, `animation-vocabulary`, `apple-design`, `ask-emil`, `break-ui`, `choreograph`, `emil-design-eng`, `find-animation-opportunities`, `gestures`, `improve-animations`, `learn-taste`, `mobile-native`, `prototype`, `remove-animations`, `review-animations`, y cuatro que no aplican a esta página pero vienen en el repositorio: `write-swift` (Swift, iOS), `animate-expo` (React Native), `ask-sonner` y `pick-ui-library` (librerías de React). Solo traen instrucciones, sin programas;
+    - `impeccable` (de `pbakaus/impeccable`, 2,4 MB): diseño y revisión de interfaz con comandos (`critique`, `audit`, `polish`, `animate`, `layout`…). Su script `scripts/impeccable` descarga la primera vez un programa desde las versiones publicadas en GitHub y lo verifica con sumas de control. Tiene un «gancho» opcional que revisa cada archivo editado; solo se enciende si se pide (`impeccable hooks on`). Pide archivos PRODUCT.md y DESIGN.md en la raíz si se usa a fondo: no se han creado;
+    - `design-taste-frontend` (de `Leonxlnx/taste-skill`, unos 40 MB y 1.631 archivos, casi todo imágenes y ejemplos): hecha para construir sitios de empresa desde cero, con fotos de muestra y su propio sistema de diseño. Mientras se usa, al final de cada respuesta corre una comprobación con Node (`scripts/gate.mjs`); si no hay un trabajo suyo armado (`.taste-skill/build.json`), termina al instante. Varias de sus reglas chocan con esta página (pide contactos en `.example`, sin teléfonos reales, fotos en cada sección, bordes redondeados): mandan las preferencias de la dueña. Sus scripts abren Chrome sin ventana y descargan fotos de Wikimedia y tipografías;
+    - revisadas antes de guardarlas: no encontré órdenes ocultas ni envío de datos a terceros; varias advierten justamente contra textos que intenten dar órdenes. GitHub Pages no las publica (las carpetas que empiezan con punto no se publican).
 - **Preferencias de la dueña:**
   - respuestas en español, con las líneas cambiadas y capturas;
   - diseño cuadrado y modo oscuro;
