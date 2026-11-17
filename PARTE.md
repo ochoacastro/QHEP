@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 339 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#157** (v432, v433 y v434), el 17 de noviembre de 2026. Todo hasta la v434 está en `main`. En la rama solo quedan cambios de este parte, sin PR.
+- **Pruebas:** 352 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#157** (v432, v433 y v434), el 17 de noviembre de 2026. Todo hasta la v434 está en `main`. En la rama están la **v435** (signo de «Escríbenos» y rayas del carrusel) y la **v436** (términos al entrar con Google), sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v434)
+## 2. Lo que se hizo en esta etapa (v392 a v436)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -61,6 +61,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v432 | **«Planes» en el menú principal:** la opción «Roles» del menú (☰) pasa a llamarse «Planes» y abre la página pública de precios, que se ve sin cuenta (antes abría la ventana «Roles», que pedía entrar). La página se llama ahora «Planes y precios», también en el pie y en el aviso de registro | #157 |
 | v433 | **Cuadro rojo de la campana:** el número de avisos sin leer vuelve a quedar sobre la esquina de la campana; desde la v431 salía en la esquina del encabezado (se le había quitado a la campana su posición propia) | #157 |
 | v434 | **«Sugerencias» se une con «Escríbenos»:** en los menús, «Sugerencias» se cambia por «Escríbenos», que abre el formulario completo del pie (nombre, correo, teléfono, asunto y mensaje) ya desplegado. La ventana pública de sugerencias deja de usarse; un enlace viejo a `#/sugerencias` también lleva a «Escríbenos» | #157 |
+| v435 | **Signo de «Escríbenos» y rayas del carrusel:** el botón del pie cambia de «+» a «−» al abrir y de «−» a «+» al cerrar (antes, al primer toque, el signo se trababa en «+» y salía un error). El carrusel de banners de arriba usa rayas debajo de la imagen (verde la que se ve, grises las otras) en vez de puntos sobre la imagen, como los demás carruseles | sin PR |
+| v436 | **Términos y condiciones al entrar por primera vez con Google** (o Apple o Facebook): antes de quedar adentro sale una ventana con dos casillas (Términos de uso; tratamiento de datos y Política de privacidad) y «Aceptar», que solo se activa con las dos marcadas. Antes quedaba registrado sin marcar nada | sin PR |
 
 ---
 
@@ -122,6 +124,14 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 - Nota: si alguien sin cuenta toca «Publicar», se registra con correo y vuelve desde el enlace del correo en otra pestaña, no se le abre solo el formulario (la página se cargó de nuevo); tiene que tocar «Publicar» otra vez.
 
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
+- **Signo de «Escríbenos» (v435):** la causa era un selector frágil en `v370-inicio-limpio.js` (`span:last-child`): el efecto de toque (v272) agrega un elemento al final del botón y el signo dejaba de ser «el último». Ahora el signo tiene su clase (`qcl-s`). Ojo para el futuro: no buscar piezas de un botón por su posición (`:last-child`), porque v272 agrega un elemento a cada botón que se toca.
+- **Rayas del carrusel de banners (v435):** las rayas quedan debajo de la imagen y no se pueden tocar (igual que los puntos de antes); el carrusel se pasa deslizando.
+- **Términos con Google (v436):**
+  - lo pidió la dueña, con una captura de la ventana de Rappi como ejemplo: que quien entra con Google acepte los términos igual que quien marca la casilla del registro manual;
+  - «primera vez» = Firebase dice que la cuenta es nueva (`additionalUserInfo.isNewUser`). Quien se registró a mano y después entra con Google ya aceptó y no se le pregunta. Las cuentas que ya entraron con Google antes de esta versión tampoco: no se les pide aceptar de nuevo;
+  - si cancela, no entra; como su cuenta de Google ya quedó creada en Firebase, el teléfono recuerda (`qh_tyc_pend`) que falta aceptar y vuelve a preguntar. En otro teléfono no sabría que falta: entraría directo;
+  - sirve igual para Apple y Facebook (mismo camino en `10-ed.js`) y para Google One Tap (`v369`);
+  - la fecha en que acepta se guarda como antes, en `consent` de la cuenta (solo en el teléfono).
 - **«Planes» en el menú (v432):**
   - lo pidió la dueña: que cualquiera, con o sin cuenta, vea los planes y sus precios antes de comprar uno;
   - quien ya tiene cuenta también llega a la página pública, y su botón «Activar un rol» abre la ventana de siempre para canjear o comprar;

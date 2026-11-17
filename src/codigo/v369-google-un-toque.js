@@ -16,8 +16,9 @@ async function onCred(resp){var er=document.getElementById('err');if(er)er.textC
   var a=smsApp.auth(),r=await a.signInWithCredential(cred),u=r.user,em=String(u.email||(u.providerData[0]||{}).email||'').toLowerCase();
   try{await firebase.auth().signInWithCredential(cred)}catch(x){}try{await a.signOut()}catch(x){}
   if(!em){if(er)er.textContent='No recibimos tu correo de Google. Usa otro método.';return}
-  var dd=dnRead(u);S.user={id:DEV,name:String(dd.n||u.displayName&&!/^\{/.test(u.displayName)&&u.displayName||em.split('@')[0]).slice(0,30),wa:String(dd.w||''),email:em,consent:Date.now()};
-  PEND=null;QH.derive();save();closeModal();syncUI();toast('¡Listo! Entraste con Google.');var f=after;after=null;f&&f();if(MODE==='panel')render()}
+  var dd=dnRead(u),fin=function(){S.user={id:DEV,name:String(dd.n||u.displayName&&!/^\{/.test(u.displayName)&&u.displayName||em.split('@')[0]).slice(0,30),wa:String(dd.w||''),email:em,consent:Date.now()};
+  PEND=null;QH.derive();save();closeModal();syncUI();toast('¡Listo! Entraste con Google.');var f=after;after=null;f&&f();if(MODE==='panel')render()};
+  if(typeof qhTyC==='object'&&qhTyC.falta(r,em)){qhTyC.pedir(em,fin);return}/* v436: la primera vez, los términos */fin()}
  catch(e){var c=e&&e.code||'';var m=c==='auth/operation-not-allowed'||c==='auth/unauthorized-domain'?'Este ingreso aún no está activado.':c==='auth/network-request-failed'?'Sin conexión. Revisa tu internet.':'No se pudo entrar con Google ('+(c||'error')+'). Usa el botón «Continuar con Google».';
   var er2=document.getElementById('err');if(er2)er2.textContent=m;else toast(m)}}
 setInterval(function(){try{var open=!!document.querySelector('#ov .am .sob.gg');

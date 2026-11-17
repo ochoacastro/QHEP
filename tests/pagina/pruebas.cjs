@@ -713,7 +713,57 @@ const PRUEBAS = {
     await p.evaluate(() => { const b = document.querySelector('.qcl-ct'); if (b && b.getAttribute('aria-expanded') === 'true') b.click(); document.body.insertAdjacentHTML('beforeend', '<button id="t-mn" data-act="menu">m</button>'); document.getElementById('t-mn').click() }); await p.waitForTimeout(300);
     const m2 = await p.evaluate(() => [...document.querySelectorAll('#ov [data-v]')].map(b => b.dataset.v).join());
     check('El otro menú (Inicio, Tiendas…) también tiene «Escríbenos» en vez de «Sugerencias»', /escribenos/.test(m2) && !/\bsug\b/.test(m2), m2);
+    // v435: el signo del botón cambia de «+» a «−» y de vuelta (antes se trababa en «+» al primer toque)
+    await p.evaluate(() => closeModal(1));
+    const signo = () => p.evaluate(() => { const b = document.querySelector('.qcl-ct'), s = b.querySelector('.qcl-s'), w = document.querySelector('.qctw');
+      return (s ? s.textContent : '?') + ' ' + b.getAttribute('aria-expanded') + ' ' + (getComputedStyle(w).display !== 'none' ? 'abierto' : 'cerrado') + ' ' + (s ? getComputedStyle(s).color : '') });
+    await p.evaluate(() => { const b = document.querySelector('.qcl-ct'); if (b.getAttribute('aria-expanded') === 'true') b.click() }); await p.waitForTimeout(200);
+    const s0 = await signo();
+    await p.click('.qcl-ct'); await p.waitForTimeout(250); const s1 = await signo();
+    await p.click('.qcl-ct'); await p.waitForTimeout(250); const s2 = await signo();
+    await p.evaluate(() => qhEscribenos()); await p.waitForTimeout(500); const s3 = await signo();
+    check('El botón de «Escríbenos» cambia de «+» a «−» al abrir y de «−» a «+» al cerrar, también desde el menú',
+      /^\+ false cerrado/.test(s0) && /^− true abierto/.test(s1) && /^\+ false cerrado/.test(s2) && /^− true abierto/.test(s3), [s0, s1, s2, s3].join(' | '));
+    check('El signo conserva su color blanco después de tocarlo', /rgb\(255, 255, 255\)/.test(s1) && /rgb\(255, 255, 255\)/.test(s2), [s1, s2].join(' | '));
     sinErrores(p, 'Escríbenos en el menú'); await p.cerrar();
+    // v435: los indicadores del carrusel de banners de arriba son rayas debajo de la imagen, como los demás carruseles
+    const q = await abrir();
+    const im = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300"><rect width="800" height="300" fill="#0071e3"/></svg>');
+    await q.evaluate(im => { S.topAds = [{ img: im }, { img: im }, { img: im }]; render() }, im); await q.waitForTimeout(500);
+    const ind = await q.evaluate(() => { const d = document.querySelector('.tbd'); if (!d) return null; const t = document.querySelector('.tbt').getBoundingClientRect(), r = d.getBoundingClientRect(), is = [...d.children].map(i => { const k = i.getBoundingClientRect(); return [Math.round(k.width), Math.round(k.height), getComputedStyle(i).borderRadius, getComputedStyle(i).backgroundColor] });
+      return { debajo: r.top >= t.bottom - 1, fondo: getComputedStyle(d).backgroundColor, is } });
+    check('Los indicadores del carrusel de banners son rayas (verde la que se ve, grises las demás) debajo de la imagen',
+      !!ind && ind.debajo && /rgba\(0, 0, 0, 0\)|transparent/.test(ind.fondo) && ind.is.length === 3 && ind.is[0][0] === 40 && ind.is[0][1] === 6 && ind.is[0][2] === '0px' && /22, 163, 74/.test(ind.is[0][3]) && ind.is.slice(1).every(i => i[0] === 26 && i[1] === 6), JSON.stringify(ind));
+    sinErrores(q, 'Rayas del carrusel'); await q.cerrar();
+  },
+  async terminosGoogle() { // v436 la primera vez que se entra con Google salen los Términos y condiciones con sus casillas
+    const p = await abrir();
+    // Google falso: la ventana de Google responde con una cuenta nueva o una que ya existía
+    const google = nuevo => p.evaluate(nv => { firebase.auth.GoogleAuthProvider = function () { this.addScope = () => {}; this.setCustomParameters = () => {} };
+      smsApp = { auth: () => ({ languageCode: '', signOut: async () => {}, signInWithPopup: async () => ({ user: { email: 'nuevo@gmail.com', providerData: [], displayName: 'Ana Nueva' }, additionalUserInfo: { isNewUser: nv }, credential: null }) }) } }, nuevo);
+    const entrar = async () => { await p.evaluate(() => { closeModal(1); S.user = null; save(); loginForm() }); await p.waitForTimeout(300);
+      await p.evaluate(() => { const b = [...document.querySelectorAll('#ov button')].find(x => /Continuar con Google/.test(x.textContent)); b.click() }); await p.waitForTimeout(600) };
+    const est = () => p.evaluate(() => { const ov = document.getElementById('ov'), ok = document.querySelector('[data-tyc="ok"]');
+      return { titulo: ov ? (ov.querySelector('h2') || {}).textContent : '', casillas: document.querySelectorAll('.tyc input[type=checkbox]').length, aceptar: ok ? (ok.disabled ? 'apagado' : 'encendido') : 'no', dentro: !!S.user } });
+    await google(true); await entrar();
+    let e = await est();
+    check('La primera vez con Google sale «Términos y condiciones» con dos casillas y «Aceptar» apagado, y todavía no entra', e.titulo === 'Términos y condiciones' && e.casillas === 2 && e.aceptar === 'apagado' && !e.dentro, JSON.stringify(e));
+    check('Un toque afuera no la cierra', await p.evaluate(() => document.getElementById('ov').dataset.lock === '1'));
+    await p.check('#tyc-1'); await p.waitForTimeout(100); e = await est();
+    check('Con una sola casilla, «Aceptar» sigue apagado', e.aceptar === 'apagado', JSON.stringify(e));
+    await p.check('#tyc-2'); await p.waitForTimeout(100); e = await est();
+    check('Con las dos casillas, «Aceptar» se enciende', e.aceptar === 'encendido', JSON.stringify(e));
+    await p.click('[data-tyc="ok"]'); await p.waitForTimeout(400);
+    check('Al aceptar entra, con su nombre y la fecha en que aceptó', await p.evaluate(() => !!S.user && S.user.email === 'nuevo@gmail.com' && S.user.consent > Date.now() - 60000 && !document.getElementById('ov')));
+    // cuenta que ya existía (se registró a mano o ya había aceptado): entra directo
+    await google(false); await entrar(); e = await est();
+    check('Si la cuenta ya existía, entra directo sin preguntar', e.dentro && e.titulo !== 'Términos y condiciones', JSON.stringify(e));
+    // cancelar: no entra, y en este teléfono se vuelve a preguntar la próxima vez aunque la cuenta ya no sea nueva
+    await google(true); await entrar(); await p.click('[data-tyc="no"]'); await p.waitForTimeout(300); e = await est();
+    check('Si cancela, no entra', !e.dentro && !await p.evaluate(() => !!document.querySelector('.tyc')), JSON.stringify(e));
+    await google(false); await entrar(); e = await est();
+    check('Después de cancelar, la próxima vez vuelve a preguntar', e.titulo === 'Términos y condiciones' && !e.dentro, JSON.stringify(e));
+    sinErrores(p, 'Términos con Google'); await p.cerrar();
   },
   async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
     const p = await abrir(); await conCuenta(p);

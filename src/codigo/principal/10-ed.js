@@ -19,7 +19,8 @@ function oauthIn(k){const err=$('#err'),n=($('#u-name')||$('#r-name')||{}).value
  a.languageCode='es';err.textContent='Abriendo '+nm+'…';
  a.signInWithPopup(pr).then(r=>{const u=r.user,em=String(u.email||(u.providerData[0]||{}).email||'').toLowerCase();try{if(r.credential)firebase.auth().signInWithCredential(r.credential).catch(function(){})}catch(e){}try{a.signOut()}catch(e){}
   if(!em){err.textContent='No recibimos tu correo de '+nm+'. Usa otro método.';return}
-  const dd=dnRead(u)/* v261 */;S.user={id:DEV,name:String(n.trim()||dd.n||em.split('@')[0]).slice(0,30),wa:String(dd.w||''),email:em,consent:Date.now()};PEND=null;QH.derive();save();closeModal();syncUI();const f=after;after=null;f&&f();if(MODE==='panel')render()
+  const dd=dnRead(u)/* v261 */,fin=()=>{S.user={id:DEV,name:String(n.trim()||dd.n||em.split('@')[0]).slice(0,30),wa:String(dd.w||''),email:em,consent:Date.now()};PEND=null;QH.derive();save();closeModal();syncUI();const f=after;after=null;f&&f();if(MODE==='panel')render()};
+  if(typeof qhTyC==='object'&&qhTyC.falta(r,em))return qhTyC.pedir(em,fin)/* v436: la primera vez, los términos */;fin()
  }).catch(e=>{const c=e&&e.code||'';err.textContent=c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request'?'Cancelaste el ingreso.':c==='auth/popup-blocked'?'Tu navegador bloqueó la ventana. Permite ventanas emergentes e intenta de nuevo.':c==='auth/operation-not-allowed'||c==='auth/unauthorized-domain'?'Este ingreso aún no está activado.':'No se pudo ingresar ('+(c||'error')+'). Intenta de nuevo.'})}
 /* ===== Cuentas con correo/celular + clave (Firebase Authentication guarda la clave cifrada) ===== */
 let REG=null;

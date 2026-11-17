@@ -1011,6 +1011,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v435-indicadores-css\">",
+  "f": "estilos/v435-indicadores-css.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v411-letrero\">",
   "f": "codigo/v411-letrero.js"
@@ -1365,6 +1374,15 @@
   "t": "js",
   "tag": "<script id=\"v434-escribenos-menu\">",
   "f": "codigo/v434-escribenos-menu.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v436-terminos-google\">",
+  "f": "codigo/v436-terminos-google.js"
  },
  {
   "t": "txt",
