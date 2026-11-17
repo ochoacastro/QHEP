@@ -10,7 +10,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 352 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#157** (v432, v433 y v434), el 17 de noviembre de 2026. Todo hasta la v434 está en `main`. En la rama están la **v435** (signo de «Escríbenos» y rayas del carrusel) y la **v436** (términos al entrar con Google), sin PR todavía.
+- **PR abierto:** ninguno. El último PR fusionado es el **#158** (v435 y v436), el 17 de noviembre de 2026. Todo hasta la v436 está en `main`. En la rama solo quedan cambios de este parte, sin PR.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -61,14 +61,14 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v432 | **«Planes» en el menú principal:** la opción «Roles» del menú (☰) pasa a llamarse «Planes» y abre la página pública de precios, que se ve sin cuenta (antes abría la ventana «Roles», que pedía entrar). La página se llama ahora «Planes y precios», también en el pie y en el aviso de registro | #157 |
 | v433 | **Cuadro rojo de la campana:** el número de avisos sin leer vuelve a quedar sobre la esquina de la campana; desde la v431 salía en la esquina del encabezado (se le había quitado a la campana su posición propia) | #157 |
 | v434 | **«Sugerencias» se une con «Escríbenos»:** en los menús, «Sugerencias» se cambia por «Escríbenos», que abre el formulario completo del pie (nombre, correo, teléfono, asunto y mensaje) ya desplegado. La ventana pública de sugerencias deja de usarse; un enlace viejo a `#/sugerencias` también lleva a «Escríbenos» | #157 |
-| v435 | **Signo de «Escríbenos» y rayas del carrusel:** el botón del pie cambia de «+» a «−» al abrir y de «−» a «+» al cerrar (antes, al primer toque, el signo se trababa en «+» y salía un error). El carrusel de banners de arriba usa rayas debajo de la imagen (verde la que se ve, grises las otras) en vez de puntos sobre la imagen, como los demás carruseles | sin PR |
-| v436 | **Términos y condiciones al entrar por primera vez con Google** (o Apple o Facebook): antes de quedar adentro sale una ventana con dos casillas (Términos de uso; tratamiento de datos y Política de privacidad) y «Aceptar», que solo se activa con las dos marcadas. Antes quedaba registrado sin marcar nada | sin PR |
+| v435 | **Signo de «Escríbenos» y rayas del carrusel:** el botón del pie cambia de «+» a «−» al abrir y de «−» a «+» al cerrar (antes, al primer toque, el signo se trababa en «+» y salía un error). El carrusel de banners de arriba usa rayas debajo de la imagen (verde la que se ve, grises las otras) en vez de puntos sobre la imagen, como los demás carruseles | #158 |
+| v436 | **Términos y condiciones al entrar por primera vez con Google** (o Apple o Facebook): antes de quedar adentro sale una ventana con dos casillas (Términos de uso; tratamiento de datos y Política de privacidad) y «Aceptar», que solo se activa con las dos marcadas. Antes quedaba registrado sin marcar nada | #158 |
 
 ---
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
-0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (todo hasta el PR #157 ya está fusionado):
+0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (todo hasta el PR #158 ya está fusionado):
    - hacer un pedido sin cuenta y ver que WhatsApp se abre con el mensaje (v416);
    - hacer un pedido con cuenta: debe salir «Tus datos para el pedido» con el nombre y el teléfono puestos, sin mapa (v424);
    - sin cuenta, tocar «Publicar» en la barra de abajo: debe salir «Registrarme» con el aviso, no el formulario (v425, v429);
@@ -82,6 +82,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - sin cuenta, abrir el menú y tocar «Planes»: debe abrir «Planes y precios» sin pedir registro (v432);
    - con avisos sin leer, el cuadro rojo debe quedar sobre la campana (v433);
    - tocar «Escríbenos» en el menú: debe bajar al formulario del pie, ya abierto (v434).
+   - entrar con una cuenta de Google que nunca haya entrado a Mi Pradera: debe salir «Términos y condiciones» y entrar solo después de marcar las dos casillas (v436);
+   - el botón «Escríbenos» del pie: «+» cerrado y «−» abierto; el carrusel de banners de arriba con rayas debajo de la imagen (v435).
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 3. **Pendientes de antes:**
