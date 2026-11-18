@@ -2334,6 +2334,7 @@ html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64
 
 
 
+
 <style id="v329-crecer-css">
 /* v329: los cuadros de texto crecen solos con lo que se escribe */
 textarea.qgrow{overflow-y:hidden;resize:none;transition:height .08s}
@@ -2368,7 +2369,7 @@ html.dark .jobpv{background:#1c1c1e!important;border-color:#3a3a3c!important}htm
   <div id="hbn"></div>
 </header>
 <main id="app"></main>
-<footer>Mi Pradera · Lo nuestro, en un solo lugar. Cada tienda y cada servicio es responsabilidad de quien lo publica.<br><button class="back" data-rolv="1">Planes y precios</button> · <button class="back" data-act="legal" data-v="terms">Términos de uso</button> · <button class="back" data-act="legal" data-v="priv">Política de privacidad</button></footer>
+<footer>Mi Pradera · Lo nuestro, en un solo lugar. Cada tienda y cada servicio es responsabilidad de quien lo publica.<br><button class="back" data-rolv="1">Planes y precios</button> · <button class="back" data-qapp="1">Descargar la app</button> · <button class="back" data-act="legal" data-v="terms">Términos de uso</button> · <button class="back" data-act="legal" data-v="priv">Política de privacidad</button></footer>
 <aside class="drawer" id="drawer" aria-label="Carrito"></aside>
 <div id="toast" role="status"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.2/qrcode.min.js" defer></script>
@@ -2437,7 +2438,7 @@ function card(html,label){var d=document.createElement('div');d.className='qhb';
 function cookies(){
  if(get(CK))return false;
  var d=card('<p>Usamos cookies y el almacenamiento de tu navegador para mantener tu sesión, recordar tus preferencias y proteger el sitio. También mostramos mapas y videos de otros servicios. <a href="privacidad.html#cookies">Más información</a></p><div class="qhb-r"><button type="button" class="btn" data-qhb="ok">Aceptar</button></div>','Aviso de cookies');
- d.querySelector('[data-qhb=ok]').onclick=function(){set(CK,'ok:'+Date.now());d.remove();setTimeout(install,600)};
+ d.querySelector('[data-qhb=ok]').onclick=function(){set(CK,'ok:'+Date.now());d.remove()};/* v438: la invitación a instalar ya no sale sola */
  return true}
 function snoozed(){var v=+get(IK)||0;return v&&Date.now()-v<14*864e5}
 function install(){
@@ -2451,9 +2452,12 @@ function install(){
   var e=card('<div class="qhb-i">'+ico+'<div><b>Instala Mi Pradera</b><p>Toca '+shareIco+' <b style="display:inline;font-size:inherit">Compartir</b> abajo en Safari y luego <b style="display:inline;font-size:inherit">Agregar a inicio</b>.</p></div></div><div class="qhb-r"><button type="button" class="btn ghost" data-qhb="no">Entendido</button></div>','Instalar la app');
   e.querySelector('[data-qhb=no]').onclick=function(){set(IK,Date.now());e.remove()};
  }}
-window.addEventListener('beforeinstallprompt',function(ev){ev.preventDefault();deferred=ev;if(document.body&&!document.querySelector('.qhb'))setTimeout(install,1500)});
+window.addEventListener('beforeinstallprompt',function(ev){ev.preventDefault();deferred=ev;try{dispatchEvent(new Event('qh-instalable'))}catch(x){}});/* v438: se guarda para «Descargar la app»; ya no se muestra sola */
 window.addEventListener('appinstalled',function(){deferred=null;var b=document.querySelector('.qhb');if(b)b.remove()});
-function start(){if(!cookies())setTimeout(install,4000)}
+/* v438: «Descargar la app» (menú ☰ y pie) pide instalar: 'instalada' | 'prompt' (abre el instalador del navegador) | 'ios' | 'otro' */
+window.qhInstalarApp=function(){if(standalone)return 'instalada';if(deferred){var p=deferred;deferred=null;try{p.prompt();p.userChoice.catch(function(){})}catch(e){}return 'prompt'}return ios?'ios':'otro'};
+window.qhPuedeInstalar=function(){return !standalone&&!!deferred};/* v438: ¿el navegador ya permite instalar? (sin abrir nada) */
+function start(){cookies()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
@@ -2863,7 +2867,7 @@ var GUIDES=[
   ['not2','El texto','Cuenta qué pasó, cuándo y dónde. Usa frases cortas.'],
   ['not3','Foto o video','Agrega una imagen de portada o el enlace de un video y publica.']]},
  {id:'ins',ic:'📱',t:'Instalar la app en el celular',d:'Un acceso directo en tu pantalla de inicio',f:'',s:[
-  ['ins1','En Android','Cuando aparezca «Instala Mi Pradera», toca «Instalar». También puedes hacerlo desde el menú de Chrome → «Instalar app».'],
+  ['ins1','En Android','Toca «Descargar la app» en el menú ☰ o al final de la página y luego «Instalar». También puedes hacerlo desde el menú de Chrome → «Instalar app».'],
   ['ins2','En iPhone','Abre la página en Safari, toca el botón Compartir y luego «Agregar a inicio».']]}];
 function helpSite(){try{return (typeof site==='function'?site():(S&&S.site))||{}}catch(e){return {}}}
 function helpOn(){return helpSite().help!==false}
@@ -5395,6 +5399,50 @@ addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[
 function vieja(){try{if(view!=='sug')return;view='home';render();setTimeout(qhEscribenos,120)}catch(e){}}
 function inicia(){if(inicia.ya)return;inicia.ya=1;var a=$('#app');if(a)new MutationObserver(vieja).observe(a,{childList:true});vieja()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inicia);else inicia();
+})();
+</script>
+<script id="v438-descargar-app">
+/* v438: «DESCARGAR LA APP» EN EL MENÚ ☰ Y AL FINAL DE LA PÁGINA. Antes la tarjeta «Instala Mi Pradera» salía sola al entrar
+   (v205); ahora no sale sola: quien quiera la app toca «Descargar la app» en el menú principal (☰) o en el pie de la página.
+   - Si el navegador permite instalar (Chrome o Edge en Android y computador), se abre directo su ventana «Instalar».
+   - Si ya está instalada (se abrió desde el ícono), lo dice.
+   - Si no (iPhone, u otro navegador), muestra cómo agregarla a la pantalla de inicio.
+   La app es la misma página con un acceso directo en el celular (no está en Play Store ni en App Store).
+   ENLACE DIRECTO: mipradera.com.co/app (la página app/index.html lleva a /?app=1) abre la página con esta ventana ya abierta.
+   Como el navegador solo deja instalar después de un toque, ahí no se abre su ventana sola: sale un botón grande «Instalar»
+   (si el navegador lo permite; si el permiso llega unos segundos después, el botón aparece en ese momento) o los pasos.
+   Enganches fuera de este archivo: qhInstalarApp en v205-avisos.js, ['app','Descargar la app'] en el menú (14-servform.js)
+   y el botón data-qapp del pie (html/04.html).
+   Para quitarlo: borra este archivo de src/orden.json, el elemento del menú y el botón del pie. */
+(function(){
+var shareIco='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>';
+function pasos(r){
+ var ios='<h3>En iPhone</h3><ol><li>Abre <b>mipradera.com.co</b> en Safari.</li><li>Toca '+shareIco+' <b>Compartir</b>, abajo.</li><li>Toca <b>Agregar a inicio</b>.</li></ol>';
+ var and='<h3>En Android</h3><ol><li>Abre <b>mipradera.com.co</b> en Chrome.</li><li>Toca el menú <b>⋮</b>, arriba a la derecha.</li><li>Toca <b>Instalar app</b> o <b>Agregar a la pantalla de inicio</b>.</li></ol>';
+ var pc='<h3>En computador</h3><p>En Chrome o Edge, toca el ícono de instalar al final de la barra de direcciones.</p>';
+ return r==='ios'?ios:and+ios+pc}
+function ventana(r){var intro='<p class="muted">Mi Pradera queda como un ícono en la pantalla de inicio de tu celular, como cualquier app. Ocupa muy poco espacio y no necesitas tienda de aplicaciones.</p>';
+ modal('<div class="qapp"><h2>Descargar la app</h2>'+intro+(r==='puede'?'<button type="button" class="btn pink qapp-in" data-qapp-in="1">Instalar</button><button type="button" class="btn ghost" data-act="close">Ahora no</button>':pasos(r)+'<button type="button" class="btn ghost" data-act="close">Entendido</button>')+'</div>')}
+window.qhDescargarApp=function(enlace){try{closeModal(1)}catch(e){}
+ var puede=typeof qhPuedeInstalar==='function'&&qhPuedeInstalar();
+ /* desde el enlace no hubo toque: se muestra el botón «Instalar» en vez de abrir el instalador */
+ if(enlace&&puede)return ventana('puede');
+ var r=typeof qhInstalarApp==='function'?qhInstalarApp():'otro';
+ if(r==='prompt')return;
+ if(r==='instalada'){try{toast('Ya tienes Mi Pradera instalada en este celular.')}catch(e){}return}
+ ventana(r)};
+/* el permiso de instalar llega unos segundos después de abrir la página: si la ventana está abierta con los pasos, pasa a «Instalar» */
+addEventListener('qh-instalable',function(){if(document.querySelector('.qapp')&&!document.querySelector('[data-qapp-in]'))ventana('puede')});
+/* el enlace directo mipradera.com.co/app → /?app=1 */
+try{var q=new URLSearchParams(location.search);if(q.has('app')){q.delete('app');var rs=q.toString();history.replaceState(null,'',location.pathname+(rs?'?'+rs:'')+location.hash);
+ var abre=function(){setTimeout(function(){try{qhDescargarApp(true)}catch(e){}},900)};if(document.readyState==='complete')abre();else addEventListener('load',abre)}}catch(e){}
+/* el menú ☰ (data-v="app") y el pie (data-qapp) abren «Descargar la app» */
+addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-v="app"],[data-qapp]');if(!b)return;
+ e.preventDefault();e.stopImmediatePropagation();qhDescargarApp()},true);
+/* el botón «Instalar» de la ventana: el toque permite abrir el instalador del navegador */
+addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-qapp-in]');if(!b)return;
+ e.preventDefault();e.stopImmediatePropagation();try{closeModal(1)}catch(x){}if(typeof qhInstalarApp==='function')qhInstalarApp()},true);
+document.head.insertAdjacentHTML('beforeend','<style id="v438-css">.qapp h3{font-size:16px;margin:16px 0 6px}.qapp ol{margin:0;padding-left:22px;line-height:1.6}.qapp p{line-height:1.5}.qapp .btn{width:100%;margin-top:16px}</style>');
 })();
 </script>
 <script id="v436-terminos-google">
@@ -8069,7 +8117,7 @@ else if(a==='menu'){modal(`<h2>Menú</h2>${[['hub','Inicio'],['home','Tiendas'],
 else if(a==='mnuGo'){closeModal(1);if(v==='hub'){cat='';shopsOpen=false;view='home';render();return}if(v==='home')shopsOpen=true;sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render()}
 else if(a==='moretabs'){moreOpen=!moreOpen;render(true)}
 else if(a==='menuPlanes'){moreOpen=false;if(typeof qhRoles==='function')return qhRoles()/* v432 */;if(MODE==='index'){location.href=PANEL_URL+'#/accesos';return}render(true);codesModal()}
-else if(a==='hmenu'){const all=[['panel','Mi cuenta'],['home','Tiendas'],['map','Mapa'],['serv','Servicios'],...MORE.map(x=>[x,ADT[x].tab]),['guias','Guías útiles'],['escribenos','Escríbenos']/* v434: antes Sugerencias */,['news','Noticias'],['com','Clasificados'],['planes','Planes']/* v432: antes «Roles» */];modal(`<div class="mhd"><h2>Menú</h2><button class="mx" data-act="close" aria-label="Cerrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20"/></svg></button></div>${all.map(([k,t])=>`<button class="mrow" data-act="hmtab" data-v="${k}"><span>${t}</span></button>`).join('')}`)}
+else if(a==='hmenu'){const all=[['panel','Mi cuenta'],['home','Tiendas'],['map','Mapa'],['serv','Servicios'],...MORE.map(x=>[x,ADT[x].tab]),['guias','Guías útiles'],['escribenos','Escríbenos']/* v434: antes Sugerencias */,['news','Noticias'],['com','Clasificados'],['planes','Planes']/* v432: antes «Roles» */,['app','Descargar la app']/* v438 */];modal(`<div class="mhd"><h2>Menú</h2><button class="mx" data-act="close" aria-label="Cerrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M4 4l16 16M20 4L4 20"/></svg></button></div>${all.map(([k,t])=>`<button class="mrow" data-act="hmtab" data-v="${k}"><span>${t}</span></button>`).join('')}`)}
 else if(a==='hmtab'){closeModal(1);if(v==='panel'){if(MODE==='panel'){view='home';render();scrollTo(0,0)}else location.href=PANEL_URL;return}if(v==='planes'){if(typeof qhRoles==='function')return qhRoles()/* v432: la página pública de planes, sin cuenta */;codesModal();return}if(v==='news')curN='';if(v==='home')shopsOpen=true;sortBy='';zoneF='';favOnly=false;adF={};moreOpen=false;view=v;render();scrollTo(0,0)}
 else if(a==='near'){const st=$('#near-st');if(myLL){myLL=null;render(true)}else if(!navigator.geolocation)st.textContent='Tu navegador no permite obtener la ubicación.';else{b.disabled=true;st.textContent='Buscando tu ubicación…';navigator.geolocation.getCurrentPosition(p=>{myLL=[p.coords.latitude,p.coords.longitude];if(view==='map')render(true)},()=>{if(view!=='map')return;b.disabled=false;st.textContent='No pude obtener tu ubicación. Activa el permiso de ubicación del navegador e intenta de nuevo.'},{enableHighAccuracy:true,timeout:10000})}}
 else if(a==='pub'){QH.go(()=>v==='shop'?shopForm():v==='food'||v==='pelu'||v==='news'?pubSpecial(v):planGo(v==='shop'?'store':v==='serv'?'serv':'ad','',()=>v==='shop'?shopForm():v==='serv'?servForm():v==='inm'?inmMenu():adForm(v),v))}

@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 358 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#159** (solo el parte), el 17 de noviembre de 2026. Todo hasta la v436 está en `main`. La rama de trabajo tiene además la **v437** (sin PR todavía).
+- **Pruebas:** 370 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. El último PR fusionado es el **#159** (solo el parte), el 17 de noviembre de 2026. Todo hasta la v436 está en `main`. La **v437** ya está en `main` (PR #160). La rama de trabajo tiene además la **v438** (sin PR todavía).
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v437)
+## 2. Lo que se hizo en esta etapa (v392 a v438)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -63,7 +63,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v434 | **«Sugerencias» se une con «Escríbenos»:** en los menús, «Sugerencias» se cambia por «Escríbenos», que abre el formulario completo del pie (nombre, correo, teléfono, asunto y mensaje) ya desplegado. La ventana pública de sugerencias deja de usarse; un enlace viejo a `#/sugerencias` también lleva a «Escríbenos» | #157 |
 | v435 | **Signo de «Escríbenos» y rayas del carrusel:** el botón del pie cambia de «+» a «−» al abrir y de «−» a «+» al cerrar (antes, al primer toque, el signo se trababa en «+» y salía un error). El carrusel de banners de arriba usa rayas debajo de la imagen (verde la que se ve, grises las otras) en vez de puntos sobre la imagen, como los demás carruseles | #158 |
 | v436 | **Términos y condiciones al entrar por primera vez con Google** (o Apple o Facebook): antes de quedar adentro sale una ventana con dos casillas (Términos de uso; tratamiento de datos y Política de privacidad) y «Aceptar», que solo se activa con las dos marcadas. Antes quedaba registrado sin marcar nada | #158 |
-| v437 | **Términos con Google a quien no los haya aceptado:** la v436 solo preguntaba si Firebase decía que la cuenta era nueva, y a la dueña no le salió al probarla (su cuenta de Google ya había entrado antes). Ahora la fecha en que acepta queda guardada en la cuenta de Firebase y se pregunta a toda cuenta de Google que no la tenga, una vez, en cualquier teléfono | — |
+| v437 | **Términos con Google a quien no los haya aceptado:** la v436 solo preguntaba si Firebase decía que la cuenta era nueva, y a la dueña no le salió al probarla (su cuenta de Google ya había entrado antes). Ahora la fecha en que acepta queda guardada en la cuenta de Firebase y se pregunta a toda cuenta de Google que no la tenga, una vez, en cualquier teléfono | #160 |
+| v438 | **Descargar la app:** la tarjeta «Instala Mi Pradera» ya no sale sola al entrar. La opción «Descargar la app» está en el menú principal (☰) y en el pie de la página, y hay un **enlace directo: mipradera.com.co/app** (página `app/index.html` → `/?app=1`) que abre la ventana con el botón «Instalar» o los pasos para Android, iPhone y computador | — |
 
 ---
 

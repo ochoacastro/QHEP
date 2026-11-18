@@ -14,7 +14,7 @@ function card(html,label){var d=document.createElement('div');d.className='qhb';
 function cookies(){
  if(get(CK))return false;
  var d=card('<p>Usamos cookies y el almacenamiento de tu navegador para mantener tu sesión, recordar tus preferencias y proteger el sitio. También mostramos mapas y videos de otros servicios. <a href="privacidad.html#cookies">Más información</a></p><div class="qhb-r"><button type="button" class="btn" data-qhb="ok">Aceptar</button></div>','Aviso de cookies');
- d.querySelector('[data-qhb=ok]').onclick=function(){set(CK,'ok:'+Date.now());d.remove();setTimeout(install,600)};
+ d.querySelector('[data-qhb=ok]').onclick=function(){set(CK,'ok:'+Date.now());d.remove()};/* v438: la invitación a instalar ya no sale sola */
  return true}
 function snoozed(){var v=+get(IK)||0;return v&&Date.now()-v<14*864e5}
 function install(){
@@ -28,8 +28,11 @@ function install(){
   var e=card('<div class="qhb-i">'+ico+'<div><b>Instala Mi Pradera</b><p>Toca '+shareIco+' <b style="display:inline;font-size:inherit">Compartir</b> abajo en Safari y luego <b style="display:inline;font-size:inherit">Agregar a inicio</b>.</p></div></div><div class="qhb-r"><button type="button" class="btn ghost" data-qhb="no">Entendido</button></div>','Instalar la app');
   e.querySelector('[data-qhb=no]').onclick=function(){set(IK,Date.now());e.remove()};
  }}
-window.addEventListener('beforeinstallprompt',function(ev){ev.preventDefault();deferred=ev;if(document.body&&!document.querySelector('.qhb'))setTimeout(install,1500)});
+window.addEventListener('beforeinstallprompt',function(ev){ev.preventDefault();deferred=ev;try{dispatchEvent(new Event('qh-instalable'))}catch(x){}});/* v438: se guarda para «Descargar la app»; ya no se muestra sola */
 window.addEventListener('appinstalled',function(){deferred=null;var b=document.querySelector('.qhb');if(b)b.remove()});
-function start(){if(!cookies())setTimeout(install,4000)}
+/* v438: «Descargar la app» (menú ☰ y pie) pide instalar: 'instalada' | 'prompt' (abre el instalador del navegador) | 'ios' | 'otro' */
+window.qhInstalarApp=function(){if(standalone)return 'instalada';if(deferred){var p=deferred;deferred=null;try{p.prompt();p.userChoice.catch(function(){})}catch(e){}return 'prompt'}return ios?'ios':'otro'};
+window.qhPuedeInstalar=function(){return !standalone&&!!deferred};/* v438: ¿el navegador ya permite instalar? (sin abrir nada) */
+function start(){cookies()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();

@@ -787,6 +787,39 @@ const PRUEBAS = {
     check('«Mis datos» y el cambio de teléfono conservan la fecha al reescribir el perfil', (src.match(/t:o\.t\/\* v437/g) || []).length === 2);
     sinErrores(p, 'Términos por cuenta'); await p.cerrar();
   },
+  async descargarApp() { // v438 «Descargar la app» en el menú ☰ y en el pie; la tarjeta de instalar ya no sale sola
+    const p = await abrir();
+    // el navegador ofrece instalar (Chrome): antes salía sola la tarjeta «Instala Mi Pradera»
+    await p.evaluate(() => { const ev = new Event('beforeinstallprompt'); ev.prompt = () => { window.__instalo = (window.__instalo || 0) + 1 }; ev.userChoice = Promise.resolve({ outcome: 'accepted' }); dispatchEvent(ev) });
+    await p.waitForTimeout(5000);
+    check('La tarjeta «Instala Mi Pradera» ya no sale sola al entrar', await p.evaluate(() => !document.querySelector('.qhb[aria-label="Instalar la app"]')));
+    const pie = await p.evaluate(() => { const b = document.querySelector('footer [data-qapp]'); return b ? b.textContent.trim() : '' });
+    check('El pie de la página tiene «Descargar la app»', pie === 'Descargar la app', pie);
+    await p.click('footer [data-qapp]'); await p.waitForTimeout(300);
+    check('Si el navegador permite instalar, «Descargar la app» abre su ventana «Instalar»', await p.evaluate(() => window.__instalo === 1 && !document.querySelector('.qapp')));
+    // sin la ventana del navegador (ya se usó, o iPhone): salen las instrucciones
+    await p.evaluate(() => { const b = document.querySelector('[data-act="hmenu"]'); b.click() }); await p.waitForTimeout(300);
+    const fila = await p.evaluate(() => [...document.querySelectorAll('#ov .mrow')].map(x => x.textContent.trim()));
+    check('El menú principal (☰) tiene «Descargar la app»', fila.includes('Descargar la app'), JSON.stringify(fila));
+    await p.evaluate(() => [...document.querySelectorAll('#ov .mrow')].find(x => /Descargar la app/.test(x.textContent)).click()); await p.waitForTimeout(400);
+    const v = await p.evaluate(() => { const m = document.querySelector('.qapp'); return m ? { t: m.querySelector('h2').textContent, h: [...m.querySelectorAll('h3')].map(h => h.textContent) } : null });
+    check('Sin instalador del navegador, el menú abre «Descargar la app» con los pasos para Android, iPhone y computador', !!v && v.t === 'Descargar la app' && v.h.join() === 'En Android,En iPhone,En computador', JSON.stringify(v));
+    await p.evaluate(() => document.querySelector('.qapp [data-act="close"]').click()); await p.waitForTimeout(300);
+    check('«Entendido» cierra la ventana', await p.evaluate(() => !document.querySelector('.qapp')));
+    sinErrores(p, 'Descargar la app'); await p.cerrar();
+  },
+  async enlaceApp() { // v438 enlace directo mipradera.com.co/app → /?app=1: abre «Descargar la app»
+    let p = await abrir({ ruta: '?app=1' }); await p.waitForTimeout(1500);
+    let v = await p.evaluate(() => ({ abierta: !!document.querySelector('.qapp'), pasos: document.querySelectorAll('.qapp h3').length, url: location.search }));
+    check('Con ?app=1 se abre sola «Descargar la app» (sin instalador del navegador: con los pasos) y la dirección queda limpia', v.abierta && v.pasos === 3 && !/app/.test(v.url), JSON.stringify(v));
+    // el permiso de instalar llega después: la ventana pasa a mostrar «Instalar», y el toque abre el instalador
+    await p.evaluate(() => { const ev = new Event('beforeinstallprompt'); ev.prompt = () => { window.__instalo = (window.__instalo || 0) + 1 }; ev.userChoice = Promise.resolve({ outcome: 'accepted' }); dispatchEvent(ev) }); await p.waitForTimeout(400);
+    check('Cuando el navegador permite instalar, la ventana muestra el botón «Instalar»', await p.evaluate(() => { const b = document.querySelector('[data-qapp-in]'); return !!b && b.textContent === 'Instalar' && !window.__instalo }));
+    await p.click('[data-qapp-in]'); await p.waitForTimeout(300);
+    check('El botón «Instalar» abre el instalador del navegador y cierra la ventana', await p.evaluate(() => window.__instalo === 1 && !document.querySelector('.qapp')));
+    sinErrores(p, 'Enlace de la app'); await p.cerrar();
+    check('La página del enlace corto (app/index.html) lleva a /?app=1', /location\.replace\('\/\?app=1'\)/.test(require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'app', 'index.html'), 'utf8')));
+  },
   async porPasos() { // v417 «Crea tu tienda» y «Tus datos» por pasos, con Continuar, Omitir y Atrás
     const p = await abrir(); await conCuenta(p);
     await p.evaluate(() => { closeModal(1); shopForm() }); await p.waitForTimeout(700);
