@@ -34,7 +34,7 @@ var GUIDES=[
   ['not2','El texto','Cuenta qué pasó, cuándo y dónde. Usa frases cortas.'],
   ['not3','Foto o video','Agrega una imagen de portada o el enlace de un video y publica.']]},
  {id:'ins',ic:'📱',t:'Instalar la app en el celular',d:'Un acceso directo en tu pantalla de inicio',f:'',s:[
-  ['ins1','En Android','Cuando aparezca «Instala Mi Pradera», toca «Instalar». También puedes hacerlo desde el menú de Chrome → «Instalar app».'],
+  ['ins1','En Android','Toca «Descargar la app» en el menú ☰ o al final de la página y luego «Instalar». También puedes hacerlo desde el menú de Chrome → «Instalar app».'],
   ['ins2','En iPhone','Abre la página en Safari, toca el botón Compartir y luego «Agregar a inicio».']]}];
 function helpSite(){try{return (typeof site==='function'?site():(S&&S.site))||{}}catch(e){return {}}}
 function helpOn(){return helpSite().help!==false}
