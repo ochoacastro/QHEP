@@ -10,7 +10,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 370 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#159** (solo el parte), el 17 de noviembre de 2026. Todo hasta la v436 está en `main`. La **v437** ya está en `main` (PR #160). La rama de trabajo tiene además la **v438** (sin PR todavía).
+- **PR abierto:** ninguno. El último PR fusionado es el **#161** (v438), el 19 de noviembre de 2026. Todo hasta la v438 está en `main`.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -64,7 +64,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v435 | **Signo de «Escríbenos» y rayas del carrusel:** el botón del pie cambia de «+» a «−» al abrir y de «−» a «+» al cerrar (antes, al primer toque, el signo se trababa en «+» y salía un error). El carrusel de banners de arriba usa rayas debajo de la imagen (verde la que se ve, grises las otras) en vez de puntos sobre la imagen, como los demás carruseles | #158 |
 | v436 | **Términos y condiciones al entrar por primera vez con Google** (o Apple o Facebook): antes de quedar adentro sale una ventana con dos casillas (Términos de uso; tratamiento de datos y Política de privacidad) y «Aceptar», que solo se activa con las dos marcadas. Antes quedaba registrado sin marcar nada | #158 |
 | v437 | **Términos con Google a quien no los haya aceptado:** la v436 solo preguntaba si Firebase decía que la cuenta era nueva, y a la dueña no le salió al probarla (su cuenta de Google ya había entrado antes). Ahora la fecha en que acepta queda guardada en la cuenta de Firebase y se pregunta a toda cuenta de Google que no la tenga, una vez, en cualquier teléfono | #160 |
-| v438 | **Descargar la app:** la tarjeta «Instala Mi Pradera» ya no sale sola al entrar. La opción «Descargar la app» está en el menú principal (☰) y en el pie de la página, y hay un **enlace directo: mipradera.com.co/app** (página `app/index.html` → `/?app=1`) que abre la ventana con el botón «Instalar» o los pasos para Android, iPhone y computador | — |
+| v438 | **Descargar la app:** la tarjeta «Instala Mi Pradera» ya no sale sola al entrar. La opción «Descargar la app» está en el menú principal (☰) y en el pie de la página, y hay un **enlace directo: mipradera.com.co/app** (página `app/index.html` → `/?app=1`) que abre la ventana con el botón «Instalar» o los pasos para Android, iPhone y computador | #161 |
 
 ---
 
@@ -293,6 +293,9 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - `workers-best-practices` (de `cloudflare/skills`): revisar el worker de Cloudflare.
   - Para instalar otra: `npx skills add <dueño/repositorio> --skill <nombre> --agent claude-code -y`, leerla completa antes de hacer commit, y dejar `skills-lock.json` fuera de GitHub Pages (ya está en `_config.yml`).
   - No instalar `design-mobile-apps`: es un conector al servicio de pago sleek.design, pensado para React Native.
+  - `cartoon-3d-short` (de `mromidev/claude-animated-shorts`, MIT; instalada el 19 de noviembre de 2026 a pedido de la dueña, que la llamó «claude animated short»): videos cortos animados con personajes 2D en un mundo 3D (three.js + Remotion). Se instaló **sin** `references/frames/` ni `references/sheets/` (58 imágenes de videos de otro canal, solo para estudio privado; el repositorio es público). Revisada: sus programas solo usan ffmpeg y Remotion en la máquina, sin conexiones a internet. Remotion y `@remotion/three` no están instalados: se instalan al hacer el primer video.
+  - **Reglas de la dueña para todo video** (escritas también al principio de esa skill): la historia pasa en **3 lugares diferentes**; tiene **personaje(s) y un problema** que Mi Pradera resuelve; **antes del video final se le mandan fotos** de cada escena para que corrija, y el video se hace solo después de que las apruebe; en español, con Lina de narradora (ElevenLabs).
+  - ElevenLabs: el plan gratis se quedó sin créditos el 18 de noviembre de 2026 (cuota de 10.000) y además avisa «actividad inusual». Para más videos con voz hace falta un plan de pago o esperar la renovación.
 - **Servidores MCP** (17 de noviembre de 2026):
   - **Figma:** es un conector de claude.ai, no vive en el repositorio. Ya está conectado a la cuenta de Figma de la dueña;
   - **Playwright:** está en `.mcp.json`, en la raíz del repositorio, y se carga en las sesiones nuevas. Usa la versión fija `@playwright/mcp@0.0.85`, sin ventana, con el Chromium que ya trae la máquina de la nube (`/opt/pw-browsers/chromium`): no instalar otro navegador. Probado: arranca, ofrece 25 herramientas y abre páginas. Si una sesión nueva pide permiso para usarlo, hay que aceptarlo una vez. Las pruebas de la página (`tests/pagina/pruebas.cjs`) no lo usan: siguen con Playwright directo.
