@@ -20,7 +20,9 @@ var K={
 };
 function mode(){try{return MODE}catch(e){return ''}}
 function ukey(){try{return QH.key()||''}catch(e){return ''}}
-function all(){var o={};try{o=JSON.parse(localStorage.getItem(LS)||'{}')||{}}catch(e){}var n=Date.now(),ch=0;for(var k in o){if(!o[k]||n-(o[k].ts||0)>DIAS){delete o[k];ch=1}}if(ch)put(o);return o}
+/* v443: con la sesión abierta, el borrador de «Registrarme» ya no sirve (pasaba al llenar el registro por error y entrar por «Iniciar sesión»): se borra */
+function logged(){try{return !!(S&&S.user)}catch(e){return false}}
+function all(){var o={};try{o=JSON.parse(localStorage.getItem(LS)||'{}')||{}}catch(e){}var n=Date.now(),ch=0,lg=logged();for(var k in o){if(!o[k]||n-(o[k].ts||0)>DIAS||(lg&&o[k].a==='doReg')){delete o[k];ch=1}}if(ch)put(o);return o}
 function put(o){try{localStorage.setItem(LS,JSON.stringify(o))}catch(e){}}
 function mine(d){return d&&(!d.u||d.u===ukey())}
 function M(){return document.querySelector('#ov .modal')}

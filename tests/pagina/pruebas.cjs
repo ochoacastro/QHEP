@@ -1087,6 +1087,17 @@ const PRUEBAS = {
     check('La barra «¿Deseas publicar un anuncio?» abre la misma ventana', await p.evaluate(() => /¿Qué quieres publicar\?/.test((document.querySelector('#ov h2') || {}).textContent || '')));
     sinErrores(p, 'Muro'); await p.cerrar();
   },
+  async registroYaEntro() { // v443 si se llenó «Registrarme» por error y se entró por «Iniciar sesión», no queda el aviso «Tienes tu registro sin terminar»
+    const p = await abrir();
+    await p.evaluate(() => { closeModal(1); document.body.insertAdjacentHTML('beforeend', '<i class="qtour" hidden></i>'); regForm() }); await p.waitForTimeout(400);
+    const campo = await p.evaluate(() => { const i = [...document.querySelectorAll('#ov input[type="text"],#ov input[type="email"],#ov input:not([type])')].find(x => x.offsetParent); return i ? i.id : '' });
+    await p.fill('#' + campo, 'Ana Pérez'); await p.waitForTimeout(700);
+    await p.evaluate(() => closeModal(1)); await p.waitForTimeout(600);
+    check('Sin sesión, el aviso del registro sin terminar sí sale', await p.evaluate(() => /registro sin terminar/.test((document.getElementById('brbar') || {}).textContent || '')), campo);
+    await conCuenta(p); await p.evaluate(() => { try { render(true) } catch (e) {} }); await p.waitForTimeout(800);
+    check('Al entrar con la cuenta, el aviso desaparece y el borrador se borra', await p.evaluate(() => !document.getElementById('brbar') && !/doReg/.test(localStorage.getItem('qh_borr') || '')));
+    sinErrores(p, 'Registro y ya entró'); await p.cerrar();
+  },
 };
 
 (async () => {
