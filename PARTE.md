@@ -1,6 +1,6 @@
 # Parte de trabajo — Mi Pradera
 
-Actualizado: 17 de noviembre de 2026 · Rama de trabajo: `claude/page-review-improve-hshx7j`
+Actualizado: 20 de noviembre de 2026 · Rama de trabajo: `claude/page-review-improve-hshx7j`
 
 Este archivo resume en qué va la página, lo que falta y cómo seguir trabajando. Sirve para retomar el trabajo en otra sesión sin perder el hilo.
 
@@ -10,7 +10,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 370 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#159** (solo el parte), el 17 de noviembre de 2026. Todo hasta la v436 está en `main`. La **v437** ya está en `main` (PR #160). La rama de trabajo tiene además la **v438** (sin PR todavía).
+- **PR abierto:** ninguno. El último PR fusionado es el **#161** (v438), el 19 de noviembre de 2026. Todo hasta la v438 está en `main`.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -64,13 +64,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v435 | **Signo de «Escríbenos» y rayas del carrusel:** el botón del pie cambia de «+» a «−» al abrir y de «−» a «+» al cerrar (antes, al primer toque, el signo se trababa en «+» y salía un error). El carrusel de banners de arriba usa rayas debajo de la imagen (verde la que se ve, grises las otras) en vez de puntos sobre la imagen, como los demás carruseles | #158 |
 | v436 | **Términos y condiciones al entrar por primera vez con Google** (o Apple o Facebook): antes de quedar adentro sale una ventana con dos casillas (Términos de uso; tratamiento de datos y Política de privacidad) y «Aceptar», que solo se activa con las dos marcadas. Antes quedaba registrado sin marcar nada | #158 |
 | v437 | **Términos con Google a quien no los haya aceptado:** la v436 solo preguntaba si Firebase decía que la cuenta era nueva, y a la dueña no le salió al probarla (su cuenta de Google ya había entrado antes). Ahora la fecha en que acepta queda guardada en la cuenta de Firebase y se pregunta a toda cuenta de Google que no la tenga, una vez, en cualquier teléfono | #160 |
-| v438 | **Descargar la app:** la tarjeta «Instala Mi Pradera» ya no sale sola al entrar. La opción «Descargar la app» está en el menú principal (☰) y en el pie de la página, y hay un **enlace directo: mipradera.com.co/app** (página `app/index.html` → `/?app=1`) que abre la ventana con el botón «Instalar» o los pasos para Android, iPhone y computador | — |
+| v438 | **Descargar la app:** la tarjeta «Instala Mi Pradera» ya no sale sola al entrar. La opción «Descargar la app» está en el menú principal (☰) y en el pie de la página, y hay un **enlace directo: mipradera.com.co/app** (página `app/index.html` → `/?app=1`) que abre la ventana con el botón «Instalar» o los pasos para Android, iPhone y computador | #161 |
 
 ---
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
-0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (todo hasta el PR #159 ya está fusionado):
+0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (todo hasta el PR #161 ya está fusionado):
    - hacer un pedido sin cuenta y ver que WhatsApp se abre con el mensaje (v416);
    - hacer un pedido con cuenta: debe salir «Tus datos para el pedido» con el nombre y el teléfono puestos, sin mapa (v424);
    - sin cuenta, tocar «Publicar» en la barra de abajo: debe salir «Registrarme» con el aviso, no el formulario (v425, v429);
@@ -85,7 +85,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - con avisos sin leer, el cuadro rojo debe quedar sobre la campana (v433);
    - tocar «Escríbenos» en el menú: debe bajar al formulario del pie, ya abierto (v434);
    - entrar con Google (con una cuenta que ya haya entrado antes también sirve): debe salir «Términos y condiciones» y entrar solo después de marcar las dos casillas; al volver a entrar, ya no debe salir (v436, v437);
-   - el botón «Escríbenos» del pie: «+» cerrado y «−» abierto; el carrusel de banners de arriba con rayas debajo de la imagen (v435).
+   - el botón «Escríbenos» del pie: «+» cerrado y «−» abierto; el carrusel de banners de arriba con rayas debajo de la imagen (v435);
+   - al entrar ya no debe salir sola la tarjeta «Instala Mi Pradera»; «Descargar la app» en el menú ☰ y en el pie; abrir `mipradera.com.co/app` desde WhatsApp: en Android con Chrome sale el botón «Instalar», en iPhone los pasos (v438).
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 3. **Pendientes de antes:**
@@ -93,9 +94,11 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - agregar el secreto `FB_SA` en GitHub;
    - el ID de cliente de Google One Tap;
    - configurar WhatsApp Business.
-4. **Revisar su cuenta de ElevenLabs:** al hacer los videos de publicidad (16 de noviembre de 2026), ElevenLabs respondió varias veces «se detectó actividad inusual en su cuenta y se desactivó el acceso gratuito». Algunas voces salieron y otras no. Si se van a hacer más videos con voz, hay que revisar la cuenta o pasar a un plan de pago.
-5. **Decidir sobre Taste Skill y cuatro skills que no aplican** (sección 6): siguen instaladas mientras la dueña no diga otra cosa.
-6. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
+4. **ElevenLabs:** la cuenta está en el plan gratis (10.000 créditos al mes) y el 18 de noviembre de 2026 se quedó casi sin créditos (quedan 455; se renuevan el 8 de diciembre de 2026). Además responde a veces «se detectó actividad inusual… se desactivó el acceso gratuito». Mientras tanto, la dueña genera o graba las voces por su cuenta y las manda por el chat (así se hizo el video de inmuebles). Para seguir con voces de ElevenLabs desde aquí hace falta un plan de pago.
+5. **Permiso de Heladería Artesanal Gelatier** para usar su nombre, logo, fotos y producto en el video de la ensalada de frutas (sección 5, «Videos»), antes de publicarlo. Y avisarle que tiene un producto con precio de $1 («Helados Artesanales y Mucho Mas»), que parece un error.
+6. **Cierre de sesión con el panel de administrador:** mientras no se arregle (sección 5), usar el panel en otro navegador o en una pestaña de incógnito, no en el mismo donde se usa la cuenta de vecina.
+7. **Decidir sobre Taste Skill y cuatro skills que no aplican** (sección 6): siguen instaladas mientras la dueña no diga otra cosa.
+8. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
 
 Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien. El 15 de noviembre de 2026 probó en su teléfono el letrero de «Abierto» fuera del horario (v421) y creó una tienda recorriendo los 6 pasos (v417, v420); las dos cosas funcionaron.
 
@@ -263,6 +266,19 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 - **Pasar a Cloudflare Pages** para poder tener el repositorio privado sin pagar (ver la sección 7).
 - **Sección de citas («tipo Tinder»)** (16 de noviembre de 2026): se desaconsejó por el riesgo con menores de edad, el acoso, el trabajo de moderación, los datos sensibles (Ley 1581) y la marca. Se ofrecieron tres alternativas sin hacer: una agenda de eventos del pueblo, grupos por interés con enlace a WhatsApp, y una categoría «Busco compañía para…» en Clasificados.
 
+**Cierre de sesión «Tu sesión se cerró» (18-19 de noviembre de 2026), sin arreglar:**
+- Causa confirmada: la página de vecinos, «Mi cuenta» y el panel de administrador (`?admin=`) comparten una sola sesión de Firebase en el navegador. Al entrar al panel, la sesión del vecino se reemplaza; cuando el panel la cierra (30 minutos sin uso, v222, o «Salir»), la página normal queda como visitante y sale el mensaje de la v318 (`01-cats.js:198`). Le pasa a la dueña porque usa el panel en el mismo navegador.
+- Se escribió y probó un arreglo (`v438-sesion-admin-aparte.js`: en el panel, `firebase.auth()` y `firebase.firestore()` apuntan a una conexión aparte llamada «adm»). Se probó con Firebase 10.12.2 real y el emulador de Authentication: sin el arreglo la vecina quedaba como visitante; con el arreglo seguía con su sesión. **La dueña pidió descartarlo**; no está en el repositorio. Ojo: el número v438 quedó usado después por «Descargar la app».
+- Para la prueba con el emulador: la CSP de `index.html` solo permite conectarse a dominios de Google (hay que agregar `http://127.0.0.1:9099` al HTML servido en la prueba) y Chromium debe lanzarse con `--no-proxy-server`.
+
+**Videos y documentos (18-20 de noviembre de 2026):**
+- Todos los videos se entregaron por el chat. Sus proyectos quedaron en la carpeta temporal de la sesión (se borra al cerrarse la sesión); no están en el repositorio.
+- «La lavadora de doña Marta» (clasificados, 55 s): voces de Lina y «Cronos Paint» (ElevenLabs), placas con texto en vez de ilustraciones (ElevenLabs no dejó generarlas). Hay una versión sin música (`_v2`).
+- «Las hamburguesas de don Fabio» (tienda virtual, 62 s): sin música.
+- «El apartamento de doña Gloria» (inmuebles y arriendos, 52 s): hecho con la skill `cartoon-3d-short` (personajes 2D en un pueblo 3D). Tres lugares: la calle de Gloria, el paradero de buses (se construyó en 3D) y el parque. Voces que mandó la dueña (Lina - Sunny, Kind and Friendly; Fernanda) y Camilo con «Charlie». Fotos aprobadas antes del video.
+- **En curso: «¿Dónde venden ensalada de frutas en Pradera?»** con una tienda real de la página (Heladería Artesanal Gelatier, Carrera 10 #10-657, Centro, de 3:00 a 10:00 p. m., solo recoger en la tienda). Personajes animados (Marcela y Sofi) sobre fotos reales de Pradera que mandó la dueña (la plaza con la iglesia, la acera y la fachada) y una sala dibujada; pantallas reales de la tienda; gancho en el primer segundo con la foto real de la ensalada; cierre para negocios («¿Tienes un negocio? … ¿Qué esperas?» y «Registrar tu negocio es gratis»). Las 11 fotos (versión 3) están **aprobadas**. Falta: las voces (la dueña las graba: Lina - Sunny para la narradora, Fernanda para Marcela, HELLEN - Natural, Suave, Juvenil o una niña real para Sofi; los textos están en el chat del 20 de noviembre), el permiso de Gelatier y armar el video.
+- Documentos: propuestas de alianza para **Mercapava** ([documento](https://claude.ai/artifact/PCpqHosMJzcVReLXAUhEmC)) y **Suzuki Motos** ([documento](https://claude.ai/artifact/X7Rggnpcx8x3VedSx7Gk1F)), con PDF en tamaño carta entregados por el chat. En la firma faltan el nombre, el cargo y el WhatsApp de la dueña; confirmar el nombre exacto del concesionario Suzuki.
+
 **Hecho fuera del repositorio (16 de noviembre de 2026):** tres videos de publicidad para TikTok (verticales, de unos 20 segundos): uno con la página real en un teléfono y la voz «Lina»; uno animado para compradores (con voz de «Lina», con voz de «Brayan Jackson» y sin voz); y uno animado para comerciantes con la voz de «Lina» y música de fondo. Las voces y la música se hicieron con ElevenLabs (unos 2.500 créditos en total). Los videos se entregaron a la dueña en el chat; no están en el repositorio. Los negocios y productos que aparecen en ellos son de ejemplo.
 
 ---
@@ -293,6 +309,9 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - `workers-best-practices` (de `cloudflare/skills`): revisar el worker de Cloudflare.
   - Para instalar otra: `npx skills add <dueño/repositorio> --skill <nombre> --agent claude-code -y`, leerla completa antes de hacer commit, y dejar `skills-lock.json` fuera de GitHub Pages (ya está en `_config.yml`).
   - No instalar `design-mobile-apps`: es un conector al servicio de pago sleek.design, pensado para React Native.
+  - `cartoon-3d-short` (de `mromidev/claude-animated-shorts`, MIT; instalada el 19 de noviembre de 2026 a pedido de la dueña, que la llamó «claude animated short»): videos cortos animados con personajes 2D en un mundo 3D (three.js + Remotion). Se instaló **sin** `references/frames/` ni `references/sheets/` (58 imágenes de videos de otro canal, solo para estudio privado; el repositorio es público). Revisada: sus programas solo usan ffmpeg y Remotion en la máquina, sin conexiones a internet. Remotion y `@remotion/three` no están instalados: se instalan al hacer el primer video.
+  - **Reglas de la dueña para todo video** (escritas también al principio de esa skill): la historia pasa en **al menos 3 lugares diferentes** (más si la historia lo necesita); tiene **personaje(s) y un problema** que Mi Pradera resuelve; **antes del video final se le mandan fotos** de cada escena para que corrija, y el video se hace solo después de que las apruebe; en español, con Lina de narradora (ElevenLabs).
+  - ElevenLabs: el plan gratis se quedó sin créditos el 18 de noviembre de 2026 (cuota de 10.000) y además avisa «actividad inusual». Para más videos con voz hace falta un plan de pago o esperar la renovación.
 - **Servidores MCP** (17 de noviembre de 2026):
   - **Figma:** es un conector de claude.ai, no vive en el repositorio. Ya está conectado a la cuenta de Figma de la dueña;
   - **Playwright:** está en `.mcp.json`, en la raíz del repositorio, y se carga en las sesiones nuevas. Usa la versión fija `@playwright/mcp@0.0.85`, sin ventana, con el Chromium que ya trae la máquina de la nube (`/opt/pw-browsers/chromium`): no instalar otro navegador. Probado: arranca, ofrece 25 herramientas y abre páginas. Si una sesión nueva pide permiso para usarlo, hay que aceptarlo una vez. Las pruebas de la página (`tests/pagina/pruebas.cjs`) no lo usan: siguen con Playwright directo.
@@ -301,6 +320,13 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
     - `impeccable` (de `pbakaus/impeccable`, 2,4 MB): diseño y revisión de interfaz con comandos (`critique`, `audit`, `polish`, `animate`, `layout`…). Su script `scripts/impeccable` descarga la primera vez un programa desde las versiones publicadas en GitHub y lo verifica con sumas de control. Tiene un «gancho» opcional que revisa cada archivo editado; solo se enciende si se pide (`impeccable hooks on`). Pide archivos PRODUCT.md y DESIGN.md en la raíz si se usa a fondo: no se han creado;
     - `design-taste-frontend` (de `Leonxlnx/taste-skill`, unos 40 MB y 1.631 archivos, casi todo imágenes y ejemplos): hecha para construir sitios de empresa desde cero, con fotos de muestra y su propio sistema de diseño. Mientras se usa, al final de cada respuesta corre una comprobación con Node (`scripts/gate.mjs`); si no hay un trabajo suyo armado (`.taste-skill/build.json`), termina al instante. Varias de sus reglas chocan con esta página (pide contactos en `.example`, sin teléfonos reales, fotos en cada sección, bordes redondeados): mandan las preferencias de la dueña. Sus scripts abren Chrome sin ventana y descargan fotos de Wikimedia y tipografías;
     - revisadas antes de guardarlas: no encontré órdenes ocultas ni envío de datos a terceros; varias advierten justamente contra textos que intenten dar órdenes. GitHub Pages no las publica (las carpetas que empiezan con punto no se publican).
+- **Cómo se hacen los videos** (sesiones del 19 y 20 de noviembre de 2026):
+  - Reglas de la dueña al principio de `.claude/skills/cartoon-3d-short/SKILL.md`: al menos 3 lugares (más si la historia lo necesita), personaje(s) y un problema, fotos para aprobar antes del video final, español, captar la atención desde el primer segundo.
+  - Proyecto de Remotion fuera del repositorio: `remotion@4`, `@remotion/three@4`, `three@0.169`, `@react-three/fiber@8`, `@react-three/postprocessing@2`, `postprocessing@6`, React 18; copiar `templates/bridge/` a `src/videos/<nombre>/`. En esta máquina: Chromium de Playwright con `gl: "swangle"` y **una sola pestaña** (con 3 pestañas falla); unos 4,3 s por cuadro a 1080×1920; renderizar por tomas para no perder trabajo si algo falla.
+  - Arreglos a la plantilla: `Bridge.tsx` llamaba `fx.ink.dispose()`, que con `postprocessing` 6.x no existe y tumbaba el render en los cambios de toma; el culler de líneas de mira quita las casas si el punto al que mira la cámara queda detrás de un personaje pegado a una fachada (mirar a un punto delante de él).
+  - Para personajes sobre fotos reales: `toon.ts` se empaqueta con esbuild y se dibuja en un canvas transparente (Playwright) para sacar PNG de cada pose; luego se arma cada escena en HTML y se anima con ffmpeg.
+  - Pantallas reales de una tienda: los datos públicos se leen de Firestore por REST (`firestore.googleapis.com`, lectura pública de `stores` y `products`), se cargan en el Firebase falso de las pruebas y se captura la página del repositorio con la hora y la zona horaria que convengan (por ejemplo, 4:30 p. m. en `America/Bogota` para que salga «Abierto»). Las imágenes de la tienda están en `pub-419ea53b95de40199910716cc66fd035.r2.dev` (se agregó al entorno de red el 20 de noviembre de 2026), pero el sistema de permisos de la sesión bloquea descargarlas: la dueña las manda por el chat.
+  - Sin modelos de reconocimiento de voz en esta red (Hugging Face y otros bloqueados): las frases de un audio se ubican por sus pausas (`ffmpeg silencedetect`) y su duración.
 - **Preferencias de la dueña:**
   - respuestas en español, con las líneas cambiadas y capturas;
   - diseño cuadrado y modo oscuro;
