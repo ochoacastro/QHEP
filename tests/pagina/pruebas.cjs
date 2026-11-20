@@ -1049,6 +1049,44 @@ const PRUEBAS = {
     check('«Terminar» vuelve al panel y quita la tienda de «mías»', await p.evaluate(() => view === 'admin' && !S.mine.includes('s1') && !document.getElementById('aed')));
     sinErrores(p, 'Admin edita tienda'); await p.cerrar();
   },
+  async muro() { // v442 «Muro» estilo Facebook: pestañas de categorías que se cambian deslizando, ventana «¿Qué quieres publicar?» y filtros en ventana
+    const now = Date.now(), H = 36e5;
+    const seed = { 'community/c1': { id: 'c1', ownerKey: 'kB', owner: 'Ana Pérez', pl: 'free', op: 'vendo', title: 'Vendo nevera', text: 'Poco uso', price: 450000, img: '', cat: 'var', ts: now - 2 * H, exp: now + 20 * H },
+      'community/c2': { id: 'c2', ownerKey: 'kC', owner: 'Luis', pl: 'free', op: 'regalo', title: 'Regalo gatitos', text: '', img: '', cat: 'com', ts: now - 5 * H, exp: now + 18 * H },
+      'stores/s1': { id: 's1', name: 'Canela Gastrobar', cat: 'Restaurantes', ownerKey: 'kD', wa: '3001234567', desc: 'Menú del día', ts: now - H, _o: 1, products: [] },
+      'stores/s2': { id: 's2', name: 'Tienda Tomaticos', cat: 'Otros', ownerKey: 'kE', wa: '3001234568', desc: 'Frutas', ts: now - 3 * H, _o: 2, products: [] } };
+    const p = await abrir({ seed });
+    const sel = () => p.evaluate(() => (document.querySelector('.mutabs [aria-selected="true"]') || {}).textContent || '');
+    await p.evaluate(() => { closeModal(1); document.querySelector('#bnav [data-v="com"]').click() }); await p.waitForTimeout(500);
+    check('El botón de abajo se llama «Muro» y abre en «Todo»', await p.evaluate(() => document.querySelector('#bnav [data-v="com"]').innerText.trim() === 'Muro') && await sel() === 'Todo');
+    const app = await p.evaluate(() => document.getElementById('app').innerText);
+    check('«Todo» junta clasificados y tiendas en tarjetas, lo más nuevo arriba', /Canela Gastrobar[\s\S]*Vendo nevera[\s\S]*Tienda Tomaticos[\s\S]*Regalo gatitos/.test(app), app.slice(0, 300));
+    check('Ya no están el título con «Gratis: 1 anuncio…», Obituario, Empleo ni los tipos (Vendo, Arriendo…)', await p.evaluate(() => !document.querySelector('#app .shead, #app .cmops, #app [data-obi], #app [data-empb], #app .cmct')));
+    check('«¿Deseas publicar un anuncio?» va arriba, antes del buscador', await p.evaluate(() => { const a = document.querySelector('.mucomp'), b = document.querySelector('.mu #cq'); return !!a && !!b && (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) > 0 }));
+    const sw = dx => p.evaluate(dx => { const el = document.querySelector('#mufeed'), y = Math.min(el.getBoundingClientRect().top + 150, 700); const T = (k, X) => { const t = new Touch({ identifier: 1, target: el, clientX: X, clientY: y }); el.dispatchEvent(new TouchEvent(k, { touches: k === 'touchend' ? [] : [t], changedTouches: [t], bubbles: true })) }; T('touchstart', 220); T('touchend', 220 + dx) }, dx);
+    await sw(-150); await p.waitForTimeout(400);
+    check('Deslizar a la izquierda pasa a «Clasificados»', await sel() === 'Clasificados');
+    check('En «Clasificados» solo salen los clasificados', await p.evaluate(() => document.querySelectorAll('#mufeed article.cmc[data-cid]').length === 2 && !/Canela/.test(document.getElementById('mufeed').innerText)));
+    await sw(-150); await p.waitForTimeout(300); await sw(-150); await p.waitForTimeout(400);
+    check('Dos veces más: «Comidas», con solo el restaurante', await sel() === 'Comidas' && await p.evaluate(() => { const t = document.getElementById('mufeed').innerText; return /Canela Gastrobar/.test(t) && !/Tomaticos/.test(t) }));
+    await sw(150); await p.waitForTimeout(400);
+    check('Deslizar a la derecha vuelve a «Tiendas»', await sel() === 'Tiendas');
+    await sw(20); await p.waitForTimeout(300);
+    check('Un movimiento corto no cambia de pestaña', await sel() === 'Tiendas');
+    await p.evaluate(() => document.querySelector('[data-mutab="cm"]').click()); await p.waitForTimeout(300);
+    await p.evaluate(() => document.querySelector('[data-mu="flt"]').click()); await p.waitForTimeout(300);
+    await p.evaluate(() => { const s = document.getElementById('muf-op'); s.value = 'regalo'; document.querySelector('[data-mu="fok"]').click() }); await p.waitForTimeout(400);
+    check('«Filtros» abre una ventana y filtra por tipo', await p.evaluate(() => { const l = [...document.querySelectorAll('#mufeed article.cmc[data-cid]')].map(x => x.dataset.cid); return l.join() === 'c2' && /Filtros \(1\)/.test(document.querySelector('[data-mu="flt"]').textContent) }));
+    await p.evaluate(() => document.querySelector('[data-mu="clr"]').click()); await p.waitForTimeout(300);
+    check('«Limpiar» quita los filtros', await p.evaluate(() => document.querySelectorAll('#mufeed article.cmc[data-cid]').length === 2));
+    await p.evaluate(() => document.querySelector('#bnav [data-v="pub"]').click()); await p.waitForTimeout(400);
+    const op = await p.evaluate(() => [...document.querySelectorAll('#ov .muop b')].map(b => b.textContent).join(','));
+    check('«+ Publicar» abre «¿Qué quieres publicar?» con todas las opciones y «Otro tipo de anuncio»', op === 'Anuncio clasificado,Mi negocio o tienda,Inmueble,Vehículo,Servicio,Empleo,Obituario,Otro tipo de anuncio,Planes y precios', op);
+    await p.evaluate(() => closeModal(1)); await p.waitForTimeout(250);
+    await p.evaluate(() => document.querySelector('.mucomp').click()); await p.waitForTimeout(400);
+    check('La barra «¿Deseas publicar un anuncio?» abre la misma ventana', await p.evaluate(() => /¿Qué quieres publicar\?/.test((document.querySelector('#ov h2') || {}).textContent || '')));
+    sinErrores(p, 'Muro'); await p.cerrar();
+  },
 };
 
 (async () => {
