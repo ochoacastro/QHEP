@@ -1098,6 +1098,18 @@ const PRUEBAS = {
     check('Al entrar con la cuenta, el aviso desaparece y el borrador se borra', await p.evaluate(() => !document.getElementById('brbar') && !/doReg/.test(localStorage.getItem('qh_borr') || '')));
     sinErrores(p, 'Registro y ya entró'); await p.cerrar();
   },
+  async productosAmazon() { // v444 tiendas con categorías: productos en filas como Amazon en celular (antes, tarjetas de dos columnas)
+    const pr = (id, x) => Object.assign({ id, sid: 's1', imgs: [], ownerKey: 'kD', _o: 1 }, x);
+    const seed = { 'stores/s1': { id: 's1', name: 'Heladería', cat: 'Otros', ownerKey: 'kD', wa: '3001234567', verified: true, pexp: Date.now() + 30 * 864e5, mc: [{ n: 'Helados', subs: [] }], _o: 1, products: [] },
+      'products/s1__p1': pr('p1', { name: 'Helado', d: 'Dos bolas', price: 5000, c1: 'Helados', _o: 1 }), 'products/s1__p2': pr('p2', { name: 'Ensalada de frutas', price: 20000, old: 24000, c1: 'Helados', _o: 2 }), 'products/s1__p3': pr('p3', { name: 'Malteada', price: 12000, _o: 3 }) };
+    const p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(500);
+    const r = await p.evaluate(() => [...document.querySelectorAll('#app .psec .prod')].map(c => { const a = c.getBoundingClientRect(), f = c.querySelector('.pic').getBoundingClientRect(), h = c.querySelector('h3').getBoundingClientRect(), b = c.querySelector('.plus').getBoundingClientRect(); return { w: a.width, fotoIzq: f.right <= h.left, boton: b.left >= f.right && getComputedStyle(c.querySelector('.plus'), '::before').content.includes('Agregar al carrito') } }));
+    check('En una tienda con categorías cada producto ocupa una fila entera', r.length >= 3 && r.every(x => x.w > 330), JSON.stringify(r));
+    check('Foto a la izquierda; nombre y «Agregar al carrito» a la derecha', r.every(x => x.fotoIzq && x.boton), JSON.stringify(r));
+    check('Las filas no se desbordan a los lados', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    sinErrores(p, 'Productos como Amazon'); await p.cerrar();
+  },
 };
 
 (async () => {

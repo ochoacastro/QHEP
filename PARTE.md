@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 410 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR:** el último fusionado es el **#164** (v442, Muro), el 20 de noviembre de 2026. Todo hasta la v442 está en `main`. La v443 está en la rama de trabajo.
+- **Pruebas:** 414 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR:** el último fusionado es el **#164** (v442, Muro), el 20 de noviembre de 2026. Todo hasta la v442 está en `main`. Las v443 y v444 están en la rama de trabajo.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v443)
+## 2. Lo que se hizo en esta etapa (v392 a v444)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -70,6 +70,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v441 | **El administrador edita la tienda completa:** en Usuarios, la tarjeta de cada persona tiene «Editar tienda y productos», que abre la tienda como la ve su dueño (editar tienda, productos, categorías, «Conoce el lugar»). Una barra abajo dice qué tienda se edita y tiene «Terminar». La tienda y los productos siguen siendo del dueño | #163 |
 | v442 | **Muro estilo Facebook:** el botón «Clasificados» de abajo se llama «Muro». Arriba, «¿Deseas publicar un anuncio?» y el buscador; luego pestañas Todo, Clasificados, Tiendas, Comidas, Peluquerías, Servicios, Vehículos, Inmuebles y Noticias, que se cambian **deslizando el dedo** hacia los lados; las publicaciones van en tarjetas una debajo de otra. «+ Publicar» y la barra de arriba abren **«¿Qué quieres publicar?»** (anuncio, negocio, inmueble, vehículo, servicio, empleo, obituario, otro tipo de anuncio y planes). En Clasificados, «Filtros» abre una ventana | #164 |
 | v443 | **Registro sin terminar después de entrar:** si alguien llenaba «Registrarme» por error y entraba por «Iniciar sesión», abajo le seguía saliendo «Tienes tu registro sin terminar · Continuar». Ahora, con la sesión abierta, ese borrador se borra solo (v399) | — |
+| v444 | **Productos como Amazon en todas las tiendas (celular):** las tiendas con categorías («Para ti», cada categoría, «Otros productos») seguían en tarjetas de dos columnas porque la v431 dejó afuera sus filas deslizables (`.pgrid.hrow`). Ahora todas muestran un producto por fila: foto a la izquierda (con «Verificado» arriba y el corazón abajo); nombre, descripción, precio grande (el precio anterior tachado al lado) y «Agregar al carrito» a la derecha. Solo CSS (`v444-productos-amazon.css`) | — |
 
 ---
 
