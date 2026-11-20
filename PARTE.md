@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 393 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR:** el último fusionado es el **#162** (solo `PARTE.md` y la skill de videos), el 20 de noviembre de 2026. Todo hasta la v438 está en `main`. Las v439 a v441 están en la rama de trabajo, sin PR todavía.
+- **Pruebas:** 407 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR:** el último fusionado es el **#163** (v439 a v441), el 20 de noviembre de 2026. Todo hasta la v441 está en `main`. La v442 (Muro) está en la rama de trabajo.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v441)
+## 2. Lo que se hizo en esta etapa (v392 a v442)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -67,7 +67,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v438 | **Descargar la app:** la tarjeta «Instala Mi Pradera» ya no sale sola al entrar. La opción «Descargar la app» está en el menú principal (☰) y en el pie de la página, y hay un **enlace directo: mipradera.com.co/app** (página `app/index.html` → `/?app=1`) que abre la ventana con el botón «Instalar» o los pasos para Android, iPhone y computador | #161 |
 | v439 | **Productos sin precio:** el precio de un producto pasa a ser opcional. Sin precio, el producto dice «Consultar precio» en la tienda, la ficha, la búsqueda y el carrito; el total del carrito y el mensaje de WhatsApp dicen «+ precios por consultar» (o «Por consultar» si ninguno tiene precio). Sin precio no sale descuento | — |
 | v440 | **Tiendas vencidas: 3 meses guardadas.** Al vencer el plan (más 3 días de gracia) los productos, las fotos extra y el video se ocultan como antes, y se guardan 3 meses desde que venció; el dueño ve hasta qué fecha. Después, en el panel, **Usuarios → «Tiendas por limpiar»** borra lo pagado con un botón (pregunta antes). La tienda sigue como registro básico gratis. También en los Términos de uso | — |
-| v441 | **El administrador edita la tienda completa:** en Usuarios, la tarjeta de cada persona tiene «Editar tienda y productos», que abre la tienda como la ve su dueño (editar tienda, productos, categorías, «Conoce el lugar»). Una barra abajo dice qué tienda se edita y tiene «Terminar». La tienda y los productos siguen siendo del dueño | — |
+| v441 | **El administrador edita la tienda completa:** en Usuarios, la tarjeta de cada persona tiene «Editar tienda y productos», que abre la tienda como la ve su dueño (editar tienda, productos, categorías, «Conoce el lugar»). Una barra abajo dice qué tienda se edita y tiene «Terminar». La tienda y los productos siguen siendo del dueño | #163 |
+| v442 | **Muro estilo Facebook:** el botón «Clasificados» de abajo se llama «Muro». Arriba, «¿Deseas publicar un anuncio?» y el buscador; luego pestañas Todo, Clasificados, Tiendas, Comidas, Peluquerías, Servicios, Vehículos, Inmuebles y Noticias, que se cambian **deslizando el dedo** hacia los lados; las publicaciones van en tarjetas una debajo de otra. «+ Publicar» y la barra de arriba abren **«¿Qué quieres publicar?»** (anuncio, negocio, inmueble, vehículo, servicio, empleo, obituario, otro tipo de anuncio y planes). En Clasificados, «Filtros» abre una ventana | — |
 
 ---
 
@@ -92,7 +93,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - al entrar ya no debe salir sola la tarjeta «Instala Mi Pradera»; «Descargar la app» en el menú ☰ y en el pie; abrir `mipradera.com.co/app` desde WhatsApp: en Android con Chrome sale el botón «Instalar», en iPhone los pasos (v438);
    - agregar un producto sin precio, verlo en la tienda («Consultar precio») y pedirlo por WhatsApp junto con otro que sí tenga precio (v439);
    - en el panel, Usuarios: abrir la tarjeta de una persona, tocar «Editar tienda y productos», cambiar algo, tocar «Terminar» y revisar desde la cuenta del dueño que el cambio está y que él puede seguir editando (v441);
-   - revisar «Tiendas por limpiar» en Usuarios antes de borrar la primera vez: que las tiendas de la lista de verdad no hayan renovado (v440).
+   - revisar «Tiendas por limpiar» en Usuarios antes de borrar la primera vez: que las tiendas de la lista de verdad no hayan renovado (v440);
+   - tocar «Muro» abajo y deslizar el dedo a los lados entre las pestañas; bajar por las tarjetas; tocar «+ Publicar» y probar cada opción (v442).
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 3. **Pendientes de antes:**
@@ -139,6 +141,16 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 - Nota: si alguien sin cuenta toca «Publicar», se registra con correo y vuelve desde el enlace del correo en otra pestaña, no se le abre solo el formulario (la página se cargó de nuevo); tiene que tocar «Publicar» otra vez.
 
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
+- **Muro (v442):**
+  - lo pidió la dueña con una captura de Facebook: las «categorías principales» son las del inicio (Clasificados, Tiendas, Comidas…), más «Todo» y «Noticias»;
+  - la vista anterior de Clasificados no se borró: queda como `comView0`. Quitar `v442-muro.js` de `src/orden.json` la devuelve, con el «+ Publicar» directo al clasificado (v407);
+  - el archivo espera a que cargue el programa principal (va al final de la página) para cambiar `comView` por el muro;
+  - «Muro» abre en «Todo»; «Clasificados» desde el inicio, el menú o el carrusel abre la pestaña Clasificados;
+  - las tarjetas de clasificados son las de siempre (`comCard`, con WhatsApp, Compartir, Editar…); las de tiendas, servicios, inmuebles, vehículos y noticias son nuevas, con un botón «Ver tienda», «Ver menú», «Ver anuncio», etc.;
+  - se muestran 30 publicaciones y «Ver más publicaciones» agrega otras 30;
+  - para cambiar de pestaña el dedo debe moverse al menos 70 px de lado y más de lado que hacia abajo; sobre la foto de un clasificado con varias fotos, deslizar sigue pasando de foto (v207);
+  - «Otro tipo de anuncio» abre el formulario del clasificado, que ya es libre (título, texto, fotos, precio opcional); no se agregó un tipo nuevo para no cambiar las reglas;
+  - el título «Clasificados · Gratis: 1 anuncio al día…» quedó como una línea dentro de «¿Qué quieres publicar?»; los tipos (Vendo, Arriendo…) y las 24 categorías están en «Filtros».
 - **Productos sin precio (v439):**
   - se guarda `price: 0`; la página lo muestra como «Consultar precio» (`pMoney` en texto y `pMoneyH` en pantalla, en 02-news.js). Las reglas no revisan el precio, así que no cambiaron;
   - se puede agregar al carrito y pedir: en el mensaje sale «(precio por consultar)» y el total suma solo los que tienen precio, con «+ precios por consultar»;
