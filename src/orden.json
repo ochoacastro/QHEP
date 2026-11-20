@@ -1614,6 +1614,33 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v439-sin-precio-css\">",
+  "f": "estilos/v439-sin-precio.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v440-tiendas-vencidas\">",
+  "f": "codigo/v440-tiendas-vencidas.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v441-admin-edita-tienda\">",
+  "f": "codigo/v441-admin-edita-tienda.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v332-datos-negocio\">",
   "f": "codigo/v332-datos-negocio.js"

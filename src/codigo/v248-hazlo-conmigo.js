@@ -70,7 +70,7 @@ var G={
   T('[data-act="saveShop"]','¡Listo! Toca <b>«Abrir tienda»</b>.',{final:1})]},
  pro:{t:'Agregar productos',open:function(){var id=(S.mine||[]).find(function(i){return S.stores.some(function(s){return s.id===i})});if(!id)return 'nostore';cur=id;prodForm()},first:'#p-name',steps:[
   F('#p-name','Escribe el <b>nombre</b> del producto.',len(2)),
-  F('#p-price','Escribe el <b>precio</b> en pesos.',function(el){return digits(el.value).length>0}),
+  F('#p-price','Escribe el <b>precio</b> en pesos. Si no quieres mostrarlo, déjalo vacío: saldrá «Consultar precio».',function(){return true}/* v439: precio opcional */),
   F('#p-d','Una <b>descripción corta</b> (opcional).',null,{opt:1}),
   U('#p-img','Sube hasta 6 <b>fotos</b> (opcional).',{opt:1}),
   T('[data-act="saveProd"]','Toca <b>«Guardar»</b>.',{final:1})]},
