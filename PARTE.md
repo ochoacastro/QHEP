@@ -9,13 +9,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 370 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de la página pasan todas; las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último PR fusionado es el **#161** (v438), el 19 de noviembre de 2026. Todo hasta la v438 está en `main`.
+- **Pruebas:** 393 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR:** el último fusionado es el **#162** (solo `PARTE.md` y la skill de videos), el 20 de noviembre de 2026. Todo hasta la v438 está en `main`. Las v439 a v441 están en la rama de trabajo, sin PR todavía.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v438)
+## 2. Lo que se hizo en esta etapa (v392 a v441)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -65,6 +65,9 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v436 | **Términos y condiciones al entrar por primera vez con Google** (o Apple o Facebook): antes de quedar adentro sale una ventana con dos casillas (Términos de uso; tratamiento de datos y Política de privacidad) y «Aceptar», que solo se activa con las dos marcadas. Antes quedaba registrado sin marcar nada | #158 |
 | v437 | **Términos con Google a quien no los haya aceptado:** la v436 solo preguntaba si Firebase decía que la cuenta era nueva, y a la dueña no le salió al probarla (su cuenta de Google ya había entrado antes). Ahora la fecha en que acepta queda guardada en la cuenta de Firebase y se pregunta a toda cuenta de Google que no la tenga, una vez, en cualquier teléfono | #160 |
 | v438 | **Descargar la app:** la tarjeta «Instala Mi Pradera» ya no sale sola al entrar. La opción «Descargar la app» está en el menú principal (☰) y en el pie de la página, y hay un **enlace directo: mipradera.com.co/app** (página `app/index.html` → `/?app=1`) que abre la ventana con el botón «Instalar» o los pasos para Android, iPhone y computador | #161 |
+| v439 | **Productos sin precio:** el precio de un producto pasa a ser opcional. Sin precio, el producto dice «Consultar precio» en la tienda, la ficha, la búsqueda y el carrito; el total del carrito y el mensaje de WhatsApp dicen «+ precios por consultar» (o «Por consultar» si ninguno tiene precio). Sin precio no sale descuento | — |
+| v440 | **Tiendas vencidas: 3 meses guardadas.** Al vencer el plan (más 3 días de gracia) los productos, las fotos extra y el video se ocultan como antes, y se guardan 3 meses desde que venció; el dueño ve hasta qué fecha. Después, en el panel, **Usuarios → «Tiendas por limpiar»** borra lo pagado con un botón (pregunta antes). La tienda sigue como registro básico gratis. También en los Términos de uso | — |
+| v441 | **El administrador edita la tienda completa:** en Usuarios, la tarjeta de cada persona tiene «Editar tienda y productos», que abre la tienda como la ve su dueño (editar tienda, productos, categorías, «Conoce el lugar»). Una barra abajo dice qué tienda se edita y tiene «Terminar». La tienda y los productos siguen siendo del dueño | — |
 
 ---
 
@@ -86,7 +89,10 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - tocar «Escríbenos» en el menú: debe bajar al formulario del pie, ya abierto (v434);
    - entrar con Google (con una cuenta que ya haya entrado antes también sirve): debe salir «Términos y condiciones» y entrar solo después de marcar las dos casillas; al volver a entrar, ya no debe salir (v436, v437);
    - el botón «Escríbenos» del pie: «+» cerrado y «−» abierto; el carrusel de banners de arriba con rayas debajo de la imagen (v435);
-   - al entrar ya no debe salir sola la tarjeta «Instala Mi Pradera»; «Descargar la app» en el menú ☰ y en el pie; abrir `mipradera.com.co/app` desde WhatsApp: en Android con Chrome sale el botón «Instalar», en iPhone los pasos (v438).
+   - al entrar ya no debe salir sola la tarjeta «Instala Mi Pradera»; «Descargar la app» en el menú ☰ y en el pie; abrir `mipradera.com.co/app` desde WhatsApp: en Android con Chrome sale el botón «Instalar», en iPhone los pasos (v438);
+   - agregar un producto sin precio, verlo en la tienda («Consultar precio») y pedirlo por WhatsApp junto con otro que sí tenga precio (v439);
+   - en el panel, Usuarios: abrir la tarjeta de una persona, tocar «Editar tienda y productos», cambiar algo, tocar «Terminar» y revisar desde la cuenta del dueño que el cambio está y que él puede seguir editando (v441);
+   - revisar «Tiendas por limpiar» en Usuarios antes de borrar la primera vez: que las tiendas de la lista de verdad no hayan renovado (v440).
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 3. **Pendientes de antes:**
@@ -133,6 +139,22 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 - Nota: si alguien sin cuenta toca «Publicar», se registra con correo y vuelve desde el enlace del correo en otra pestaña, no se le abre solo el formulario (la página se cargó de nuevo); tiene que tocar «Publicar» otra vez.
 
 **Decisiones de los cambios de esta etapa que la dueña puede cambiar:**
+- **Productos sin precio (v439):**
+  - se guarda `price: 0`; la página lo muestra como «Consultar precio» (`pMoney` en texto y `pMoneyH` en pantalla, en 02-news.js). Las reglas no revisan el precio, así que no cambiaron;
+  - se puede agregar al carrito y pedir: en el mensaje sale «(precio por consultar)» y el total suma solo los que tienen precio, con «+ precios por consultar»;
+  - al ordenar por precio, los productos sin precio quedan como los más baratos;
+  - las páginas de vista previa para WhatsApp (`tools/productos.mjs`) también dicen «Consultar precio»;
+  - los pedidos por la aplicación (`APP` en `v320-pedidos.js`) están apagados; si se encienden, revisar cómo guardan un producto sin precio.
+- **Tiendas vencidas (v440):**
+  - la dueña eligió borrar solo lo pagado (no la tienda) y hacerlo con un botón en el panel, no automático;
+  - los 3 meses se cuentan desde la fecha en que venció el plan. Esa fecha es la mayor entre la ficha del dueño (`plans/<k>`) y la fecha de pago de la tienda (`pexp`), para no borrar a quien ya renovó. Si la ficha del dueño no está cargada, la tienda no sale en la lista;
+  - al borrar se quitan los productos (y sus fotos de R2, con la misma limpieza de siempre), las fotos del lugar que pasan de 3 y el video. No se puede deshacer;
+  - si más adelante se quiere automático, se puede hacer una acción de GitHub diaria con el secreto `FB_SA` (sigue pendiente).
+- **El administrador edita tiendas (v441):**
+  - usa los mismos formularios del dueño: mientras edita, la tienda entra en `S.mine` solo en la memoria del panel, y `planMsg` no le pide rol;
+  - la tienda y los productos conservan `ownerKey` y `ownerUid` del dueño (los toma `want()` de la tienda), y las reglas ya dejaban escribir al administrador;
+  - la edición termina sola al salir de la tienda (Inicio, otra tienda o el panel), o con «Terminar»;
+  - «Editar datos» (v335, solo teléfonos, dirección y código plus) sigue igual al lado.
 - **Signo de «Escríbenos» (v435):** la causa era un selector frágil en `v370-inicio-limpio.js` (`span:last-child`): el efecto de toque (v272) agrega un elemento al final del botón y el signo dejaba de ser «el último». Ahora el signo tiene su clase (`qcl-s`). Ojo para el futuro: no buscar piezas de un botón por su posición (`:last-child`), porque v272 agrega un elemento a cada botón que se toca.
 - **Rayas del carrusel de banners (v435):** las rayas quedan debajo de la imagen y no se pueden tocar (igual que los puntos de antes); el carrusel se pasa deslizando.
 - **Términos con Google (v436):**

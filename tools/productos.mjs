@@ -10,7 +10,7 @@ const SITE = 'https://mipradera.com.co/', PROJECT = 'qhep-b812f', ROOT = path.re
 const OUT = path.join(ROOT, 'p'), IMG = path.join(OUT, 'img'), GRACE = 3 * 864e5;
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const okId = s => /^[A-Za-z0-9_-]{1,80}$/.test(String(s || ''));
-const money = n => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Number(n) || 0);
+const money = n => Number(n) > 0 ? new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Number(n)) : 'Consultar precio'; // v439: producto sin precio
 // igual que csv(), vId() y pimgs() de la página: el código de cada color tiene que coincidir con el que muestra la página
 const csv = v => String(v || '').split(',').map(x => x.replace(/\|/g, '').trim()).filter(Boolean).slice(0, 12);
 const vId = (p, c) => { let h = 0; for (const ch of String(p.id) + '|' + c) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return String(1000000 + h % 9000000) };

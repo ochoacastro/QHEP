@@ -980,6 +980,75 @@ const PRUEBAS = {
     check('«Escríbenos» abre el formulario y conserva su ícono', await p.evaluate(() => { const b = document.querySelector('.qcl-ct'); return b.getAttribute('aria-expanded') === 'true' && !!b.querySelector('.qcl-i svg') }));
     sinErrores(p, 'Sesión y avisos'); await p.cerrar();
   },
+  async sinPrecio() { // v439 productos sin precio: «Consultar precio» en tarjetas, ficha, carrito y WhatsApp; el formulario no lo exige
+    const tienda = { id: 's1', name: 'Tienda s1', ownerKey: 'kOtro', cat: 'Otros', wa: '3001234567', pays: ['cash'], pexp: Date.now() + 30 * 864e5, _o: 1, products: [] }, pr = (id, x) => Object.assign({ id, sid: 's1', imgs: [], ownerKey: 'kOtro' }, x);
+    const p = await abrir({ seed: { 'stores/s1': tienda, 'products/s1__p1': pr('p1', { name: 'Arroz', price: 4000, _o: 1 }), 'products/s1__p2': pr('p2', { name: 'Torta por encargo', price: 0, _o: 2 }), 'products/s1__p3': pr('p3', { name: 'Ramo', price: 0, old: 9000, _o: 3 }) } });
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(400);
+    const app = await p.evaluate(() => document.getElementById('app').innerText);
+    check('En la tienda, el producto sin precio dice «Consultar precio» y no «$ 0»', /Torta por encargo[\s\S]{0,80}Consultar precio/.test(app) && !/\$\s?0(?![\d.])/.test(app), app.slice(0, 300));
+    check('Sin precio no sale descuento ni precio tachado', !/% OFF/.test(app) && !/9\.000/.test(app));
+    await p.evaluate(() => { view = 'prod'; curP = 'p2'; pI = 0; pQ = 1; render() }); await p.waitForTimeout(400);
+    check('La ficha del producto dice «Consultar precio»', await p.evaluate(() => /Consultar precio/.test((document.querySelector('.pvpr') || {}).textContent || '')));
+    await p.evaluate(() => { QH.push = () => {}; window.open = u => { window.__wa = decodeURIComponent(u) }; S.cart = { 's1|p1||': 1, 's1|p2||': 2 }; save(); openCart() }); await p.waitForTimeout(300);
+    const car = await p.evaluate(() => document.getElementById('drawer').innerText);
+    check('El carrito muestra «Consultar precio» y el total «+ precios por consultar»', /Consultar precio/.test(car) && /4\.000 \+ precios por consultar/.test(car), car);
+    await p.evaluate(() => { S.user = { id: 'u9', name: 'Ana Pérez', email: 'a@x.co', wa: '3112223344', pw: 1, k: 'kN' }; save(); syncUI(); openCart(); document.querySelector('[data-act="order"][data-id="s1"]').click() }); await p.waitForTimeout(600);
+    await p.evaluate(() => { const z = document.querySelector('#ov .znsel'); z.value = 'Centro'; z.dispatchEvent(new Event('change', { bubbles: true })); document.getElementById('iv-d').value = 'Calle 5 # 3-20'; document.querySelector('[data-ivgo="ped"]').click() }); await p.waitForTimeout(1200);
+    const wa = await p.evaluate(() => window.__wa || '');
+    check('El WhatsApp dice «precio por consultar» y el total lo aclara', /Torta por encargo \(precio por consultar\)/.test(wa) && /Total: \$\s?4\.000 \+ precios por consultar/.test(wa), wa.slice(0, 300));
+    await conCuenta(p); await p.evaluate(() => { document.body.insertAdjacentHTML('beforeend', '<i class="qtour" hidden></i>'); S.mine.push('s1'); planMsgExt = () => ''; closeModal(1); view = 'store'; cur = 's1'; render(); prodForm() }); await p.waitForTimeout(400);
+    check('El formulario dice que el precio es opcional', /Precio \(COP, opcional\)/.test(await p.evaluate(() => document.querySelector('label[for="p-price"]').textContent)));
+    await p.evaluate(() => { if (window.qhPasos) qhPasos.ver('#p-name'); document.getElementById('p-name').value = 'Arreglo floral'; document.querySelector('[data-act="saveProd"]').click() }); await p.waitForTimeout(600);
+    check('Se guarda un producto sin precio', await p.evaluate(() => { const x = S.stores.find(s => s.id === 's1').products.find(q => q.name === 'Arreglo floral'); return !!x && !(x.price > 0) }), await p.evaluate(() => (document.getElementById('err') || {}).textContent || ''));
+    sinErrores(p, 'Sin precio'); await p.cerrar();
+  },
+  async tiendasPorLimpiar() { // v440 tiendas vencidas: se guarda 3 meses; después el administrador borra lo pagado
+    const D = 864e5, now = Date.now(), pr = (sid, id) => ({ id, sid, name: 'Producto ' + id, price: 1000, imgs: [], ownerKey: sid === 's1' ? 'kA' : sid === 's2' ? 'kB' : 'kC', _o: 1 });
+    const tienda = (id, k, pexp, x) => Object.assign({ id, name: 'Tienda ' + id, ownerKey: k, cat: 'Otros', wa: '3001234567', pexp, _o: 1, gal: ['a.jpg', 'b.jpg', 'c.jpg', 'd.jpg', 'e.jpg'], vid: 'dQw4w9WgXcQ' }, x);
+    const seed = { 'plans/kA': { k: 'kA', name: 'Ana', email: 'ana@x.co', plan: 'free', acc: { merc: now - 100 * D } }, 'plans/kB': { k: 'kB', name: 'Beto', email: 'beto@x.co', plan: 'free', acc: { merc: now - 40 * D } }, 'plans/kC': { k: 'kC', name: 'Caro', email: 'caro@x.co', plan: 'free', acc: { merc: now + 20 * D } },
+      'stores/s1': tienda('s1', 'kA', now - 100 * D), 'stores/s2': tienda('s2', 'kB', now - 40 * D), 'stores/s3': tienda('s3', 'kC', now - 100 * D), // s3: la fecha de la tienda está vieja, pero su dueño ya renovó
+      'products/s1__p1': pr('s1', 'p1'), 'products/s1__p2': pr('s1', 'p2'), 'products/s2__p3': pr('s2', 'p3'), 'products/s3__p4': pr('s3', 'p4') };
+    const p = await abrir({ admin: true, seed });
+    await p.evaluate(() => { closeModal(1); at = 'usr'; view = 'admin'; render() }); await p.waitForTimeout(500);
+    const caja = () => p.evaluate(() => { const h = [...document.querySelectorAll('.aadp')].find(x => /Tiendas por limpiar/.test(x.textContent)); return h ? h.textContent : '' });
+    const t = await caja();
+    check('Sale la tienda vencida hace más de 3 meses, con lo que se borraría', /Tienda s1/.test(t) && /2 productos, 2 fotos extra, el video/.test(t), t.slice(0, 300));
+    check('No salen la tienda vencida hace 40 días ni la de quien ya renovó', !/Tienda s2/.test(t) && !/Tienda s3/.test(t));
+    await p.click('[data-limpiar="s1"]'); await p.waitForTimeout(300);
+    check('Pregunta antes de borrar', /¿Borrar 2 productos/.test(await p.evaluate(() => (document.getElementById('cfm-t') || {}).textContent || '')));
+    await p.click('#cfm-ok'); await p.waitForTimeout(800);
+    const s1 = await p.evaluate(() => { const s = S.stores.find(x => x.id === 's1'); return { n: s.products.length, g: (s.gal || []).length, v: s.vid || '' } });
+    check('Se borran los productos, las fotos que pasan de 3 y el video; la tienda sigue', s1.n === 0 && s1.g === 3 && !s1.v, JSON.stringify(s1));
+    check('Las otras tiendas no se tocan', await p.evaluate(() => S.stores.find(x => x.id === 's2').products.length === 1 && S.stores.find(x => x.id === 's3').products.length === 1));
+    check('Ya no hay tiendas por limpiar', !(await caja()));
+    sinErrores(p, 'Tiendas por limpiar'); await p.cerrar();
+    const q = await abrir({ seed: { 'stores/s2': tienda('s2', 'kB', now - 40 * D) } });
+    await conCuenta(q); await q.evaluate(() => { S.user.k = 'kB'; S.mine.push('s2'); closeModal(1); view = 'store'; cur = 's2'; render() }); await q.waitForTimeout(400);
+    const n = await q.evaluate(() => (document.querySelector('.shpn') || {}).textContent || '');
+    check('El dueño ve hasta qué fecha se guardan sus productos', /guardad[oa]s? hasta el/.test(n) && /Después se borra/.test(n), n);
+    sinErrores(q, 'Aviso de la tienda vencida'); await q.cerrar();
+  },
+  async adminEditaTienda() { // v441 el administrador edita la tienda completa y sus productos sin quitársela al dueño
+    const tienda = { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', ownerUid: 'uA', desc: 'Pan de la casa', _o: 1, products: [] };
+    const p = await abrir({ admin: true, seed: { 'plans/kA': { k: 'kA', name: 'Ana Pérez', email: 'ana@x.co', plan: 'free' }, 'stores/s1': tienda, 'products/s1__p1': { id: 'p1', sid: 's1', name: 'Pan', price: 500, imgs: [], ownerKey: 'kA', ownerUid: 'uA', _o: 1 } } });
+    await p.evaluate(() => { closeModal(1); at = 'usr'; view = 'admin'; render() }); await p.waitForTimeout(500);
+    const b = await p.evaluate(() => { const x = document.querySelector('[data-admedit="s1"]'); if (x) x.scrollIntoView(); return !!x });
+    if (!b) await p.evaluate(() => document.querySelector('#app').insertAdjacentHTML('beforeend', admShops('kA')));
+    check('En la tarjeta de la persona sale «Editar tienda y productos»', await p.evaluate(() => !!document.querySelector('[data-admedit="s1"]')));
+    await p.evaluate(() => document.querySelector('[data-admedit="s1"]').click()); await p.waitForTimeout(500);
+    check('Se abre la tienda con los botones del dueño y la barra de edición', await p.evaluate(() => view === 'store' && cur === 's1' && !!document.querySelector('[data-act="editShop"]') && !!document.querySelector('[data-act="newProd"],[data-act="prodForm"],[data-act="addProd"]') && /Editando como administrador/.test((document.getElementById('aed') || {}).textContent || '')));
+    await p.evaluate(() => { document.querySelector('[data-act="editShop"]').click() }); await p.waitForTimeout(400);
+    await p.evaluate(() => { document.getElementById('e-name').value = 'Panadería Ana'; document.querySelector('[data-act="saveEditShop"]').click() }); await p.waitForTimeout(500);
+    await p.evaluate(() => prodForm()); await p.waitForTimeout(300);
+    await p.evaluate(() => { if (window.qhPasos) qhPasos.ver('#p-name'); document.getElementById('p-name').value = 'Torta'; document.getElementById('p-price').value = '20.000'; document.querySelector('[data-act="saveProd"]').click() }); await p.waitForTimeout(1500);
+    const g = await p.evaluate(() => { const s = S.stores.find(x => x.id === 's1'); return { n: s.name, ps: s.products.map(x => x.name + ':' + x.price).join(), err: (document.getElementById('err') || {}).textContent || '' } });
+    check('El administrador cambia el nombre y agrega un producto', g.n === 'Panadería Ana' && g.ps === 'Pan:500,Torta:20000', JSON.stringify(g));
+    const doc = await p.evaluate(async () => { const d = Object.values((QH.raw ? QH.raw() : {}).products || {}); const db = firebase.firestore(); const s = await db.collection('stores').doc('s1').get(), ps = await db.collection('products').get(); return { s: s.data(), ps: ps.docs.map(x => x.data()) } });
+    check('En la base de datos la tienda y el producto nuevo siguen siendo del dueño', doc.s.name === 'Panadería Ana' && doc.s.ownerKey === 'kA' && doc.s.ownerUid === 'uA' && doc.ps.some(x => x.name === 'Torta' && x.ownerKey === 'kA' && x.ownerUid === 'uA'), JSON.stringify(doc).slice(0, 400));
+    await p.evaluate(() => document.querySelector('[data-admedit-fin]').click()); await p.waitForTimeout(500);
+    check('«Terminar» vuelve al panel y quita la tienda de «mías»', await p.evaluate(() => view === 'admin' && !S.mine.includes('s1') && !document.getElementById('aed')));
+    sinErrores(p, 'Admin edita tienda'); await p.cerrar();
+  },
 };
 
 (async () => {
