@@ -5,7 +5,7 @@ description: Make a ~55-70 s vertical cartoon story short in the "2D characters 
 
 ## Reglas de Mi Pradera (mandan sobre todo lo de abajo)
 Pedidas por la dueña el 19 de noviembre de 2026, para todo video que pida desde entonces:
-1. **Tres lugares diferentes:** cada video pasa en 3 lugares distintos (por ejemplo: la casa, la calle o la plaza, el negocio).
+1. **Tres lugares diferentes o más:** cada video pasa en al menos 3 lugares distintos (por ejemplo: la casa, la calle o la plaza, el negocio); se pueden usar más si la historia lo necesita (pedido de la dueña, 20 de noviembre de 2026).
 2. **Personaje y problema:** cada video tiene uno o varios personajes y un problema que viven; Mi Pradera es lo que lo resuelve. Es una historia dramatizada, no una lista de funciones.
 3. **Fotos antes del video final:** antes de armar o renderizar el video final, mandarle a la dueña fotos (fotogramas de cada escena, al menos una por lugar, con su texto o frase) para que corrija. El video final se hace solo después de que ella apruebe esas fotos.
 4. **Idioma y voces:** todo en español de Colombia (esto reemplaza «English only» de abajo). Voces de ElevenLabs: Lina («Lina - Colombian Warm & Confident») como narradora, y otras voces colombianas para los personajes. Si no hay créditos de ElevenLabs, avisarle antes de seguir.
