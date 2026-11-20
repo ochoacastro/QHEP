@@ -1623,6 +1623,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v444-productos-amazon-css\">",
+  "f": "estilos/v444-productos-amazon.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v440-tiendas-vencidas\">",
   "f": "codigo/v440-tiendas-vencidas.js"
