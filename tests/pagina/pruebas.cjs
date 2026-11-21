@@ -1307,6 +1307,18 @@ const PRUEBAS = {
     check('«Teléfono» va antes de «Otro teléfono»', r.findIndex(x => x.l === 'Teléfono') >= 0 && otro > r.findIndex(x => x.l === 'Teléfono'), JSON.stringify(r.map(x => x.l)));
     sinErrores(p, 'Teléfono en la ficha'); await p.cerrar();
   },
+  async serviciosVivienda() { // v459 arriendo: servicios con los que cuenta la vivienda, aparte de los que ya están pagos en el arriendo
+    const seed = { 'ads/a1': { id: 'a1', type: 'arr', title: 'Casa de 2 habitaciones', price: 450000, zone: 'Centro', desc: 'Cerca del parque', imgs: [], owner: 'Marta', ownerKey: 'kb', ts: Date.now(), f: { ptype: 'Casa', svc: ['Agua', 'Energía', 'Gas natural', 'Internet'], inc: ['Agua'] } } };
+    const p = await abrir({ seed });
+    const f = await p.evaluate(() => { const F = ADT.arr.F, i = F.findIndex(x => x.k === 'svc'), j = F.findIndex(x => x.k === 'inc'), d = document.createElement('div'); d.innerHTML = fieldHTML(F[i], []);
+      return { i, j, op: [...d.querySelectorAll('input[type=checkbox]')].map(x => x.value), l: F[i].l, li: F[j].l } });
+    check('El formulario de arriendo pregunta qué servicios tiene la vivienda (agua, energía, gas natural, internet)', f.i >= 0 && f.op.join() === 'Agua,Energía,Gas natural,Internet' && /cuenta la vivienda/.test(f.l), JSON.stringify(f));
+    check('El campo de servicios pagos en el arriendo tiene un nombre que no se confunde y va después', f.j === f.i + 1 && /pagos en el valor del arriendo/.test(f.li) && /no los paga aparte/.test(f.li), JSON.stringify(f));
+    await p.evaluate(() => { closeModal(1); view = 'ad'; curAd = 'a1'; render() }); await p.waitForTimeout(400);
+    const t = await p.evaluate(() => document.getElementById('app').innerText);
+    check('El anuncio muestra los servicios que tiene la vivienda y, aparte, los que ya están pagos', /cuenta la vivienda[\s\S]{0,20}Agua, Energía, Gas natural, Internet/.test(t) && /pagos en el valor del arriendo[\s\S]{0,80}Agua/.test(t), t.slice(0, 900));
+    sinErrores(p, 'Servicios de la vivienda'); await p.cerrar();
+  },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
     const seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], logo: LG, ts: now - 60e3, _o: 1 },

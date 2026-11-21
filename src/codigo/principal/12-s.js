@@ -28,7 +28,8 @@ arr:{tab:'Inmuebles',one:'Arriendo',pub:'Publicar arriendo',desc:'Apartamentos, 
  {k:'furn',l:'Amoblado',t:'sel',o:['No','Sí','Parcialmente']},
  {k:'pets',l:'Acepta mascotas',t:'sel',o:['Sí','No','A consultar']},
  {k:'minc',l:'Contrato mínimo',t:'sel',o:['A convenir','6 meses','12 meses']},
- {k:'inc',l:'Servicios incluidos en el canon',t:'multi',o:['Agua','Luz','Gas','Internet','TV por cable']},
+ {k:'svc',l:'Servicios públicos con los que cuenta la vivienda',t:'multi',o:['Agua','Energía','Gas natural','Internet']},/* v459: qué servicios TIENE la vivienda (aparte de quién los paga) */
+ {k:'inc',l:'Servicios que ya están pagos en el valor del arriendo (el inquilino no los paga aparte)',t:'multi',o:['Agua','Luz','Gas','Internet','TV por cable']},/* v459: antes «Servicios incluidos en el canon»; se cambia el nombre para no confundirlo con el anterior. Las opciones no cambian para no perder lo que ya marcaron los anuncios */
  {k:'docs',l:'Documentación requerida',t:'text',max:120,ph:'Ej: Fiador, certificado laboral, depósito'},
  {k:'desc',l:'Descripción',t:'area',max:600,ph:'Estado del inmueble, cercanías, reglas de la casa…'}]},
 casa:{tab:'Inmuebles',one:'Venta de casa',pub:'Vender mi propiedad',desc:'Casas, apartamentos, lotes y fincas en venta.',c:'#6B4F2A',slug:'casas',empty:'Aún no hay propiedades en venta. Publica la primera.',F:[
