@@ -1129,6 +1129,31 @@ const PRUEBAS = {
     check('El administrador ve el inmueble sin punto para ponerle el código plus', await q.evaluate(() => !!document.querySelector('[data-adplus="i3"]') && !document.querySelector('[data-adplus="i1"]') && /Aún no tiene su punto/.test(document.getElementById('app').innerText)));
     sinErrores(q, 'Mapa de inmuebles (administrador)'); await q.cerrar();
   },
+  async busquedaRetardo() { // v446 el buscador de arriba espera a que se deje de escribir; Enter busca en el momento
+    const seed = { 'stores/s1': { id: 's1', name: 'Dulces de la Abuela', desc: 'Dulces', cat: 'Otros', wa: '3001234567', ownerKey: 'kO', pexp: Date.now() + 30 * 864e5, products: [], _o: 1 },
+      'products/s1__p1': { id: 'p1', sid: 's1', name: 'Arequipe casero', price: 9000, imgs: [], ownerKey: 'kO', _o: 1 } };
+    const p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); let n = 0; window.__srN = () => n; document.getElementById('q').addEventListener('input', () => n++) });
+    await p.click('header #q'); await p.keyboard.type('arequipe', { delay: 30 }); await p.waitForTimeout(50);
+    const antes = await p.evaluate(() => window.__srN());
+    await p.waitForTimeout(400);
+    const despues = await p.evaluate(() => window.__srN());
+    check('Mientras se escribe no busca en cada letra; busca una vez al terminar', antes === 0 && despues === 1, antes + ' / ' + despues);
+    check('La lista de resultados muestra lo escrito', await p.evaluate(() => { const b = document.getElementById('sr'); return !!b && !b.hidden && /Arequipe casero/.test(b.innerText) }));
+    await p.fill('header #q', ''); await p.waitForTimeout(400);
+    await p.click('header #q'); await p.keyboard.type('arequ', { delay: 10 }); await p.keyboard.press('Enter'); await p.waitForTimeout(400);
+    check('Enter antes de la espera busca en el momento y abre el resultado', await p.evaluate(() => /Arequipe casero/.test(document.getElementById('app').innerText)));
+    sinErrores(p, 'Búsqueda con retardo'); await p.cerrar();
+  },
+  async fuentesPropias() { // v447 la letra Rubik sale de fuentes/ y no de Google Fonts
+    const p = await abrir();
+    const r = await p.evaluate(async () => { await document.fonts.load('700 16px Rubik'); return { cargada: document.fonts.check('700 16px Rubik'), google: !!document.querySelector('link[href*="fonts.googleapis"],link[href*="fonts.gstatic"]'), letra: getComputedStyle(document.body).fontFamily } });
+    check('La letra Rubik carga desde la propia página', r.cargada && /Rubik/.test(r.letra), JSON.stringify(r));
+    check('No hay enlaces a Google Fonts al abrir la página', !r.google, JSON.stringify(r));
+    const res = await p.evaluate(async () => { const x = await fetch('fuentes/rubik-latin.woff2'); return { ok: x.ok, n: (await x.arrayBuffer()).byteLength } });
+    check('El archivo de la letra existe y pesa menos de 40 KB', res.ok && res.n > 10000 && res.n < 40000, JSON.stringify(res));
+    sinErrores(p, 'Fuentes propias'); await p.cerrar();
+  },
 };
 
 (async () => {

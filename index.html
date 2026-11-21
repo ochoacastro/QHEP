@@ -27,11 +27,11 @@
 
 <script>(function(){try{var t=localStorage.getItem("qh_theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";var l=document.createElement("link");l.rel="preload";l.as="image";l.href=t==="dark"?"logo-mp-oscuro.webp":"logo-mp.webp";document.head.appendChild(l)}catch(e){}})()</script><!-- v378: el logo empieza a bajar de primero -->
 <!-- v378: reCAPTCHA ya no se descarga en cada visita: se carga solo al abrir Iniciar sesión, Registrarme o un formulario que lo usa (ver rcLoad) -->
-<link rel="preconnect" href="https://www.gstatic.com"><link rel="preconnect" href="https://firestore.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com"><link rel="preconnect" href="https://firestore.googleapis.com" crossorigin><!-- v447: sin preconnect a Google Fonts: la letra sale de fuentes/ -->
 
 <script>(function(){try{var t=localStorage.getItem("qh_theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})()</script>
 <title>Mi Pradera – Lo nuestro, en un solo lugar</title>
-<!-- v378: las fuentes ya no detienen el primer dibujo (se ve la letra del sistema y cambia apenas llegan) --><link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rubik:wght@400;500;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rubik:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
+<!-- v447: la letra Rubik sale de la propia página (carpeta fuentes/), no de Google Fonts: un solo archivo de 35 KB trae todos los grosores (300 a 900), sin conectarse a otro sitio. La de tildes raras (latin-ext) solo baja si hace falta. Inter ya no se descarga (era solo reserva y nunca se veía). Igual que en la v378, no detiene el primer dibujo (font-display: swap) --><link rel="preload" as="font" type="font/woff2" href="fuentes/rubik-latin.woff2" crossorigin><style>@font-face{font-family:'Rubik';font-style:normal;font-display:swap;font-weight:300 900;src:url(fuentes/rubik-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Rubik';font-style:normal;font-display:swap;font-weight:300 900;src:url(fuentes/rubik-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}</style>
 <style>
 :root{--ink:#000000;--bg:#f2f4f5;--mango:#FFA800;--guava:#FF4D79;--lulo:#14B88A;--rio:#5433eb;--card:#fff}
 *{box-sizing:border-box;margin:0}
@@ -2373,6 +2373,7 @@ html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64
  .pgrid .prod:not(.fx) .x[style]{left:60px}
 }
 </style>
+
 
 
 
@@ -6782,6 +6783,23 @@ document.addEventListener('change',function(e){if(!e.target||e.target.id!=='m-qu
 /* «Ver inmuebles» del mapa desde otras partes: window.qhMapaInmuebles('arr') abre el mapa ya filtrado */
 window.qhMapaInmuebles=function(t){modo=t||'inm';view='map';try{render();scrollTo(0,0)}catch(e){}};
 document.head.insertAdjacentHTML('beforeend','<style id="v445-css">.mp.mph{display:grid;place-items:center;background:var(--c)}.mp.mph svg{display:block}.mav.mih{display:grid;place-items:center}.mpop{max-width:220px}.mpop img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;margin-bottom:6px}.mpop .btn{margin-top:6px}</style>');
+})();
+</script>
+<script id="v446-busqueda-con-retardo">/* v446: el buscador de arriba (#q) espera a que la persona deje de escribir (220 ms) antes de buscar,
+   en vez de buscar en cada letra. En un celular lento la escritura ya no se traba.
+   - Solo retrasa lo que escribe la persona (eventos de verdad); la lupa y los atajos que llenan el
+     buscador desde el código buscan al instante, como antes.
+   - Si toca Enter antes de que pase la espera, busca en ese momento, para que Enter abra el primer
+     resultado de lo que escribió y no el de una letra antes.
+   Para quitarlo: borrar este archivo de src/orden.json. */
+(function(){
+ var T=0,MS=220,campo=null;
+ function ya(){if(!campo)return;var c=campo;campo=null;clearTimeout(T);c.dispatchEvent(new Event('input',{bubbles:true}))}
+ document.addEventListener('input',function(e){
+  var t=e.target;if(!t||t.id!=='q'||!e.isTrusted)return;
+  e.stopImmediatePropagation();campo=t;clearTimeout(T);T=setTimeout(ya,MS)
+ },true);
+ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&e.target.id==='q')ya()},true);
 })();
 </script>
 <script id="v332-datos-negocio">
