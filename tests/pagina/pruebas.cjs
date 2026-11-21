@@ -1196,6 +1196,27 @@ const PRUEBAS = {
     check('Al volver a claro el fondo vuelve a ser claro', await p.evaluate(() => !document.documentElement.classList.contains('dark') && getComputedStyle(document.body).backgroundColor !== 'rgb(0, 0, 0)' && /255|24\d|25\d/.test(getComputedStyle(document.querySelector('header')).backgroundColor)));
     sinErrores(p, 'Oscuro bajo demanda'); sinErrores(q, 'Oscuro desde el inicio'); await p.cerrar(); await q.cerrar();
   },
+  async noticiasLivianas() { // v451 comentarios y reacciones solo de las noticias en pantalla; la lista de noticias se pide con una sola consulta
+    const t = Date.now() - 3600e3, nw = (id, title, ts) => ({ id, title, txt: 'Texto de ' + title, ts, ownerKey: 'kR', ownerUid: 'uR', imgs: [] });
+    const fb = (nwId, uid, x) => Object.assign({ nw: nwId, uid, ts: t }, x);
+    const seed = { 'news/n1': nw('n1', 'Feria del pueblo', t), 'news/n2': nw('n2', 'Arreglo de la vía', t - 1000),
+      'nwFb/n1_u1_c1': fb('n1', 'u1', { cid: 'c1', name: 'Ana', txt: 'Qué bien' }), 'nwFb/n1_u2_c2': fb('n1', 'u2', { cid: 'c2', name: 'Beto', txt: 'Allá estaré' }),
+      'nwFb/n1_u3': fb('n1', 'u3', { re: 'like' }), 'nwFb/n2_u1_c3': fb('n2', 'u1', { cid: 'c3', name: 'Ana', txt: 'Por fin' }) };
+    const p = await abrir({ seed });
+    const enPantalla = () => p.evaluate(() => new Set([...document.querySelectorAll('.nwfb[data-nw],.nwcnt[data-nwc]')].map(e => e.dataset.nw || e.dataset.nwc)).size);
+    const a = await p.evaluate(() => ({ oy: __fbOyentes('nwFb'), q: (window.__fbQ || []).filter(x => x[0] === 'news' && x[1] === 'limit').map(x => x[2]) }));
+    check('Al abrir, solo escucha comentarios de las noticias que están en pantalla', a.oy === await enPantalla(), JSON.stringify(a) + ' en pantalla: ' + await enPantalla());
+    check('La lista de noticias se pide con la misma consulta (60), no con dos distintas', a.q.length >= 1 && a.q.every(n => n === 60), JSON.stringify(a.q));
+    await p.evaluate(() => { closeModal(1); curN = ''; view = 'news'; render() }); await p.waitForTimeout(600);
+    const b = await p.evaluate(() => ({ oy: __fbOyentes('nwFb'), c1: (document.querySelector('.nwcnt[data-nwc="n1"]') || {}).textContent, c2: (document.querySelector('.nwcnt[data-nwc="n2"]') || {}).textContent }));
+    check('En la lista de noticias cada tarjeta muestra sus reacciones y comentarios', b.c1 === '1 reacción · 2 comentarios' && b.c2 === '1 comentario' && b.oy === 2, JSON.stringify(b));
+    await p.evaluate(() => { curN = 'n1'; view = 'news'; render() }); await p.waitForTimeout(600);
+    const c = await p.evaluate(() => { const x = document.querySelector('.nwfb[data-nw="n1"]'); return { oy: __fbOyentes('nwFb'), en: x && x.querySelectorAll('.nwcm').length, txt: x && x.innerText } });
+    check('La noticia abierta muestra sus 2 comentarios y deja de escuchar las que ya no están en pantalla', c.en === 2 && /Comentarios \(2\)/.test(c.txt) && /Allá estaré/.test(c.txt) && !/Por fin/.test(c.txt) && c.oy === await enPantalla(), JSON.stringify(c));
+    await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(600);
+    check('Al volver al inicio se quitan las escuchas de las noticias que salieron de la pantalla', await p.evaluate(() => __fbOyentes('nwFb')) === await enPantalla());
+    sinErrores(p, 'Noticias livianas'); await p.cerrar();
+  },
 };
 
 (async () => {
