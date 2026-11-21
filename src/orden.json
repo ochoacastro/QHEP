@@ -1655,6 +1655,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v454-muro-en-fila\">",
+  "f": "estilos/v454-muro-en-fila.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v440-tiendas-vencidas\">",
   "f": "codigo/v440-tiendas-vencidas.js"

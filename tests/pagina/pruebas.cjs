@@ -1251,8 +1251,29 @@ const PRUEBAS = {
     sinErrores(p, 'Negocios en fila'); await p.cerrar();
     p = await abrir({ seed, ancho: 1280, alto: 800 });
     await p.evaluate(() => { closeModal(1); const t = [...document.querySelectorAll('.hswt button,.hswt [role=tab]')].find(x => /Tiendas/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
-    check('Computador: las tarjetas de negocio no cambian (foto arriba)', await p.evaluate(() => { const c = [...document.querySelectorAll('.hsc')].find(x => x.querySelector('.hsci') && x.offsetParent); return !!c && getComputedStyle(c).display !== 'grid' && c.querySelector('.hscbd').getBoundingClientRect().top >= c.querySelector('.hsci').getBoundingClientRect().bottom - 1 }));
+    check('Computador: las tarjetas de negocio del inicio no cambian (foto arriba)', await p.evaluate(() => { const c = [...document.querySelectorAll('.hsc')].find(x => x.querySelector('.hsci') && x.offsetParent); return !!c && getComputedStyle(c).display !== 'grid' && c.querySelector('.hscbd').getBoundingClientRect().top >= c.querySelector('.hsci').getBoundingClientRect().bottom - 1 }));
     await p.cerrar();
+  },
+  async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
+    const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
+    const seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], logo: LG, ts: now - 60e3, _o: 1 },
+      'services/v1': { id: 'v1', name: 'Carlos Pérez', job: 'Plomero', zone: 'Centro', desc: 'Tuberías', wa: '3001112233', ownerKey: 'kv', ts: now - 120e3 },
+      'ads/a1': { id: 'a1', type: 'veh', title: 'Moto Yamaha 2020', price: 6500000, zone: 'Centro', desc: 'Al día', imgs: [], owner: 'Luis', ownerKey: 'ka', ts: now - 180e3, f: {} },
+      'community/c1': { id: 'c1', ownerKey: 'kZ', pl: 'free', title: 'Vendo bicicleta', text: 'Casi nueva', img: '', cat: 'var', ts: now - 30e3, exp: now + 864e5 } };
+    const p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); view = 'com'; render() }); await p.waitForTimeout(500);
+    await p.evaluate(() => { const t = [...document.querySelectorAll('.mutabs button')].find(x => /^\s*Todo\s*$/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
+    const r = await p.evaluate(() => [...document.querySelectorAll('.mur')].map(c => { const a = c.querySelector('.murf').getBoundingClientRect(), b = c.querySelector('.murb').getBoundingClientRect();
+      return { n: c.querySelector('.murn').textContent, lado: b.left >= a.right - 1 && Math.abs(a.top - b.top) < 30, logo: !!c.querySelector('.murf img.murlg'), wa: !!c.querySelector('.murw'), cta: (c.querySelector('.murv') || {}).textContent } }));
+    const tienda = r.find(x => /Gelatier/.test(x.n)), serv = r.find(x => /Carlos/.test(x.n)), moto = r.find(x => /Moto Yamaha/.test(x.n));
+    check('Muro: negocio, servicio y vehículo van en fila (cuadro a la izquierda, datos a la derecha)', r.length === 3 && r.every(x => x.lado), JSON.stringify(r));
+    check('Muro: el negocio muestra su logo, WhatsApp y «Ver tienda»', !!tienda && tienda.logo && tienda.wa && tienda.cta === 'Ver tienda', JSON.stringify(tienda));
+    check('Muro: el servicio y el vehículo tienen su botón («Ver servicio», «Ver anuncio») y sin WhatsApp de negocio', !!serv && serv.cta === 'Ver servicio' && !serv.wa && !!moto && moto.cta === 'Ver anuncio', JSON.stringify({ serv, moto }));
+    check('Muro: el clasificado sigue como antes (encabezado con nombre arriba, no en fila)', await p.evaluate(() => { const c = [...document.querySelectorAll('article.cmc')].find(x => /Vendo bicicleta/.test(x.textContent)); return !!c && !c.classList.contains('mur') && !!c.querySelector('.cmh') }));
+    check('Muro: nada se sale de la pantalla a los lados', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    await p.evaluate(() => { const b = [...document.querySelectorAll('.mur .murv')].find(x => x.textContent === 'Ver tienda'); b.click() }); await p.waitForTimeout(500);
+    check('Muro: «Ver tienda» abre la tienda', await p.evaluate(() => view === 'store' && cur === 's1'));
+    sinErrores(p, 'Muro en fila'); await p.cerrar();
   },
 };
 
