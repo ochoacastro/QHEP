@@ -1147,10 +1147,10 @@ const PRUEBAS = {
   },
   async fuentesPropias() { // v447 la letra Rubik sale de fuentes/ y no de Google Fonts
     const p = await abrir();
-    const r = await p.evaluate(async () => { await document.fonts.load('700 16px Rubik'); return { cargada: document.fonts.check('700 16px Rubik'), google: !!document.querySelector('link[href*="fonts.googleapis"],link[href*="fonts.gstatic"]'), letra: getComputedStyle(document.body).fontFamily } });
-    check('La letra Rubik carga desde la propia página', r.cargada && /Rubik/.test(r.letra), JSON.stringify(r));
+    const r = await p.evaluate(async () => { await document.fonts.load('400 16px Outfit'); await document.fonts.load('700 16px Onest'); return { cargada: document.fonts.check('400 16px Outfit') && document.fonts.check('700 16px Onest'), google: !!document.querySelector('link[href*="fonts.googleapis"],link[href*="fonts.gstatic"]'), letra: getComputedStyle(document.body).fontFamily } });
+    check('Las letras (Outfit y Onest desde la v457) cargan desde la propia página', r.cargada && /Outfit/.test(r.letra), JSON.stringify(r));
     check('No hay enlaces a Google Fonts al abrir la página', !r.google, JSON.stringify(r));
-    const res = await p.evaluate(async () => { const x = await fetch('fuentes/rubik-latin.woff2'); return { ok: x.ok, n: (await x.arrayBuffer()).byteLength } });
+    const res = await p.evaluate(async () => { const x = await fetch('fuentes/outfit-latin.woff2'); return { ok: x.ok, n: (await x.arrayBuffer()).byteLength } });
     check('El archivo de la letra existe y pesa menos de 40 KB', res.ok && res.n > 10000 && res.n < 40000, JSON.stringify(res));
     sinErrores(p, 'Fuentes propias'); await p.cerrar();
   },
@@ -1266,6 +1266,36 @@ const PRUEBAS = {
     await p.click('.v455m'); await p.waitForTimeout(600);
     check('«Ver el muro» abre el Muro en «Todo»', await p.evaluate(() => view === 'com' && !!document.querySelector('.mu') && /Todo/.test((document.querySelector('.mutabs [aria-selected="true"],.mutabs [aria-pressed="true"],.mutabs .on') || {}).textContent || '')), await p.evaluate(() => view + ' ' + ((document.querySelector('.mutabs [aria-selected="true"],.mutabs [aria-pressed="true"],.mutabs .on') || {}).textContent || '')));
     sinErrores(p, 'Inicio solo con lo más reciente'); await p.cerrar();
+  },
+  async estiloRedondeado() { // v457 estilo redondeado (referencia co.addi.com): letras Outfit y Onest, botones en píldora, tarjetas e imágenes redondeadas
+    const now = Date.now(), seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], ts: now - 60e3, _o: 1, pays: ['cash'] },
+      'products/s1__p1': { id: 'p1', sid: 's1', name: 'Malteada', price: 12000, imgs: [], ownerKey: 'k1', _o: 1 } };
+    const p = await abrir({ seed });
+    await p.evaluate(() => closeModal(1));
+    const r = await p.evaluate(() => { const R = e => e ? parseFloat(getComputedStyle(e).borderTopLeftRadius) : -1, h = [...document.querySelectorAll('#app h2')].find(x => /Qué hay/.test(x.textContent));
+      return { buscador: R(document.querySelector('.qw')), titulo: h && getComputedStyle(h).fontFamily, peso: h && getComputedStyle(h).fontWeight, cuerpo: getComputedStyle(document.body).fontFamily, chip: R(document.querySelector('.chip,.hhr')) } });
+    check('Inicio: buscador y botones redondeados; título en Onest y texto en Outfit', r.buscador >= 20 && /Onest/.test(r.titulo) && +r.peso < 800 && /Outfit/.test(r.cuerpo), JSON.stringify(r));
+    await p.evaluate(() => { view = 'store'; cur = 's1'; render(); scrollTo(0, 0) }); await p.waitForTimeout(400);
+    const t = await p.evaluate(() => { const R = e => e ? parseFloat(getComputedStyle(e).borderTopLeftRadius) : -1, b = document.querySelector('#app .btn'); return { btn: R(b), mayus: b && getComputedStyle(b).textTransform, prod: R(document.querySelector('.pgrid .prod')), foto: R(document.querySelector('.pgrid .prod .pic')), ficha: R(document.querySelector('.banner.promo')) } });
+    check('Tienda: botones en píldora sin mayúsculas forzadas; producto, foto y ficha redondeados', t.btn >= 20 && t.mayus !== 'uppercase' && t.prod >= 12 && t.foto >= 12 && t.ficha >= 12, JSON.stringify(t));
+    sinErrores(p, 'Estilo redondeado'); await p.cerrar();
+  },
+  async movimientoScroll() { // v457 en el inicio: aparecer al llegar (una vez) y parallax de la foto de publicidad; nada con «reducir movimiento»
+    const seed = { 'banners/b1': { id: 'b1', img: 'og-image.png' }, 'stores/s1': { id: 's1', name: 'Tienda', cat: 'Otros', wa: '3001234567', ownerKey: 'k', pexp: Date.now() + 9e9, products: [], _o: 1 } };
+    const p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); scrollTo(0, 0) }); await p.waitForTimeout(300);
+    const a = await p.evaluate(() => ({ ocultas: [...document.querySelectorAll('.rv:not(.rv-in)')].length, arriba: [...document.querySelectorAll('.hubhero.rv,.hubg.rv')].length }));
+    check('Lo que está más abajo espera para aparecer; lo de arriba sale de una vez', a.ocultas >= 1 && a.arriba === 0, JSON.stringify(a));
+    await p.evaluate(() => scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(500); await p.evaluate(() => scrollTo(0, 600)); await p.waitForTimeout(900);
+    const b = await p.evaluate(() => ({ ocultas: [...document.querySelectorAll('.rv:not(.rv-in)')].length, foto: (document.querySelector('.bns img') || {}).style && document.querySelector('.bns img').style.transform }));
+    check('Al bajar, todo aparece y la foto de publicidad se desplaza (parallax)', b.ocultas === 0 && /translate3d/.test(b.foto || ''), JSON.stringify(b));
+    await p.evaluate(() => { view = 'serv'; render() }); await p.waitForTimeout(200); await p.evaluate(() => { view = 'home'; render(); scrollTo(0, 0) }); await p.waitForTimeout(400);
+    check('Al volver al inicio no se repite la entrada', await p.evaluate(() => document.querySelectorAll('.rv:not(.rv-in)').length === 0));
+    sinErrores(p, 'Movimiento al hacer scroll'); await p.cerrar();
+    const q = await abrir({ seed });
+    await q.emulateMedia({ reducedMotion: 'reduce' }); await q.reload(); await q.waitForTimeout(2500); await q.evaluate(() => { closeModal(1); scrollTo(0, 800) }); await q.waitForTimeout(600);
+    check('Con «reducir movimiento» no se oculta ni se mueve nada', await q.evaluate(() => !document.querySelector('.rv') && !(document.querySelector('.bns img') || { style: {} }).style.transform));
+    await q.cerrar();
   },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
