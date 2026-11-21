@@ -589,7 +589,7 @@ const PRUEBAS = {
   async ajustesVisuales() { // v428 inicio sin hueco bajo las pestañas, nombre del negocio completo, marco en producto sin foto, carrusel
     const st = (id, n, o) => ({ id, name: n, desc: 'x', ownerKey: 'k' + id, cat: 'Otros', wa: '3001234567', pexp: Date.now() + 30 * 864e5, _o: o, pays: ['cash'], products: [] });
     const p = await abrir({ seed: { 'stores/s1': st('s1', 'Ferretería La Tuerca de Oro', 1), 'stores/s2': st('s2', 'Panadería El Trigal', 2), 'stores/s3': st('s3', 'Dulces de la Abuela', 3), 'products/s1__p1': { id: 'p1', sid: 's1', name: 'Martillo', price: 28000, imgs: [], ownerKey: 'ks1', _o: 1 } } });
-    await p.waitForTimeout(500);
+    await p.evaluate(() => { window.qhInicioCompleto = true; render() }); /* v455: vuelven las pestañas para medirlas */ await p.waitForTimeout(500);
     const m = () => p.evaluate(() => { const w = document.querySelector('#app .hswp'), c = [...w.children].map(x => x.offsetHeight), i = Math.round(w.scrollLeft / (w.children[0].offsetWidth + 14)); return { h: w.offsetHeight, c, i, max: Math.max(...c) } });
     let x = await m();
     check('Las pestañas del inicio miden lo que mide la pestaña abierta, no la más larga', x.i === 0 && Math.abs(x.h - x.c[0]) <= 2 && x.max > x.c[0] + 100, JSON.stringify(x));
