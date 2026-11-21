@@ -10,7 +10,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 429 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. El último fusionado es el **#166** (v445), el 21 de noviembre de 2026. Todo hasta la v445 está en `main`.
+- **PR abierto:** **#167** (v446–v447). El último fusionado es el **#166** (v445), el 21 de noviembre de 2026. Todo hasta la v445 está en `main`.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -72,8 +72,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v443 | **Registro sin terminar después de entrar:** si alguien llenaba «Registrarme» por error y entraba por «Iniciar sesión», abajo le seguía saliendo «Tienes tu registro sin terminar · Continuar». Ahora, con la sesión abierta, ese borrador se borra solo (v399) | #165 |
 | v444 | **Productos como Amazon en todas las tiendas (celular):** las tiendas con categorías («Para ti», cada categoría, «Otros productos») seguían en tarjetas de dos columnas porque la v431 dejó afuera sus filas deslizables (`.pgrid.hrow`). Ahora todas muestran un producto por fila: foto a la izquierda (con «Verificado» arriba y el corazón abajo); nombre, descripción, precio grande (el precio anterior tachado al lado) y «Agregar al carrito» a la derecha. Solo CSS (`v444-productos-amazon.css`) | #165 |
 | v445 | **Mapa de arriendos e inmuebles:** en «Mapa», el selector «Mostrar» cambia entre Tiendas (como antes), Arriendos e inmuebles en venta, Solo arriendos y Solo ventas. Los inmuebles con punto salen con un pin de casa (verde azulado arriendo, morado venta); al tocarlo, título, precio, barrio y «Ver anuncio». Debajo, la lista y cuántos no tienen punto. En el panel, «Inmuebles por ubicar» ahora lista también los que no tienen punto, para ponerles el código plus | #166 |
-| v446 | **Buscador con retardo:** el buscador de arriba busca 220 ms después de la última letra, no en cada letra; Enter busca en el momento | — |
-| v447 | **Fuentes propias:** la letra Rubik sale de `fuentes/` (el mismo archivo de Google, byte a byte, 35 KB, todos los grosores) y no de Google Fonts; Inter ya no se descarga (era solo reserva). El service worker la guarda en el teléfono | — |
+| v446 | **Buscador con retardo:** el buscador de arriba busca 220 ms después de la última letra, no en cada letra; Enter busca en el momento | #167 |
+| v447 | **Fuentes propias:** la letra Rubik sale de `fuentes/` (el mismo archivo de Google, byte a byte, 35 KB, todos los grosores) y no de Google Fonts; Inter ya no se descarga (era solo reserva). El service worker la guarda en el teléfono | #167 |
 
 ---
 
