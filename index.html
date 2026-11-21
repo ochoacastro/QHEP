@@ -7301,6 +7301,21 @@ window.docFix=function(c,o){try{
   return fix(c,o)}catch(e){return o}};
 })();
 </script>
+<script id="v460-servicios-nombres">/* v460: en los arriendos, «Servicios que ya están pagos en el valor del arriendo» (f.inc) usa ahora las mismas palabras que
+   «Servicios públicos con los que cuenta la vivienda» (f.svc): Energía en vez de Luz y Gas natural en vez de Gas.
+   Los anuncios guardados antes con «Luz» o «Gas» se leen con las palabras nuevas, así la casilla sigue marcada al editar
+   y el anuncio muestra lo mismo. Se engancha a docFix (v413), que corrige los datos al leerlos (solo en memoria; el dueño
+   guarda la versión nueva la próxima vez que edite su anuncio). Para quitarlo: borrar este archivo de src/orden.json. */
+(function(){
+ var M={'Luz':'Energía','Gas':'Gas natural'};
+ var f0=window.docFix;
+ window.docFix=function(c,o){
+  if(typeof f0==='function')o=f0(c,o);
+  try{if(c==='ads'&&o&&o.f&&Array.isArray(o.f.inc)&&o.f.inc.some(function(v){return M[v]})){
+   var vis={},n=[];o.f.inc.forEach(function(v){v=M[v]||v;if(!vis[v]){vis[v]=1;n.push(v)}});o.f=Object.assign({},o.f,{inc:n})}}catch(e){}
+  return o};
+})();
+</script>
 <script>
 const CATS=[['Farmacia','','#1E6FBF'],['Electrodomésticos','','#2B3A55'],['Restaurantes','','#B23A2E'],['Ropa','','#4A4A6A'],['Celulares','','#C0392B'],['Computación','','#1F6F8B'],['Hogar','','#2E7D5B'],['Alquiler de artículos','🎪','#0E7490'],['Ferretería','🔧','#B45309'],['Muebles y decoración','🛋️','#9A3412'],['Moda y accesorios','👗','#BE185D'],['Accesorios vehículos','🚗','#1E4FBF'],['Deporte y fitness','🏋️','#15803D'],['Tecnología','💻','#1F6F8B'],['Oficina y papelería','📎','#6D28D9'],['Videojuegos','🎮','#4338CA'],['Juegos y juguetes','🧸','#C2410C'],['Abarrotes','🛒','#2E7D5B'],['Bebés','🍼','#DB2777'],['Mascotas','🐶','#A0551A'],['Instrumentos musicales','🎸','#7C2D12'],['Joyas y relojes','💍','#A16207'],['Cacharrerías','🧰','#475569'],['Belleza y salud','💄','#BE123C'],['Licores','🍷','#8A4B1A'],['Calzado','👟','#4D7C0F'],['Libros y revistas','📚','#6D28D9'],['Floristería y regalos','💐','#BE185D'],['Panadería y pastelería','🥐','#B45309'],['Jardinería y agro','🌱','#15803D'],['Fiestas y eventos','🎉','#9F1239']];
 const OFICIOS=['Niñera','Cuidador de ancianos','Aseadora','Carpintero','Plomero o fontanero','Electricista','Pintor','Jardinero','Mecánico','Servicios especializados','Otro'];const DEFJOBS=OFICIOS.filter(o=>o!=='Otro');let newCatImg='';
@@ -8300,7 +8315,7 @@ arr:{tab:'Inmuebles',one:'Arriendo',pub:'Publicar arriendo',desc:'Apartamentos, 
  {k:'pets',l:'Acepta mascotas',t:'sel',o:['Sí','No','A consultar']},
  {k:'minc',l:'Contrato mínimo',t:'sel',o:['A convenir','6 meses','12 meses']},
  {k:'svc',l:'Servicios públicos con los que cuenta la vivienda',t:'multi',o:['Agua','Energía','Gas natural','Internet']},/* v459: qué servicios TIENE la vivienda (aparte de quién los paga) */
- {k:'inc',l:'Servicios que ya están pagos en el valor del arriendo (el inquilino no los paga aparte)',t:'multi',o:['Agua','Luz','Gas','Internet','TV por cable']},/* v459: antes «Servicios incluidos en el canon»; se cambia el nombre para no confundirlo con el anterior. Las opciones no cambian para no perder lo que ya marcaron los anuncios */
+ {k:'inc',l:'Servicios que ya están pagos en el valor del arriendo (el inquilino no los paga aparte)',t:'multi',o:['Agua','Energía','Gas natural','Internet','TV por cable']},/* v459: antes «Servicios incluidos en el canon»; se cambia el nombre para no confundirlo con el anterior. v460: las opciones usan las mismas palabras que el campo anterior; lo guardado como «Luz» y «Gas» se lee como «Energía» y «Gas natural» (v460-servicios-nombres.js) */
  {k:'docs',l:'Documentación requerida',t:'text',max:120,ph:'Ej: Fiador, certificado laboral, depósito'},
  {k:'desc',l:'Descripción',t:'area',max:600,ph:'Estado del inmueble, cercanías, reglas de la casa…'}]},
 casa:{tab:'Inmuebles',one:'Venta de casa',pub:'Vender mi propiedad',desc:'Casas, apartamentos, lotes y fincas en venta.',c:'#6B4F2A',slug:'casas',empty:'Aún no hay propiedades en venta. Publica la primera.',F:[

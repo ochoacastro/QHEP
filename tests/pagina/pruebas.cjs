@@ -1317,7 +1317,15 @@ const PRUEBAS = {
     await p.evaluate(() => { closeModal(1); view = 'ad'; curAd = 'a1'; render() }); await p.waitForTimeout(400);
     const t = await p.evaluate(() => document.getElementById('app').innerText);
     check('El anuncio muestra los servicios que tiene la vivienda y, aparte, los que ya están pagos', /cuenta la vivienda[\s\S]{0,20}Agua, Energía, Gas natural, Internet/.test(t) && /pagos en el valor del arriendo[\s\S]{0,80}Agua/.test(t), t.slice(0, 900));
+    // v460: las opciones de «ya están pagos» usan las mismas palabras; un anuncio viejo con «Luz» y «Gas» se lee como «Energía» y «Gas natural»
+    const o = await p.evaluate(() => ADT.arr.F.find(x => x.k === 'inc').o.join());
+    check('Las dos preguntas usan las mismas palabras (Energía, Gas natural)', o === 'Agua,Energía,Gas natural,Internet,TV por cable', o);
     sinErrores(p, 'Servicios de la vivienda'); await p.cerrar();
+    const viejo = { 'ads/a2': { id: 'a2', type: 'arr', title: 'Apartamento', price: 600000, zone: 'Centro', desc: '', imgs: [], owner: 'Luis', ownerKey: 'kc', ts: Date.now(), f: { inc: ['Agua', 'Luz', 'Gas'] } } };
+    const q = await abrir({ seed: viejo });
+    const r = await q.evaluate(() => { const a = S.ads.find(x => x.id === 'a2'), d = document.createElement('div'); d.innerHTML = fieldHTML(ADT.arr.F.find(x => x.k === 'inc'), a.f.inc); return { inc: a.f.inc.join(), marcadas: [...d.querySelectorAll('input:checked')].map(x => x.value).join() } });
+    check('Un anuncio viejo con «Luz» y «Gas» se lee como «Energía» y «Gas natural» y sus casillas siguen marcadas', r.inc === 'Agua,Energía,Gas natural' && r.marcadas === 'Agua,Energía,Gas natural', JSON.stringify(r));
+    sinErrores(q, 'Servicios de la vivienda (anuncio viejo)'); await q.cerrar();
   },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
