@@ -1,0 +1,27 @@
+/* v448: esqueletos de carga. En el inicio no sale la pantalla del logo; las partes que esperan datos muestran cajas grises
+   cuadradas que brillan suave. Con «reducir movimiento» no brillan. El modo oscuro las oscurece solo (v219). */
+html.qh-esq #splash{display:none!important}
+html.qh-esq-wait #annc{display:none!important}/* la barra de anuncio sale (o no) según los datos: mientras llegan, no se muestra, para que la página no salte */
+.esq{display:block}
+.esq-b{display:block;background:linear-gradient(90deg,#e3e9f7 25%,#f3f6fd 50%,#e3e9f7 75%);background-size:200% 100%;animation:shim 1.2s linear infinite}
+@media (prefers-reduced-motion:reduce){.esq-b{animation:none}}
+.esq-filas{display:grid;gap:14px;padding:6px 0 10px}
+.esq-fila{display:flex;align-items:center;gap:14px}
+.esq-fila>span{flex:1;display:grid;gap:9px}
+.esq-cu{width:72px;height:72px;flex:none}
+.esq-l1{height:12px;width:38%}
+.esq-l2{height:16px;width:72%}
+.esq-neg{margin:18px 0 8px}
+.esq-tit{height:20px;width:140px;margin:0 0 12px}
+.esq-negs{display:flex;gap:12px;overflow:hidden}
+.esq-card{flex:none;width:260px;height:112px}
+.esq-ini{padding:24px 0 10px}
+.esq-h1{height:34px;width:62%;margin:0 auto 10px}
+.esq-h2{height:34px;width:72%;margin:0 auto 18px}
+.esq-sub{height:14px;width:80%;margin:0 auto 26px}
+.esq-chips{display:flex;gap:8px;margin:0 0 26px}
+.esq-chips .esq-b{height:36px;width:96px}
+.esq-cats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 14px;margin:0 0 26px}
+.esq-cats .esq-b{aspect-ratio:1}
+.esq-ban{height:300px;margin:0 0 20px}
+.esq-vt{height:26px;width:55%;margin:18px 0 18px}

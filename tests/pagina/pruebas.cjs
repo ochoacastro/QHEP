@@ -1154,6 +1154,33 @@ const PRUEBAS = {
     check('El archivo de la letra existe y pesa menos de 40 KB', res.ok && res.n > 10000 && res.n < 40000, JSON.stringify(res));
     sinErrores(p, 'Fuentes propias'); await p.cerrar();
   },
+  async esqueletos() { // v448 en el inicio no sale la pantalla del logo: la página aparece y lo que espera datos sale en gris
+    const seed = { 'stores/s1': { id: 's1', name: 'Dulces de la Abuela', desc: 'Dulces', cat: 'Otros', wa: '3001234567', ownerKey: 'kO', pexp: Date.now() + 30 * 864e5, products: [], _o: 1 } };
+    const p = await abrir({ seed });
+    await p.context().addInitScript(() => { window.__fbDemora = 2500 });
+    await p.goto(base + '/index.html'); await p.waitForTimeout(150);
+    const a = await p.evaluate(() => ({ splash: !!document.getElementById('splash') && getComputedStyle(document.getElementById('splash')).display !== 'none', esq: !!document.querySelector('#app .esq'), header: !!document.querySelector('header #q') }));
+    check('Al abrir el inicio no tapa la pantalla del logo: se ve el encabezado y la forma de la página en gris', !a.splash && a.esq && a.header, JSON.stringify(a));
+    await p.waitForTimeout(1000);
+    const b = await p.evaluate(() => ({ vacio: [...document.querySelectorAll('#app .hswc>.empty')].length, filas: document.querySelectorAll('#app .hswc .esq-fila').length, neg: !!document.querySelector('#app .esq-neg'), cats: !!document.querySelector('#app .hubg') }));
+    check('Mientras llegan los datos no dice «no hay publicaciones»: salen filas grises y el lugar de «Negocios»', b.vacio === 0 && b.filas >= 3 && b.neg && b.cats, JSON.stringify(b));
+    await p.waitForTimeout(2500);
+    const c = await p.evaluate(() => ({ esq: document.querySelectorAll('#app .esq').length, neg: !!document.querySelector('#app .hneg'), txt: /Dulces de la Abuela/.test(document.getElementById('app').innerText) }));
+    check('Al llegar los datos se quitan los esqueletos y salen las tiendas', c.esq === 0 && c.neg && c.txt, JSON.stringify(c));
+    // entrar a otra sección antes de que lleguen los datos
+    await p.goto(base + '/index.html?r=1'); await p.waitForTimeout(1300);
+    await p.evaluate(() => { location.hash = '#/servicios' }); await p.waitForTimeout(300);
+    const d = await p.evaluate(() => ({ vista: !!document.querySelector('#app .esq-vista'), no: /Aún no hay|no hay/i.test(document.getElementById('app').innerText) }));
+    check('En otra sección antes de los datos sale una lista gris, no «no hay…»', d.vista && !d.no, JSON.stringify(d));
+    await p.waitForTimeout(2500);
+    check('Al llegar los datos esa sección se dibuja con los datos', await p.evaluate(() => !document.querySelector('#app .esq') && view === 'serv'));
+    // un enlace directo (una tienda) sigue con la pantalla del logo hasta que llegan los datos
+    await p.goto(base + '/index.html?r=2#/t/s1'); await p.waitForTimeout(300);
+    check('Con un enlace directo sigue la pantalla del logo', await p.evaluate(() => { const s = document.getElementById('splash'); return !!s && getComputedStyle(s).display !== 'none' && !document.documentElement.classList.contains('qh-esq') }));
+    await p.waitForTimeout(3500);
+    check('…y abre la tienda al llegar los datos', await p.evaluate(() => view === 'store' && /Dulces de la Abuela/.test(document.getElementById('app').innerText)));
+    sinErrores(p, 'Esqueletos de carga'); await p.cerrar();
+  },
 };
 
 (async () => {
