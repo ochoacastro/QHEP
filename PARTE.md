@@ -9,7 +9,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 471 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **Pruebas:** 479 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
 - **PR abierto:** ninguno. La v456 y la v457 están en la rama, sin PR todavía. El último fusionado es el **#172** (v454–v455), el 21 de noviembre de 2026. Todo hasta la v455 está en `main`.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
@@ -430,7 +430,7 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - Antes del video final se le mandan a la dueña las fotos de cada escena y, si hace falta, un clip corto del movimiento. Ella genera las voces en ElevenLabs con los diálogos que se le proponen y las manda por el chat.
 - **Preferencias de la dueña:**
   - respuestas en español, con las líneas cambiadas y capturas;
-  - diseño cuadrado y modo oscuro;
+  - diseño redondeado desde la v457 (antes pedía cuadrado; el 21 de noviembre de 2026 pidió el estilo de co.addi.com) y modo oscuro;
   - sin emojis en la página, solo íconos de línea;
   - cambios mínimos y exactos;
   - nunca compartir claves en el chat;

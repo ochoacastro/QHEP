@@ -1133,12 +1133,12 @@ const PRUEBAS = {
     const seed = { 'stores/s1': { id: 's1', name: 'Dulces de la Abuela', desc: 'Dulces', cat: 'Otros', wa: '3001234567', ownerKey: 'kO', pexp: Date.now() + 30 * 864e5, products: [], _o: 1 },
       'products/s1__p1': { id: 'p1', sid: 's1', name: 'Arequipe casero', price: 9000, imgs: [], ownerKey: 'kO', _o: 1 } };
     const p = await abrir({ seed });
-    await p.evaluate(() => { closeModal(1); let n = 0; window.__srN = () => n; document.getElementById('q').addEventListener('input', () => n++) });
-    await p.click('header #q'); await p.keyboard.type('arequipe', { delay: 30 }); await p.waitForTimeout(50);
-    const antes = await p.evaluate(() => window.__srN());
-    await p.waitForTimeout(400);
-    const despues = await p.evaluate(() => window.__srN());
-    check('Mientras se escribe no busca en cada letra; busca una vez al terminar', antes === 0 && despues === 1, antes + ' / ' + despues);
+    // se anota cuándo se escribe cada letra y cuándo se busca: cada búsqueda debe llegar al menos 200 ms después de la última letra
+    // (así no depende de lo rápida que sea la máquina: si una pausa entre letras pasa de 220 ms, buscar ahí también es correcto)
+    await p.evaluate(() => { closeModal(1); window.__k = []; window.__b = []; window.addEventListener('input', e => { if (e.target.id === 'q' && e.isTrusted) __k.push(performance.now()) }, true); document.getElementById('q').addEventListener('input', () => __b.push(performance.now())) });
+    await p.click('header #q'); await p.keyboard.type('arequipe', { delay: 30 }); await p.waitForTimeout(450);
+    const t = await p.evaluate(() => { const last = x => Math.max(...__k.filter(k => k <= x)); return { letras: __k.length, busquedas: __b.length, esperas: __b.map(x => Math.round(x - last(x))) } });
+    check('Mientras se escribe no busca en cada letra; busca al terminar', t.letras === 8 && t.busquedas >= 1 && t.busquedas < t.letras && t.esperas.every(w => w >= 200), JSON.stringify(t));
     check('La lista de resultados muestra lo escrito', await p.evaluate(() => { const b = document.getElementById('sr'); return !!b && !b.hidden && /Arequipe casero/.test(b.innerText) }));
     await p.fill('header #q', ''); await p.waitForTimeout(400);
     await p.click('header #q'); await p.keyboard.type('arequ', { delay: 10 }); await p.keyboard.press('Enter'); await p.waitForTimeout(400);
