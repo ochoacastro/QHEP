@@ -1242,7 +1242,7 @@ const PRUEBAS = {
       const vis = [...c.querySelectorAll('.hsci img')].filter(i => getComputedStyle(i).display !== 'none').map(i => (i.className || '').replace(/\bld\b/, '').trim() || 'portada');
       return { n: c.querySelector('.hsct').textContent, lado: b.left >= a.right - 1 && Math.abs(a.top - b.top) < 30, ancho: Math.round(a.width), vis, botones: !!v && v.getBoundingClientRect().right <= c.getBoundingClientRect().right + 1 && (!w || w.offsetHeight > 30) } }));
     let p = await abrir({ seed });
-    await p.evaluate(() => { closeModal(1); const t = [...document.querySelectorAll('.hswt button,.hswt [role=tab]')].find(x => /Tiendas/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
+    await p.evaluate(() => { closeModal(1); window.qhInicioCompleto = true; render(); /* v455: vuelven las pestañas */ const t = [...document.querySelectorAll('.hswt button,.hswt [role=tab]')].find(x => /Tiendas/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
     const r = await medir(p);
     check('Celular: cada negocio en una fila, con el cuadro del logo a la izquierda y los datos a la derecha', r.length >= 3 && r.every(x => x.lado && x.ancho >= 100 && x.ancho <= 125 && x.botones), JSON.stringify(r));
     const g = r.find(x => /Gelatier/.test(x.n)), f = r.find(x => /Tornillo/.test(x.n));
@@ -1250,9 +1250,22 @@ const PRUEBAS = {
     check('Celular: nada se sale de la pantalla a los lados', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     sinErrores(p, 'Negocios en fila'); await p.cerrar();
     p = await abrir({ seed, ancho: 1280, alto: 800 });
-    await p.evaluate(() => { closeModal(1); const t = [...document.querySelectorAll('.hswt button,.hswt [role=tab]')].find(x => /Tiendas/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
+    await p.evaluate(() => { closeModal(1); window.qhInicioCompleto = true; render(); /* v455: vuelven las pestañas */ const t = [...document.querySelectorAll('.hswt button,.hswt [role=tab]')].find(x => /Tiendas/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
     check('Computador: las tarjetas de negocio del inicio no cambian (foto arriba)', await p.evaluate(() => { const c = [...document.querySelectorAll('.hsc')].find(x => x.querySelector('.hsci') && x.offsetParent); return !!c && getComputedStyle(c).display !== 'grid' && c.querySelector('.hscbd').getBoundingClientRect().top >= c.querySelector('.hsci').getBoundingClientRect().bottom - 1 }));
     await p.cerrar();
+  },
+  async inicioSoloReciente() { // v455 la página principal queda solo con «Lo más reciente» y el botón «Ver el muro»
+    const now = Date.now(), seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], ts: now - 60e3, _o: 1 } };
+    const p = await abrir({ seed });
+    await p.evaluate(() => closeModal(1)); await p.waitForTimeout(200);
+    const a = await p.evaluate(() => { const s = document.querySelector('#app section.hsw'); return { tabs: [...s.querySelectorAll('.hswt button')].map(b => b.textContent.trim()), panes: s.querySelectorAll('.hswp>.hswc').length, flechas: s.querySelectorAll('.plar').length, aviso: s.querySelectorAll('.hswh').length, tienda: /Heladería Gelatier/.test(s.innerText) } });
+    check('El inicio queda solo con «Lo más reciente» y al lado «Ver el muro»', a.tabs.length === 2 && /Lo más reciente/.test(a.tabs[0]) && /Ver el muro/.test(a.tabs[1]) && a.panes === 1 && !a.flechas && !a.aviso, JSON.stringify(a));
+    check('«Lo más reciente» sigue mostrando las publicaciones', a.tienda, JSON.stringify(a));
+    await p.evaluate(() => { view = 'serv'; render() }); await p.waitForTimeout(200); await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(300);
+    check('Al volver al inicio sigue igual (sin las pestañas de categorías)', await p.evaluate(() => document.querySelectorAll('#app section.hsw .hswt button').length === 2));
+    await p.click('.v455m'); await p.waitForTimeout(600);
+    check('«Ver el muro» abre el Muro en «Todo»', await p.evaluate(() => view === 'com' && !!document.querySelector('.mu') && /Todo/.test((document.querySelector('.mutabs [aria-selected="true"],.mutabs [aria-pressed="true"],.mutabs .on') || {}).textContent || '')), await p.evaluate(() => view + ' ' + ((document.querySelector('.mutabs [aria-selected="true"],.mutabs [aria-pressed="true"],.mutabs .on') || {}).textContent || '')));
+    sinErrores(p, 'Inicio solo con lo más reciente'); await p.cerrar();
   },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';

@@ -1,0 +1,6 @@
+/* v455: botón «Ver el muro» al lado de «Lo más reciente» en la página principal (ver v455-inicio-solo-reciente.js).
+   Tiene la misma forma que la pestaña, sin quedar marcado, y una flecha que indica que abre otra página. */
+.hsw[data-v455] .hswt{overflow:visible}
+.hsw .hswt .v455m{display:inline-flex;align-items:center;gap:8px;flex:none;cursor:pointer}
+.hsw .hswt .v455m .qi{width:20px;height:20px}
+.hsw .hswt .v455m::after{content:"›";font-size:22px;line-height:1;margin-left:2px}
