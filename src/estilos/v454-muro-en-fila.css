@@ -1,0 +1,21 @@
+/* v454: en el Muro, los negocios, servicios, vehículos, inmuebles y noticias van en FILA, como en el inicio (v453) y como los
+   productos (v444): a la izquierda el logo (o la foto, o el ícono); a la derecha los datos y los botones. Los clasificados no cambian
+   (siguen como en Facebook). La fila la arma card() en v442-muro.js (clase .mur). */
+.mur{display:grid;grid-template-columns:112px minmax(0,1fr);column-gap:14px;align-items:start;padding:12px}
+.mur .murf{grid-column:1;width:112px;height:112px;padding:0;border:0;overflow:hidden;cursor:pointer;display:grid;place-items:center;
+ background:color-mix(in srgb,var(--ink,#1d1d1f) 4%,var(--card,#fff))}
+.mur .murf img{display:block;width:100%;height:100%}
+.mur .murf img.murim{object-fit:cover}
+/* el logo completo y siempre sobre blanco, también en modo oscuro (un logo oscuro con fondo transparente no se pierde) */
+.mur .murf img.murlg,html.dark .mur .murf img.murlg{object-fit:contain;padding:8px;box-sizing:border-box;background:#fff!important}
+.mur .muric svg{width:40px;height:40px}
+.mur .murb{grid-column:2;min-width:0}
+.mur .murk{font-size:13px;font-weight:500;color:var(--muted,#6e6e73);line-height:1.35}
+.mur .murn{font-size:17px;font-weight:800;line-height:1.3;margin:2px 0 4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.mur .murz{font-size:13px;line-height:1.4}
+.mur .murp{margin:4px 0 0;font-size:18px}
+.mur .murd{font-size:14px;line-height:1.35;margin:4px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mur .murr{display:flex;gap:8px;margin-top:10px}
+.mur .murw,.mur .murv{min-height:42px;padding:10px 12px;font-size:14px;font-weight:800;cursor:pointer}
+.mur .murw{flex:1;background:#25D366;color:#fff;border:0}
+.mur .murv{flex:1;background:var(--card,#fff);color:var(--ink,#111);border:1px solid var(--line,#d2d2d7)}

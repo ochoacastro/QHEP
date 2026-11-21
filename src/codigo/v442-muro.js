@@ -30,7 +30,7 @@ function cut(s,n){s=String(s||'').replace(/\s+/g,' ').trim();return s.length>n?s
 /* publicaciones de cada pestaña (menos Clasificados, que usa la tarjeta de siempre: comCard) */
 function stores(kind){var L=[];try{S.stores.filter(function(s){return vis(s)&&!ageBlock(s)}).forEach(function(s){var k=COMIDAS.includes(s.cat)?'comida':PELU.includes(s.cat)?'pelu':'tienda';if(kind&&k!==kind)return;
  var pi=(s.products||[]).map(function(p){return pimgs(p)[0]}).find(ok)||'',np=(s.products||[]).length;
- L.push({tab:k,t:T(s),lg:ok(s.logo)?s.logo:'',ic:IC.store,n:s.name,k:k==='comida'?'Comida':k==='pelu'?'Peluquería':'Tienda'+(s.cat?' · '+s.cat:''),z:s.zone||'',img:ok(s.cover)?s.cover:pi,d:cut(s.desc,180),pr:np?np+(np===1?' producto':' productos'):'',a:'open',id:s.id,cta:k==='comida'?'Ver menú':'Ver tienda'})})}catch(e){}return L}
+ L.push({tab:k,t:T(s),lg:ok(s.logo)?s.logo:'',ic:IC.store,n:s.name,k:k==='comida'?'Comida':k==='pelu'?'Peluquería':'Tienda'+(s.cat?' · '+s.cat:''),z:s.zone||'',img:ok(s.cover)?s.cover:pi,d:cut(s.desc,180),pr:np?np+(np===1?' producto':' productos'):'',a:'open',id:s.id,cta:k==='comida'?'Ver menú':'Ver tienda',wa:s.wa?1:0,rt:(function(){try{return rateLine(s)}catch(e){return ''}})()/* v454: WhatsApp y estrellas en la fila */})})}catch(e){}return L}
 function servs(){var L=[];try{S.services.filter(function(x){return vis(x)}).forEach(function(x){L.push({tab:'serv',t:T(x),lg:'',ic:IC.serv,n:x.name,k:'Servicio'+(x.job?' · '+x.job:''),z:x.zone||'',img:ok(x.img)?x.img:'',d:cut(x.desc||x.d,180),a:'serv',id:x.id,cta:'Ver servicio'})})}catch(e){}return L}
 function ads(ty){var L=[];try{S.ads.filter(function(a){return (ty==='veh'?a.type==='veh':['arr','casa'].includes(a.type))&&vis(a)&&!a.closed&&!expired(a)}).forEach(function(a){var pr='';try{pr=String(adPrice(a)||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim()}catch(e){}
  L.push({tab:ty,t:T(a),lg:'',ic:ty==='veh'?IC.veh:IC.casa,n:a.owner||((ADT[a.type]&&ADT[a.type].one)||'Anuncio'),k:(ADT[a.type]&&ADT[a.type].one)||'Anuncio',z:a.zone||'',img:pimgs(a).find(ok)||'',ti:a.title,pr:pr,d:cut(a.desc,180),a:'openAd',id:a.id,cta:'Ver anuncio'})})}catch(e){}return L}
@@ -38,6 +38,15 @@ function news(){var L=[];try{(QH.NEWS||[]).forEach(function(n){var im=n.img||(Ar
 function coms(){var k='';try{k=QH.key()}catch(e){}var l=[];try{l=QH.COM.filter(function(a){return comActive(a)&&!a.hid&&comMatch(a,query)&&cmFilt(a)})}catch(e){}
  var fe=l.filter(cmFeat),re=l.filter(function(a){return !cmFeat(a)});return fe.concat(re).map(function(a){return {tab:'cm',t:T(a),cm:a,k:k}})}
 function card(r){if(r.cm)return comCard(r.cm,r.k);
+ /* v454: negocios, servicios, vehículos, inmuebles y noticias en FILA (los clasificados siguen como en Facebook): a la izquierda el
+    logo (o la foto si no hay logo, o el ícono); a la derecha qué es, el nombre o título, las estrellas, el precio, la descripción y
+    los botones (WhatsApp en los negocios que lo tienen). Para volver a la tarjeta anterior: borrar desde aquí hasta «v454 fin». */
+ if(!window.qhMuroViejo){var f=r.lg?'<img class="murlg" src="'+E(r.lg)+'" alt="" loading="lazy">':r.img?'<img class="murim" src="'+E(r.img)+'" alt="" loading="lazy">':'<span class="muric">'+r.ic+'</span>';
+  return '<article class="cmc muc mur"><button type="button" class="murf" data-act="'+r.a+'" data-id="'+E(r.id)+'" aria-label="'+E(r.cta+': '+(r.ti||r.n))+'">'+f+'</button>'+
+   '<div class="murb"><div class="murk">'+E([r.k,r.z,ago(r.t)].filter(Boolean).join(' · '))+'</div><h3 class="murn">'+E(r.ti||r.n||'')+'</h3>'+(r.ti&&r.n?'<div class="murz">'+E(r.n)+'</div>':'')+
+   (r.rt?'<div class="murz">'+r.rt+'</div>':'')+(r.pr?'<p class="cmpr murp">'+E(r.pr)+'</p>':'')+(r.d?'<p class="murd">'+E(r.d)+'</p>':'')+
+   '<div class="murr">'+(r.wa?'<button type="button" class="murw" data-act="hubWa" data-id="'+E(r.id)+'">WhatsApp</button>':'')+'<button type="button" class="murv" data-act="'+r.a+'" data-id="'+E(r.id)+'">'+E(r.cta)+'</button></div></div></article>'}
+ /* v454 fin */
  return '<article class="cmc muc"><div class="cmh"><span class="cma'+(r.lg?' mulg':'')+'">'+(r.lg?'<img src="'+E(r.lg)+'" alt="" loading="lazy">':r.ic)+'</span><div><b>'+E(r.n||'')+'</b><small>'+E([r.k,r.z,ago(r.t)].filter(Boolean).join(' · '))+'</small></div></div>'+
   (r.img?'<button type="button" class="muim" data-act="'+r.a+'" data-id="'+E(r.id)+'" aria-label="'+E(r.cta+': '+(r.ti||r.n))+'"><img src="'+E(r.img)+'" alt="" loading="lazy"></button>':'')+
   '<div class="cmb">'+(r.ti?'<b>'+E(r.ti)+'</b>':'')+(r.pr?'<p class="cmpr">'+E(r.pr)+'</p>':'')+(r.d?'<p>'+E(r.d)+'</p>':'')+'</div>'+

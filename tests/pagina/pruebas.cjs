@@ -589,7 +589,7 @@ const PRUEBAS = {
   async ajustesVisuales() { // v428 inicio sin hueco bajo las pestañas, nombre del negocio completo, marco en producto sin foto, carrusel
     const st = (id, n, o) => ({ id, name: n, desc: 'x', ownerKey: 'k' + id, cat: 'Otros', wa: '3001234567', pexp: Date.now() + 30 * 864e5, _o: o, pays: ['cash'], products: [] });
     const p = await abrir({ seed: { 'stores/s1': st('s1', 'Ferretería La Tuerca de Oro', 1), 'stores/s2': st('s2', 'Panadería El Trigal', 2), 'stores/s3': st('s3', 'Dulces de la Abuela', 3), 'products/s1__p1': { id: 'p1', sid: 's1', name: 'Martillo', price: 28000, imgs: [], ownerKey: 'ks1', _o: 1 } } });
-    await p.waitForTimeout(500);
+    await p.evaluate(() => { window.qhInicioCompleto = true; render() }); /* v455: vuelven las pestañas para medirlas */ await p.waitForTimeout(500);
     const m = () => p.evaluate(() => { const w = document.querySelector('#app .hswp'), c = [...w.children].map(x => x.offsetHeight), i = Math.round(w.scrollLeft / (w.children[0].offsetWidth + 14)); return { h: w.offsetHeight, c, i, max: Math.max(...c) } });
     let x = await m();
     check('Las pestañas del inicio miden lo que mide la pestaña abierta, no la más larga', x.i === 0 && Math.abs(x.h - x.c[0]) <= 2 && x.max > x.c[0] + 100, JSON.stringify(x));
@@ -1242,7 +1242,7 @@ const PRUEBAS = {
       const vis = [...c.querySelectorAll('.hsci img')].filter(i => getComputedStyle(i).display !== 'none').map(i => (i.className || '').replace(/\bld\b/, '').trim() || 'portada');
       return { n: c.querySelector('.hsct').textContent, lado: b.left >= a.right - 1 && Math.abs(a.top - b.top) < 30, ancho: Math.round(a.width), vis, botones: !!v && v.getBoundingClientRect().right <= c.getBoundingClientRect().right + 1 && (!w || w.offsetHeight > 30) } }));
     let p = await abrir({ seed });
-    await p.evaluate(() => { closeModal(1); const t = [...document.querySelectorAll('.hswt button,.hswt [role=tab]')].find(x => /Tiendas/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
+    await p.evaluate(() => { closeModal(1); window.qhInicioCompleto = true; render(); /* v455: vuelven las pestañas */ const t = [...document.querySelectorAll('.hswt button,.hswt [role=tab]')].find(x => /Tiendas/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
     const r = await medir(p);
     check('Celular: cada negocio en una fila, con el cuadro del logo a la izquierda y los datos a la derecha', r.length >= 3 && r.every(x => x.lado && x.ancho >= 100 && x.ancho <= 125 && x.botones), JSON.stringify(r));
     const g = r.find(x => /Gelatier/.test(x.n)), f = r.find(x => /Tornillo/.test(x.n));
@@ -1250,9 +1250,43 @@ const PRUEBAS = {
     check('Celular: nada se sale de la pantalla a los lados', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     sinErrores(p, 'Negocios en fila'); await p.cerrar();
     p = await abrir({ seed, ancho: 1280, alto: 800 });
-    await p.evaluate(() => { closeModal(1); const t = [...document.querySelectorAll('.hswt button,.hswt [role=tab]')].find(x => /Tiendas/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
-    check('Computador: las tarjetas de negocio no cambian (foto arriba)', await p.evaluate(() => { const c = [...document.querySelectorAll('.hsc')].find(x => x.querySelector('.hsci') && x.offsetParent); return !!c && getComputedStyle(c).display !== 'grid' && c.querySelector('.hscbd').getBoundingClientRect().top >= c.querySelector('.hsci').getBoundingClientRect().bottom - 1 }));
+    await p.evaluate(() => { closeModal(1); window.qhInicioCompleto = true; render(); /* v455: vuelven las pestañas */ const t = [...document.querySelectorAll('.hswt button,.hswt [role=tab]')].find(x => /Tiendas/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
+    check('Computador: las tarjetas de negocio del inicio no cambian (foto arriba)', await p.evaluate(() => { const c = [...document.querySelectorAll('.hsc')].find(x => x.querySelector('.hsci') && x.offsetParent); return !!c && getComputedStyle(c).display !== 'grid' && c.querySelector('.hscbd').getBoundingClientRect().top >= c.querySelector('.hsci').getBoundingClientRect().bottom - 1 }));
     await p.cerrar();
+  },
+  async inicioSoloReciente() { // v455 la página principal queda solo con «Lo más reciente» y el botón «Ver el muro»
+    const now = Date.now(), seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], ts: now - 60e3, _o: 1 } };
+    const p = await abrir({ seed });
+    await p.evaluate(() => closeModal(1)); await p.waitForTimeout(200);
+    const a = await p.evaluate(() => { const s = document.querySelector('#app section.hsw'); return { tabs: [...s.querySelectorAll('.hswt button')].map(b => b.textContent.trim()), panes: s.querySelectorAll('.hswp>.hswc').length, flechas: s.querySelectorAll('.plar').length, aviso: s.querySelectorAll('.hswh').length, tienda: /Heladería Gelatier/.test(s.innerText) } });
+    check('El inicio queda solo con «Lo más reciente» y al lado «Ver el muro»', a.tabs.length === 2 && /Lo más reciente/.test(a.tabs[0]) && /Ver el muro/.test(a.tabs[1]) && a.panes === 1 && !a.flechas && !a.aviso, JSON.stringify(a));
+    check('«Lo más reciente» sigue mostrando las publicaciones', a.tienda, JSON.stringify(a));
+    await p.evaluate(() => { view = 'serv'; render() }); await p.waitForTimeout(200); await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(300);
+    check('Al volver al inicio sigue igual (sin las pestañas de categorías)', await p.evaluate(() => document.querySelectorAll('#app section.hsw .hswt button').length === 2));
+    await p.click('.v455m'); await p.waitForTimeout(600);
+    check('«Ver el muro» abre el Muro en «Todo»', await p.evaluate(() => view === 'com' && !!document.querySelector('.mu') && /Todo/.test((document.querySelector('.mutabs [aria-selected="true"],.mutabs [aria-pressed="true"],.mutabs .on') || {}).textContent || '')), await p.evaluate(() => view + ' ' + ((document.querySelector('.mutabs [aria-selected="true"],.mutabs [aria-pressed="true"],.mutabs .on') || {}).textContent || '')));
+    sinErrores(p, 'Inicio solo con lo más reciente'); await p.cerrar();
+  },
+  async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
+    const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
+    const seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], logo: LG, ts: now - 60e3, _o: 1 },
+      'services/v1': { id: 'v1', name: 'Carlos Pérez', job: 'Plomero', zone: 'Centro', desc: 'Tuberías', wa: '3001112233', ownerKey: 'kv', ts: now - 120e3 },
+      'ads/a1': { id: 'a1', type: 'veh', title: 'Moto Yamaha 2020', price: 6500000, zone: 'Centro', desc: 'Al día', imgs: [], owner: 'Luis', ownerKey: 'ka', ts: now - 180e3, f: {} },
+      'community/c1': { id: 'c1', ownerKey: 'kZ', pl: 'free', title: 'Vendo bicicleta', text: 'Casi nueva', img: '', cat: 'var', ts: now - 30e3, exp: now + 864e5 } };
+    const p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); view = 'com'; render() }); await p.waitForTimeout(500);
+    await p.evaluate(() => { const t = [...document.querySelectorAll('.mutabs button')].find(x => /^\s*Todo\s*$/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
+    const r = await p.evaluate(() => [...document.querySelectorAll('.mur')].map(c => { const a = c.querySelector('.murf').getBoundingClientRect(), b = c.querySelector('.murb').getBoundingClientRect();
+      return { n: c.querySelector('.murn').textContent, lado: b.left >= a.right - 1 && Math.abs(a.top - b.top) < 30, logo: !!c.querySelector('.murf img.murlg'), wa: !!c.querySelector('.murw'), cta: (c.querySelector('.murv') || {}).textContent } }));
+    const tienda = r.find(x => /Gelatier/.test(x.n)), serv = r.find(x => /Carlos/.test(x.n)), moto = r.find(x => /Moto Yamaha/.test(x.n));
+    check('Muro: negocio, servicio y vehículo van en fila (cuadro a la izquierda, datos a la derecha)', r.length === 3 && r.every(x => x.lado), JSON.stringify(r));
+    check('Muro: el negocio muestra su logo, WhatsApp y «Ver tienda»', !!tienda && tienda.logo && tienda.wa && tienda.cta === 'Ver tienda', JSON.stringify(tienda));
+    check('Muro: el servicio y el vehículo tienen su botón («Ver servicio», «Ver anuncio») y sin WhatsApp de negocio', !!serv && serv.cta === 'Ver servicio' && !serv.wa && !!moto && moto.cta === 'Ver anuncio', JSON.stringify({ serv, moto }));
+    check('Muro: el clasificado sigue como antes (encabezado con nombre arriba, no en fila)', await p.evaluate(() => { const c = [...document.querySelectorAll('article.cmc')].find(x => /Vendo bicicleta/.test(x.textContent)); return !!c && !c.classList.contains('mur') && !!c.querySelector('.cmh') }));
+    check('Muro: nada se sale de la pantalla a los lados', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    await p.evaluate(() => { const b = [...document.querySelectorAll('.mur .murv')].find(x => x.textContent === 'Ver tienda'); b.click() }); await p.waitForTimeout(500);
+    check('Muro: «Ver tienda» abre la tienda', await p.evaluate(() => view === 'store' && cur === 's1'));
+    sinErrores(p, 'Muro en fila'); await p.cerrar();
   },
 };
 
