@@ -9,8 +9,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 429 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** **#167** (v446–v447). El último fusionado es el **#166** (v445), el 21 de noviembre de 2026. Todo hasta la v445 está en `main`.
+- **Pruebas:** 437 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. La v448 (esqueletos de carga) está en la rama, sin PR todavía. El último fusionado es el **#167** (v446–v447), el 21 de noviembre de 2026. Todo hasta la v447 está en `main`.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -74,7 +74,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v445 | **Mapa de arriendos e inmuebles:** en «Mapa», el selector «Mostrar» cambia entre Tiendas (como antes), Arriendos e inmuebles en venta, Solo arriendos y Solo ventas. Los inmuebles con punto salen con un pin de casa (verde azulado arriendo, morado venta); al tocarlo, título, precio, barrio y «Ver anuncio». Debajo, la lista y cuántos no tienen punto. En el panel, «Inmuebles por ubicar» ahora lista también los que no tienen punto, para ponerles el código plus | #166 |
 | v446 | **Buscador con retardo:** el buscador de arriba busca 220 ms después de la última letra, no en cada letra; Enter busca en el momento | #167 |
 | v447 | **Fuentes propias:** la letra Rubik sale de `fuentes/` (el mismo archivo de Google, byte a byte, 35 KB, todos los grosores) y no de Google Fonts; Inter ya no se descarga (era solo reserva). El service worker la guarda en el teléfono | #167 |
-| v448 | **Esqueletos de carga:** al abrir el inicio ya no sale la pantalla del logo: se ve la página enseguida y lo que espera datos sale en cajas grises (las listas de «Lo más reciente» y las pestañas, el lugar de «Negocios»; antes del primer dibujo, la forma del inicio). Ya no dice «Todavía no hay publicaciones» mientras carga. Si se entra a otra sección antes de los datos, sale una lista gris. Los enlaces directos (tienda, producto, panel) siguen con la pantalla del logo | #167 |
+| v448 | **Esqueletos de carga:** al abrir el inicio ya no sale la pantalla del logo: se ve la página enseguida y lo que espera datos sale en cajas grises (las listas de «Lo más reciente» y las pestañas, el lugar de «Negocios»; antes del primer dibujo, la forma del inicio). Ya no dice «Todavía no hay publicaciones» mientras carga. Si se entra a otra sección antes de los datos, sale una lista gris. Los enlaces directos (tienda, producto, panel) siguen con la pantalla del logo | — |
 
 ---
 
