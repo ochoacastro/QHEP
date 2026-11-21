@@ -13,7 +13,8 @@ const pieza = e => e.t === 'txt' ? e.v : e.t === 'html' ? rd(e.f) : e.tag + (e.f
    en el mismo orden relativo; en la cabecera quedan los estilos y lo mínimo (tema claro/oscuro, enlaces, título).
    Así el navegador dibuja el encabezado y la pantalla de carga sin esperar a que baje todo el código.
    Las piezas de src/ no cambian; solo el orden en que se juntan. */
-const EN_CABECERA = new Set(['codigo/enlaces-sin-numeral.js', 'codigo/canonical.js', 'codigo/tema-inicial.js', 'codigo/tema-inicial-2.js']);
+const EN_CABECERA = new Set(['codigo/enlaces-sin-numeral.js', 'codigo/canonical.js', 'codigo/tema-inicial.js', 'codigo/tema-inicial-2.js',
+  'codigo/v448-esqueletos-inicio.js' /* v449: decide antes del primer dibujo si se ve la pantalla del logo */]);
 const iCuerpo = orden.findIndex(e => e.t === 'html' && /<body[\s>]/.test(rd(e.f)));
 let out = '', luego = '';
 orden.forEach((e, i) => {

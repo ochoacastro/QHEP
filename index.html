@@ -15,7 +15,12 @@
 (function(){try{var q=new URLSearchParams(location.search),h='',pr=q.get('producto'),ti=q.get('tienda'),no=q.get('noticia');
  if(pr){var v=q.get('v'),t=q.get('talla');h='#/p/'+pr+(v||t?'?'+[v?'v='+v:'',t?'t='+encodeURIComponent(t):''].filter(Boolean).join('&'):'')}
  else if(ti)h='#/t/'+ti;else if(no)h='#/nw/'+no;
- if(h){['producto','tienda','noticia','v','talla'].forEach(function(k){q.delete(k)});var r=q.toString();history.replaceState(null,'',location.pathname+(r?'?'+r:'')+h)}}catch(e){}window.QH_H00=location.hash;/* v303: dirección original, antes de que nada la cambie */})();</script>
+ if(h){['producto','tienda','noticia','v','talla'].forEach(function(k){q.delete(k)});var r=q.toString();history.replaceState(null,'',location.pathname+(r?'?'+r:'')+h)}}catch(e){}window.QH_H00=location.hash;/* v303: dirección original, antes de que nada la cambie */})();</script><script id="v448-esqueletos-inicio">/* v448: ESQUELETOS DE CARGA (parte 1, en el <head>). Si la página se abre en el inicio (sin #/… y sin ?panel ni ?admin),
+   marca <html> con «qh-esq» para que no salga la pantalla del logo: se ve la página enseguida y las partes que esperan
+   datos muestran cajas grises (v448-esqueletos.js). Con otra dirección (una tienda, un producto, el panel) sigue la
+   pantalla del logo, como antes. Para quitarlo: borrar este archivo, v448-esqueletos.js y v448-esqueletos.css de src/orden.json. */
+(function(){try{var q=new URLSearchParams(location.search),h=location.hash||'';if(q.has('admin')||q.has('panel'))return;if(h&&h!=='#'&&h!=='#/')return;document.documentElement.classList.add('qh-esq','qh-esq-wait')}catch(e){}})();
+</script>
 <script>/* v198: canonical y datos estructurados con la URL real de la pagina (sin # ni parametros) */(function(){try{var u=location.origin+location.pathname.replace(/index\.html$/,''),d=document,h=d.head,l=d.createElement('link');l.rel='canonical';l.href=u;h.appendChild(l);var s=d.createElement('script');s.type='application/ld+json';s.text=JSON.stringify({'@context':'https://schema.org','@graph':[{'@type':'WebSite','name':'Mi Pradera','url':u,'inLanguage':'es-CO','description':'Compra, arrienda y contrata con vecinos de Pradera. Lo nuestro, en un solo lugar.'},{'@type':'Organization','name':'Mi Pradera','url':u,'areaServed':{'@type':'City','name':'Pradera, Valle del Cauca, Colombia'}}]});h.appendChild(s)}catch(e){}})();</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -2447,12 +2452,6 @@ html.dark .jobpv{background:#1c1c1e!important;border-color:#3a3a3c!important}htm
 <footer>Mi Pradera · Lo nuestro, en un solo lugar. Cada tienda y cada servicio es responsabilidad de quien lo publica.<br><button class="back" data-rolv="1">Planes y precios</button> · <button class="back" data-qapp="1">Descargar la app</button> · <button class="back" data-act="legal" data-v="terms">Términos de uso</button> · <button class="back" data-act="legal" data-v="priv">Política de privacidad</button></footer>
 <aside class="drawer" id="drawer" aria-label="Carrito"></aside>
 <div id="toast" role="status"></div>
-<script id="v448-esqueletos-inicio">/* v448: ESQUELETOS DE CARGA (parte 1, en el <head>). Si la página se abre en el inicio (sin #/… y sin ?panel ni ?admin),
-   marca <html> con «qh-esq» para que no salga la pantalla del logo: se ve la página enseguida y las partes que esperan
-   datos muestran cajas grises (v448-esqueletos.js). Con otra dirección (una tienda, un producto, el panel) sigue la
-   pantalla del logo, como antes. Para quitarlo: borrar este archivo, v448-esqueletos.js y v448-esqueletos.css de src/orden.json. */
-(function(){try{var q=new URLSearchParams(location.search),h=location.hash||'';if(q.has('admin')||q.has('panel'))return;if(h&&h!=='#'&&h!=='#/')return;document.documentElement.classList.add('qh-esq','qh-esq-wait')}catch(e){}})();
-</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.2/qrcode.min.js" defer></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -7060,7 +7059,7 @@ function take(sh){if(!sh||done.has(sh)||(OUT&&sh===OUT.sheet))return;done.add(sh
 function flush(){if(!OUT){OUT=document.createElement('style');OUT.id='v219-oscuro-generado'}
  OUT.textContent=':root.dark{color-scheme:dark}html.dark .hmb i{background:#f5f5f7!important}html.dark input,html.dark select,html.dark textarea{background-color:#1c1c1e;color:#f5f5f7;border-color:#3a3a3c}html.dark ::placeholder{color:#8e8e93}\n'+css.join('\n');
  if(OUT.parentNode!==document.head||document.head.lastElementChild!==OUT)document.head.appendChild(OUT)}
-function scanAll(){var n=css.length;[].forEach.call(document.styleSheets,take);if(css.length!==n||!OUT||document.head.lastElementChild!==OUT)flush()}
+function scanAll(){if(!H.classList.contains('dark'))return;/* v450: en modo claro no se genera nada (ahorra ~250 ms en un celular lento); se genera al pasar a oscuro */var n=css.length;[].forEach.call(document.styleSheets,take);if(css.length!==n||!OUT||document.head.lastElementChild!==OUT)flush()}
 /* colores escritos en style="..." */
 var IN=/(background(?:-color)?|color|border(?:-[a-z]+)?-?color|border)\s*:\s*([^;]+)/g;
 function inl(el){var s=el.getAttribute('style');if(!s||!hasLit(s)/* v414 */)return;
@@ -7069,7 +7068,7 @@ function inl(el){var s=el.getAttribute('style');if(!s||!hasLit(s)/* v414 */)retu
 function inlAll(root){if(root.nodeType!==1)return;if(root.hasAttribute('style'))inl(root);var l=root.querySelectorAll('[style]');for(var i=0;i<l.length;i++)inl(l[i])}
 scanAll();
 new MutationObserver(function(ms){var st=false;for(var i=0;i<ms.length;i++){var m=ms[i];
- if(m.type==='attributes'){if(m.target===H&&m.attributeName==='class'){inlAll(document.body||H);continue}if(m.attributeName==='style'&&m.target.dataset.dkO==null)inl(m.target);continue}
+ if(m.type==='attributes'){if(m.target===H&&m.attributeName==='class'){scanAll()/* v450 */;inlAll(document.body||H);continue}if(m.attributeName==='style'&&m.target.dataset.dkO==null)inl(m.target);continue}
  for(var j=0;j<m.addedNodes.length;j++){var n=m.addedNodes[j];if(n.nodeName==='STYLE'||n.nodeName==='LINK'){if(n!==OUT)st=true}else if(n.nodeType===1&&H.classList.contains('dark'))inlAll(n)}}
  if(st)scanAll()}).observe(H,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
 document.addEventListener('DOMContentLoaded',function(){scanAll();inlAll(document.body)});

@@ -1181,6 +1181,21 @@ const PRUEBAS = {
     check('…y abre la tienda al llegar los datos', await p.evaluate(() => view === 'store' && /Dulces de la Abuela/.test(document.getElementById('app').innerText)));
     sinErrores(p, 'Esqueletos de carga'); await p.cerrar();
   },
+  async oscuroBajoDemanda() { // v450 el generador del modo oscuro solo trabaja con el modo oscuro encendido
+    const seed = { 'stores/s1': { id: 's1', name: 'Dulces de la Abuela', desc: 'Dulces', cat: 'Otros', wa: '3001234567', ownerKey: 'kO', pexp: Date.now() + 30 * 864e5, products: [], _o: 1 } };
+    const colores = pg => pg.evaluate(() => ['body', 'header', '#app', '.hubg .hubt, .hubg button, .hubg a', '#bnav', 'header #q', '.hsw'].map(s => { const e = document.querySelector(s); if (!e) return s + ': -'; const c = getComputedStyle(e); return s + ': ' + c.backgroundColor + ' / ' + c.color + ' / ' + c.borderTopColor }));
+    const p = await abrir({ seed });
+    check('En modo claro no se genera la hoja oscura', await p.evaluate(() => !document.getElementById('v219-oscuro-generado')));
+    await p.click('#themeBtn'); await p.waitForTimeout(300);
+    check('Al pasar a oscuro se genera la hoja oscura', await p.evaluate(() => document.documentElement.classList.contains('dark') && !!document.getElementById('v219-oscuro-generado') && document.getElementById('v219-oscuro-generado').textContent.length > 10000));
+    const a = await colores(p);
+    const q = await abrir({ seed, dark: true });
+    const b = await colores(q);
+    check('Pasar a oscuro se ve igual que abrir la página ya en oscuro', JSON.stringify(a) === JSON.stringify(b), JSON.stringify({ a, b }));
+    await p.click('#themeBtn'); await p.waitForTimeout(300);
+    check('Al volver a claro el fondo vuelve a ser claro', await p.evaluate(() => !document.documentElement.classList.contains('dark') && getComputedStyle(document.body).backgroundColor !== 'rgb(0, 0, 0)' && /255|24\d|25\d/.test(getComputedStyle(document.querySelector('header')).backgroundColor)));
+    sinErrores(p, 'Oscuro bajo demanda'); sinErrores(q, 'Oscuro desde el inicio'); await p.cerrar(); await q.cerrar();
+  },
 };
 
 (async () => {
