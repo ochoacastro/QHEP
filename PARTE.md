@@ -10,7 +10,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 479 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. La v456 y la v457 están en la rama, sin PR todavía. El último fusionado es el **#172** (v454–v455), el 21 de noviembre de 2026. Todo hasta la v455 está en `main`.
+- **PR abierto:** ninguno. La v458 está en la rama, sin PR todavía. El último fusionado es el **#173** (v456–v457), el 21 de noviembre de 2026. Todo hasta la v457 está en `main`.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -82,8 +82,9 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v453 | **Negocios en fila (celular):** en las pestañas del inicio (Tiendas, Comidas, Peluquerías) cada negocio va en una fila como los productos (v444): el logo en un cuadro a la izquierda; a la derecha la categoría, el nombre, la zona, las estrellas, la descripción (2 líneas) y WhatsApp y «Ver más». Pedido por la dueña con capturas de su teléfono. Solo CSS (`v453-negocios-en-fila.css`) | #171 |
 | v454 | **Muro en fila:** en el Muro, los negocios, servicios, vehículos, inmuebles y noticias van en fila como en el inicio (v453): el logo (o la foto, o el ícono) a la izquierda; a la derecha qué es, el nombre o título, las estrellas, el precio, la descripción y los botones (WhatsApp en los negocios). Los clasificados siguen como en Facebook. Pedido por la dueña | #172 |
 | v455 | **Inicio solo con «Lo más reciente»:** en la página principal se quitan las pestañas de categorías (Clasificados, Tiendas, Comidas, Peluquerías, Vehículos, Inmuebles, Servicios); queda «Lo más reciente» y al lado el botón «Ver el muro», que abre el Muro. Pedido por la dueña con una captura | #172 |
-| v456 | **Sin «Ver por categorías»:** en la página principal también se quita el botón «Ver por categorías →» de debajo de «Lo más reciente» (en `v455-inicio-solo-reciente.js`). Pedido por la dueña | — |
-| v457 | **Estilo redondeado (referencia co.addi.com):** letras Outfit (texto) y Onest (títulos, más livianos y con las letras juntas); botones y etiquetas en píldora, tarjetas e imágenes con esquinas de 18 px, ventanas de 24 px; botones sin mayúsculas forzadas ni franja oscura. En el inicio, la parte de presentación aparece al llegar a ella y la foto de publicidad tiene parallax. Se quitaron de `src/orden.json` v273, v276 y v277 (diseño cuadrado). Pedido por la dueña | — |
+| v456 | **Sin «Ver por categorías»:** en la página principal también se quita el botón «Ver por categorías →» de debajo de «Lo más reciente» (en `v455-inicio-solo-reciente.js`). Pedido por la dueña | #173 |
+| v457 | **Estilo redondeado (referencia co.addi.com):** letras Outfit (texto) y Onest (títulos, más livianos y con las letras juntas); botones y etiquetas en píldora, tarjetas e imágenes con esquinas de 18 px, ventanas de 24 px; botones sin mayúsculas forzadas ni franja oscura. En el inicio, la parte de presentación aparece al llegar a ella y la foto de publicidad tiene parallax. Se quitaron de `src/orden.json` v273, v276 y v277 (diseño cuadrado). Pedido por la dueña | #173 |
+| v458 | **Teléfono en la ficha de la tienda:** la ficha (v337) mostraba solo «Otro teléfono» (`wa2`), nunca el número principal (`wa`, el de WhatsApp). Ahora sale «Teléfono» con el número escrito 300 123 4567; al tocarlo se llama (`tel:+57…`). Pedido por la dueña con una captura | — |
 
 ---
 

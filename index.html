@@ -5312,6 +5312,8 @@ window.shopInfo=function(s){var o='<div class="sinfo">';
  var ht=hoursTxt(s);if(ht){var st=txt(openBadge(s)),on=/abierto/i.test(st);
   var L=String(ht).split(' · ').map(function(x){var k=x.indexOf(': ');return k>0?'<li><b>'+E(x.slice(0,k))+'</b><span>'+E(x.slice(k+2))+'</span></li>':'<li><span>'+E(x)+'</span></li>'}).join('');
   rows+=row(IC.clock,'Horario','<ul class="si-h">'+L+'</ul>',st?'<em class="si-st '+(on?'on':'off')+'">'+E(st)+'</em>':'')}
+ if(s.wa){var d=String(s.wa).replace(/\D/g,'');if(d.length===12&&d.slice(0,2)==='57')d=d.slice(2);/* v458: el teléfono principal (el de WhatsApp) también se muestra; antes solo salía «Otro teléfono» */
+  rows+=row(IC.phone,'Teléfono','<a class="si-t" href="tel:'+(d.length===10?'+57'+d:E(d))+'">'+E(d.length===10?d.slice(0,3)+' '+d.slice(3,6)+' '+d.slice(6):s.wa)+'</a>')}
  if(s.wa2)rows+=row(IC.phone,'Otro teléfono','<a class="si-t" href="tel:'+E(s.wa2)+'">'+E(s.wa2)+'</a>');
  if(s.delivery)rows+=row(IC.truck,'Domicilios','<div class="si-t">'+E(s.delivery)+E(delFeeTxt(s))+'</div>');
  var pt=paysTxt(s);if(pt)rows+=row(IC.card,'Medios de pago','<div class="si-pay">'+pt.split(' · ').map(function(x){return '<span>'+E(x)+'</span>'}).join('')+'</div>');

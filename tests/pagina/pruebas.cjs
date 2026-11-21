@@ -1297,6 +1297,16 @@ const PRUEBAS = {
     check('Con «reducir movimiento» no se oculta ni se mueve nada', await q.evaluate(() => !document.querySelector('.rv') && !(document.querySelector('.bns img') || { style: {} }).style.transform));
     await q.cerrar();
   },
+  async telefonoFicha() { // v458 la ficha de la tienda muestra el teléfono principal (el de WhatsApp), que se puede tocar para llamar
+    const seed = { 'stores/s1': { id: 's1', name: 'Acabados Pradera', desc: 'Ferretería', cat: 'Otros', zone: 'San José', addr: 'Calle 9 Cra 11', wa: '3001234567', wa2: '6022671234', ownerKey: 'k1', pexp: Date.now() + 30 * 864e5, products: [], _o: 1, pays: ['cash'] } };
+    const p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(400);
+    const r = await p.evaluate(() => [...document.querySelectorAll('.sinfo .si-r')].map(x => { const a = x.querySelector('a.si-t'); return { l: x.querySelector('.si-l').textContent.trim(), v: a ? a.textContent : '', h: a ? a.getAttribute('href') : '' } }));
+    const tel = r.find(x => x.l === 'Teléfono'), otro = r.findIndex(x => x.l === 'Otro teléfono');
+    check('La ficha muestra «Teléfono» con el número del negocio, para llamar', !!tel && tel.v === '300 123 4567' && tel.h === 'tel:+573001234567', JSON.stringify(r));
+    check('«Teléfono» va antes de «Otro teléfono»', r.findIndex(x => x.l === 'Teléfono') >= 0 && otro > r.findIndex(x => x.l === 'Teléfono'), JSON.stringify(r.map(x => x.l)));
+    sinErrores(p, 'Teléfono en la ficha'); await p.cerrar();
+  },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
     const seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], logo: LG, ts: now - 60e3, _o: 1 },
