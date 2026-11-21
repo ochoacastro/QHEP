@@ -1217,6 +1217,23 @@ const PRUEBAS = {
     check('Al volver al inicio se quitan las escuchas de las noticias que salieron de la pantalla', await p.evaluate(() => __fbOyentes('nwFb')) === await enPantalla());
     sinErrores(p, 'Noticias livianas'); await p.cerrar();
   },
+  async opinionesLivianas() { // v452 opiniones de la comunidad (cmFb) solo de los anuncios en pantalla
+    const now = Date.now(), ad = (id, title) => ({ id, ownerKey: 'kZ', pl: 'free', title, text: 'Texto de ' + title, img: '', cat: 'var', ts: now, exp: now + 864e5 });
+    const seed = { 'community/c1': ad('c1', 'Vendo bicicleta'), 'community/c2': ad('c2', 'Regalo gatitos'),
+      'cmFb/c1_u1': { ad: 'c1', uid: 'u1', name: 'Ana', util: true, txt: 'Muy amable', ts: now }, 'cmFb/c1_u2': { ad: 'c1', uid: 'u2', name: 'Beto', util: false, ts: now },
+      'cmFb/c2_u1': { ad: 'c2', uid: 'u1', name: 'Ana', util: true, ts: now } };
+    const p = await abrir({ seed });
+    const enPantalla = () => p.evaluate(() => new Set([...document.querySelectorAll('.cmfb[data-ad]')].filter(e => !e.closest('.cwz-card')).map(e => e.dataset.ad)).size);
+    check('Al abrir, solo escucha opiniones de los anuncios que están en pantalla', await p.evaluate(() => __fbOyentes('cmFb')) === await enPantalla(), (await p.evaluate(() => __fbOyentes('cmFb'))) + ' / ' + await enPantalla());
+    await p.evaluate(() => { closeModal(1); view = 'com'; render() }); await p.waitForTimeout(800);
+    const a = await p.evaluate(() => { const x = document.querySelector('.cmfb[data-ad="c1"]'); return { oy: __fbOyentes('cmFb'), txt: x && x.innerText } });
+    check('El anuncio muestra sus votos y comentarios', !!a.txt && /Sí\s*1/.test(a.txt) && /No\s*1/.test(a.txt) && /Comentarios \(1\)/.test(a.txt) && a.oy === await enPantalla(), JSON.stringify(a));
+    await p.evaluate(() => document.querySelector('.cmfb[data-ad="c1"] [data-fbt]').click()); await p.waitForTimeout(300);
+    check('Al abrir los comentarios se ve el de Ana', await p.evaluate(() => /Muy amable/.test(document.querySelector('.cmfb[data-ad="c1"]').innerText)));
+    await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(800);
+    check('Al salir se quitan las escuchas de los anuncios que ya no están en pantalla', await p.evaluate(() => __fbOyentes('cmFb')) === await enPantalla());
+    sinErrores(p, 'Opiniones livianas'); await p.cerrar();
+  },
 };
 
 (async () => {

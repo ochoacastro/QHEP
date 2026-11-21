@@ -9,8 +9,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 449 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. La v451 está en la rama, sin PR todavía. El último fusionado es el **#169** (v449–v450), el 21 de noviembre de 2026. Todo hasta la v450 está en `main`.
+- **Pruebas:** 454 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR abierto:** ninguno. La v452 está en la rama, sin PR todavía. El último fusionado es el **#170** (v451), el 21 de noviembre de 2026. Todo hasta la v451 está en `main`.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -77,7 +77,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v448 | **Esqueletos de carga:** al abrir el inicio ya no sale la pantalla del logo: se ve la página enseguida y lo que espera datos sale en cajas grises (las listas de «Lo más reciente» y las pestañas, el lugar de «Negocios»; antes del primer dibujo, la forma del inicio). Ya no dice «Todavía no hay publicaciones» mientras carga. Si se entra a otra sección antes de los datos, sale una lista gris. Los enlaces directos (tienda, producto, panel) siguen con la pantalla del logo | #168 |
 | v449 | **Esqueletos sin parpadeo:** `tools/armar.mjs` dejaba `v448-esqueletos-inicio.js` al final del cuerpo (después de la pantalla del logo, que podía verse un instante); ahora va en la cabecera (`EN_CABECERA`) | #169 |
 | v450 | **Modo oscuro bajo demanda:** el generador del modo oscuro (v219) ya no trabaja en modo claro; se activa al pasar a oscuro. En un celular lento, la ejecución del código al abrir baja de unos 650 ms a unos 350 ms | #169 |
-| v451 | **Noticias livianas:** los comentarios y reacciones (`nwFb`) se piden solo para las noticias que están en pantalla (antes, cada visitante bajaba todos los de todas las noticias al abrir la página). El aviso de noticias nuevas usa la misma consulta de la lista (60), así Firebase la pide una sola vez | — |
+| v451 | **Noticias livianas:** los comentarios y reacciones (`nwFb`) se piden solo para las noticias que están en pantalla (antes, cada visitante bajaba todos los de todas las noticias al abrir la página). El aviso de noticias nuevas usa la misma consulta de la lista (60), así Firebase la pide una sola vez | #170 |
+| v452 | **Opiniones livianas:** las opiniones de la comunidad («¿Te sirvió este anuncio?» y comentarios, `cmFb`) se piden solo para los anuncios que están en pantalla; antes, cada visitante bajaba todas las de todos los anuncios al abrir la página | — |
 
 ---
 
@@ -309,7 +310,7 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
   - mientras no llegan los comentarios de una noticia, su caja queda vacía (antes salía «Aún no hay comentarios» un instante);
   - la consulta del aviso de noticias nuevas pasó de `limit(10)` a `limit(60)`, igual que `nwLim` en 02-news.js: Firebase junta las consultas idénticas y la pide una sola vez; `latest()` sigue usando solo las 10 primeras. Si se cambia `nwLim`, cambiar también ese 60;
   - las reglas no cambian (`nwFb` ya se puede leer completa);
-  - igual que `nwFb`, `cmFb` (reacciones de la comunidad, v225) se escucha completa al abrir; no se cambió;
+  - `cmFb` (opiniones de la comunidad, v225) se arregló igual en la v452: `subs()` en `v225-opiniones.js` pone una escucha `where('ad','==',id)` por cada `.cmfb[data-ad]` en pantalla (sin contar las de `.cwz-card`);
   - en las pruebas, el Firebase falso anota las consultas en `window.__fbQ` y `window.__fbOyentes('colección')` dice cuántas escuchas tiene.
 - **Modo oscuro bajo demanda (v450):**
   - dos cambios en `v219-modo-oscuro.js`: `scanAll()` no hace nada si `<html>` no tiene la clase `dark`, y al cambiar esa clase se llama `scanAll()`. Al pasar a oscuro, la hoja se genera en ese momento (una vez, unos 250 ms en un celular lento) antes de que se dibuje;

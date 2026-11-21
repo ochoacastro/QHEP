@@ -27,7 +27,7 @@ function html(id){var a=adOf(id),L=(FB[id]||[]).slice().sort(function(x,y){retur
   else h+='<div class="cmfb-f"><label class="qh-sr" for="fbt-'+E(id)+'">Tu comentario</label><textarea id="fbt-'+E(id)+'" maxlength="300" placeholder="Cuéntales a otros vecinos cómo te fue (máximo 300 letras)">'+E(mine&&mine.txt||'')+'</textarea><button type="button" class="btn" data-fbs="1">'+(mine&&mine.txt?'Actualizar comentario':'Publicar comentario')+'</button></div>';
   h+='</div>'}
  return h}
-function paint(root){if(!FB)return;var l=(root||document).querySelectorAll('.cmfb[data-ad]');for(var i=0;i<l.length;i++){var b=l[i],id=b.dataset.ad;if(!id||b.closest('.cwz-card'))continue;if(document.activeElement&&document.activeElement.tagName==='TEXTAREA'&&b.contains(document.activeElement))continue;var h=html(id);if(b._h!==h){b._h=h;b.innerHTML=h}}}
+function paint(root){if(!FB)return;var l=(root||document).querySelectorAll('.cmfb[data-ad]');for(var i=0;i<l.length;i++){var b=l[i],id=b.dataset.ad;if(!id||b.closest('.cwz-card'))continue;if(!FB[id])continue;/* v452: todavía no llegan sus opiniones */if(document.activeElement&&document.activeElement.tagName==='TEXTAREA'&&b.contains(document.activeElement))continue;var h=html(id);if(b._h!==h){b._h=h;b.innerHTML=h}}}
 function ref(id,uid){return firebase.firestore().collection('cmFb').doc(id+'_'+uid)}
 function save(id,patch){var u=me();if(!u){try{need(function(){})}catch(e){}return}
  var a=adOf(id);if(isOwner(a))return toast('No puedes calificar ni comentar tu propio anuncio.');
@@ -43,9 +43,18 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  if(b.dataset.fbs){var t=(box.querySelector('textarea').value||'').trim().slice(0,300);if(t.length<3)return toast('Escribe tu comentario (mínimo 3 letras).');save(id,{txt:t});toast('Gracias por tu comentario');return}
  if(b.dataset.fbd){var uid=b.dataset.fbd,u2=me();if(u2&&uid===u2.uid)save(id,{txt:''});else if(isAdm())firebase.firestore().collection('cmFb').doc(id+'_'+uid).delete().catch(function(){toast('No se pudo borrar.')});return}
 },true);
-/* escucha la coleccion cuando Firebase ya este listo; si las reglas no la permiten, la seccion no se muestra */
+/* v452: opiniones SOLO de los anuncios que están en pantalla (cada .cmfb[data-ad]). Una escucha por anuncio (where ad == id);
+   se quita cuando el anuncio sale de la pantalla. Quien no mira anuncios no baja nada. */
+var SUBS={},OK=false;
+function subs(){if(!OK)return;var w={},l=document.querySelectorAll('.cmfb[data-ad]'),i;
+ for(i=0;i<l.length;i++){if(l[i].closest('.cwz-card'))continue;var k=l[i].dataset.ad;if(k)w[k]=1}
+ Object.keys(SUBS).forEach(function(id){if(!w[id]){try{SUBS[id]()}catch(e){}delete SUBS[id]}});
+ Object.keys(w).forEach(function(id){if(SUBS[id])return;
+  SUBS[id]=firebase.firestore().collection('cmFb').where('ad','==',id).onSnapshot(function(sn){var L=[];sn.forEach(function(d){var x=d.data();if(x&&x.ad===id)L.push(x)});FB[id]=L;paint()},
+   function(){delete FB[id];var e=document.querySelectorAll('.cmfb[data-ad]');for(var j=0;j<e.length;j++){if(e[j].dataset.ad===id){e[j].innerHTML='';e[j]._h=''}}})})}
+/* escucha cuando Firebase ya este listo; si las reglas no la permiten, la seccion no se muestra */
 function start(){try{if(!window.firebase||!firebase.apps||!firebase.apps.length||typeof QH==='undefined')return setTimeout(start,500);
- firebase.firestore().collection('cmFb').onSnapshot(function(sn){var m={};sn.forEach(function(d){var x=d.data();if(x&&x.ad){(m[x.ad]=m[x.ad]||[]).push(x)}});FB=m;paint()},function(){FB=null;var l=document.querySelectorAll('.cmfb');for(var i=0;i<l.length;i++){l[i].innerHTML='';l[i]._h=''}})}catch(e){setTimeout(start,1000)}}
-var pend=false;new MutationObserver(function(){if(FB&&!pend){pend=true;(window.requestAnimationFrame||setTimeout)(function(){pend=false;paint()})}}).observe(document.documentElement,{childList:true,subtree:true});
+ FB={};OK=true;subs();/* v452: antes se escuchaba aquí toda la colección cmFb (todas las opiniones de todos los anuncios) */}catch(e){setTimeout(start,1000)}}
+var pend=false;new MutationObserver(function(){if(FB&&!pend){pend=true;(window.requestAnimationFrame||setTimeout)(function(){pend=false;subs()/* v452 */;paint()})}}).observe(document.documentElement,{childList:true,subtree:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
