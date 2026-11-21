@@ -1217,6 +1217,43 @@ const PRUEBAS = {
     check('Al volver al inicio se quitan las escuchas de las noticias que salieron de la pantalla', await p.evaluate(() => __fbOyentes('nwFb')) === await enPantalla());
     sinErrores(p, 'Noticias livianas'); await p.cerrar();
   },
+  async opinionesLivianas() { // v452 opiniones de la comunidad (cmFb) solo de los anuncios en pantalla
+    const now = Date.now(), ad = (id, title) => ({ id, ownerKey: 'kZ', pl: 'free', title, text: 'Texto de ' + title, img: '', cat: 'var', ts: now, exp: now + 864e5 });
+    const seed = { 'community/c1': ad('c1', 'Vendo bicicleta'), 'community/c2': ad('c2', 'Regalo gatitos'),
+      'cmFb/c1_u1': { ad: 'c1', uid: 'u1', name: 'Ana', util: true, txt: 'Muy amable', ts: now }, 'cmFb/c1_u2': { ad: 'c1', uid: 'u2', name: 'Beto', util: false, ts: now },
+      'cmFb/c2_u1': { ad: 'c2', uid: 'u1', name: 'Ana', util: true, ts: now } };
+    const p = await abrir({ seed });
+    const enPantalla = () => p.evaluate(() => new Set([...document.querySelectorAll('.cmfb[data-ad]')].filter(e => !e.closest('.cwz-card')).map(e => e.dataset.ad)).size);
+    check('Al abrir, solo escucha opiniones de los anuncios que están en pantalla', await p.evaluate(() => __fbOyentes('cmFb')) === await enPantalla(), (await p.evaluate(() => __fbOyentes('cmFb'))) + ' / ' + await enPantalla());
+    await p.evaluate(() => { closeModal(1); view = 'com'; render() }); await p.waitForTimeout(800);
+    const a = await p.evaluate(() => { const x = document.querySelector('.cmfb[data-ad="c1"]'); return { oy: __fbOyentes('cmFb'), txt: x && x.innerText } });
+    check('El anuncio muestra sus votos y comentarios', !!a.txt && /Sí\s*1/.test(a.txt) && /No\s*1/.test(a.txt) && /Comentarios \(1\)/.test(a.txt) && a.oy === await enPantalla(), JSON.stringify(a));
+    await p.evaluate(() => document.querySelector('.cmfb[data-ad="c1"] [data-fbt]').click()); await p.waitForTimeout(300);
+    check('Al abrir los comentarios se ve el de Ana', await p.evaluate(() => /Muy amable/.test(document.querySelector('.cmfb[data-ad="c1"]').innerText)));
+    await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(800);
+    check('Al salir se quitan las escuchas de los anuncios que ya no están en pantalla', await p.evaluate(() => __fbOyentes('cmFb')) === await enPantalla());
+    sinErrores(p, 'Opiniones livianas'); await p.cerrar();
+  },
+  async negociosEnFila() { // v453 en celular, los negocios del inicio van en fila: logo a la izquierda y datos a la derecha
+    const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
+    const st = (id, name, x) => Object.assign({ id, name, desc: 'Descripción de ' + name, cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k' + id, pexp: now + 30 * 864e5, products: [], _o: 1 }, x);
+    const seed = { 'stores/s1': st('s1', 'Heladería Artesanal Gelatier', { logo: LG, cover: 'img/cat-hogar.webp', _o: 3 }), 'stores/s2': st('s2', 'Ferretería El Tornillo', { logo: LG, _o: 2 }), 'stores/s3': st('s3', 'Panadería del Parque', { _o: 1 }) };
+    const medir = pg => pg.evaluate(() => [...document.querySelectorAll('.hsc')].filter(c => c.querySelector('.hsci') && c.offsetParent).map(c => { const r = e => e.getBoundingClientRect(), a = r(c.querySelector('.hsci')), b = r(c.querySelector('.hscbd')), w = c.querySelector('.hscw'), v = c.querySelector('.hscv');
+      const vis = [...c.querySelectorAll('.hsci img')].filter(i => getComputedStyle(i).display !== 'none').map(i => (i.className || '').replace(/\bld\b/, '').trim() || 'portada');
+      return { n: c.querySelector('.hsct').textContent, lado: b.left >= a.right - 1 && Math.abs(a.top - b.top) < 30, ancho: Math.round(a.width), vis, botones: !!v && v.getBoundingClientRect().right <= c.getBoundingClientRect().right + 1 && (!w || w.offsetHeight > 30) } }));
+    let p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); const t = [...document.querySelectorAll('.hswt button,.hswt [role=tab]')].find(x => /Tiendas/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
+    const r = await medir(p);
+    check('Celular: cada negocio en una fila, con el cuadro del logo a la izquierda y los datos a la derecha', r.length >= 3 && r.every(x => x.lado && x.ancho >= 100 && x.ancho <= 125 && x.botones), JSON.stringify(r));
+    const g = r.find(x => /Gelatier/.test(x.n)), f = r.find(x => /Tornillo/.test(x.n));
+    check('Con logo y portada se ve solo el logo; con solo logo, el logo', !!g && g.vis.join() === 'hscLb' && !!f && f.vis.join() === 'hscL', JSON.stringify({ g, f }));
+    check('Celular: nada se sale de la pantalla a los lados', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    sinErrores(p, 'Negocios en fila'); await p.cerrar();
+    p = await abrir({ seed, ancho: 1280, alto: 800 });
+    await p.evaluate(() => { closeModal(1); const t = [...document.querySelectorAll('.hswt button,.hswt [role=tab]')].find(x => /Tiendas/.test(x.textContent)); if (t) t.click() }); await p.waitForTimeout(600);
+    check('Computador: las tarjetas de negocio no cambian (foto arriba)', await p.evaluate(() => { const c = [...document.querySelectorAll('.hsc')].find(x => x.querySelector('.hsci') && x.offsetParent); return !!c && getComputedStyle(c).display !== 'grid' && c.querySelector('.hscbd').getBoundingClientRect().top >= c.querySelector('.hsci').getBoundingClientRect().bottom - 1 }));
+    await p.cerrar();
+  },
 };
 
 (async () => {

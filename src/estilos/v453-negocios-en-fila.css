@@ -1,0 +1,31 @@
+/* v453: negocios en fila, como los productos (v444), en celular (menos de 640 px). En las pestañas del inicio (Tiendas, Comidas,
+   Peluquerías) cada negocio era una tarjeta grande con la foto de portada arriba. Ahora va en una fila: a la izquierda el logo en un
+   cuadro; a la derecha la categoría, el nombre, la zona, las estrellas, la descripción y los botones WhatsApp y «Ver más».
+   - Con logo y portada: se ve el logo (la portada se oculta). Solo logo: el logo. Sin logo: la portada. Sin ninguno: el ícono.
+   - Las tarjetas de servicios (sin foto) ocupan todo el ancho, como antes.
+   Solo CSS: quitar este archivo de src/orden.json lo devuelve como estaba. */
+@media (max-width:639px){
+ .hsc{display:grid;grid-template-columns:112px minmax(0,1fr);column-gap:14px;align-items:start;padding:12px;margin-bottom:12px;
+  background:var(--card,#fff);border:1px solid var(--line,#d2d2d7);box-shadow:none}
+ .hsc>.hscbd:only-child{grid-column:1 / -1}/* servicios: sin foto, todo el ancho */
+ /* izquierda: cuadro del logo, completo (sin recortar), sobre gris claro */
+ .hsc .hsci{grid-column:1;width:112px;height:112px;aspect-ratio:1;overflow:hidden;
+  background:color-mix(in srgb,var(--ink,#1d1d1f) 4%,var(--card,#fff))}
+ .hsc .hsci img{width:100%;height:100%;object-fit:cover}
+ .hsc .hsci img.hscL,.hsc .hsci img.hscLb{position:static;inset:auto;margin:0;width:100%;height:100%;max-width:none;max-height:none;
+  object-fit:contain;background:transparent;border:0;box-shadow:none;padding:8px;box-sizing:border-box}
+ .hsc .hsci:has(.hscLb)>img:not(.hscLb){display:none}/* con logo y portada: solo el logo */
+ /* el logo siempre sobre blanco, también en modo oscuro: un logo de letras oscuras con fondo transparente no se perdería */
+ .hsc .hsci img.hscL,.hsc .hsci img.hscLb,html.dark .hsc .hsci img.hscL,html.dark .hsc .hsci img.hscLb{background:#fff!important}
+ .hsc .hscE{font-size:44px}
+ .hsc .hscb{top:0;left:0;font-size:11px;padding:3px 7px;line-height:1.2}
+ /* derecha: datos del negocio */
+ .hsc .hscbd{grid-column:2;padding:0;min-width:0}
+ .hsc .hscc{font-size:12px;line-height:1.3}
+ .hsc .hsct{font-size:17px;line-height:1.3;margin:2px 0 4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+ .hsc .hscz{font-size:13px;line-height:1.4}
+ .hsc .hscd{font-size:14px;line-height:1.35;margin:4px 0 10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ .hsc .hscd:empty{display:none}
+ .hsc .hscr{gap:8px}
+ .hsc .hscw,.hsc .hscv{padding:10px 12px;font-size:14px;min-height:42px}
+}

@@ -1646,6 +1646,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v453-negocios-en-fila\">",
+  "f": "estilos/v453-negocios-en-fila.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v440-tiendas-vencidas\">",
   "f": "codigo/v440-tiendas-vencidas.js"
