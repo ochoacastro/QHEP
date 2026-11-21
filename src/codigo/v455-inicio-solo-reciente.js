@@ -9,7 +9,7 @@
   var tabs=sec.querySelectorAll('.hswt [data-act="hsw"]'),panes=sec.querySelectorAll('.hswp>.hswc'),i;
   for(i=1;i<tabs.length;i++)tabs[i].remove();
   for(i=1;i<panes.length;i++)panes[i].remove();
-  var l=sec.querySelectorAll('.hswtw .plar,.hswc .hswh');for(i=0;i<l.length;i++)l[i].remove();
+  var l=sec.querySelectorAll('.hswtw .plar,.hswc .hswh,.hswc .hswm');/* v456: también el botón «Ver por categorías →» */for(i=0;i<l.length;i++)l[i].remove();
   var w=sec.querySelector('.hswtw');if(w)w.classList.remove('fl');
   var t=sec.querySelector('.hswt');if(t&&!t.querySelector('.v455m')){t.insertAdjacentHTML('beforeend','<button type="button" class="v455m">'+MURO+' Ver el muro</button>')}
   sec.setAttribute('aria-label','Lo más reciente')}

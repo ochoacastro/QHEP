@@ -10,7 +10,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 471 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. La v454 y la v455 están en la rama, sin PR todavía. El último fusionado es el **#171** (v452–v453), el 21 de noviembre de 2026. Todo hasta la v453 está en `main`.
+- **PR abierto:** ninguno. La v456 está en la rama, sin PR todavía. El último fusionado es el **#172** (v454–v455), el 21 de noviembre de 2026. Todo hasta la v455 está en `main`.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
@@ -80,8 +80,9 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v451 | **Noticias livianas:** los comentarios y reacciones (`nwFb`) se piden solo para las noticias que están en pantalla (antes, cada visitante bajaba todos los de todas las noticias al abrir la página). El aviso de noticias nuevas usa la misma consulta de la lista (60), así Firebase la pide una sola vez | #170 |
 | v452 | **Opiniones livianas:** las opiniones de la comunidad («¿Te sirvió este anuncio?» y comentarios, `cmFb`) se piden solo para los anuncios que están en pantalla; antes, cada visitante bajaba todas las de todos los anuncios al abrir la página | #171 |
 | v453 | **Negocios en fila (celular):** en las pestañas del inicio (Tiendas, Comidas, Peluquerías) cada negocio va en una fila como los productos (v444): el logo en un cuadro a la izquierda; a la derecha la categoría, el nombre, la zona, las estrellas, la descripción (2 líneas) y WhatsApp y «Ver más». Pedido por la dueña con capturas de su teléfono. Solo CSS (`v453-negocios-en-fila.css`) | #171 |
-| v454 | **Muro en fila:** en el Muro, los negocios, servicios, vehículos, inmuebles y noticias van en fila como en el inicio (v453): el logo (o la foto, o el ícono) a la izquierda; a la derecha qué es, el nombre o título, las estrellas, el precio, la descripción y los botones (WhatsApp en los negocios). Los clasificados siguen como en Facebook. Pedido por la dueña | — |
-| v455 | **Inicio solo con «Lo más reciente»:** en la página principal se quitan las pestañas de categorías (Clasificados, Tiendas, Comidas, Peluquerías, Vehículos, Inmuebles, Servicios); queda «Lo más reciente» y al lado el botón «Ver el muro», que abre el Muro. Pedido por la dueña con una captura | — |
+| v454 | **Muro en fila:** en el Muro, los negocios, servicios, vehículos, inmuebles y noticias van en fila como en el inicio (v453): el logo (o la foto, o el ícono) a la izquierda; a la derecha qué es, el nombre o título, las estrellas, el precio, la descripción y los botones (WhatsApp en los negocios). Los clasificados siguen como en Facebook. Pedido por la dueña | #172 |
+| v455 | **Inicio solo con «Lo más reciente»:** en la página principal se quitan las pestañas de categorías (Clasificados, Tiendas, Comidas, Peluquerías, Vehículos, Inmuebles, Servicios); queda «Lo más reciente» y al lado el botón «Ver el muro», que abre el Muro. Pedido por la dueña con una captura | #172 |
+| v456 | **Sin «Ver por categorías»:** en la página principal también se quita el botón «Ver por categorías →» de debajo de «Lo más reciente» (en `v455-inicio-solo-reciente.js`). Pedido por la dueña | — |
 
 ---
 
@@ -311,7 +312,7 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 - **Inicio solo con «Lo más reciente» (v455):**
   - lo pidió la dueña el 21 de noviembre de 2026, marcando en una captura las pestañas al lado de «Lo más reciente»;
   - `v455-inicio-solo-reciente.js` quita del inicio las pestañas 2 a 8 de `hubSwipe` (06-cattitle.js) con su contenido, las flechas y el aviso «Desliza…», y agrega «Ver el muro» (hace clic en el botón Muro de la barra de abajo, que abre el Muro en «Todo»). No cambia 06-cattitle.js;
-  - no se quitaron: los íconos de categorías de arriba (Tiendas, Comidas…), el botón «Ver por categorías →» debajo de la lista, ni «Negocios»;
+  - no se quitaron: los íconos de categorías de arriba (Tiendas, Comidas…) ni «Negocios». El botón «Ver por categorías →» se quitó después, en la v456;
   - las tarjetas de la v453 (negocios en fila) solo salían en esas pestañas, así que hoy no se ven en el inicio; el CSS sigue por si vuelven;
   - con `window.qhInicioCompleto=true` vuelven todas las pestañas (lo usan las pruebas de la v453). Quitar los dos archivos v455 de `src/orden.json` las devuelve.
 - **Muro en fila (v454):**

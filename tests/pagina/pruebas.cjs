@@ -1258,8 +1258,8 @@ const PRUEBAS = {
     const now = Date.now(), seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], ts: now - 60e3, _o: 1 } };
     const p = await abrir({ seed });
     await p.evaluate(() => closeModal(1)); await p.waitForTimeout(200);
-    const a = await p.evaluate(() => { const s = document.querySelector('#app section.hsw'); return { tabs: [...s.querySelectorAll('.hswt button')].map(b => b.textContent.trim()), panes: s.querySelectorAll('.hswp>.hswc').length, flechas: s.querySelectorAll('.plar').length, aviso: s.querySelectorAll('.hswh').length, tienda: /Heladería Gelatier/.test(s.innerText) } });
-    check('El inicio queda solo con «Lo más reciente» y al lado «Ver el muro»', a.tabs.length === 2 && /Lo más reciente/.test(a.tabs[0]) && /Ver el muro/.test(a.tabs[1]) && a.panes === 1 && !a.flechas && !a.aviso, JSON.stringify(a));
+    const a = await p.evaluate(() => { const s = document.querySelector('#app section.hsw'); return { tabs: [...s.querySelectorAll('.hswt button')].map(b => b.textContent.trim()), panes: s.querySelectorAll('.hswp>.hswc').length, flechas: s.querySelectorAll('.plar').length, aviso: s.querySelectorAll('.hswh').length, categorias: s.querySelectorAll('.hswm').length /* v456 */, tienda: /Heladería Gelatier/.test(s.innerText) } });
+    check('El inicio queda solo con «Lo más reciente» y al lado «Ver el muro» (sin «Ver por categorías»)', a.tabs.length === 2 && /Lo más reciente/.test(a.tabs[0]) && /Ver el muro/.test(a.tabs[1]) && a.panes === 1 && !a.flechas && !a.aviso && !a.categorias, JSON.stringify(a));
     check('«Lo más reciente» sigue mostrando las publicaciones', a.tienda, JSON.stringify(a));
     await p.evaluate(() => { view = 'serv'; render() }); await p.waitForTimeout(200); await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(300);
     check('Al volver al inicio sigue igual (sin las pestañas de categorías)', await p.evaluate(() => document.querySelectorAll('#app section.hsw .hswt button').length === 2));
