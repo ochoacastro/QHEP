@@ -36,7 +36,7 @@
 
 <script>(function(){try{var t=localStorage.getItem("qh_theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})()</script>
 <title>Mi Pradera – Lo nuestro, en un solo lugar</title>
-<!-- v447: la letra Rubik sale de la propia página (carpeta fuentes/), no de Google Fonts: un solo archivo de 35 KB trae todos los grosores (300 a 900), sin conectarse a otro sitio. La de tildes raras (latin-ext) solo baja si hace falta. Inter ya no se descarga (era solo reserva y nunca se veía). Igual que en la v378, no detiene el primer dibujo (font-display: swap) --><link rel="preload" as="font" type="font/woff2" href="fuentes/rubik-latin.woff2" crossorigin><style>@font-face{font-family:'Rubik';font-style:normal;font-display:swap;font-weight:300 900;src:url(fuentes/rubik-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Rubik';font-style:normal;font-display:swap;font-weight:300 900;src:url(fuentes/rubik-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}</style>
+<!-- v447: la letra Rubik sale de la propia página (carpeta fuentes/), no de Google Fonts: un solo archivo de 35 KB trae todos los grosores (300 a 900), sin conectarse a otro sitio. La de tildes raras (latin-ext) solo baja si hace falta. Inter ya no se descarga (era solo reserva y nunca se veía). Igual que en la v378, no detiene el primer dibujo (font-display: swap) --><link rel="preload" as="font" type="font/woff2" href="fuentes/outfit-latin.woff2" crossorigin><!-- v457: la letra del texto es Outfit; Rubik solo baja si algo la usa --><style>@font-face{font-family:'Rubik';font-style:normal;font-display:swap;font-weight:300 900;src:url(fuentes/rubik-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Rubik';font-style:normal;font-display:swap;font-weight:300 900;src:url(fuentes/rubik-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}</style>
 <style>
 :root{--ink:#000000;--bg:#f2f4f5;--mango:#FFA800;--guava:#FF4D79;--lulo:#14B88A;--rio:#5433eb;--card:#fff}
 *{box-sizing:border-box;margin:0}
@@ -1462,18 +1462,6 @@ html.dark .qpr:is(.btn:not(.ghost),.hhr,.hhr2,.plgo,.qbr1){box-shadow:0 0 0 3px 
 @media (prefers-reduced-motion:reduce){.qrp{display:none}.qpr{transform:none!important}}
 </style>
 
-<style id="v273-botones-cuadrados">
-/* v273: botones rectos y limpios: esquinas cuadradas, texto en mayúsculas y grueso, y una franja más oscura abajo */
-.btn,.hhr,.hhr2,.plgo,.qbr1,.chip,.nwchip,.pnr{border-radius:0!important}
-.btn,.hhr,.hhr2,.plgo,.qbr1{text-transform:uppercase;font-weight:800!important;letter-spacing:.03em!important}
-.btn:not(.ghost),.hhr.hhrf,.plgo,.qbr1{box-shadow:inset 0 -4px 0 rgba(0,0,0,.22)!important}
-.btn.ghost{border-width:2px!important;box-shadow:none!important}
-.hhr.hhrf{background:#0a8f3f!important}
-.qpr:is(.btn,.hhr,.hhr2,.plgo,.qbr1){box-shadow:inset 0 -2px 0 rgba(0,0,0,.3),0 0 0 3px rgba(0,110,219,.28)!important}
-html.dark .hhr.hhrf{background:#0a8f3f!important}
-.hh2 .qw,.hh2 #qgo{border-radius:0!important}
-.hh2 #qgo{text-transform:uppercase;font-weight:800;letter-spacing:.03em;box-shadow:inset 0 -4px 0 rgba(0,0,0,.22)}
-</style>
 <style id="v274-publicar-cuadrado">
 /* v274: «¿Qué quieres publicar?»: botones cuadrados y cada rol en un recuadro que se distingue del fondo */
 .pms{border-radius:0!important;background:#f3f5f8!important;border:1px solid #dfe4ec!important;border-left:4px solid var(--rio)!important;padding:14px!important}
@@ -1490,17 +1478,6 @@ html.dark .pmb{background:#2a2d35!important;border-color:#3b404b!important;color
 html.dark .pmb.act,html.dark .qpr.pmb{background:#0a84ff!important;border-color:#0a84ff!important;color:#fff!important}
 html.dark .pmno{background:#2f333c!important;color:#cbd5e1!important}
 html.dark .pubopt{background:#1e2026!important;border-color:#2f333c!important;border-left-color:#FFA800!important;color:#fff!important}
-</style>
-<style id="v276-cajas-cuadradas">
-/* v276: cajas de los formularios cuadradas (campos de texto, listas, áreas de texto, «Elegir foto» y avisos) */
-input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea,.qs-btn,.fpk-btn,.note,.qhelp{border-radius:0!important}
-input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):focus,select:focus,textarea:focus{border-radius:0!important}
-</style>
-<style id="v277-todo-cuadrado">
-/* v277: todas las cajas y botones con esquinas redondeadas pasan a cuadradas (tarjetas, buscador, resultados, ventanas, menú lateral, avisos, SOS…).
-   Los círculos (íconos redondos, avatares, el botón + de Publicar) se dejan como están. Lista sacada de las reglas de la propia página. */
-:is(.pnr,#q,input[type="time"],.dchip span,.pimg,.mapbox iframe,.btn,.bedq button,.cav,.cci,.amen span,.stbar,.chip,.shop,.shop .em,.tag,.banner,.banner .em,.prod,.prod .pic,.x,.modal,input[type="text"],input[type="number"],input[type="tel"],input[type="email"],select,textarea,.cg,#toast,.zoom .cnt,.zoom .zi,.thumbs button,.vf,.ftpanel,.fvi,.reply,input[type="password"],.subtabs button,.sadb,#all-map:empty,.spl-bar,.spl-bar i,.tabs.hmenu .hbtn,.subtabs.vmenu,.subtabs.vmenu button,.pubopt,.multi label,input[type="month"],.gal .zoom,.thumbs2 button,.spec div,.note,#sr,.catrow input[type="color"],.agegate,.agegate .agb,.agegate button,.soc a,.ytw > a img,.ytw iframe,#all-map,.mrow,.pc .pi,.cover,.icard,.segb,.segb button,.banner.promo,.sqw input,#usr-q,.rvc,.soldout,.prod.fx,.fxs,.prod.fx .fxb,.prod.fx .fxv,.cimt,.bnt,.bns,.bnd,.tbd,.tbs,.tb.ph,.bn.ph,.cico,.mct,.mini,.cico.sm,.bnrow .bnth,.hbtn,.pvg,.pvc,.pvsh,.pvvid,.pvth button,.pvvi .vid,.cvar,.cver,.chrt,.pvo,.pvq,.pvbtn,.pvs,.pvchip,.pvpub,.pvm2 .pi2,.pxd,.plx,.plgo,.pled,.hubhero,.hubf,.hpc,.hpc .hpi,.sob,.modal:has(.am),.am .af > input,.am-eye,.am-go,.am .sob.sob,.qw #q,#qgo,.cbd,.qw,.hswtw .plar,.hswt button,.hgjc,.hsc,.hscb,.hscw,.hscv,.hh2 .qw,.hh2 #qgo,.hhr,.hnegc,.hnegb,.plo,.plbadge,article.cmc,.plsb,.cmr,.cmt,.csq input,.hh2,.drawer,.btn.pink,html .hexl button,.qhb,.qhb-i img,#x-hrs,p.cmpaid.box,.pnbd,.qs-btn,.qs-sh,.qs-o,input[type="date"],input[type="datetime-local"],input[type="week"],input[type="url"],input[type="search"],.cmfb-v,.cmfb-tag,.cmfb-f textarea,.adslot,.adslot .adl,.adsmap .ar,.adsmap .ab,.qtour-in,.qtour-s .im,.qtour-dots i.on,.qhelp,.qhl button,.qbk,.qbiv img,.qps div,.qtw,.qmd,.qnot,.qpt tr,.qcs,.qbq,.qbw,.qbt button,.qbt em,.qbi,.qbs,.tabs.admg button,.tabs.admg button > i,.tabs.admg .admn,#qco .qco-spot,#qco .qco-b,#qco .qco-bt button,.qcm button,.nwchip,.nwct,.nwgal img,.nwtb button,.nwgt img,.nwri,.nwri img,.nwri0,.nwre button,.nwcm .tg,.nwcf textarea,.nwbadge,.nwnot,.nwnot .go,.cdt,.cds,.cdon,.qfc,.shpnote,.shpb,.shpn,.bzc,.bzi,.bzt em,.hhr2,.cmpv,.cmpv img,.emgfab,.emg-id,.emg-bl,.emg-tip,.emg-b,.emg-w,.emg-c,.emg-m,.emg-blood,.emga .emr,.obi-tpl button,.obi-tpl i,.obi-prev canvas,.obi-dm button,.obi-ex,.obi-sug button,.usrb,.hpv em,.hpb,.hexc,.hexmap,.hexl button,.pms,.pmok,.pmno,.pmb,#adpop .apb,#adpop .apb img,.cwz-ty,.cwz-chip,.cwz-pl,.cmplay em,.cmplat,.cmc,.cmprev img,.cmtags span,.cmths img,.cmst,.cmimgs img,.fpk-btn,.fpk-t){border-radius:0!important}
-#qgo,#drawer,.drawer,.hubi{border-radius:0!important}
 </style>
 <style id="v278-redes-css">
 /* v278: redes sociales de Mi Pradera en el pie de página (las configura el administrador) y © con el año */
@@ -2469,6 +2446,68 @@ html.qh-esq-wait #annc{display:none!important}/* la barra de anuncio sale (o no)
 .hsw .hswt .v455m .qi{width:20px;height:20px}
 .hsw .hswt .v455m::after{content:"›";font-size:22px;line-height:1;margin-left:2px}
 </style>
+<style id="v457-estilo-redondeado">/* v457: ESTILO REDONDEADO (pedido por la dueña, tomando como referencia el diseño de co.addi.com: sus letras, esquinas
+   redondeadas, botones en píldora y títulos con las letras juntas). Se toma la forma, no la marca: los colores, el logo
+   y los textos siguen siendo los de Mi Pradera.
+   - Letras: Outfit para el texto y Onest para los títulos (las dos de Google Fonts, licencia OFL, servidas desde fuentes/).
+   - Esquinas: tarjetas e imágenes 18 px, ventanas 24 px, campos 14 px, botones y etiquetas en píldora.
+   - Se quitaron de src/orden.json v273, v276 y v277 (las que ponían todo cuadrado y los botones en mayúsculas con franja);
+     v274 sigue (colores de «¿Qué quieres publicar?») y aquí solo se le redondean las esquinas.
+   Para volver al diseño cuadrado: quitar este archivo y v457-movimiento.js de src/orden.json y volver a poner v273, v276 y v277. */
+@font-face{font-family:'Outfit';font-style:normal;font-display:swap;font-weight:100 900;src:url(fuentes/outfit-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Outfit';font-style:normal;font-display:swap;font-weight:100 900;src:url(fuentes/outfit-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Onest';font-style:normal;font-display:swap;font-weight:100 900;src:url(fuentes/onest-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Onest';font-style:normal;font-display:swap;font-weight:100 900;src:url(fuentes/onest-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+:root{--font-rubik:'Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--font-sf-pro-text:'Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+ --font-sf-pro-display:'Onest','Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--r-card:18px;--r-s:14px;--r-m:18px;--r-l:24px}
+body,button,input,select,textarea{font-family:'Outfit',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+/* títulos: Onest, con las letras un poco más juntas */
+h1,h2,h3,.hsct,.murn,.pvt,.ptitle,.sname h2{font-family:'Onest','Outfit',system-ui,sans-serif;letter-spacing:-.02em}
+h1,h2{letter-spacing:-.035em}
+/* el verde del botón destacado del inicio (venía en v273) */
+.hhr.hhrf,html.dark .hhr.hhrf{background:#0a8f3f!important}
+/* botones, pestañas y etiquetas en píldora; texto normal (sin mayúsculas forzadas) */
+.btn,.hhr,.hhr2,.plgo,.qbr1,.chip,.nwchip,.pnr,#qgo,.hscw,.hscv,.murw,.murv,.pvbtn,.pvchip,.pmok,.pmno,.pmb,.hswt button,.subtabs button,.segb,.segb button,
+.cmfb-v,.cmfb-tag,.qs-btn,.fpk-btn,.cwz-chip,.cwz-ty,.cwz-pl,.muf,.mup,.mua,.v455m,.tabs.hmenu .hbtn,.nwre button,.dchip span,.tag,.plbadge,.hscb,.cver,.soldout,#toast{border-radius:999px!important}
+.pgrid .prod:not(.fx) .plus{border-radius:999px!important}
+/* campos de texto y el buscador */
+input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea{border-radius:var(--r-s)!important}
+.qw,.qw #q,.hh2 .qw,.sqw input,#usr-q,.csq input{border-radius:999px!important}
+.qw{overflow:hidden}
+/* tarjetas y cajas */
+.prod,.shop,.cg,.hsc,.mur,article.cmc,.cmc,.hpc,.icard,.rvc,.cmr,.banner,.bzc,.hh2,.hubhero,.hubf,.pvs,.stbar,.pms,.pubopt,.note,.qhelp,#sr,.cbd,.mrow,.mini,.cdt,.qhb,.nwnot,.adslot,.drawer,#drawer,.ftpanel,
+.subtabs.vmenu,.agegate,.shpnote,.hexc,.hexmap,.emg-b,.emg-c,.emg-m,.qmd,.qnot,.cmplat,.cmpv,.usrb{border-radius:var(--r-m)!important}
+.modal,.modal:has(.am){border-radius:var(--r-l)!important}
+/* imágenes y fotos */
+.bnt,.bn.ph{border-radius:var(--r-m)!important;overflow:hidden}
+.prod .pic,.pc .pi,.hpc .hpi,.hsci,.murf,.pvg,.pvc,.pvth button,.cover,.bzi,.pimg,.sadb,.gal .zoom,.thumbs button,.thumbs2 button,.cmimgs img,.cmprev img,.cmths img,.cmpv img,.nwgal img,.nwgt img,
+.nwri img,.ytw iframe,.ytw>a img,.mapbox iframe,#all-map,.qbiv img,.qhb-i img{border-radius:var(--r-m)!important;overflow:hidden}
+.pgrid .prod:not(.fx) .pic img,.hsc .hsci img,.mur .murf img{border-radius:inherit}
+.muim,.muim img,.cmimgs,.cmc .cmimgs img{border-radius:var(--r-m)!important}
+/* tarjetas en fila (v444, v453, v454): borde suave en vez de línea dura */
+.pgrid .prod:not(.fx),.hsc,.mur{border-color:color-mix(in srgb,var(--line,#d2d2d7) 70%,transparent)}
+/* movimiento al hacer scroll (v457-movimiento.js): aparecer una vez y parallax de la foto del banner */
+.rv{opacity:0;transform:translate3d(0,16px,0)}
+.rv.rv-in{opacity:1;transform:none;transition:opacity 600ms cubic-bezier(.23,1,.32,1),transform 600ms cubic-bezier(.23,1,.32,1)}
+.bns{overflow:hidden;border-radius:var(--r-m)}.bns img.px{will-change:transform}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}.bns img.px{transform:none!important}}
+/* piezas que seguían rectas (revisadas pantalla por pantalla: inicio, Muro, tienda, producto, publicar, entrar) */
+.bzc .btn.bzl,.am-cx,.muop .muoi{border-radius:999px!important}
+.tdi,.tdi img,.si-i,.qcl-i,.muoi{border-radius:12px!important;overflow:hidden}
+.qcl-ct,.qcopy,.mucomp,.cmfb,.ltr,.banner.promo,.acts.acts-grid,.muop{border-radius:var(--r-m)!important}
+.pgrid .prod:not(.fx) .pic,.pgrid .prod .pic{border-radius:var(--r-m)!important;overflow:hidden}
+/* títulos: Onest y un poco más livianos, como la referencia (antes 800-900). Con !important porque varias reglas
+   viejas les ponen la letra del texto (var(--font-rubik)) con más especificidad */
+/* v269 pone la letra del texto a TODO con «body :not(code):not(kbd):not(pre):not(.mono)» !important: esta selección es un poco
+   más específica para que los títulos queden en Onest. v370 pone el título del inicio en 800 con «html.qcl .hubhero h2» */
+html body :is(h1,h2,h3):not(.mono):not(code):not(kbd){font-family:'Onest','Outfit',system-ui,sans-serif!important}
+html body :is(h1,h2):not(.mono){font-weight:700!important}
+html.qcl .hubhero.hh2 h2,html .hubhero.hh2 h2{font-weight:650!important;letter-spacing:-.04em!important}
+.banner.promo.sinfo-b{border-radius:var(--r-m)!important;overflow:hidden}
+.si-pay span,.si-tags span{border-radius:999px!important}
+.cmi,img.cmi{border-radius:var(--r-m)!important}
+</style>
+
 
 
 
@@ -6977,7 +7016,7 @@ document.head.insertAdjacentHTML('beforeend','<style id="v445-css">.mp.mph{displ
   var tabs=sec.querySelectorAll('.hswt [data-act="hsw"]'),panes=sec.querySelectorAll('.hswp>.hswc'),i;
   for(i=1;i<tabs.length;i++)tabs[i].remove();
   for(i=1;i<panes.length;i++)panes[i].remove();
-  var l=sec.querySelectorAll('.hswtw .plar,.hswc .hswh');for(i=0;i<l.length;i++)l[i].remove();
+  var l=sec.querySelectorAll('.hswtw .plar,.hswc .hswh,.hswc .hswm');/* v456: también el botón «Ver por categorías →» */for(i=0;i<l.length;i++)l[i].remove();
   var w=sec.querySelector('.hswtw');if(w)w.classList.remove('fl');
   var t=sec.querySelector('.hswt');if(t&&!t.querySelector('.v455m')){t.insertAdjacentHTML('beforeend','<button type="button" class="v455m">'+MURO+' Ver el muro</button>')}
   sec.setAttribute('aria-label','Lo más reciente')}
@@ -6985,6 +7024,37 @@ document.head.insertAdjacentHTML('beforeend','<style id="v445-css">.mp.mph{displ
  document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.v455m');if(!b)return;e.preventDefault();e.stopPropagation();
   var m=document.querySelector('#bnav [data-v="com"]');if(m){m.click();return}
   try{view='com';render();scrollTo(0,0)}catch(x){location.hash='#/clasificados'}},true);
+ function arrancar(){var a=document.getElementById('app');if(!a)return;new MutationObserver(todo).observe(a,{childList:true,subtree:true});todo()}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrancar);else arrancar();
+})();
+</script>
+<script id="v457-movimiento">/* v457: MOVIMIENTO AL HACER SCROLL (referencia: co.addi.com), solo en la parte de presentación del INICIO
+   (título «¿Qué hay en Pradera?», íconos de categorías, carrusel de fotos de arriba, anuncios de colores y «Negocios»). Las listas de publicaciones,
+   tiendas y productos no se mueven: se usan a diario y lo que se lee o se toca no debe moverse por adorno.
+   1) Aparecer: cada pieza que está más abajo de la pantalla entra una sola vez al llegar a ella (sube 16 px y se aclara,
+      600 ms). Lo que ya se ve al abrir la página no espera: sale de una vez.
+   2) Parallax: la foto del carrusel de arriba (publicidad) se desplaza un poco más lento que la página (hasta 18 px) dentro de su marco.
+   Con «reducir movimiento» en el teléfono no se hace nada. Solo usa transform y opacity.
+   Para quitarlo: borrar este archivo de src/orden.json. */
+(function(){
+ var H=document.documentElement;
+ try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return}catch(e){}
+ if(!('IntersectionObserver' in window))return;
+ var SEL='#app .hubhero,#app .hubg,#app section[aria-label="Publicidad"],#app .bzcar,#app .hneg',VISTO={},io,io2,vivos=new Set(),tick=false;
+ function clave(el){return el.className.split(' ')[0]}
+ io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var el=e.target;io.unobserve(el);VISTO[clave(el)]=1;el.classList.add('rv-in')})},{rootMargin:'0px 0px -8% 0px'});
+ function aparecer(){var l=document.querySelectorAll(SEL),vh=innerHeight;
+  for(var i=0;i<l.length;i++){var el=l[i];if(el.dataset.rv)continue;el.dataset.rv='1';
+   if(VISTO[clave(el)]||el.getBoundingClientRect().top<vh*0.92){VISTO[clave(el)]=1;continue}/* ya visto o ya en pantalla: sin animación */
+   el.classList.add('rv');io.observe(el)}}
+ /* parallax de las fotos del carrusel de banners */
+ io2=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)vivos.add(e.target);else vivos.delete(e.target)});pedir()});
+ function fotos(){var l=document.querySelectorAll('#app .bns img');for(var i=0;i<l.length;i++){var im=l[i];if(im.dataset.px)continue;im.dataset.px='1';im.classList.add('px');io2.observe(im)}}
+ function mover(){tick=false;var vh=innerHeight;vivos.forEach(function(im){if(!im.isConnected){vivos.delete(im);return}var r=im.getBoundingClientRect(),c=(r.top+r.height/2-vh/2)/vh;/* -1 arriba … 1 abajo */
+  var y=Math.max(-18,Math.min(18,c*-18));im.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale(1.08)'})}
+ function pedir(){if(!tick){tick=true;requestAnimationFrame(mover)}}
+ addEventListener('scroll',pedir,{passive:true});addEventListener('resize',pedir);
+ function todo(){if(typeof view!=='undefined'&&view!=='home')return;aparecer();fotos();pedir()}
  function arrancar(){var a=document.getElementById('app');if(!a)return;new MutationObserver(todo).observe(a,{childList:true,subtree:true});todo()}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrancar);else arrancar();
 })();

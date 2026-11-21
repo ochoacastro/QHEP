@@ -630,35 +630,8 @@
  },
  {
   "t": "css",
-  "tag": "<style id=\"v273-botones-cuadrados\">",
-  "f": "estilos/v273-botones-cuadrados.css"
- },
- {
-  "t": "txt",
-  "v": "\n"
- },
- {
-  "t": "css",
   "tag": "<style id=\"v274-publicar-cuadrado\">",
   "f": "estilos/v274-publicar-cuadrado.css"
- },
- {
-  "t": "txt",
-  "v": "\n"
- },
- {
-  "t": "css",
-  "tag": "<style id=\"v276-cajas-cuadradas\">",
-  "f": "estilos/v276-cajas-cuadradas.css"
- },
- {
-  "t": "txt",
-  "v": "\n"
- },
- {
-  "t": "css",
-  "tag": "<style id=\"v277-todo-cuadrado\">",
-  "f": "estilos/v277-todo-cuadrado.css"
  },
  {
   "t": "txt",
@@ -1673,6 +1646,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v457-estilo-redondeado\">",
+  "f": "estilos/v457-estilo-redondeado.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v440-tiendas-vencidas\">",
   "f": "codigo/v440-tiendas-vencidas.js"
@@ -1730,6 +1712,15 @@
   "t": "js",
   "tag": "<script id=\"v455-inicio-solo-reciente\">",
   "f": "codigo/v455-inicio-solo-reciente.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v457-movimiento\">",
+  "f": "codigo/v457-movimiento.js"
  },
  {
   "t": "txt",
