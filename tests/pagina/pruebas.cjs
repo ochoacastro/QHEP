@@ -1297,6 +1297,36 @@ const PRUEBAS = {
     check('Con «reducir movimiento» no se oculta ni se mueve nada', await q.evaluate(() => !document.querySelector('.rv') && !(document.querySelector('.bns img') || { style: {} }).style.transform));
     await q.cerrar();
   },
+  async telefonoFicha() { // v458 la ficha de la tienda muestra el teléfono principal (el de WhatsApp), que se puede tocar para llamar
+    const seed = { 'stores/s1': { id: 's1', name: 'Acabados Pradera', desc: 'Ferretería', cat: 'Otros', zone: 'San José', addr: 'Calle 9 Cra 11', wa: '3001234567', wa2: '6022671234', ownerKey: 'k1', pexp: Date.now() + 30 * 864e5, products: [], _o: 1, pays: ['cash'] } };
+    const p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(400);
+    const r = await p.evaluate(() => [...document.querySelectorAll('.sinfo .si-r')].map(x => { const a = x.querySelector('a.si-t'); return { l: x.querySelector('.si-l').textContent.trim(), v: a ? a.textContent : '', h: a ? a.getAttribute('href') : '' } }));
+    const tel = r.find(x => x.l === 'Teléfono'), otro = r.findIndex(x => x.l === 'Otro teléfono');
+    check('La ficha muestra «Teléfono» con el número del negocio, para llamar', !!tel && tel.v === '300 123 4567' && tel.h === 'tel:+573001234567', JSON.stringify(r));
+    check('«Teléfono» va antes de «Otro teléfono»', r.findIndex(x => x.l === 'Teléfono') >= 0 && otro > r.findIndex(x => x.l === 'Teléfono'), JSON.stringify(r.map(x => x.l)));
+    sinErrores(p, 'Teléfono en la ficha'); await p.cerrar();
+  },
+  async serviciosVivienda() { // v459 arriendo: servicios con los que cuenta la vivienda, aparte de los que ya están pagos en el arriendo
+    const seed = { 'ads/a1': { id: 'a1', type: 'arr', title: 'Casa de 2 habitaciones', price: 450000, zone: 'Centro', desc: 'Cerca del parque', imgs: [], owner: 'Marta', ownerKey: 'kb', ts: Date.now(), f: { ptype: 'Casa', svc: ['Agua', 'Energía', 'Gas natural', 'Internet'], inc: ['Agua'] } } };
+    const p = await abrir({ seed });
+    const f = await p.evaluate(() => { const F = ADT.arr.F, i = F.findIndex(x => x.k === 'svc'), j = F.findIndex(x => x.k === 'inc'), d = document.createElement('div'); d.innerHTML = fieldHTML(F[i], []);
+      return { i, j, op: [...d.querySelectorAll('input[type=checkbox]')].map(x => x.value), l: F[i].l, li: F[j].l } });
+    check('El formulario de arriendo pregunta qué servicios tiene la vivienda (agua, energía, gas natural, internet)', f.i >= 0 && f.op.join() === 'Agua,Energía,Gas natural,Internet' && /cuenta la vivienda/.test(f.l), JSON.stringify(f));
+    check('El campo de servicios pagos en el arriendo tiene un nombre que no se confunde y va después', f.j === f.i + 1 && /pagos en el valor del arriendo/.test(f.li) && /no los paga aparte/.test(f.li), JSON.stringify(f));
+    await p.evaluate(() => { closeModal(1); view = 'ad'; curAd = 'a1'; render() }); await p.waitForTimeout(400);
+    const t = await p.evaluate(() => document.getElementById('app').innerText);
+    check('El anuncio muestra los servicios que tiene la vivienda y, aparte, los que ya están pagos', /cuenta la vivienda[\s\S]{0,20}Agua, Energía, Gas natural, Internet/.test(t) && /pagos en el valor del arriendo[\s\S]{0,80}Agua/.test(t), t.slice(0, 900));
+    // v460: las opciones de «ya están pagos» usan las mismas palabras; un anuncio viejo con «Luz» y «Gas» se lee como «Energía» y «Gas natural»
+    const o = await p.evaluate(() => ADT.arr.F.find(x => x.k === 'inc').o.join());
+    check('Las dos preguntas usan las mismas palabras (Energía, Gas natural)', o === 'Agua,Energía,Gas natural,Internet,TV por cable', o);
+    sinErrores(p, 'Servicios de la vivienda'); await p.cerrar();
+    const viejo = { 'ads/a2': { id: 'a2', type: 'arr', title: 'Apartamento', price: 600000, zone: 'Centro', desc: '', imgs: [], owner: 'Luis', ownerKey: 'kc', ts: Date.now(), f: { inc: ['Agua', 'Luz', 'Gas'] } } };
+    const q = await abrir({ seed: viejo });
+    const r = await q.evaluate(() => { const a = S.ads.find(x => x.id === 'a2'), d = document.createElement('div'); d.innerHTML = fieldHTML(ADT.arr.F.find(x => x.k === 'inc'), a.f.inc); return { inc: a.f.inc.join(), marcadas: [...d.querySelectorAll('input:checked')].map(x => x.value).join() } });
+    check('Un anuncio viejo con «Luz» y «Gas» se lee como «Energía» y «Gas natural» y sus casillas siguen marcadas', r.inc === 'Agua,Energía,Gas natural' && r.marcadas === 'Agua,Energía,Gas natural', JSON.stringify(r));
+    sinErrores(q, 'Servicios de la vivienda (anuncio viejo)'); await q.cerrar();
+  },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
     const seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], logo: LG, ts: now - 60e3, _o: 1 },
