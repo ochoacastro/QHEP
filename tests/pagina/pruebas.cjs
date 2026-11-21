@@ -1110,6 +1110,25 @@ const PRUEBAS = {
     check('Las filas no se desbordan a los lados', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     sinErrores(p, 'Productos como Amazon'); await p.cerrar();
   },
+  async mapaInmuebles() { // v445 «Mostrar» en el Mapa: tiendas o arriendos e inmuebles en venta; los sin punto, al administrador
+    const PR = [3.4189, -76.2433], ad = (id, type, title, dl, x) => Object.assign({ id, type, title, price: 900000, zone: 'Centro', desc: '', imgs: [], f: { addr: 'Calle ' + id }, ts: Date.now(), ownerKey: 'kZ', lat: dl ? PR[0] + dl : null, lng: dl ? PR[1] + dl : null }, x);
+    const seed = { 'ads/i1': ad('i1', 'arr', 'Casa de 3 habitaciones', 0.002), 'ads/i2': ad('i2', 'casa', 'Casa en venta con patio', -0.003), 'ads/i3': ad('i3', 'arr', 'Local comercial', null), 'ads/v1': ad('v1', 'veh', 'Moto', 0.001) };
+    const p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); view = 'map'; render() }); await p.waitForTimeout(500);
+    check('El mapa tiene «Mostrar» y sigue con las tiendas', await p.evaluate(() => !!document.getElementById('m-que') && /Mapa de tiendas/.test(document.getElementById('app').innerText) && !!document.getElementById('m-cat')));
+    await p.selectOption('#m-que', 'inm'); await p.waitForTimeout(500);
+    const t = await p.evaluate(() => document.getElementById('app').innerText);
+    check('«Arriendos e inmuebles en venta» muestra los dos con punto y cuenta el que no lo tiene', /Mapa de arriendos e inmuebles en venta/.test(t) && /2 inmuebles ubicados/.test(t) && /1 aún no tiene su punto/.test(t) && /Casa de 3 habitaciones/.test(t) && /Casa en venta con patio/.test(t) && !/Moto/.test(t), t.slice(0, 400));
+    await p.selectOption('#m-que', 'casa'); await p.waitForTimeout(400);
+    check('«Solo ventas» deja solo la casa en venta', await p.evaluate(() => { const t = document.getElementById('app').innerText; return /1 inmueble ubicado/.test(t) && /Casa en venta/.test(t) && !/Casa de 3 habitaciones/.test(t) }));
+    await p.evaluate(() => document.querySelector('.mlist [data-act="openAd"]').click()); await p.waitForTimeout(400);
+    check('«Ver» de la lista abre el anuncio', await p.evaluate(() => view === 'ad' && curAd === 'i2'));
+    sinErrores(p, 'Mapa de inmuebles'); await p.cerrar();
+    const q = await abrir({ admin: true, seed });
+    await q.evaluate(() => { closeModal(1); at = 'usr'; view = 'admin'; render() }); await q.waitForTimeout(500);
+    check('El administrador ve el inmueble sin punto para ponerle el código plus', await q.evaluate(() => !!document.querySelector('[data-adplus="i3"]') && !document.querySelector('[data-adplus="i1"]') && /Aún no tiene su punto/.test(document.getElementById('app').innerText)));
+    sinErrores(q, 'Mapa de inmuebles (administrador)'); await q.cerrar();
+  },
 };
 
 (async () => {
