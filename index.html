@@ -2373,6 +2373,35 @@ html.dark .si-pay span{border-color:#48484a!important}html.dark a.si-t{color:#64
  .pgrid .prod:not(.fx) .x[style]{left:60px}
 }
 </style>
+<style id="v448-esqueletos-css">/* v448: esqueletos de carga. En el inicio no sale la pantalla del logo; las partes que esperan datos muestran cajas grises
+   cuadradas que brillan suave. Con «reducir movimiento» no brillan. El modo oscuro las oscurece solo (v219). */
+html.qh-esq #splash{display:none!important}
+html.qh-esq-wait #annc{display:none!important}/* la barra de anuncio sale (o no) según los datos: mientras llegan, no se muestra, para que la página no salte */
+.esq{display:block}
+.esq-b{display:block;background:linear-gradient(90deg,#e3e9f7 25%,#f3f6fd 50%,#e3e9f7 75%);background-size:200% 100%;animation:shim 1.2s linear infinite}
+@media (prefers-reduced-motion:reduce){.esq-b{animation:none}}
+.esq-filas{display:grid;gap:14px;padding:6px 0 10px}
+.esq-fila{display:flex;align-items:center;gap:14px}
+.esq-fila>span{flex:1;display:grid;gap:9px}
+.esq-cu{width:72px;height:72px;flex:none}
+.esq-l1{height:12px;width:38%}
+.esq-l2{height:16px;width:72%}
+.esq-neg{margin:18px 0 8px}
+.esq-tit{height:20px;width:140px;margin:0 0 12px}
+.esq-negs{display:flex;gap:12px;overflow:hidden}
+.esq-card{flex:none;width:260px;height:112px}
+.esq-ini{padding:24px 0 10px}
+.esq-h1{height:34px;width:62%;margin:0 auto 10px}
+.esq-h2{height:34px;width:72%;margin:0 auto 18px}
+.esq-sub{height:14px;width:80%;margin:0 auto 26px}
+.esq-chips{display:flex;gap:8px;margin:0 0 26px}
+.esq-chips .esq-b{height:36px;width:96px}
+.esq-cats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 14px;margin:0 0 26px}
+.esq-cats .esq-b{aspect-ratio:1}
+.esq-ban{height:300px;margin:0 0 20px}
+.esq-vt{height:26px;width:55%;margin:18px 0 18px}
+</style>
+
 
 
 
@@ -2418,6 +2447,12 @@ html.dark .jobpv{background:#1c1c1e!important;border-color:#3a3a3c!important}htm
 <footer>Mi Pradera · Lo nuestro, en un solo lugar. Cada tienda y cada servicio es responsabilidad de quien lo publica.<br><button class="back" data-rolv="1">Planes y precios</button> · <button class="back" data-qapp="1">Descargar la app</button> · <button class="back" data-act="legal" data-v="terms">Términos de uso</button> · <button class="back" data-act="legal" data-v="priv">Política de privacidad</button></footer>
 <aside class="drawer" id="drawer" aria-label="Carrito"></aside>
 <div id="toast" role="status"></div>
+<script id="v448-esqueletos-inicio">/* v448: ESQUELETOS DE CARGA (parte 1, en el <head>). Si la página se abre en el inicio (sin #/… y sin ?panel ni ?admin),
+   marca <html> con «qh-esq» para que no salga la pantalla del logo: se ve la página enseguida y las partes que esperan
+   datos muestran cajas grises (v448-esqueletos.js). Con otra dirección (una tienda, un producto, el panel) sigue la
+   pantalla del logo, como antes. Para quitarlo: borrar este archivo, v448-esqueletos.js y v448-esqueletos.css de src/orden.json. */
+(function(){try{var q=new URLSearchParams(location.search),h=location.hash||'';if(q.has('admin')||q.has('panel'))return;if(h&&h!=='#'&&h!=='#/')return;document.documentElement.classList.add('qh-esq','qh-esq-wait')}catch(e){}})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.2/qrcode.min.js" defer></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -6800,6 +6835,45 @@ document.head.insertAdjacentHTML('beforeend','<style id="v445-css">.mp.mph{displ
   e.stopImmediatePropagation();campo=t;clearTimeout(T);T=setTimeout(ya,MS)
  },true);
  document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&e.target.id==='q')ya()},true);
+})();
+</script>
+<script id="v448-esqueletos">/* v448: ESQUELETOS DE CARGA (parte 2). Solo cuando la página se abrió en el inicio (clase «qh-esq», ver
+   v448-esqueletos-inicio.js) y mientras llegan los datos:
+   - antes del primer dibujo, en lugar de «Cargando…» sale la forma del inicio (título, botones, categorías y banner);
+   - en el inicio, «Todavía no hay publicaciones», «Aún no hay tiendas»… se cambian por filas grises (todavía no se sabe
+     si hay o no) y se agrega el lugar de «Negocios»;
+   - si la persona entra a otra sección antes de que lleguen los datos, ve una lista gris en vez de «no hay…».
+   Al llegar los datos (cuando la página llama hideSplash) se deja de tocar y se dibuja la sección con los datos.
+   No cambia cómo se cargan ni se guardan los datos. Para quitarlo: ver v448-esqueletos-inicio.js. */
+(function(){
+ var H=document.documentElement;if(!H.classList.contains('qh-esq'))return;
+ var listo=false,tapado=false,mo=null;
+ function rep(n,f){var s='';for(var i=0;i<n;i++)s+=f(i);return s}
+ function filas(n){return rep(n,function(){return '<div class="esq-fila"><i class="esq-b esq-cu"></i><span><i class="esq-b esq-l1"></i><i class="esq-b esq-l2"></i></span></div>'})}
+ var NEG='<section class="esq esq-neg" aria-hidden="true"><i class="esq-b esq-tit"></i><div class="esq-negs"><i class="esq-b esq-card"></i><i class="esq-b esq-card"></i></div></section>';
+ var INICIO='<div class="esq esq-ini" role="status" aria-label="Cargando"><i class="esq-b esq-h1"></i><i class="esq-b esq-h2"></i><i class="esq-b esq-sub"></i><div class="esq-chips">'+rep(3,function(){return '<i class="esq-b"></i>'})+'</div><div class="esq-cats">'+rep(12,function(){return '<i class="esq-b"></i>'})+'</div><i class="esq-b esq-ban"></i><div class="esq-filas">'+filas(3)+'</div></div>';
+ var VISTA='<div class="esq esq-vista" role="status" aria-label="Cargando"><i class="esq-b esq-vt"></i><div class="esq-filas">'+filas(6)+'</div></div>';
+ function vista(){try{return view}catch(e){return 'home'}}
+ function aplicar(){
+  if(listo)return;var a=document.getElementById('app');if(!a)return;
+  try{
+   var e=a.firstElementChild;
+   if(a.children.length===1&&e&&e.classList.contains('empty')&&!e.closest('.hswc')){a.innerHTML=INICIO}/* «Cargando…» antes del primer dibujo */
+   else if(vista()==='home'){
+    var l=a.querySelectorAll('.hswc>.empty');for(var i=0;i<l.length;i++){var d=document.createElement('div');d.className='esq esq-filas';d.setAttribute('role','status');d.setAttribute('aria-label','Cargando');d.innerHTML=filas(3);l[i].parentNode.replaceChild(d,l[i])}
+    var hs=a.querySelector('section.hsw');if(hs&&!a.querySelector('.hneg,.esq-neg'))hs.insertAdjacentHTML('beforebegin',NEG);
+   }
+   else if(!a.querySelector('.esq-vista')){a.innerHTML=VISTA;tapado=true}
+  }catch(x){}
+  if(mo)mo.takeRecords()/* lo que cambia aquí no vuelve a llamar a aplicar */}
+ function fin(){if(listo)return;listo=true;if(mo)mo.disconnect();H.classList.remove('qh-esq-wait');
+  var a=document.getElementById('app');if(tapado||(a&&a.querySelector('.esq'))){try{render(true)}catch(e){}}}
+ function arrancar(){
+  /* hideSplash lo define splash.js, que va después de este archivo: se engancha aquí, cuando ya existe */
+  var h0=window.hideSplash;window.hideSplash=function(){fin();if(typeof h0==='function')return h0.apply(this,arguments)};
+  var sp=document.getElementById('splash');if(!sp||sp.classList.contains('off')){listo=true;H.classList.remove('qh-esq-wait');return}/* los datos ya llegaron */
+  var a=document.getElementById('app');if(!a||listo)return;mo=new MutationObserver(aplicar);mo.observe(a,{childList:true,subtree:true});aplicar()}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',arrancar);else arrancar();
 })();
 </script>
 <script id="v332-datos-negocio">

@@ -9,6 +9,11 @@
   "f": "codigo/enlaces-sin-numeral.js"
  },
  {
+  "t": "js",
+  "tag": "<script id=\"v448-esqueletos-inicio\">",
+  "f": "codigo/v448-esqueletos-inicio.js"
+ },
+ {
   "t": "txt",
   "v": "\n"
  },
@@ -1632,6 +1637,15 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v448-esqueletos-css\">",
+  "f": "estilos/v448-esqueletos.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script id=\"v440-tiendas-vencidas\">",
   "f": "codigo/v440-tiendas-vencidas.js"
@@ -1671,6 +1685,15 @@
   "t": "js",
   "tag": "<script id=\"v446-busqueda-con-retardo\">",
   "f": "codigo/v446-busqueda-con-retardo.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v448-esqueletos\">",
+  "f": "codigo/v448-esqueletos.js"
  },
  {
   "t": "txt",
