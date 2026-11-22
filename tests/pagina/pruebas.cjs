@@ -1383,6 +1383,28 @@ const PRUEBAS = {
     check('Negocio: guarda la dirección y la referencia corregidas y sigue siendo del dueño', s.addr === 'Calle 5 # 3-22' && s.ref === 'Frente al parque' && s.plus === 'CQ94+H47' && s.own === 'kA/uA', JSON.stringify(s));
     sinErrores(p, 'Administrador corrige dirección'); await p.cerrar();
   },
+  async subcategoriasTiendas() { // v464 el administrador crea, renombra y elimina subcategorías de tiendas dentro de cada grupo
+    const p = await abrir({ admin: true, seed: { 'stores/s1': { id: 's1', name: 'Helados Pradera', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', products: [], _o: 1 } } });
+    await p.evaluate(() => { closeModal(1); at = 'cat'; view = 'admin'; render() }); await p.waitForTimeout(500);
+    const g = await p.evaluate(() => { const d = [...document.querySelectorAll('.stca details.stg')].find(x => x.dataset.stg === 'Comidas'); return { n: document.querySelectorAll('.stca details.stg').length, com: d ? [...d.querySelectorAll('input[id^="ct-n-"]')].map(i => i.value).join() : '' } });
+    check('«Categorías de tiendas» va por grupos, cada uno con sus subcategorías', g.n >= 10 && g.com === 'Restaurantes,Comidas rápidas,Panaderías y pastelerías', JSON.stringify(g));
+    await p.evaluate(() => { const d = document.querySelector('.stca details.stg[data-stg="Comidas"]'); d.open = true }); await p.waitForTimeout(200);
+    await p.fill('.stca details.stg[data-stg="Comidas"] .stadd input', 'Restaurantes'); await p.click('.stca [data-stadd="Comidas"]'); await p.waitForTimeout(300);
+    check('No deja crear una subcategoría repetida', await p.evaluate(() => /Ya existe/.test(document.getElementById('err').textContent)));
+    await p.fill('.stca details.stg[data-stg="Comidas"] .stadd input', 'Heladerías'); await p.click('.stca [data-stadd="Comidas"]'); await p.waitForTimeout(600);
+    const a = await p.evaluate(async () => { const d = document.querySelector('.stca details.stg[data-stg="Comidas"]'), site = (await firebase.firestore().collection('meta').doc('site').get()).data() || {}, cs = (await firebase.firestore().collection('cats').get()).docs.map(x => x.data().a[0]);
+      return { grupo: catGroupOf('Heladerías'), abierto: !!d && d.open, enGrupo: !!d && [...d.querySelectorAll('input[id^="ct-n-"]')].some(i => i.value === 'Heladerías'), mapa: (site.catGrp || {})['Heladerías'], cats: cs.includes('Heladerías') } });
+    check('«+ Agregar» crea la subcategoría dentro de su grupo y queda guardada', a.grupo === 'Comidas' && a.enGrupo && a.abierto && a.mapa === 'Comidas' && a.cats, JSON.stringify(a));
+    const vis = await p.evaluate(() => { const h = document.createElement('div'); h.innerHTML = catGroupedHTML(CATS, c => '<b>' + c[0] + '</b>'); const t = h.innerText; return t.indexOf('Comidas') >= 0 && t.indexOf('Heladerías') > t.indexOf('Comidas') && t.indexOf('Heladerías') < t.indexOf('Belleza') });
+    check('En el formulario de la tienda y en «Categorías», la nueva sale bajo «Comidas»', vis);
+    await p.evaluate(() => { const i = CATS.findIndex(c => c[0] === 'Heladerías'), n = document.getElementById('ct-n-' + i); n.value = 'Heladerías y postres'; n.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('ct-s-' + i).click() }); await p.waitForTimeout(500);
+    check('Al cambiarle el nombre sigue en su grupo', await p.evaluate(() => catGroupOf('Heladerías y postres') === 'Comidas' && !CATS.some(c => c[0] === 'Heladerías') && S.site.catGrp['Heladerías y postres'] === 'Comidas' && !('Heladerías' in S.site.catGrp)));
+    await p.evaluate(() => { S.stores.find(s => s.id === 's1').cat = 'Heladerías y postres'; const i = CATS.findIndex(c => c[0] === 'Heladerías y postres'); document.querySelector('.stca [data-act="catDel"][data-i="' + i + '"]').click() }); await p.waitForTimeout(300);
+    check('«Eliminar» pregunta antes y avisa a dónde pasan sus tiendas', await p.evaluate(() => /¿Eliminar "Heladerías y postres"\?[\s\S]*pasarán a "Otros"/.test((document.getElementById('cfm-t') || {}).textContent || '')));
+    await p.click('#cfm-ok'); await p.waitForTimeout(500);
+    check('Eliminada: ya no está y su tienda pasa a «Otros»', await p.evaluate(() => !CATS.some(c => c[0] === 'Heladerías y postres') && S.stores.find(s => s.id === 's1').cat === 'Otros'));
+    sinErrores(p, 'Subcategorías de tiendas'); await p.cerrar();
+  },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
     const seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], logo: LG, ts: now - 60e3, _o: 1 },
