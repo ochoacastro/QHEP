@@ -239,6 +239,7 @@ const PRUEBAS = {
   async codigoPlus() { // v394 el código plus del negocio solo lo pone el administrador
     const tienda = { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', addr: 'Calle 5 # 3-20', zone: 'Centro', products: [] };
     const p = await abrir({ seed: { 'stores/s1': tienda } }); await conCuenta(p);
+    await p.evaluate(() => { window.qhSinMapa = false }); // v462 apaga el mapa y la pregunta; aquí se prueban encendidos
     await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render(); editShop() }); await p.waitForTimeout(500);
     check('El dueño no ve el campo del código plus ni el video', await p.evaluate(() => !document.querySelector('#x-plus:not([type=hidden]),#ov [data-act="plusVid"]')));
     check('Debajo de la dirección se ve el mapa de Google Maps', await p.evaluate(() => /maps\.google\.com\/maps\?q=Calle%205/.test((document.querySelector('#x-map iframe') || {}).src || '')));
@@ -252,6 +253,7 @@ const PRUEBAS = {
   },
   async inmuebleUbicacion() { // v396 dirección del inmueble, mapa y aviso al administrador
     const p = await abrir(); await conCuenta(p);
+    await p.evaluate(() => { window.qhSinMapa = false }); // v462 apaga el mapa y la pregunta; aquí se prueban encendidos
     await p.evaluate(() => { closeModal(1); adForm('arr') }); await p.waitForTimeout(400);
     check('El inmueble pide su dirección (vacía, no la personal)', await p.evaluate(() => document.getElementById('af-addr').value === ''));
     await p.fill('#af-addr', 'Carrera 10 # 7-45'); await p.waitForTimeout(1300);
@@ -321,6 +323,7 @@ const PRUEBAS = {
   },
   async horarioYPregunta() { // v401 solo horario por día con listas; v402 pregunta del mapa con botones
     const p = await abrir({ seed: { 'stores/s1': { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', addr: 'Calle 5', products: [] } } }); await conCuenta(p);
+    await p.evaluate(() => { window.qhSinMapa = false }); // v462 apaga la pregunta; aquí se prueba encendida
     await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render(); editShop() }); await p.waitForTimeout(600);
     check('Ya no está la casilla «El horario cambia según el día» ni las horas del navegador', await p.evaluate(() => !document.querySelector('label.chk #x-hpd') && ![...document.querySelectorAll('#ov input[type=time]')].some(i => i.offsetParent) && document.querySelectorAll('#x-hrs select.ho').length === 14));
     await p.evaluate(() => qhPasos.ver('#x-hrs')); // v417: el horario está en su propia sección
@@ -1326,6 +1329,39 @@ const PRUEBAS = {
     const r = await q.evaluate(() => { const a = S.ads.find(x => x.id === 'a2'), d = document.createElement('div'); d.innerHTML = fieldHTML(ADT.arr.F.find(x => x.k === 'inc'), a.f.inc); return { inc: a.f.inc.join(), marcadas: [...d.querySelectorAll('input:checked')].map(x => x.value).join() } });
     check('Un anuncio viejo con «Luz» y «Gas» se lee como «Energía» y «Gas natural» y sus casillas siguen marcadas', r.inc === 'Agua,Energía,Gas natural' && r.marcadas === 'Agua,Energía,Gas natural', JSON.stringify(r));
     sinErrores(q, 'Servicios de la vivienda (anuncio viejo)'); await q.cerrar();
+  },
+  async direccionSinMapa() { // v462 la dirección del negocio y del inmueble sin mapa ni pregunta, con referencia debajo; el código plus solo lo pone el administrador
+    const tienda = { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', addr: 'Calle 5 # 3-20', zone: 'Centro', mapfix: true, products: [], _o: 1 };
+    const casa = { id: 'a1', type: 'arr', title: 'Casa de 2 habitaciones', price: 450000, zone: 'Centro', desc: '', imgs: [], owner: 'Marta', wa: '3001234567', ownerKey: 'kA', ts: Date.now(), f: { ptype: 'Casa', price: 450000, addr: 'Carrera 10 # 7-45', mapok: 'No lo ubica bien' } };
+    const p = await abrir({ seed: { 'stores/s1': tienda, 'ads/a1': casa } }); await conCuenta(p);
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render(); editShop() }); await p.waitForTimeout(600);
+    await p.evaluate(() => qhPasos.ver('#x-addr')); await p.waitForTimeout(300);
+    const t = await p.evaluate(() => { const vis = x => !!x && !!x.offsetParent; const r = document.getElementById('x-ref'), lb = document.querySelector('label[for="x-ref"]');
+      return { mapa: vis(document.getElementById('x-map')) || !!document.querySelector('#x-map iframe'), preg: vis(document.querySelector('label[for="x-mapok"]')) || vis(document.querySelector('.mq')) || [...document.querySelectorAll('#ov p')].some(x => vis(x) && /Mira el mapa/.test(x.textContent)),
+        ref: vis(r) && vis(lb) && lb.textContent === 'Referencia de la dirección (opcional)', orden: !!r && document.getElementById('x-addr').compareDocumentPosition(r) & Node.DOCUMENT_POSITION_FOLLOWING } });
+    check('Negocio: sin mapa ni pregunta de Google Maps', !t.mapa && !t.preg, JSON.stringify(t));
+    check('Negocio: debajo de la dirección va «Referencia de la dirección (opcional)»', t.ref && !!t.orden, JSON.stringify(t));
+    await p.fill('#x-ref', 'Frente al parque'); await p.evaluate(() => document.querySelector('[data-act="saveEditShop"]').click()); await p.waitForTimeout(600);
+    const s = await p.evaluate(() => { const x = S.stores.find(y => y.id === 's1'); return { ref: x.ref, mapfix: x.mapfix } });
+    check('Negocio: guarda la referencia y conserva la respuesta vieja del mapa', s.ref === 'Frente al parque' && s.mapfix === true, JSON.stringify(s));
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(400);
+    check('Negocio: la ficha muestra la referencia debajo de la dirección', await p.evaluate(() => /Calle 5 # 3-20[\s\S]*Frente al parque/.test((document.querySelector('.sinfo') || {}).innerText || '')));
+    await p.evaluate(() => { closeModal(1); adForm('arr', S.ads.find(a => a.id === 'a1')) }); await p.waitForTimeout(600);
+    const i = await p.evaluate(() => { const vis = x => !!x && !!x.offsetParent; const r = document.getElementById('af-ref'), w = [...document.querySelectorAll('#adf .fw')].filter(vis), k = w.findIndex(x => x.contains(document.getElementById('af-addr')));
+      return { mapa: !!document.getElementById('af-map'), preg: vis(document.getElementById('af-mapok')) || vis(document.querySelector('.mq')), sig: k >= 0 && !!w[k + 1] && w[k + 1].contains(r), lb: ((r && r.closest('.fw').querySelector('label')) || {}).textContent || '' } });
+    check('Inmueble: sin mapa ni pregunta de Google Maps', !i.mapa && !i.preg, JSON.stringify(i));
+    check('Inmueble: justo debajo de la dirección va «Referencia de la dirección»', i.sig && /Referencia de la dirección/.test(i.lb), JSON.stringify(i));
+    await p.fill('#af-ref', 'Casa de reja verde'); await p.evaluate(() => document.querySelector('#ov [data-act="saveAd"]').click()); await p.waitForTimeout(800);
+    const a = await p.evaluate(() => { const x = S.ads.find(y => y.id === 'a1'); return { ref: x.f.ref, mapok: x.f.mapok, err: (document.getElementById('err') || {}).textContent || '' } });
+    check('Inmueble: guarda la referencia y conserva la respuesta vieja del mapa', a.ref === 'Casa de reja verde' && a.mapok === 'No lo ubica bien', JSON.stringify(a));
+    check('Inmueble: el anuncio muestra la referencia', await p.evaluate(() => /Referencia de la dirección[\s\S]{0,20}Casa de reja verde/.test(document.getElementById('app').innerText)));
+    sinErrores(p, 'Dirección sin mapa'); await p.cerrar();
+    const q = await abrir({ admin: true, seed: { 'stores/s1': Object.assign({}, tienda, { mapfix: false, ref: 'Frente al parque' }), 'stores/s2': { id: 's2', name: 'Droguería', cat: 'Otros', wa: '3112223345', ownerKey: 'kB', addr: 'Calle 7', plus: 'CQ94+H47', lat: 3.42, lng: -76.24, products: [], _o: 2 }, 'ads/a1': Object.assign({}, casa, { f: { addr: 'Carrera 10 # 7-45', ref: 'Casa de reja verde' } }) } });
+    await q.evaluate(() => { closeModal(1); at = 'usr'; view = 'admin'; render() }); await q.waitForTimeout(500);
+    const g = await q.evaluate(() => [...document.querySelectorAll('.aadp')].map(x => x.innerText).join('\n'));
+    check('Administrador: el negocio con dirección y sin código plus sale por ubicar, con su referencia', /Panadería[\s\S]*Referencia: Frente al parque/.test(g) && !/Droguería/.test(g), g.slice(0, 500));
+    check('Administrador: el inmueble sin punto sale por ubicar, con su referencia', /Casa de 2 habitaciones[\s\S]*Referencia: Casa de reja verde/.test(g), g.slice(0, 500));
+    sinErrores(q, 'Por ubicar (administrador)'); await q.cerrar();
   },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
