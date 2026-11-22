@@ -1655,15 +1655,6 @@
   "v": "\n"
  },
  {
-  "t": "css",
-  "tag": "<style id=\"v461-estilo-vitrina\">",
-  "f": "estilos/v461-estilo-vitrina.css"
- },
- {
-  "t": "txt",
-  "v": "\n"
- },
- {
   "t": "js",
   "tag": "<script id=\"v440-tiendas-vencidas\">",
   "f": "codigo/v440-tiendas-vencidas.js"

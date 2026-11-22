@@ -1147,10 +1147,10 @@ const PRUEBAS = {
   },
   async fuentesPropias() { // v447 la letra Rubik sale de fuentes/ y no de Google Fonts
     const p = await abrir();
-    const r = await p.evaluate(async () => { await document.fonts.load('400 16px Epilogue'); await document.fonts.load('700 16px Epilogue'); return { cargada: document.fonts.check('400 16px Epilogue') && document.fonts.check('700 16px Epilogue'), google: !!document.querySelector('link[href*="fonts.googleapis"],link[href*="fonts.gstatic"]'), letra: getComputedStyle(document.body).fontFamily } });
-    check('La letra (Epilogue desde la v461) carga desde la propia página', r.cargada && /Epilogue/.test(r.letra), JSON.stringify(r));
+    const r = await p.evaluate(async () => { await document.fonts.load('400 16px Outfit'); await document.fonts.load('700 16px Onest'); return { cargada: document.fonts.check('400 16px Outfit') && document.fonts.check('700 16px Onest'), google: !!document.querySelector('link[href*="fonts.googleapis"],link[href*="fonts.gstatic"]'), letra: getComputedStyle(document.body).fontFamily } });
+    check('Las letras (Outfit y Onest desde la v457) cargan desde la propia página', r.cargada && /Outfit/.test(r.letra), JSON.stringify(r));
     check('No hay enlaces a Google Fonts al abrir la página', !r.google, JSON.stringify(r));
-    const res = await p.evaluate(async () => { const x = await fetch('fuentes/epilogue-latin.woff2'); return { ok: x.ok, n: (await x.arrayBuffer()).byteLength } });
+    const res = await p.evaluate(async () => { const x = await fetch('fuentes/outfit-latin.woff2'); return { ok: x.ok, n: (await x.arrayBuffer()).byteLength } });
     check('El archivo de la letra existe y pesa menos de 40 KB', res.ok && res.n > 10000 && res.n < 40000, JSON.stringify(res));
     sinErrores(p, 'Fuentes propias'); await p.cerrar();
   },
@@ -1274,10 +1274,10 @@ const PRUEBAS = {
     await p.evaluate(() => closeModal(1));
     const r = await p.evaluate(() => { const R = e => e ? parseFloat(getComputedStyle(e).borderTopLeftRadius) : -1, h = [...document.querySelectorAll('#app h2')].find(x => /Qué hay/.test(x.textContent));
       return { buscador: R(document.querySelector('.qw')), titulo: h && getComputedStyle(h).fontFamily, peso: h && getComputedStyle(h).fontWeight, cuerpo: getComputedStyle(document.body).fontFamily, chip: R(document.querySelector('.chip,.hhr')) } });
-    check('Inicio: buscador redondeado y título más liviano que antes (800)', r.buscador >= 10 && +r.peso < 800, JSON.stringify(r));
+    check('Inicio: buscador y botones redondeados; título en Onest y texto en Outfit', r.buscador >= 20 && /Onest/.test(r.titulo) && +r.peso < 800 && /Outfit/.test(r.cuerpo), JSON.stringify(r));
     await p.evaluate(() => { view = 'store'; cur = 's1'; render(); scrollTo(0, 0) }); await p.waitForTimeout(400);
     const t = await p.evaluate(() => { const R = e => e ? parseFloat(getComputedStyle(e).borderTopLeftRadius) : -1, b = document.querySelector('#app .btn'); return { btn: R(b), mayus: b && getComputedStyle(b).textTransform, prod: R(document.querySelector('.pgrid .prod')), foto: R(document.querySelector('.pgrid .prod .pic')), ficha: R(document.querySelector('.banner.promo')) } });
-    check('Tienda: botones redondeados sin mayúsculas forzadas; producto, foto y ficha redondeados', t.btn >= 10 && t.mayus !== 'uppercase' && t.prod >= 10 && t.foto >= 10 && t.ficha >= 10, JSON.stringify(t));
+    check('Tienda: botones en píldora sin mayúsculas forzadas; producto, foto y ficha redondeados', t.btn >= 20 && t.mayus !== 'uppercase' && t.prod >= 12 && t.foto >= 12 && t.ficha >= 12, JSON.stringify(t));
     sinErrores(p, 'Estilo redondeado'); await p.cerrar();
   },
   async movimientoScroll() { // v457 en el inicio: aparecer al llegar (una vez) y parallax de la foto de publicidad; nada con «reducir movimiento»
@@ -1326,23 +1326,6 @@ const PRUEBAS = {
     const r = await q.evaluate(() => { const a = S.ads.find(x => x.id === 'a2'), d = document.createElement('div'); d.innerHTML = fieldHTML(ADT.arr.F.find(x => x.k === 'inc'), a.f.inc); return { inc: a.f.inc.join(), marcadas: [...d.querySelectorAll('input:checked')].map(x => x.value).join() } });
     check('Un anuncio viejo con «Luz» y «Gas» se lee como «Energía» y «Gas natural» y sus casillas siguen marcadas', r.inc === 'Agua,Energía,Gas natural' && r.marcadas === 'Agua,Energía,Gas natural', JSON.stringify(r));
     sinErrores(q, 'Servicios de la vivienda (anuncio viejo)'); await q.cerrar();
-  },
-  async estiloVitrina() { // v461 estilo «Vitrina»: Epilogue, papel blanco, botón principal negro, acento verde azulado, WhatsApp verde; en oscuro, botones claros
-    const now = Date.now(), seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], ts: now - 60e3, _o: 1, pays: ['cash'] },
-      'products/s1__p1': { id: 'p1', sid: 's1', name: 'Malteada', price: 12000, imgs: [], ownerKey: 'k1', _o: 1 },
-      'community/c1': { id: 'c1', ownerKey: 'kZ', pl: 'free', title: 'Vendo bicicleta', text: 'Casi nueva', img: '', cat: 'var', ts: now - 30e3, exp: now + 864e5 } };
-    const medir = pg => pg.evaluate(() => { const c = e => e ? getComputedStyle(e) : {}, h = [...document.querySelectorAll('#app h2')].find(x => /Qué hay/.test(x.textContent)), em = h && h.querySelector('em');
-      return { fondo: c(document.body).backgroundColor, letra: c(h).fontFamily, lupa: c(document.querySelector('#qgo')).backgroundColor, radioLupa: c(document.querySelector('#qgo')).borderTopLeftRadius, pradera: em ? c(em).color : '', activo: c(document.querySelector('#bnav button[aria-current="true"]')).color } });
-    const p = await abrir({ seed });
-    await p.evaluate(() => closeModal(1)); const a = await medir(p);
-    check('Vitrina: papel blanco, letra Epilogue, lupa negra de esquinas 10 px y acento verde azulado', /rgb\((254, 253, 251|255, 255, 255)\)/.test(a.fondo) && /Epilogue/.test(a.letra) && a.lupa === 'rgb(13, 13, 13)' && a.radioLupa === '10px' && (!a.pradera || a.pradera === 'rgb(0, 116, 109)') && a.activo === 'rgb(0, 116, 109)', JSON.stringify(a));
-    await p.evaluate(() => { view = 'com'; render() }); await p.waitForTimeout(400);
-    check('Vitrina: el botón de WhatsApp de los clasificados sigue verde', await p.evaluate(() => { const b = document.querySelector('.btn.wa'); return !b || getComputedStyle(b).backgroundColor === 'rgb(37, 211, 102)' }));
-    sinErrores(p, 'Estilo Vitrina'); await p.cerrar();
-    const q = await abrir({ seed, dark: true });
-    await q.evaluate(() => closeModal(1)); const b = await medir(q);
-    check('Vitrina en oscuro: fondo casi negro, lupa clara y acento verde azulado claro', b.fondo === 'rgb(18, 18, 18)' && b.lupa === 'rgb(245, 245, 244)' && b.activo === 'rgb(76, 185, 176)', JSON.stringify(b));
-    sinErrores(q, 'Estilo Vitrina (oscuro)'); await q.cerrar();
   },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
