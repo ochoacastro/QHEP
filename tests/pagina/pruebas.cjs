@@ -1435,6 +1435,18 @@ const PRUEBAS = {
     check('Un visitante no ve el botón del administrador', await q.evaluate(() => !document.querySelector('[data-admedad]')));
     sinErrores(q, 'Anuncio para visitantes'); await q.cerrar();
   },
+  async documentacionArriendo() { // v468 «Documentación requerida» del arriendo en una caja de varias líneas, con más espacio
+    const docs = 'Fiador con finca raíz\nCertificado laboral\nDepósito de un mes';
+    const seed = { 'ads/a1': { id: 'a1', type: 'arr', title: 'Casa de 2 habitaciones', price: 450000, zone: 'Centro', desc: '', imgs: [], owner: 'Marta', wa: '3001234567', ownerKey: 'kA', ts: Date.now(), f: { ptype: 'Casa', docs } } };
+    const p = await abrir({ seed }); await conCuenta(p);
+    await p.evaluate(() => { closeModal(1); adForm('arr', S.ads.find(a => a.id === 'a1')) }); await p.waitForTimeout(500);
+    const c = await p.evaluate(() => { const x = document.getElementById('af-docs'); return { tag: x.tagName, max: x.maxLength, rows: x.rows, val: x.value } });
+    check('«Documentación requerida» es una caja de varias líneas de hasta 400 letras', c.tag === 'TEXTAREA' && c.max === 400 && c.rows >= 3 && c.val === docs, JSON.stringify(c));
+    await p.evaluate(() => { closeModal(1); curAd = 'a1'; view = 'ad'; render() }); await p.waitForTimeout(400);
+    const v = await p.evaluate(() => { const s = [...document.querySelectorAll('.adview .spec > div')].find(d => /Documentación requerida/.test(d.textContent)); const b = s && s.querySelector('b'); return b ? { t: b.innerText, ws: getComputedStyle(b).whiteSpace } : null });
+    check('En el anuncio se ve con sus renglones', !!v && v.ws === 'pre-line' && v.t.split('\n').length === 3, JSON.stringify(v));
+    sinErrores(p, 'Documentación del arriendo'); await p.cerrar();
+  },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
     const seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], logo: LG, ts: now - 60e3, _o: 1 },
