@@ -36,7 +36,7 @@
 
 <script>(function(){try{var t=localStorage.getItem("qh_theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})()</script>
 <title>Mi Pradera – Lo nuestro, en un solo lugar</title>
-<!-- v447: la letra Rubik sale de la propia página (carpeta fuentes/), no de Google Fonts: un solo archivo de 35 KB trae todos los grosores (300 a 900), sin conectarse a otro sitio. La de tildes raras (latin-ext) solo baja si hace falta. Inter ya no se descarga (era solo reserva y nunca se veía). Igual que en la v378, no detiene el primer dibujo (font-display: swap) --><link rel="preload" as="font" type="font/woff2" href="fuentes/outfit-latin.woff2" crossorigin><!-- v457: la letra del texto es Outfit; Rubik solo baja si algo la usa --><style>@font-face{font-family:'Rubik';font-style:normal;font-display:swap;font-weight:300 900;src:url(fuentes/rubik-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Rubik';font-style:normal;font-display:swap;font-weight:300 900;src:url(fuentes/rubik-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}</style>
+<!-- v447: la letra Rubik sale de la propia página (carpeta fuentes/), no de Google Fonts: un solo archivo de 35 KB trae todos los grosores (300 a 900), sin conectarse a otro sitio. La de tildes raras (latin-ext) solo baja si hace falta. Inter ya no se descarga (era solo reserva y nunca se veía). Igual que en la v378, no detiene el primer dibujo (font-display: swap) --><link rel="preload" as="font" type="font/woff2" href="fuentes/epilogue-latin.woff2" crossorigin><!-- v461: la letra de toda la página es Epilogue (estilo Vitrina); Outfit, Onest y Rubik solo bajan si algo las usa --><style>@font-face{font-family:'Rubik';font-style:normal;font-display:swap;font-weight:300 900;src:url(fuentes/rubik-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Rubik';font-style:normal;font-display:swap;font-weight:300 900;src:url(fuentes/rubik-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}</style>
 <style>
 :root{--ink:#000000;--bg:#f2f4f5;--mango:#FFA800;--guava:#FF4D79;--lulo:#14B88A;--rio:#5433eb;--card:#fff}
 *{box-sizing:border-box;margin:0}
@@ -2506,6 +2506,74 @@ html.qcl .hubhero.hh2 h2,html .hubhero.hh2 h2{font-weight:650!important;letter-s
 .banner.promo.sinfo-b{border-radius:var(--r-m)!important;overflow:hidden}
 .si-pay span,.si-tags span{border-radius:999px!important}
 .cmi,img.cmi{border-radius:var(--r-m)!important}
+</style>
+<style id="v461-estilo-vitrina">/* v461: ESTILO «VITRINA» (elegido por la dueña entre tres propuestas; tema «Ink» del catálogo de la skill hallmark).
+   Papel blanco, un negro sin tono, la letra Epilogue en todo, líneas finas de 1 px, esquinas de 10-12 px, superficies planas
+   (sin sombras quietas) y UN solo acento verde azulado (#00746d) para lo elegido, lo activo y los enlaces.
+   - Botones principales: negros con texto blanco (antes azules). Botones secundarios: borde fino sobre gris muy claro.
+   - Lo elegido o activo (pestañas, casillas, la barra de abajo, la palabra «Pradera»): verde azulado.
+   - WhatsApp sigue verde (se reconoce por su color). Las etiquetas pequeñas siguen en píldora.
+   - Va encima de la v457 (estilo redondeado): reemplaza sus letras y sus esquinas.
+   - Modo oscuro: botones claros con texto negro y el verde azulado más claro (#4cb9b0); reglas propias con html.dark.
+   Las variables se llaman --vt-tx, --vt-p0… (no «ink» ni «paper») porque el generador del modo oscuro (v219) reconoce esos
+   nombres y les pone su propia versión oscura; con estos nombres usa los valores oscuros de html.dark de este archivo.
+   Para volver al estilo redondeado de la v457: quitar este archivo de src/orden.json. */
+@font-face{font-family:'Epilogue';font-style:normal;font-display:swap;font-weight:100 900;src:url(fuentes/epilogue-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Epilogue';font-style:normal;font-display:swap;font-weight:100 900;src:url(fuentes/epilogue-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+:root{--vt-tx:#0d0d0d;--vt-tx2:#292929;--vt-mt:#525252;--vt-ln:#dbdbd8;--vt-p0:#fefdfb;--vt-p2:#f6f5f2;--vt-p3:#ecebe7;
+ --vt-acc:#00746d;--vt-acs:#e1f3f1;--vt-acs-tx:#023b37;
+ --font-rubik:'Epilogue',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--font-sf-pro-text:var(--font-rubik);--font-sf-pro-display:var(--font-rubik);
+ --rio:var(--vt-acc);--color-iris-blue:var(--vt-tx);--r-s:10px;--r-m:12px;--r-l:16px;--r-card:12px}
+html.dark{--vt-tx:#f5f5f4;--vt-tx2:#e7e5e4;--vt-mt:#a8a29e;--vt-ln:#3a3a38;--vt-p0:#121212;--vt-p2:#1b1b1a;--vt-p3:#242423;--vt-acc:#4cb9b0;--vt-acs:#143a37;--vt-acs-tx:#c9f1ec}
+/* letra: Epilogue en todo (gana a v269 y a la v457 con la misma selección más específica) */
+body,button,input,select,textarea{font-family:'Epilogue',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+html body :not(code):not(kbd):not(pre):not(.mono):not(svg):not(i){font-family:'Epilogue',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif!important}
+html body :is(h1,h2,h3):not(.mono):not(code):not(kbd){font-family:'Epilogue',system-ui,sans-serif!important;letter-spacing:-.03em}
+html body :is(h1,h2):not(.mono){font-weight:700!important}
+html.qcl .hubhero.hh2 h2,html .hubhero.hh2 h2{font-weight:700!important;letter-spacing:-.045em!important}
+/* papel y tinta */
+body{background:var(--vt-p0);color:var(--vt-tx)}
+/* botones: esquinas de 10 px (antes píldora); el principal negro, el secundario con borde fino */
+.btn,.hhr,.hhr2,.plgo,.qbr1,#qgo,.hscv,.murv,.pvbtn,.pmok,.pmno,.pmb,.hswt button,.subtabs button,.segb,.segb button,.qs-btn,.fpk-btn,.v455m,.tabs.hmenu .hbtn,.bzc .btn.bzl,.hscw,.murw,
+.pgrid .prod:not(.fx) .plus,.pgrid .prod .plus{border-radius:10px!important}
+.btn:not(.ghost):not(.wa):not(.bzb):not(.bzl),.btn.pink:not(.wa),#qgo,.hh2 #qgo,.pgrid .prod:not(.fx) .plus,.pgrid:not(.hrow) .prod:not(.fx) .plus,.pvbuy .pvbtn,.nwnot .go,#bnav .bnp i,header #bnav .bnp{background:var(--vt-tx)!important;color:var(--vt-p0)!important;border-color:var(--vt-tx)!important}
+.btn.ghost,.hscv,.murv,.v455m{background:var(--vt-p2)!important;color:var(--vt-tx)!important;border:1px solid var(--vt-ln)!important;box-shadow:none!important}
+.btn:not(.ghost),.btn.pink{box-shadow:none!important}
+/* se quedan con su color: WhatsApp (verde) y los botones de las tarjetas de colores del carrusel (blanco y transparente) */
+.btn.wa{background:#25D366!important;color:#073b1d!important;border-color:#25D366!important}
+/* pestañas del inicio: la elegida negra, la otra con borde fino */
+.hsw .hswt button[aria-pressed="true"]{background:var(--vt-tx)!important;color:var(--vt-p0)!important;border-color:var(--vt-tx)!important}
+.hsw .hswt button[aria-pressed="false"],.hsw .hswt .v455m{background:var(--vt-p2)!important;color:var(--vt-tx)!important;border:1px solid var(--vt-ln)!important}
+/* superficies planas con línea fina */
+.prod,.shop,.cg,.hsc,.mur,article.cmc,.cmc,.hpc,.icard,.rvc,.cmr,.hnegc,.stbar,.pms,.pubopt,.qhelp,#sr,.cbd,.mrow,.mini,.cdt,.banner.promo.sinfo-b,.ltr,.muop,.mucomp{
+ box-shadow:none!important;border:1px solid var(--vt-ln)!important}
+.hubg .hubi{background:var(--vt-p2)!important;border:1px solid var(--vt-ln)!important;border-radius:12px!important;box-shadow:none!important}/* solo el cuadrado del ícono, no el nombre */
+.qw,.hh2 .qw{border:1px solid var(--vt-ln)!important;background:var(--vt-p2)!important;border-radius:12px!important;box-shadow:none!important}
+.qw #q{border-radius:12px!important;background:transparent!important}
+/* el acento verde azulado: lo elegido, lo activo y los enlaces */
+.hh2 h2 em,.hero h1 span:nth-child(4n+2),.hnegl,.cmfb-tg,a.si-t,.si-i,.muoi,.nwnoti,.rlpf,.rlpi,.cla,.hrow .hcp,.mst .msti b,.mst .mstu,.msgadm h3 small,
+#bnav button[aria-current="true"],header #bnav button[aria-current="true"],.mutabs button[aria-selected="true"],.wztab button[aria-selected="true"]{color:var(--vt-acc)!important}
+.mutabs button[aria-selected="true"],.wztab button[aria-selected="true"]{border-color:var(--vt-acc)!important;box-shadow:inset 0 -2px 0 var(--vt-acc)!important}
+.adqo button[aria-pressed=true],.bizo button[aria-pressed=true],.jobt .jobl button[aria-pressed=true],.ltrc .chip[aria-pressed=true],.mq .adqo button.chip[data-v="1"][aria-pressed=true],
+.opay .ops button[aria-pressed=true],.rlpk[aria-selected=true],.pmb.act,.qpr.pmb,.cwz-dot.on i,.wzb i.ok,.wzb i.on,.cdti i,.cmct i,.sgd summary i,#f-cats .cgd summary i,.obi-ex summary i,.bzp{
+ background:var(--vt-acc)!important;color:#fff!important;border-color:var(--vt-acc)!important}
+.dchip.pay input:checked+span::before{background:var(--vt-acc)!important;border-color:var(--vt-acc)!important}
+.cdsz button[aria-pressed=true],.cdti[aria-pressed=true],.ltr2 button[aria-pressed=true],.adsel .ops button[aria-pressed=true],.omg label:has(input:checked),.cml label:has(input:checked),.cwz-pl.on,.cwz-ty.on,
+.obi-tpl button[aria-pressed=true],.nwre button[aria-pressed=true],.nwfol[aria-pressed=true],.qs-btn[aria-expanded=true],#f-cats .cgd:has([aria-pressed=true]){border-color:var(--vt-acc)!important;box-shadow:inset 0 0 0 1px var(--vt-acc)!important}
+.muoi,.si-i,.tdi{background:var(--vt-acs)!important;color:var(--vt-acc)!important;border-color:transparent!important}
+input,textarea{caret-color:var(--vt-acc)}input[type=checkbox],input[type=radio]{accent-color:var(--vt-acc)}
+:focus-visible{outline-color:var(--vt-acc)!important}
+/* azul escrito dentro de style="…" por el código (texto o fondo) */
+[style*="color:#0071e3"],[style*="color: #0071e3"]{color:var(--vt-acc)!important}
+[style*="background:#0071e3"],[style*="background: #0071e3"],[style*="background-color:#0071e3"]{background:var(--vt-tx)!important;color:var(--vt-p0)!important}
+/* modo oscuro: el generador v219 no toca reglas con html.dark; los botones negros pasan a claros con texto negro */
+html.dark body{background:var(--vt-p0)!important;color:var(--vt-tx)!important}
+html.dark .btn:not(.ghost):not(.wa):not(.bzb):not(.bzl),html.dark .btn.pink:not(.wa),html.dark #qgo,html.dark .hh2 #qgo,html.dark .pgrid .prod:not(.fx) .plus,html.dark .pvbuy .pvbtn,html.dark .nwnot .go,html.dark #bnav .bnp i,html.dark .hsw .hswt button[aria-pressed="true"]{
+ background:#f5f5f4!important;color:#0d0d0d!important;border-color:#f5f5f4!important}
+html.dark .btn.ghost,html.dark .hscv,html.dark .murv,html.dark .v455m,html.dark .hsw .hswt button[aria-pressed="false"],html.dark .qw,html.dark .hubg .hubi{background:#1b1b1a!important;color:#f5f5f4!important;border-color:#3a3a38!important}
+html.dark :is(.prod,.shop,.cg,.hsc,.mur,article.cmc,.cmc,.hpc,.hnegc,.stbar,.pms,.pubopt,#sr,.banner.promo.sinfo-b,.ltr,.muop,.mucomp){border-color:#3a3a38!important}
+html.dark :is(.hh2 h2 em,a.si-t,#bnav button[aria-current="true"],.mutabs button[aria-selected="true"]){color:#4cb9b0!important}
+html.dark :is(.muoi,.si-i,.tdi){background:#143a37!important;color:#4cb9b0!important}
 </style>
 
 
