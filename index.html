@@ -7023,7 +7023,7 @@ document.head.insertAdjacentHTML('beforeend','<style id="v445-css">.mp.mph{displ
    que abre el Muro igual que el botón Muro de la barra de abajo. Pedido por la dueña.
    Para quitarlo: borrar este archivo y v455-inicio-solo-reciente.css de src/orden.json (vuelven todas las pestañas). */
 (function(){
- var MURO='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>';
+ var MURO='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 4h7"/><path d="M14 9h7"/><path d="M14 15h7"/><path d="M14 20h7"/></svg>';/* v467: el mismo ícono del Muro de la barra de abajo (v466), antes el megáfono */
  function arreglar(sec){if(sec.dataset.v455)return;sec.dataset.v455='1';
   var tabs=sec.querySelectorAll('.hswt [data-act="hsw"]'),panes=sec.querySelectorAll('.hswp>.hswc'),i;
   for(i=1;i<tabs.length;i++)tabs[i].remove();

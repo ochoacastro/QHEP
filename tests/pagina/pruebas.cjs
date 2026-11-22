@@ -1267,6 +1267,7 @@ const PRUEBAS = {
     check('«Lo más reciente» sigue mostrando las publicaciones', a.tienda, JSON.stringify(a));
     await p.evaluate(() => { view = 'serv'; render() }); await p.waitForTimeout(200); await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(300);
     check('Al volver al inicio sigue igual (sin las pestañas de categorías)', await p.evaluate(() => document.querySelectorAll('#app section.hsw .hswt button').length === 2));
+    check('v467: «Ver el muro» tiene el mismo ícono del Muro de la barra de abajo', await p.evaluate(() => { const a = document.querySelector('.v455m svg'), b = document.querySelector('#bnav [data-v="com"] svg'); return !!a && !!b && a.querySelectorAll('rect').length === 2 && a.innerHTML.replace(/\s/g, '') === b.innerHTML.replace(/\s/g, '') }));
     await p.click('.v455m'); await p.waitForTimeout(600);
     check('«Ver el muro» abre el Muro en «Todo»', await p.evaluate(() => view === 'com' && !!document.querySelector('.mu') && /Todo/.test((document.querySelector('.mutabs [aria-selected="true"],.mutabs [aria-pressed="true"],.mutabs .on') || {}).textContent || '')), await p.evaluate(() => view + ' ' + ((document.querySelector('.mutabs [aria-selected="true"],.mutabs [aria-pressed="true"],.mutabs .on') || {}).textContent || '')));
     sinErrores(p, 'Inicio solo con lo más reciente'); await p.cerrar();
