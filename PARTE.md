@@ -89,6 +89,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v459 | **Servicios de la vivienda (arriendo):** campo nuevo «Servicios públicos con los que cuenta la vivienda» (Agua, Energía, Gas natural, Internet), con casillas. El de antes, «Servicios incluidos en el canon», ahora se llama «Servicios que ya están pagos en el valor del arriendo (el inquilino no los paga aparte)» para no confundirlos. El anuncio muestra los dos. Pedido por la dueña | #174 |
 | v460 | **Mismas palabras en los dos campos de servicios:** «Servicios que ya están pagos…» usa Energía y Gas natural (antes Luz y Gas), igual que «Servicios públicos con los que cuenta la vivienda». Los anuncios viejos con «Luz» o «Gas» se leen con las palabras nuevas (`v460-servicios-nombres.js`, enganchado a `docFix` de la v413) y no pierden su marca | #174 |
 | v462 | **Dirección sin mapa:** al escribir la dirección del negocio (crear o editar tienda) o del inmueble (arriendo o venta) ya no sale el mapa de Google Maps ni la pregunta «¿Google Maps muestra bien…?». Debajo de la dirección va «Referencia de la dirección (opcional)», que se ve en la ficha de la tienda y en el anuncio. El código plus lo pone solo el administrador: «Negocios por ubicar» lista ahora todo negocio con dirección y sin punto, y las dos listas muestran la referencia. Pedido por la dueña | — |
+| v463 | **El administrador corrige la dirección:** «Corregir dirección o código plus» (en «Negocios por ubicar» e «Inmuebles por ubicar») y «Corregir dirección» (en Publicaciones, para toda tienda y todo arriendo o venta, aunque ya esté ubicado) abren una ventana con barrio, dirección, referencia y código plus. En el inmueble el código plus ahora es opcional: vacío conserva el punto que ya tenía. La publicación sigue siendo del dueño. Pedido por la dueña | — |
 
 ---
 
@@ -127,7 +128,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - el estilo redondeado: letra nueva, botones y tarjetas redondeados; al bajar, las secciones de arriba aparecen suaves y la foto de publicidad se mueve un poco; con «reducir movimiento» nada se mueve (v457);
    - la ficha de una tienda: «Teléfono» con el número, que al tocarlo llama (v458);
    - publicar un arriendo: marcar los servicios que tiene la vivienda y, aparte, los que ya están pagos en el arriendo; en el anuncio salen los dos (v459, v460);
-   - crear una tienda y publicar un arriendo: en la dirección no sale el mapa ni la pregunta, sí la referencia; en el panel, Usuarios → «Negocios por ubicar» e «Inmuebles por ubicar» muestran la referencia y se les pone el código plus (v462).
+   - crear una tienda y publicar un arriendo: en la dirección no sale el mapa ni la pregunta, sí la referencia; en el panel, Usuarios → «Negocios por ubicar» e «Inmuebles por ubicar» muestran la referencia y se les pone el código plus (v462);
+   - en el panel, Publicaciones → «Corregir dirección» en una tienda y en un arriendo: cambiar la dirección y la referencia, guardar y revisar desde la cuenta del dueño que el cambio está (v463).
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 3. **Pendientes de antes:**

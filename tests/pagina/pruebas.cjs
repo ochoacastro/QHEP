@@ -1363,6 +1363,26 @@ const PRUEBAS = {
     check('Administrador: el inmueble sin punto sale por ubicar, con su referencia', /Casa de 2 habitaciones[\s\S]*Referencia: Casa de reja verde/.test(g), g.slice(0, 500));
     sinErrores(q, 'Por ubicar (administrador)'); await q.cerrar();
   },
+  async adminCorrigeDireccion() { // v463 el administrador corrige la dirección del negocio y del inmueble (por si la escribieron mal)
+    const seed = { 'stores/s1': { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', ownerUid: 'uA', addr: 'Calle 5 # 3-20', zone: 'Centro', plus: 'CQ94+H47', lat: 3.42, lng: -76.24, products: [], _o: 1 },
+      'ads/a1': { id: 'a1', type: 'arr', title: 'Casa de 2 habitaciones', price: 450000, zone: 'Centro', desc: '', imgs: [], owner: 'Marta', wa: '3001234567', ownerKey: 'kB', ownerUid: 'uB', plus: 'CQ94+H47', lat: 3.42, lng: -76.24, ts: Date.now(), _o: 2, f: { ptype: 'Casa', addr: 'Carerra 10 # 7-45', mapok: 'Sí, lo ubica bien' } } };
+    const p = await abrir({ admin: true, seed });
+    await p.evaluate(() => { closeModal(1); at = 'ver'; view = 'admin'; render() }); await p.waitForTimeout(500);
+    check('Publicaciones: la tienda y el inmueble tienen «Corregir dirección», aunque ya estén ubicados', await p.evaluate(() => /Corregir dirección/.test((document.querySelector('[data-admshop="s1"]') || {}).textContent || '') && /Corregir dirección/.test((document.querySelector('[data-adplus="a1"]') || {}).textContent || '')));
+    await p.evaluate(() => document.querySelector('[data-adplus="a1"]').click()); await p.waitForTimeout(400);
+    check('Inmueble: la ventana trae la dirección para corregirla', await p.evaluate(() => (document.getElementById('ip-addr') || {}).value === 'Carerra 10 # 7-45' && !!document.getElementById('ip-ref')));
+    await p.fill('#ip-addr', 'Carrera 10 # 7-45'); await p.fill('#ip-ref', 'Casa de reja verde'); await p.fill('#ip-plus', '');
+    await p.evaluate(() => document.querySelector('[data-adplusok="a1"]').click()); await p.waitForTimeout(600);
+    const a = await p.evaluate(async () => { const d = (await firebase.firestore().collection('ads').doc('a1').get()).data(); return { addr: d.f.addr, ref: d.f.ref, plus: d.plus, lat: d.lat, own: d.ownerKey + '/' + d.ownerUid } });
+    check('Inmueble: guarda la dirección y la referencia corregidas, conserva el punto y el dueño', a.addr === 'Carrera 10 # 7-45' && a.ref === 'Casa de reja verde' && a.plus === 'CQ94+H47' && a.lat === 3.42 && a.own === 'kB/uB', JSON.stringify(a));
+    await p.evaluate(() => { closeModal(1); at = 'ver'; view = 'admin'; render() }); await p.waitForTimeout(400);
+    await p.evaluate(() => document.querySelector('[data-admshop="s1"]').click()); await p.waitForTimeout(400);
+    await p.fill('#as-addr', 'Calle 5 # 3-22'); await p.fill('#as-ref', 'Frente al parque');
+    await p.evaluate(() => document.querySelector('[data-admshopsave="s1"]').click()); await p.waitForTimeout(600);
+    const s = await p.evaluate(async () => { const d = (await firebase.firestore().collection('stores').doc('s1').get()).data(); return { addr: d.addr, ref: d.ref, plus: d.plus, own: d.ownerKey + '/' + d.ownerUid } });
+    check('Negocio: guarda la dirección y la referencia corregidas y sigue siendo del dueño', s.addr === 'Calle 5 # 3-22' && s.ref === 'Frente al parque' && s.plus === 'CQ94+H47' && s.own === 'kA/uA', JSON.stringify(s));
+    sinErrores(p, 'Administrador corrige dirección'); await p.cerrar();
+  },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
     const seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], logo: LG, ts: now - 60e3, _o: 1 },
