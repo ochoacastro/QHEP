@@ -1,6 +1,6 @@
 # Parte de trabajo — Mi Pradera
 
-Actualizado: 21 de noviembre de 2026 · Rama de trabajo: `claude/page-review-improve-hshx7j`
+Actualizado: 22 de noviembre de 2026 · Rama de trabajo: `claude/page-review-improve-hshx7j`
 
 Este archivo resume en qué va la página, lo que falta y cómo seguir trabajando. Sirve para retomar el trabajo en otra sesión sin perder el hilo.
 
@@ -10,12 +10,13 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
 - **Pruebas:** 489 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR abierto:** ninguno. La skill hallmark está en la rama, sin PR todavía (la v461 se descartó). El último fusionado es el **#174** (v458–v460), el 21 de noviembre de 2026. Todo hasta la v460 está en `main`.
+- **PR abierto:** **#175**: solo la skill hallmark, el `.gitignore` y este parte; la página no cambia. El último fusionado es el **#174** (v458–v460), el 21 de noviembre de 2026. Todo hasta la v460 está en `main`. La v461 (estilo «Vitrina») se probó y se descartó (sección 5).
+- **Red del entorno de la nube:** el 21 de noviembre de 2026, con permiso de la dueña, se agregaron `co.addi.com` y `framerusercontent.com` para estudiar el diseño de esa página (v457). Ya no hacen falta; se pueden quitar en la configuración del entorno.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v445)
+## 2. Lo que se hizo en esta etapa (v392 a v460)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -92,7 +93,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
-0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (todo hasta el PR #161 ya está fusionado):
+0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (todo hasta el PR #174 ya está fusionado):
    - hacer un pedido sin cuenta y ver que WhatsApp se abre con el mensaje (v416);
    - hacer un pedido con cuenta: debe salir «Tus datos para el pedido» con el nombre y el teléfono puestos, sin mapa (v424);
    - sin cuenta, tocar «Publicar» en la barra de abajo: debe salir «Registrarme» con el aviso, no el formulario (v425, v429);
@@ -116,6 +117,15 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - con la sesión abierta, ya no debe salir abajo «Tienes tu registro sin terminar» (v443);
    - abrir una tienda con categorías (por ejemplo, Gelatier): cada producto en su fila, con la foto a la izquierda y «Agregar al carrito» a la derecha (v444);
    - en «Mapa», elegir «Mostrar: Arriendos e inmuebles en venta» y tocar el pin de la casa; en el panel, Usuarios → «Inmuebles por ubicar», ponerles el código plus a los que falten (v445).
+   - escribir rápido en el buscador de arriba: no se traba y la lista sale al terminar de escribir; Enter abre el resultado correcto (v446);
+   - abrir mipradera.com.co: sale la página de una vez, con cajas grises que se cambian por las publicaciones (sin la pantalla del logo); el enlace de una tienda desde WhatsApp sí muestra la pantalla del logo y abre la tienda (v448, v449);
+   - pasar a modo oscuro con la luna y volver: todo se ve igual que antes (v450);
+   - abrir «Noticias» y una noticia: se ven sus reacciones y comentarios; abrir un clasificado: «¿Te sirvió este anuncio?» funciona (v451, v452);
+   - el Muro en «Todo»: negocios, servicios, vehículos e inmuebles en fila con el logo a la izquierda; los clasificados como en Facebook (v454);
+   - la página principal: solo «Lo más reciente» y al lado «Ver el muro», sin «Ver por categorías» (v455, v456);
+   - el estilo redondeado: letra nueva, botones y tarjetas redondeados; al bajar, las secciones de arriba aparecen suaves y la foto de publicidad se mueve un poco; con «reducir movimiento» nada se mueve (v457);
+   - la ficha de una tienda: «Teléfono» con el número, que al tocarlo llama (v458);
+   - publicar un arriendo: marcar los servicios que tiene la vivienda y, aparte, los que ya están pagos en el arriendo; en el anuncio salen los dos (v459, v460).
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 3. **Pendientes de antes:**
