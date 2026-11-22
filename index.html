@@ -7361,7 +7361,10 @@ var t=0;new MutationObserver(function(){if(t)return;t=1;requestAnimationFrame(fu
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 var OPEN={};
 function grps(){try{return CAT_GRP.map(function(g){return g[0]})}catch(e){return []}}
-function mapa(){try{var m=S&&S.site&&S.site.catGrp;return m&&typeof m==='object'?m:{}}catch(e){return {}}}
+/* v471: mientras se guarda (BUSY) el grupo elegido manda aunque un aviso del servidor rehaga S.site con la copia vieja */
+var BUSY=null;
+function mapa(){var m={};try{var b=S&&S.site&&S.site.catGrp;if(b&&typeof b==='object')m=b}catch(e){}
+ if(BUSY){m=Object.assign({},m);if(BUSY.old&&BUSY.old!==BUSY.n)delete m[BUSY.old];m[BUSY.n]=BUSY.g}return m}
 /* el grupo de una categoría: primero el que eligió el administrador, después el de fábrica */
 var g0=window.catGroupOf;
 if(typeof g0==='function')window.catGroupOf=function(n){var g=mapa()[n];if(typeof g==='string'&&grps().indexOf(g)>=0)return g;return g0(n)};
@@ -7369,7 +7372,8 @@ function row(i){var c=CATS[i];
  return '<div class="catrow"><input type="color" id="ct-c-'+i+'" value="'+E(c[2])+'" aria-label="Color de '+E(c[0])+'"><input type="text" id="ct-n-'+i+'" maxlength="20" value="'+E(c[0])+'" aria-label="Nombre de la subcategoría '+E(c[0])+'"><span class="cico sm" style="--c:'+E(c[2])+'">'+catIcon(c)+'</span><label class="btn ghost cfile">🖼️ Imagen<input type="file" accept="image/*" id="ct-f-'+i+'" hidden></label><button class="btn" id="ct-s-'+i+'" data-act="catSave" data-i="'+i+'" hidden>Guardar</button><button class="btn ghost" data-act="catDel" data-i="'+i+'">Eliminar</button></div>'}
 window.stcAdmin=function(){var G=grps().slice(),by={};G.forEach(function(g){by[g]=[]});
  CATS.forEach(function(c,i){var g=catGroupOf(c[0]);if(!by[g]){by[g]=[];G.push(g)}by[g].push(i)});
- return '<div class="cg stca"><h3>Categorías de tiendas</h3><p class="muted">Cada grupo (Comidas, Belleza, Salud…) tiene sus subcategorías. Toca un grupo para cambiar el nombre, el color o la imagen de una subcategoría, eliminarla o agregar una nueva. Si eliminas una, sus tiendas pasan a «Otros».</p>'+
+ return '<div class="cg stca'+(BUSY?' stbusy':'')+'"><h3>Categorías de tiendas</h3><p class="muted">Cada grupo (Comidas, Belleza, Salud…) tiene sus subcategorías. Toca un grupo para cambiar el nombre, el color o la imagen de una subcategoría, eliminarla o agregar una nueva. Si eliminas una, sus tiendas pasan a «Otros».</p>'+
+  (BUSY?'<p class="stbm" role="status">Guardando «'+E(BUSY.n)+'»… Espera a que termine antes de hacer otro cambio.</p>':'')/* v471 */+
   G.map(function(g){var L=by[g];return '<details class="cgd stg"'+(OPEN[g]?' open':'')+' data-stg="'+E(g)+'"><summary><span>'+E(g)+'</span><small>'+L.length+(L.length===1?' subcategoría':' subcategorías')+'</small><i aria-hidden="true"></i></summary><div class="cgr">'+
    (L.length?L.map(row).join(''):'<p class="muted">Este grupo todavía no tiene subcategorías.</p>')+
    '<div class="catrow stadd"><input type="text" maxlength="20" placeholder="Nueva subcategoría" aria-label="Nueva subcategoría de '+E(g)+'"><button type="button" class="btn pink" data-stadd="'+E(g)+'">+ Agregar</button></div></div></details>'}).join('')+
@@ -7377,6 +7381,28 @@ window.stcAdmin=function(){var G=grps().slice(),by={};G.forEach(function(g){by[g
 /* recuerda qué grupos están abiertos (el panel se vuelve a dibujar al guardar) */
 document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.classList&&d.classList.contains('stg'))OPEN[d.dataset.stg]=d.open},true);
 function guardaMapa(m){S.site=Object.assign({},S.site,{catGrp:m})}
+/* v471: CAUSA DE «NO GUARDA LAS SUBCATEGORÍAS NUEVAS». La página guarda los cambios uno por uno, y cada aviso de Firebase que llega
+   mientras tanto rehace CATS y S.site con la copia del servidor (rebuild en 01-cats.js): lo que se cambió en ese rato y aún no
+   se había enviado se pierde. Antes la subcategoría nueva se metía en medio de la lista y había que reescribir el orden (_o) de
+   unas 30 categorías: varios segundos en los que una segunda subcategoría, o el grupo de la primera, se perdían.
+   Ahora: (1) la nueva va antes de «Otros», como el «Agregar» de siempre (solo se escriben ella, «Otros» y la ficha del sitio);
+   (2) mientras se guarda, el panel no deja hacer otro cambio de categorías; (3) se pregunta al servidor hasta que confirme la
+   subcategoría y su grupo, y si un aviso los borró de la memoria se vuelven a poner y a guardar. */
+var slugL=function(n){return String(n).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'x'};/* igual que slug() de 01-cats.js */
+function esperar(){var t0=Date.now();
+ (function tick(){if(!BUSY)return;var b=BUSY,ch=false;
+  if(b.row&&!CATS.some(function(c){return c[0]===b.n})){var k=CATS.findIndex(function(c){return c[0]==='Otros'});if(k>=0)CATS.splice(k,0,b.row.slice());else CATS.push(b.row.slice());ch=true}
+  var cg=(S.site&&S.site.catGrp)||{};if(cg[b.n]!==b.g||(b.old&&b.old!==b.n&&(b.old in cg))){guardaMapa(mapa());ch=true}
+  if(ch)saveCats();
+  var db=firebase.firestore(),srv={source:'server'};
+  Promise.all([db.collection('meta').doc('site').get(srv),db.collection('cats').doc(slugL(b.n)).get(srv)]).then(function(r){
+   var m=(r[0].exists&&(r[0].data()||{}).catGrp)||{};
+   if(r[1].exists&&m[b.n]===b.g&&!(b.old&&b.old!==b.n&&(b.old in m))){BUSY=null;guardaMapa(Object.assign({},m));render(true);toast(b.ok)}else otra()},otra);
+  function otra(){if(BUSY!==b)return;if(Date.now()-t0>30000){BUSY=null;render(true);toast('No se pudo confirmar que «'+b.n+'» quedó guardada. Revisa tu internet y vuelve a abrir Categorías.');return}setTimeout(tick,700)}
+ })()}
+/* v471: mientras se guarda, nada de otros cambios de categorías de tiendas */
+document.addEventListener('click',function(e){if(!BUSY)return;var b=e.target.closest&&e.target.closest('.stca [data-stadd],.stca [data-act="catSave"],.stca [data-act="catDel"]');if(!b)return;
+ e.preventDefault();e.stopImmediatePropagation();toast('Espera un momento: se está guardando «'+BUSY.n+'».')},true);
 /* agregar una subcategoría al grupo */
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-stadd]');if(!b)return;e.preventDefault();
  if(typeof adm==='undefined'||!adm)return toast('Solo el administrador puede hacer esto.');
@@ -7387,13 +7413,16 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  if(typeof CAT_MAP!=='undefined'&&CAT_MAP.hasOwnProperty(nn))return fail('Ese nombre se usaba antes y la página lo cambia solo a «'+CAT_MAP[nn]+'». Elige otro.');
  var ix=[];CATS.forEach(function(c,i){if(catGroupOf(c[0])===g)ix.push(i)});
  var r=[nn,'',ix.length?CATS[ix[0]][2]:'#64748B'];
- if(ix.length)CATS.splice(ix[ix.length-1]+1,0,r);else{var k=CATS.findIndex(function(c){return c[0]==='Otros'});if(k>=0)CATS.splice(k,0,r);else CATS.push(r)}
+ /* v471: antes de «Otros» (en el panel sale igual al final de su grupo); antes iba en medio y movía el orden de casi todas */
+ var k=CATS.findIndex(function(c){return c[0]==='Otros'});if(k>=0)CATS.splice(k,0,r);else CATS.push(r);
  var m=Object.assign({},mapa());Object.keys(m).forEach(function(x){if(!CATS.some(function(c){return c[0]===x}))delete m[x]});m[nn]=g;guardaMapa(m);
- OPEN[g]=true;saveCats();render(true);toast('Subcategoría «'+nn+'» agregada a '+g)},true);
+ BUSY={n:nn,g:g,row:r.slice(),ok:'Subcategoría «'+nn+'» guardada en '+g};
+ OPEN[g]=true;saveCats();render(true);toast('Guardando «'+nn+'» en '+g+'…');esperar()},true);
 /* cambiar el nombre: la subcategoría se queda en su grupo */
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="catSave"]');if(!b||!document.querySelector('.stca'))return;
  var i=+b.dataset.i,c=CATS[i];if(!c)return;var old=c[0],g=catGroupOf(old);
- setTimeout(function(){var n=CATS[i]&&CATS[i][0];if(!n||n===old)return;var m=Object.assign({},mapa());delete m[old];m[n]=g;guardaMapa(m);save();render(true)},60)},true);
+ setTimeout(function(){var n=CATS[i]&&CATS[i][0];if(!n||n===old)return;var m=Object.assign({},mapa());delete m[old];m[n]=g;guardaMapa(m);
+  BUSY={n:n,g:g,old:old,ok:'«'+n+'» guardada en '+g}/* v471 */;save();render(true);esperar()},60)},true);
 document.head.insertAdjacentHTML('beforeend','<style id="v464-css">'+
  /* mismo diseño que los grupos del formulario de la tienda (v283, que solo aplica dentro de #f-cats), con las esquinas de la v457 */
  '.stca .stg{width:100%;margin:0 0 8px;border:1px solid #d3d9e3;background:#fff;border-radius:var(--r-m,18px);overflow:hidden}'+
@@ -7410,6 +7439,9 @@ document.head.insertAdjacentHTML('beforeend','<style id="v464-css">'+
  '.stca .stg .catrow{position:relative;margin:10px 0 0;padding:8px 0 8px 22px}'+
  '.stca .stg .catrow::before{content:"";position:absolute;left:1px;top:30px;width:16px;height:2px;background:#c9d8f5}'+
  '.stca .stg .cgr>.muted{margin:10px 0 0 22px}.stca .stg .stadd{margin-top:12px}'+
+ /* v471: aviso y botones en pausa mientras se guarda */
+ '.stca .stbm{margin:8px 0 12px;padding:10px 12px;border-radius:var(--r-s,14px);background:#eef4ff;color:#1d3a6b;font-weight:600}html.dark .stca .stbm{background:#1d2a44!important;color:#cfe0ff!important}'+
+ '.stca.stbusy [data-stadd],.stca.stbusy [data-act="catSave"],.stca.stbusy [data-act="catDel"]{opacity:.5;pointer-events:none}'+
  'html.dark .stca .stg{background:#1e2026!important;border-color:#3b404b!important;color:#fff!important}html.dark .stca .stg summary i{background:#0a84ff!important}html.dark .stca .stg .cgr::before,html.dark .stca .stg .catrow::before{background:#3b4a66!important}</style>');
 })();
 </script>

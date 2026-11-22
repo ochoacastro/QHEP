@@ -1397,13 +1397,21 @@ const PRUEBAS = {
     check('El grupo muestra «+» cerrado y «−» abierto', cerrado === '"+"' && abierto === '"−"', cerrado + ' / ' + abierto);
     await p.fill('.stca details.stg[data-stg="Comidas"] .stadd input', 'Restaurantes'); await p.click('.stca [data-stadd="Comidas"]'); await p.waitForTimeout(300);
     check('No deja crear una subcategoría repetida', await p.evaluate(() => /Ya existe/.test(document.getElementById('err').textContent)));
-    await p.fill('.stca details.stg[data-stg="Comidas"] .stadd input', 'Heladerías'); await p.click('.stca [data-stadd="Comidas"]'); await p.waitForTimeout(600);
+    await p.fill('.stca details.stg[data-stg="Comidas"] .stadd input', 'Heladerías'); await p.click('.stca [data-stadd="Comidas"]'); await p.waitForTimeout(50);
+    // v471: mientras se guarda sale «Guardando…» y no deja hacer otro cambio; se quita cuando el servidor confirma
+    const guardando = await p.evaluate(() => { const m = document.querySelector('.stca .stbm'); return !!m && /Guardando «Heladerías»/.test(m.textContent) && document.querySelector('.stca').classList.contains('stbusy') });
+    await p.evaluate(() => { const i = document.querySelector('.stca details.stg[data-stg="Belleza"] .stadd input'); i.value = 'Spa' ; document.querySelector('.stca [data-stadd="Belleza"]').dispatchEvent(new MouseEvent('click', { bubbles: true })) }); await p.waitForTimeout(100);
+    const bloqueado = await p.evaluate(() => !CATS.some(c => c[0] === 'Spa'));
+    await p.waitForFunction(() => !document.querySelector('.stca .stbm'), null, { timeout: 8000 });
+    check('v471: mientras se guarda sale «Guardando…», no deja otro cambio y luego se quita', guardando && bloqueado);
+    check('v471: la nueva va antes de «Otros» (no mueve el orden de las demás)', await p.evaluate(() => { const i = CATS.findIndex(c => c[0] === 'Heladerías'); return i === CATS.length - 2 && CATS[CATS.length - 1][0] === 'Otros' }));
     const a = await p.evaluate(async () => { const d = document.querySelector('.stca details.stg[data-stg="Comidas"]'), site = (await firebase.firestore().collection('meta').doc('site').get()).data() || {}, cs = (await firebase.firestore().collection('cats').get()).docs.map(x => x.data().a[0]);
       return { grupo: catGroupOf('Heladerías'), abierto: !!d && d.open, enGrupo: !!d && [...d.querySelectorAll('input[id^="ct-n-"]')].some(i => i.value === 'Heladerías'), mapa: (site.catGrp || {})['Heladerías'], cats: cs.includes('Heladerías') } });
     check('«+ Agregar» crea la subcategoría dentro de su grupo y queda guardada', a.grupo === 'Comidas' && a.enGrupo && a.abierto && a.mapa === 'Comidas' && a.cats, JSON.stringify(a));
     const vis = await p.evaluate(() => { const h = document.createElement('div'); h.innerHTML = catGroupedHTML(CATS, c => '<b>' + c[0] + '</b>'); const t = h.innerText; return t.indexOf('Comidas') >= 0 && t.indexOf('Heladerías') > t.indexOf('Comidas') && t.indexOf('Heladerías') < t.indexOf('Belleza') });
     check('En el formulario de la tienda y en «Categorías», la nueva sale bajo «Comidas»', vis);
-    await p.evaluate(() => { const i = CATS.findIndex(c => c[0] === 'Heladerías'), n = document.getElementById('ct-n-' + i); n.value = 'Heladerías y postres'; n.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('ct-s-' + i).click() }); await p.waitForTimeout(500);
+    await p.evaluate(() => { const i = CATS.findIndex(c => c[0] === 'Heladerías'), n = document.getElementById('ct-n-' + i); n.value = 'Heladerías y postres'; n.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('ct-s-' + i).click() }); await p.waitForTimeout(300);
+    await p.waitForFunction(() => !document.querySelector('.stca .stbm'), null, { timeout: 8000 });
     check('Al cambiarle el nombre sigue en su grupo', await p.evaluate(() => catGroupOf('Heladerías y postres') === 'Comidas' && !CATS.some(c => c[0] === 'Heladerías') && S.site.catGrp['Heladerías y postres'] === 'Comidas' && !('Heladerías' in S.site.catGrp)));
     await p.evaluate(() => { S.stores.find(s => s.id === 's1').cat = 'Heladerías y postres'; const i = CATS.findIndex(c => c[0] === 'Heladerías y postres'); document.querySelector('.stca [data-act="catDel"][data-i="' + i + '"]').click() }); await p.waitForTimeout(300);
     check('«Eliminar» pregunta antes y avisa a dónde pasan sus tiendas', await p.evaluate(() => /¿Eliminar "Heladerías y postres"\?[\s\S]*pasarán a "Otros"/.test((document.getElementById('cfm-t') || {}).textContent || '')));
