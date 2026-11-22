@@ -1827,6 +1827,33 @@
  },
  {
   "t": "js",
+  "tag": "<script id=\"v462-direccion-sin-mapa\">",
+  "f": "codigo/v462-direccion-sin-mapa.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v464-subcategorias-tiendas\">",
+  "f": "codigo/v464-subcategorias-tiendas.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v465-admin-edita-anuncios\">",
+  "f": "codigo/v465-admin-edita-anuncios.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
   "tag": "<script>",
   "fs": [
    "codigo/principal/01-cats.js",

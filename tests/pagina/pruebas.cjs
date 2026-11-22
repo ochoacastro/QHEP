@@ -239,6 +239,7 @@ const PRUEBAS = {
   async codigoPlus() { // v394 el código plus del negocio solo lo pone el administrador
     const tienda = { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', addr: 'Calle 5 # 3-20', zone: 'Centro', products: [] };
     const p = await abrir({ seed: { 'stores/s1': tienda } }); await conCuenta(p);
+    await p.evaluate(() => { window.qhSinMapa = false }); // v462 apaga el mapa y la pregunta; aquí se prueban encendidos
     await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render(); editShop() }); await p.waitForTimeout(500);
     check('El dueño no ve el campo del código plus ni el video', await p.evaluate(() => !document.querySelector('#x-plus:not([type=hidden]),#ov [data-act="plusVid"]')));
     check('Debajo de la dirección se ve el mapa de Google Maps', await p.evaluate(() => /maps\.google\.com\/maps\?q=Calle%205/.test((document.querySelector('#x-map iframe') || {}).src || '')));
@@ -252,6 +253,7 @@ const PRUEBAS = {
   },
   async inmuebleUbicacion() { // v396 dirección del inmueble, mapa y aviso al administrador
     const p = await abrir(); await conCuenta(p);
+    await p.evaluate(() => { window.qhSinMapa = false }); // v462 apaga el mapa y la pregunta; aquí se prueban encendidos
     await p.evaluate(() => { closeModal(1); adForm('arr') }); await p.waitForTimeout(400);
     check('El inmueble pide su dirección (vacía, no la personal)', await p.evaluate(() => document.getElementById('af-addr').value === ''));
     await p.fill('#af-addr', 'Carrera 10 # 7-45'); await p.waitForTimeout(1300);
@@ -321,6 +323,7 @@ const PRUEBAS = {
   },
   async horarioYPregunta() { // v401 solo horario por día con listas; v402 pregunta del mapa con botones
     const p = await abrir({ seed: { 'stores/s1': { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', addr: 'Calle 5', products: [] } } }); await conCuenta(p);
+    await p.evaluate(() => { window.qhSinMapa = false }); // v462 apaga la pregunta; aquí se prueba encendida
     await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render(); editShop() }); await p.waitForTimeout(600);
     check('Ya no está la casilla «El horario cambia según el día» ni las horas del navegador', await p.evaluate(() => !document.querySelector('label.chk #x-hpd') && ![...document.querySelectorAll('#ov input[type=time]')].some(i => i.offsetParent) && document.querySelectorAll('#x-hrs select.ho').length === 14));
     await p.evaluate(() => qhPasos.ver('#x-hrs')); // v417: el horario está en su propia sección
@@ -1059,6 +1062,7 @@ const PRUEBAS = {
     const sel = () => p.evaluate(() => (document.querySelector('.mutabs [aria-selected="true"]') || {}).textContent || '');
     await p.evaluate(() => { closeModal(1); document.querySelector('#bnav [data-v="com"]').click() }); await p.waitForTimeout(500);
     check('El botón de abajo se llama «Muro» y abre en «Todo»', await p.evaluate(() => document.querySelector('#bnav [data-v="com"]').innerText.trim() === 'Muro') && await sel() === 'Todo');
+    check('v466: el ícono del Muro es la lista (cuadros y líneas), no el megáfono', await p.evaluate(() => { const g = document.querySelector('#bnav [data-v="com"] svg'); return !!g && g.querySelectorAll('rect').length === 2 && g.querySelectorAll('path').length === 4 }));
     const app = await p.evaluate(() => document.getElementById('app').innerText);
     check('«Todo» junta clasificados y tiendas en tarjetas, lo más nuevo arriba', /Canela Gastrobar[\s\S]*Vendo nevera[\s\S]*Tienda Tomaticos[\s\S]*Regalo gatitos/.test(app), app.slice(0, 300));
     check('Ya no están el título con «Gratis: 1 anuncio…», Obituario, Empleo ni los tipos (Vendo, Arriendo…)', await p.evaluate(() => !document.querySelector('#app .shead, #app .cmops, #app [data-obi], #app [data-empb], #app .cmct')));
@@ -1326,6 +1330,109 @@ const PRUEBAS = {
     const r = await q.evaluate(() => { const a = S.ads.find(x => x.id === 'a2'), d = document.createElement('div'); d.innerHTML = fieldHTML(ADT.arr.F.find(x => x.k === 'inc'), a.f.inc); return { inc: a.f.inc.join(), marcadas: [...d.querySelectorAll('input:checked')].map(x => x.value).join() } });
     check('Un anuncio viejo con «Luz» y «Gas» se lee como «Energía» y «Gas natural» y sus casillas siguen marcadas', r.inc === 'Agua,Energía,Gas natural' && r.marcadas === 'Agua,Energía,Gas natural', JSON.stringify(r));
     sinErrores(q, 'Servicios de la vivienda (anuncio viejo)'); await q.cerrar();
+  },
+  async direccionSinMapa() { // v462 la dirección del negocio y del inmueble sin mapa ni pregunta, con referencia debajo; el código plus solo lo pone el administrador
+    const tienda = { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', addr: 'Calle 5 # 3-20', zone: 'Centro', mapfix: true, products: [], _o: 1 };
+    const casa = { id: 'a1', type: 'arr', title: 'Casa de 2 habitaciones', price: 450000, zone: 'Centro', desc: '', imgs: [], owner: 'Marta', wa: '3001234567', ownerKey: 'kA', ts: Date.now(), f: { ptype: 'Casa', price: 450000, addr: 'Carrera 10 # 7-45', mapok: 'No lo ubica bien' } };
+    const p = await abrir({ seed: { 'stores/s1': tienda, 'ads/a1': casa } }); await conCuenta(p);
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render(); editShop() }); await p.waitForTimeout(600);
+    await p.evaluate(() => qhPasos.ver('#x-addr')); await p.waitForTimeout(300);
+    const t = await p.evaluate(() => { const vis = x => !!x && !!x.offsetParent; const r = document.getElementById('x-ref'), lb = document.querySelector('label[for="x-ref"]');
+      return { mapa: vis(document.getElementById('x-map')) || !!document.querySelector('#x-map iframe'), preg: vis(document.querySelector('label[for="x-mapok"]')) || vis(document.querySelector('.mq')) || [...document.querySelectorAll('#ov p')].some(x => vis(x) && /Mira el mapa/.test(x.textContent)),
+        ref: vis(r) && vis(lb) && lb.textContent === 'Referencia de la dirección (opcional)', orden: !!r && document.getElementById('x-addr').compareDocumentPosition(r) & Node.DOCUMENT_POSITION_FOLLOWING } });
+    check('Negocio: sin mapa ni pregunta de Google Maps', !t.mapa && !t.preg, JSON.stringify(t));
+    check('Negocio: debajo de la dirección va «Referencia de la dirección (opcional)»', t.ref && !!t.orden, JSON.stringify(t));
+    await p.fill('#x-ref', 'Frente al parque'); await p.evaluate(() => document.querySelector('[data-act="saveEditShop"]').click()); await p.waitForTimeout(600);
+    const s = await p.evaluate(() => { const x = S.stores.find(y => y.id === 's1'); return { ref: x.ref, mapfix: x.mapfix } });
+    check('Negocio: guarda la referencia y conserva la respuesta vieja del mapa', s.ref === 'Frente al parque' && s.mapfix === true, JSON.stringify(s));
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(400);
+    check('Negocio: la ficha muestra la referencia debajo de la dirección', await p.evaluate(() => /Calle 5 # 3-20[\s\S]*Frente al parque/.test((document.querySelector('.sinfo') || {}).innerText || '')));
+    await p.evaluate(() => { closeModal(1); adForm('arr', S.ads.find(a => a.id === 'a1')) }); await p.waitForTimeout(600);
+    const i = await p.evaluate(() => { const vis = x => !!x && !!x.offsetParent; const r = document.getElementById('af-ref'), w = [...document.querySelectorAll('#adf .fw')].filter(vis), k = w.findIndex(x => x.contains(document.getElementById('af-addr')));
+      return { mapa: !!document.getElementById('af-map'), preg: vis(document.getElementById('af-mapok')) || vis(document.querySelector('.mq')), sig: k >= 0 && !!w[k + 1] && w[k + 1].contains(r), lb: ((r && r.closest('.fw').querySelector('label')) || {}).textContent || '' } });
+    check('Inmueble: sin mapa ni pregunta de Google Maps', !i.mapa && !i.preg, JSON.stringify(i));
+    check('Inmueble: justo debajo de la dirección va «Referencia de la dirección»', i.sig && /Referencia de la dirección/.test(i.lb), JSON.stringify(i));
+    await p.fill('#af-ref', 'Casa de reja verde'); await p.evaluate(() => document.querySelector('#ov [data-act="saveAd"]').click()); await p.waitForTimeout(800);
+    const a = await p.evaluate(() => { const x = S.ads.find(y => y.id === 'a1'); return { ref: x.f.ref, mapok: x.f.mapok, err: (document.getElementById('err') || {}).textContent || '' } });
+    check('Inmueble: guarda la referencia y conserva la respuesta vieja del mapa', a.ref === 'Casa de reja verde' && a.mapok === 'No lo ubica bien', JSON.stringify(a));
+    check('Inmueble: el anuncio muestra la referencia', await p.evaluate(() => /Referencia de la dirección[\s\S]{0,20}Casa de reja verde/.test(document.getElementById('app').innerText)));
+    sinErrores(p, 'Dirección sin mapa'); await p.cerrar();
+    const q = await abrir({ admin: true, seed: { 'stores/s1': Object.assign({}, tienda, { mapfix: false, ref: 'Frente al parque' }), 'stores/s2': { id: 's2', name: 'Droguería', cat: 'Otros', wa: '3112223345', ownerKey: 'kB', addr: 'Calle 7', plus: 'CQ94+H47', lat: 3.42, lng: -76.24, products: [], _o: 2 }, 'ads/a1': Object.assign({}, casa, { f: { addr: 'Carrera 10 # 7-45', ref: 'Casa de reja verde' } }) } });
+    await q.evaluate(() => { closeModal(1); at = 'usr'; view = 'admin'; render() }); await q.waitForTimeout(500);
+    const g = await q.evaluate(() => [...document.querySelectorAll('.aadp')].map(x => x.innerText).join('\n'));
+    check('Administrador: el negocio con dirección y sin código plus sale por ubicar, con su referencia', /Panadería[\s\S]*Referencia: Frente al parque/.test(g) && !/Droguería/.test(g), g.slice(0, 500));
+    check('Administrador: el inmueble sin punto sale por ubicar, con su referencia', /Casa de 2 habitaciones[\s\S]*Referencia: Casa de reja verde/.test(g), g.slice(0, 500));
+    sinErrores(q, 'Por ubicar (administrador)'); await q.cerrar();
+  },
+  async adminCorrigeDireccion() { // v463 el administrador corrige la dirección del negocio y del inmueble (por si la escribieron mal)
+    const seed = { 'stores/s1': { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', ownerUid: 'uA', addr: 'Calle 5 # 3-20', zone: 'Centro', plus: 'CQ94+H47', lat: 3.42, lng: -76.24, products: [], _o: 1 },
+      'ads/a1': { id: 'a1', type: 'arr', title: 'Casa de 2 habitaciones', price: 450000, zone: 'Centro', desc: '', imgs: [], owner: 'Marta', wa: '3001234567', ownerKey: 'kB', ownerUid: 'uB', plus: 'CQ94+H47', lat: 3.42, lng: -76.24, ts: Date.now(), _o: 2, f: { ptype: 'Casa', addr: 'Carerra 10 # 7-45', mapok: 'Sí, lo ubica bien' } } };
+    const p = await abrir({ admin: true, seed });
+    await p.evaluate(() => { closeModal(1); at = 'ver'; view = 'admin'; render() }); await p.waitForTimeout(500);
+    check('Publicaciones: la tienda y el inmueble tienen «Corregir dirección», aunque ya estén ubicados', await p.evaluate(() => /Corregir dirección/.test((document.querySelector('[data-admshop="s1"]') || {}).textContent || '') && /Corregir dirección/.test((document.querySelector('[data-adplus="a1"]') || {}).textContent || '')));
+    await p.evaluate(() => document.querySelector('[data-adplus="a1"]').click()); await p.waitForTimeout(400);
+    check('Inmueble: la ventana trae la dirección para corregirla', await p.evaluate(() => (document.getElementById('ip-addr') || {}).value === 'Carerra 10 # 7-45' && !!document.getElementById('ip-ref')));
+    await p.fill('#ip-addr', 'Carrera 10 # 7-45'); await p.fill('#ip-ref', 'Casa de reja verde'); await p.fill('#ip-plus', '');
+    await p.evaluate(() => document.querySelector('[data-adplusok="a1"]').click()); await p.waitForTimeout(600);
+    const a = await p.evaluate(async () => { const d = (await firebase.firestore().collection('ads').doc('a1').get()).data(); return { addr: d.f.addr, ref: d.f.ref, plus: d.plus, lat: d.lat, own: d.ownerKey + '/' + d.ownerUid } });
+    check('Inmueble: guarda la dirección y la referencia corregidas, conserva el punto y el dueño', a.addr === 'Carrera 10 # 7-45' && a.ref === 'Casa de reja verde' && a.plus === 'CQ94+H47' && a.lat === 3.42 && a.own === 'kB/uB', JSON.stringify(a));
+    await p.evaluate(() => { closeModal(1); at = 'ver'; view = 'admin'; render() }); await p.waitForTimeout(400);
+    await p.evaluate(() => document.querySelector('[data-admshop="s1"]').click()); await p.waitForTimeout(400);
+    await p.fill('#as-addr', 'Calle 5 # 3-22'); await p.fill('#as-ref', 'Frente al parque');
+    await p.evaluate(() => document.querySelector('[data-admshopsave="s1"]').click()); await p.waitForTimeout(600);
+    const s = await p.evaluate(async () => { const d = (await firebase.firestore().collection('stores').doc('s1').get()).data(); return { addr: d.addr, ref: d.ref, plus: d.plus, own: d.ownerKey + '/' + d.ownerUid } });
+    check('Negocio: guarda la dirección y la referencia corregidas y sigue siendo del dueño', s.addr === 'Calle 5 # 3-22' && s.ref === 'Frente al parque' && s.plus === 'CQ94+H47' && s.own === 'kA/uA', JSON.stringify(s));
+    sinErrores(p, 'Administrador corrige dirección'); await p.cerrar();
+  },
+  async subcategoriasTiendas() { // v464 el administrador crea, renombra y elimina subcategorías de tiendas dentro de cada grupo
+    const p = await abrir({ admin: true, seed: { 'stores/s1': { id: 's1', name: 'Helados Pradera', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', products: [], _o: 1 } } });
+    await p.evaluate(() => { closeModal(1); at = 'cat'; view = 'admin'; render() }); await p.waitForTimeout(500);
+    const g = await p.evaluate(() => { const d = [...document.querySelectorAll('.stca details.stg')].find(x => x.dataset.stg === 'Comidas'); return { n: document.querySelectorAll('.stca details.stg').length, com: d ? [...d.querySelectorAll('input[id^="ct-n-"]')].map(i => i.value).join() : '' } });
+    check('«Categorías de tiendas» va por grupos, cada uno con sus subcategorías', g.n >= 10 && g.com === 'Restaurantes,Comidas rápidas,Panaderías y pastelerías', JSON.stringify(g));
+    const signo = () => p.evaluate(() => getComputedStyle(document.querySelector('.stca details.stg[data-stg="Comidas"] summary i'), '::before').content);
+    const cerrado = await signo();
+    await p.evaluate(() => { const d = document.querySelector('.stca details.stg[data-stg="Comidas"]'); d.open = true }); await p.waitForTimeout(200);
+    const abierto = await signo();
+    check('El grupo muestra «+» cerrado y «−» abierto', cerrado === '"+"' && abierto === '"−"', cerrado + ' / ' + abierto);
+    await p.fill('.stca details.stg[data-stg="Comidas"] .stadd input', 'Restaurantes'); await p.click('.stca [data-stadd="Comidas"]'); await p.waitForTimeout(300);
+    check('No deja crear una subcategoría repetida', await p.evaluate(() => /Ya existe/.test(document.getElementById('err').textContent)));
+    await p.fill('.stca details.stg[data-stg="Comidas"] .stadd input', 'Heladerías'); await p.click('.stca [data-stadd="Comidas"]'); await p.waitForTimeout(600);
+    const a = await p.evaluate(async () => { const d = document.querySelector('.stca details.stg[data-stg="Comidas"]'), site = (await firebase.firestore().collection('meta').doc('site').get()).data() || {}, cs = (await firebase.firestore().collection('cats').get()).docs.map(x => x.data().a[0]);
+      return { grupo: catGroupOf('Heladerías'), abierto: !!d && d.open, enGrupo: !!d && [...d.querySelectorAll('input[id^="ct-n-"]')].some(i => i.value === 'Heladerías'), mapa: (site.catGrp || {})['Heladerías'], cats: cs.includes('Heladerías') } });
+    check('«+ Agregar» crea la subcategoría dentro de su grupo y queda guardada', a.grupo === 'Comidas' && a.enGrupo && a.abierto && a.mapa === 'Comidas' && a.cats, JSON.stringify(a));
+    const vis = await p.evaluate(() => { const h = document.createElement('div'); h.innerHTML = catGroupedHTML(CATS, c => '<b>' + c[0] + '</b>'); const t = h.innerText; return t.indexOf('Comidas') >= 0 && t.indexOf('Heladerías') > t.indexOf('Comidas') && t.indexOf('Heladerías') < t.indexOf('Belleza') });
+    check('En el formulario de la tienda y en «Categorías», la nueva sale bajo «Comidas»', vis);
+    await p.evaluate(() => { const i = CATS.findIndex(c => c[0] === 'Heladerías'), n = document.getElementById('ct-n-' + i); n.value = 'Heladerías y postres'; n.dispatchEvent(new Event('input', { bubbles: true })); document.getElementById('ct-s-' + i).click() }); await p.waitForTimeout(500);
+    check('Al cambiarle el nombre sigue en su grupo', await p.evaluate(() => catGroupOf('Heladerías y postres') === 'Comidas' && !CATS.some(c => c[0] === 'Heladerías') && S.site.catGrp['Heladerías y postres'] === 'Comidas' && !('Heladerías' in S.site.catGrp)));
+    await p.evaluate(() => { S.stores.find(s => s.id === 's1').cat = 'Heladerías y postres'; const i = CATS.findIndex(c => c[0] === 'Heladerías y postres'); document.querySelector('.stca [data-act="catDel"][data-i="' + i + '"]').click() }); await p.waitForTimeout(300);
+    check('«Eliminar» pregunta antes y avisa a dónde pasan sus tiendas', await p.evaluate(() => /¿Eliminar "Heladerías y postres"\?[\s\S]*pasarán a "Otros"/.test((document.getElementById('cfm-t') || {}).textContent || '')));
+    await p.click('#cfm-ok'); await p.waitForTimeout(500);
+    check('Eliminada: ya no está y su tienda pasa a «Otros»', await p.evaluate(() => !CATS.some(c => c[0] === 'Heladerías y postres') && S.stores.find(s => s.id === 's1').cat === 'Otros'));
+    sinErrores(p, 'Subcategorías de tiendas'); await p.cerrar();
+  },
+  async adminEditaAnuncios() { // v465 el administrador edita los anuncios de los usuarios (arriendo, venta, vehículo) sin quitárselos al dueño
+    const ts = Date.now() - 5 * 864e5;
+    const seed = { 'ads/a1': { id: 'a1', type: 'arr', title: 'Casa de 2 habitaciones', price: 450000, zone: 'Centro', desc: 'Cerca del parque', imgs: [], owner: 'Marta', wa: '3001234567', ownerKey: 'kB', ownerUid: 'uB', ts, _o: 1, f: { ptype: 'Casa', price: 450000, beds: 2, addr: 'Carrera 10 # 7-45' } },
+      'stores/s1': { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', ownerUid: 'uA', products: [], _o: 2 } };
+    const p = await abrir({ admin: true, seed });
+    await p.evaluate(() => { closeModal(1); at = 'ver'; view = 'admin'; render() }); await p.waitForTimeout(500);
+    check('Publicaciones: el anuncio y la tienda tienen «Editar»', await p.evaluate(() => !!document.querySelector('[data-admedad="a1"]') && !!document.querySelector('.ci [data-admedit="s1"]')));
+    await p.evaluate(() => document.querySelector('[data-admedad="a1"]').click()); await p.waitForTimeout(500);
+    check('«Editar» abre el formulario del dueño con sus datos', await p.evaluate(() => /Editar anuncio/.test((document.querySelector('#ov h2') || {}).textContent || '') && (document.getElementById('af-addr') || {}).value === 'Carrera 10 # 7-45' && (document.getElementById('a-owner') || {}).value === 'Marta'));
+    await p.evaluate(() => { const set = (id, v) => { const x = document.getElementById(id); x.value = v; x.dispatchEvent(new Event('input', { bubbles: true })) }; set('af-beds', '3'); set('af-desc', 'Cerca del parque, con patio') }); await p.waitForTimeout(100);
+    await p.evaluate(() => document.querySelector('#ov [data-act="saveAd"]').click()); await p.waitForTimeout(800);
+    const d = await p.evaluate(async () => { const x = (await firebase.firestore().collection('ads').doc('a1').get()).data(); return { beds: x.f.beds, desc: x.desc, own: x.ownerKey + '/' + x.ownerUid, owner: x.owner, wa: x.wa, ts: x.ts, err: (document.getElementById('err') || {}).textContent || '' } });
+    check('Guarda el cambio y el anuncio sigue siendo del dueño, con su nombre, WhatsApp y fecha', Number(d.beds) === 3 && d.desc === 'Cerca del parque, con patio' && d.own === 'kB/uB' && d.owner === 'Marta' && d.wa === '3001234567' && d.ts === ts, JSON.stringify(d));
+    await p.evaluate(() => { closeModal(1); curAd = 'a1'; view = 'ad'; render() }); await p.waitForTimeout(500);
+    check('Dentro del anuncio sale «Editar anuncio (administrador)»', await p.evaluate(() => /administrador/.test((document.querySelector('#app article.adview [data-admedad="a1"]') || {}).textContent || '')));
+    await p.evaluate(() => { closeModal(1); at = 'ver'; view = 'admin'; render() }); await p.waitForTimeout(400);
+    await p.evaluate(() => document.querySelector('.ci [data-admedit="s1"]').click()); await p.waitForTimeout(500);
+    check('«Editar» de la tienda abre la tienda para editarla como su dueño (v441)', await p.evaluate(() => view === 'store' && cur === 's1' && !!document.querySelector('[data-act="editShop"]')));
+    sinErrores(p, 'Administrador edita anuncios'); await p.cerrar();
+    const q = await abrir({ seed });
+    await q.evaluate(() => { closeModal(1); curAd = 'a1'; view = 'ad'; render() }); await q.waitForTimeout(500);
+    check('Un visitante no ve el botón del administrador', await q.evaluate(() => !document.querySelector('[data-admedad]')));
+    sinErrores(q, 'Anuncio para visitantes'); await q.cerrar();
   },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';

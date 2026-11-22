@@ -17,7 +17,7 @@ window.shopInfo=function(s){var o='<div class="sinfo">';
   ((s.tags||[]).length?'<div class="si-tags">'+s.tags.map(function(t){return '<span>#'+E(t)+'</span>'}).join('')+'</div>':'')+
   '<div class="si-bd">'+badge(s)+' '+rateLine(s)+'</div>'+socHTML(s)+'</div>';
  var rows='';
- if(s.addr||s.zone)rows+=row(IC.pin,'Ubicación','<div class="si-t">'+E(s.addr||s.zone)+'</div>'+(s.addr&&s.zone?'<small>Barrio '+E(s.zone)+'</small>':''));
+ if(s.addr||s.zone)rows+=row(IC.pin,'Ubicación','<div class="si-t">'+E(s.addr||s.zone)+'</div>'+(s.addr&&s.zone?'<small>Barrio '+E(s.zone)+'</small>':'')+(s.addr&&s.ref?'<small>'+E(s.ref)+'</small>':'')/* v462: referencia */);
  var ht=hoursTxt(s);if(ht){var st=txt(openBadge(s)),on=/abierto/i.test(st);
   var L=String(ht).split(' · ').map(function(x){var k=x.indexOf(': ');return k>0?'<li><b>'+E(x.slice(0,k))+'</b><span>'+E(x.slice(k+2))+'</span></li>':'<li><span>'+E(x)+'</span></li>'}).join('');
   rows+=row(IC.clock,'Horario','<ul class="si-h">'+L+'</ul>',st?'<em class="si-st '+(on?'on':'off')+'">'+E(st)+'</em>':'')}

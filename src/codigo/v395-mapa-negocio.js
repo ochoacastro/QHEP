@@ -5,7 +5,7 @@
 (function(){
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 function v(id){var x=document.getElementById(id);return x?x.value.trim():''}
-function draw(){var el=document.getElementById('x-map');if(!el)return;var dir=v('x-addr'),q='';
+function draw(){var el=document.getElementById('x-map');if(!el||window.qhSinMapa/* v462 */)return;var dir=v('x-addr'),q='';
  if(dir===(el.dataset.a0||'').trim()){var la=v('x-lat'),ln=v('x-lng'),pl=v('x-plus');q=la&&ln?la+','+ln:pl?(/\s/.test(pl)?pl:pl+' Pradera, Valle del Cauca'):''}
  if(!q&&dir)q=[dir,v('x-zone'),'Pradera, Valle del Cauca'].filter(Boolean).join(', ');
  if(!q){el.innerHTML='<p class="adhint" style="padding:14px">Escribe la dirección del negocio y aquí verás el lugar en Google Maps.</p>';el.dataset.q='';return}
