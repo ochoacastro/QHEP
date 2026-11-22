@@ -6827,7 +6827,7 @@ function muro(){var L=items(),n=L.length,back='';try{back=MODE==='panel'?'<div c
   '</section>'}
 /* el programa principal se carga al final de la página: se espera a que exista comView para cambiarla por el muro */
 function inst(){if(comView0)return true;if(typeof comView!=='function'||typeof render!=='function')return false;comView0=comView;window.comView0=comView0;comView=muro;
- try{BN.forEach(function(x){if(x[0]==='com')x[1]='Muro'})}catch(e){}nombre();try{if(view==='com')render()}catch(e){}return true}
+ try{hubIc.muro=MURO_IC;BN.forEach(function(x){if(x[0]==='com'){x[1]='Muro';x[2]='muro'}})}catch(e){}nombre();try{if(view==='com')render()}catch(e){}return true}
 /* ---- ventana «¿Qué quieres publicar?» ---- */
 function opt(ic,t,d,attrs){return '<button type="button" class="muop" '+attrs+'><span class="muoi">'+ic+'</span><span><b>'+t+'</b><small>'+d+'</small></span></button>'}
 function pubWin(){modal('<h2>¿Qué quieres publicar?</h2><p class="muted">Gratis: 1 anuncio clasificado al día, que dura 24 horas.</p><div class="muops">'+
@@ -6879,7 +6879,11 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
 /* «Clasificados» desde otras partes (inicio, menú, carrusel) abre la pestaña Clasificados */
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-v="com"]:not([data-act="bn"]):not([data-act="pubAsk"]),[data-act="cmxOpen"]');if(b){tab='cm';more=30}},true);
 /* el nombre del botón de abajo: «Muro» */
-function nombre(){var s=document.querySelector('#bnav [data-v="com"] span');if(s&&s.textContent!=='Muro')s.textContent='Muro'}
+/* v466: ícono del Muro (antes el megáfono de Clasificados): lista con un cuadro a la izquierda y líneas a la derecha, como las
+   publicaciones del Muro (v454). Es «layout-list» de Lucide, la misma familia de íconos de línea de la barra */
+var MURO_IC='<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 4h7"/><path d="M14 9h7"/><path d="M14 15h7"/><path d="M14 20h7"/>';
+function nombre(){var s=document.querySelector('#bnav [data-v="com"] span');if(s&&s.textContent!=='Muro')s.textContent='Muro';
+ var g=document.querySelector('#bnav [data-v="com"] svg');if(g&&!g.dataset.muro){g.innerHTML=MURO_IC;g.dataset.muro='1'}}
 if(!inst()){document.addEventListener('DOMContentLoaded',inst);var k0=0,iv=setInterval(function(){if(inst()||++k0>200)clearInterval(iv)},50)}setTimeout(nombre,1500);
 document.head.insertAdjacentHTML('beforeend','<style id="v442-css">'+
  '.mu{display:flex;flex-direction:column;gap:12px;margin-top:6px}'+

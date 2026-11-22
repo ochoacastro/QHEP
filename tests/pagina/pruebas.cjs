@@ -1062,6 +1062,7 @@ const PRUEBAS = {
     const sel = () => p.evaluate(() => (document.querySelector('.mutabs [aria-selected="true"]') || {}).textContent || '');
     await p.evaluate(() => { closeModal(1); document.querySelector('#bnav [data-v="com"]').click() }); await p.waitForTimeout(500);
     check('El botón de abajo se llama «Muro» y abre en «Todo»', await p.evaluate(() => document.querySelector('#bnav [data-v="com"]').innerText.trim() === 'Muro') && await sel() === 'Todo');
+    check('v466: el ícono del Muro es la lista (cuadros y líneas), no el megáfono', await p.evaluate(() => { const g = document.querySelector('#bnav [data-v="com"] svg'); return !!g && g.querySelectorAll('rect').length === 2 && g.querySelectorAll('path').length === 4 }));
     const app = await p.evaluate(() => document.getElementById('app').innerText);
     check('«Todo» junta clasificados y tiendas en tarjetas, lo más nuevo arriba', /Canela Gastrobar[\s\S]*Vendo nevera[\s\S]*Tienda Tomaticos[\s\S]*Regalo gatitos/.test(app), app.slice(0, 300));
     check('Ya no están el título con «Gratis: 1 anuncio…», Obituario, Empleo ni los tipos (Vendo, Arriendo…)', await p.evaluate(() => !document.querySelector('#app .shead, #app .cmops, #app [data-obi], #app [data-empb], #app .cmct')));
