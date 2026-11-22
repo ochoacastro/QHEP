@@ -1388,7 +1388,11 @@ const PRUEBAS = {
     await p.evaluate(() => { closeModal(1); at = 'cat'; view = 'admin'; render() }); await p.waitForTimeout(500);
     const g = await p.evaluate(() => { const d = [...document.querySelectorAll('.stca details.stg')].find(x => x.dataset.stg === 'Comidas'); return { n: document.querySelectorAll('.stca details.stg').length, com: d ? [...d.querySelectorAll('input[id^="ct-n-"]')].map(i => i.value).join() : '' } });
     check('«Categorías de tiendas» va por grupos, cada uno con sus subcategorías', g.n >= 10 && g.com === 'Restaurantes,Comidas rápidas,Panaderías y pastelerías', JSON.stringify(g));
+    const signo = () => p.evaluate(() => getComputedStyle(document.querySelector('.stca details.stg[data-stg="Comidas"] summary i'), '::before').content);
+    const cerrado = await signo();
     await p.evaluate(() => { const d = document.querySelector('.stca details.stg[data-stg="Comidas"]'); d.open = true }); await p.waitForTimeout(200);
+    const abierto = await signo();
+    check('El grupo muestra «+» cerrado y «−» abierto', cerrado === '"+"' && abierto === '"−"', cerrado + ' / ' + abierto);
     await p.fill('.stca details.stg[data-stg="Comidas"] .stadd input', 'Restaurantes'); await p.click('.stca [data-stadd="Comidas"]'); await p.waitForTimeout(300);
     check('No deja crear una subcategoría repetida', await p.evaluate(() => /Ya existe/.test(document.getElementById('err').textContent)));
     await p.fill('.stca details.stg[data-stg="Comidas"] .stadd input', 'Heladerías'); await p.click('.stca [data-stadd="Comidas"]'); await p.waitForTimeout(600);

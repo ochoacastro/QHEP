@@ -7396,9 +7396,9 @@ document.head.insertAdjacentHTML('beforeend','<style id="v464-css">'+
  '.stca .stg summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:52px;padding:10px 12px 10px 14px;cursor:pointer;font-weight:700;font-size:16px}'+
  '.stca .stg summary::-webkit-details-marker{display:none}.stca .stg summary span{flex:1;min-width:0}'+
  '.stca .stg summary small{font-weight:400;font-size:13px;opacity:.7;white-space:nowrap}'+
- '.stca .stg summary i{position:relative;flex:none;width:28px;height:28px;background:var(--rio,#0071e3);color:#fff;border-radius:999px}'+
- '.stca .stg summary i::before,.stca .stg summary i::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:2.5px;background:currentColor;transform:translate(-50%,-50%);transition:transform .2s ease}'+
- '.stca .stg summary i::after{transform:translate(-50%,-50%) rotate(90deg)}.stca .stg[open] summary i::after{transform:translate(-50%,-50%) rotate(0deg)}'+
+ /* «+» muestra las subcategorías y «−» las oculta (como el botón «Escríbenos», v435) */
+ '.stca .stg summary i{display:inline-flex;align-items:center;justify-content:center;flex:none;width:30px;height:30px;background:var(--rio,#0071e3);color:#fff;border-radius:999px;font-style:normal;font-weight:700;font-size:22px;line-height:1}'+
+ '.stca .stg summary i::before{content:"+"}.stca .stg[open] summary i::before{content:"\\2212"}'+
  '.stca .stg summary:focus-visible{outline:3px solid var(--rio,#0071e3);outline-offset:2px}'+
  /* escalonado: las subcategorías van debajo del grupo, con sangría y una línea que las une a su grupo */
  '.stca .stg .cgr{padding:0 12px 12px 26px;position:relative}'+
@@ -7406,8 +7406,7 @@ document.head.insertAdjacentHTML('beforeend','<style id="v464-css">'+
  '.stca .stg .catrow{position:relative;margin:10px 0 0;padding:8px 0 8px 22px}'+
  '.stca .stg .catrow::before{content:"";position:absolute;left:1px;top:30px;width:16px;height:2px;background:#c9d8f5}'+
  '.stca .stg .cgr>.muted{margin:10px 0 0 22px}.stca .stg .stadd{margin-top:12px}'+
- 'html.dark .stca .stg{background:#1e2026!important;border-color:#3b404b!important;color:#fff!important}html.dark .stca .stg summary i{background:#0a84ff!important}html.dark .stca .stg .cgr::before,html.dark .stca .stg .catrow::before{background:#3b4a66!important}'+
- '@media (prefers-reduced-motion:reduce){.stca .stg summary i::before,.stca .stg summary i::after{transition:none}}</style>');
+ 'html.dark .stca .stg{background:#1e2026!important;border-color:#3b404b!important;color:#fff!important}html.dark .stca .stg summary i{background:#0a84ff!important}html.dark .stca .stg .cgr::before,html.dark .stca .stg .catrow::before{background:#3b4a66!important}</style>');
 })();
 </script>
 <script id="v465-admin-edita-anuncios">/* v465: EL ADMINISTRADOR EDITA LOS ANUNCIOS DE LOS USUARIOS (arriendos, casas en venta y vehículos), para corregir cualquier error.
