@@ -1405,6 +1405,30 @@ const PRUEBAS = {
     check('Eliminada: ya no está y su tienda pasa a «Otros»', await p.evaluate(() => !CATS.some(c => c[0] === 'Heladerías y postres') && S.stores.find(s => s.id === 's1').cat === 'Otros'));
     sinErrores(p, 'Subcategorías de tiendas'); await p.cerrar();
   },
+  async adminEditaAnuncios() { // v465 el administrador edita los anuncios de los usuarios (arriendo, venta, vehículo) sin quitárselos al dueño
+    const ts = Date.now() - 5 * 864e5;
+    const seed = { 'ads/a1': { id: 'a1', type: 'arr', title: 'Casa de 2 habitaciones', price: 450000, zone: 'Centro', desc: 'Cerca del parque', imgs: [], owner: 'Marta', wa: '3001234567', ownerKey: 'kB', ownerUid: 'uB', ts, _o: 1, f: { ptype: 'Casa', price: 450000, beds: 2, addr: 'Carrera 10 # 7-45' } },
+      'stores/s1': { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', ownerUid: 'uA', products: [], _o: 2 } };
+    const p = await abrir({ admin: true, seed });
+    await p.evaluate(() => { closeModal(1); at = 'ver'; view = 'admin'; render() }); await p.waitForTimeout(500);
+    check('Publicaciones: el anuncio y la tienda tienen «Editar»', await p.evaluate(() => !!document.querySelector('[data-admedad="a1"]') && !!document.querySelector('.ci [data-admedit="s1"]')));
+    await p.evaluate(() => document.querySelector('[data-admedad="a1"]').click()); await p.waitForTimeout(500);
+    check('«Editar» abre el formulario del dueño con sus datos', await p.evaluate(() => /Editar anuncio/.test((document.querySelector('#ov h2') || {}).textContent || '') && (document.getElementById('af-addr') || {}).value === 'Carrera 10 # 7-45' && (document.getElementById('a-owner') || {}).value === 'Marta'));
+    await p.evaluate(() => { const set = (id, v) => { const x = document.getElementById(id); x.value = v; x.dispatchEvent(new Event('input', { bubbles: true })) }; set('af-beds', '3'); set('af-desc', 'Cerca del parque, con patio') }); await p.waitForTimeout(100);
+    await p.evaluate(() => document.querySelector('#ov [data-act="saveAd"]').click()); await p.waitForTimeout(800);
+    const d = await p.evaluate(async () => { const x = (await firebase.firestore().collection('ads').doc('a1').get()).data(); return { beds: x.f.beds, desc: x.desc, own: x.ownerKey + '/' + x.ownerUid, owner: x.owner, wa: x.wa, ts: x.ts, err: (document.getElementById('err') || {}).textContent || '' } });
+    check('Guarda el cambio y el anuncio sigue siendo del dueño, con su nombre, WhatsApp y fecha', Number(d.beds) === 3 && d.desc === 'Cerca del parque, con patio' && d.own === 'kB/uB' && d.owner === 'Marta' && d.wa === '3001234567' && d.ts === ts, JSON.stringify(d));
+    await p.evaluate(() => { closeModal(1); curAd = 'a1'; view = 'ad'; render() }); await p.waitForTimeout(500);
+    check('Dentro del anuncio sale «Editar anuncio (administrador)»', await p.evaluate(() => /administrador/.test((document.querySelector('#app article.adview [data-admedad="a1"]') || {}).textContent || '')));
+    await p.evaluate(() => { closeModal(1); at = 'ver'; view = 'admin'; render() }); await p.waitForTimeout(400);
+    await p.evaluate(() => document.querySelector('.ci [data-admedit="s1"]').click()); await p.waitForTimeout(500);
+    check('«Editar» de la tienda abre la tienda para editarla como su dueño (v441)', await p.evaluate(() => view === 'store' && cur === 's1' && !!document.querySelector('[data-act="editShop"]')));
+    sinErrores(p, 'Administrador edita anuncios'); await p.cerrar();
+    const q = await abrir({ seed });
+    await q.evaluate(() => { closeModal(1); curAd = 'a1'; view = 'ad'; render() }); await q.waitForTimeout(500);
+    check('Un visitante no ve el botón del administrador', await q.evaluate(() => !document.querySelector('[data-admedad]')));
+    sinErrores(q, 'Anuncio para visitantes'); await q.cerrar();
+  },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
     const seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', zone: 'Centro', wa: '3001234567', ownerKey: 'k1', pexp: now + 30 * 864e5, products: [], logo: LG, ts: now - 60e3, _o: 1 },
