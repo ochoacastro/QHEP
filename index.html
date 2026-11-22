@@ -7023,7 +7023,7 @@ document.head.insertAdjacentHTML('beforeend','<style id="v445-css">.mp.mph{displ
    que abre el Muro igual que el botón Muro de la barra de abajo. Pedido por la dueña.
    Para quitarlo: borrar este archivo y v455-inicio-solo-reciente.css de src/orden.json (vuelven todas las pestañas). */
 (function(){
- var MURO='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>';
+ var MURO='<svg class="qi" viewBox="0 0 24 24" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 4h7"/><path d="M14 9h7"/><path d="M14 15h7"/><path d="M14 20h7"/></svg>';/* v467: el mismo ícono del Muro de la barra de abajo (v466), antes el megáfono */
  function arreglar(sec){if(sec.dataset.v455)return;sec.dataset.v455='1';
   var tabs=sec.querySelectorAll('.hswt [data-act="hsw"]'),panes=sec.querySelectorAll('.hswp>.hswc'),i;
   for(i=1;i<tabs.length;i++)tabs[i].remove();
@@ -7433,6 +7433,30 @@ function mount(){if(!isAdm())return;var w=document.querySelector('#app article.a
  if(w.querySelector('[data-act="editAd"]'))return;/* si el administrador es el dueño ya tiene su botón */
  var r=document.createElement('div');r.className='row adme';r.innerHTML='<button type="button" class="btn" data-admedad="'+String(a.id).replace(/[^\w-]/g,'')+'">Editar anuncio (administrador)</button>';w.appendChild(r)}
 var t=0;new MutationObserver(function(){if(t)return;t=1;requestAnimationFrame(function(){t=0;mount()})}).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+<script id="v470-publicaciones-plegables">/* v470: PUBLICACIONES PLEGABLES. En Administrador → Publicaciones, cada tienda, anuncio y clasificado muestra solo su nombre
+   con un botón «+» al lado; al tocarlo aparecen sus botones (Destacar, Verificar, Bloquear, Editar, Corregir dirección,
+   Eliminar) y el signo pasa a «−», que los vuelve a ocultar. La página recuerda cuáles quedaron abiertos mientras el panel se
+   vuelve a dibujar (por ejemplo, después de tocar «Destacar»). No cambia lo que hace ningún botón.
+   Si algo falla, quita este archivo de src/orden.json: los botones vuelven a verse siempre. */
+(function(){
+var OPEN={};
+function isAdm(){return typeof MODE!=='undefined'&&MODE==='admin'}
+function key(r){var b=r.querySelector('.row [data-id]');return b?(b.dataset.k||'c')+':'+b.dataset.id:''}
+function name(r){var s=r.querySelector(':scope>span');return s?s.textContent.replace(/\s*·.*$/,'').trim():''}
+function paint(r,open){r.classList.toggle('v470o',open);var t=r.querySelector(':scope>.v470t');if(t){t.setAttribute('aria-expanded',String(open));t.setAttribute('aria-label',(open?'Ocultar':'Mostrar')+' los botones de '+name(r))}}
+function scan(){if(!isAdm())return;[].forEach.call(document.querySelectorAll('#app .ci.adm:not(.v470)'),function(r){var row=r.querySelector(':scope>.row');if(!row)return;
+ r.classList.add('v470');var t=document.createElement('button');t.type='button';t.className='v470t';row.insertAdjacentElement('beforebegin',t);paint(r,!!OPEN[key(r)])})}
+document.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('.v470t');if(!t)return;e.preventDefault();var r=t.closest('.ci.adm'),k=key(r),o=!r.classList.contains('v470o');if(k)OPEN[k]=o;paint(r,o)});
+var w=0;new MutationObserver(function(){if(w)return;w=1;requestAnimationFrame(function(){w=0;scan()})}).observe(document.documentElement,{childList:true,subtree:true});
+document.head.insertAdjacentHTML('beforeend','<style id="v470-css">'+
+ '.ci.adm.v470{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px}.ci.adm.v470>span{flex:1 1 0;min-width:0}'+
+ '.ci.adm.v470>.row{flex-basis:100%;display:none}.ci.adm.v470.v470o>.row{display:flex}'+
+ /* «+» muestra los botones y «−» los oculta (como los grupos de categorías, v464) */
+ '.v470t{flex:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;border-radius:999px;background:var(--rio,#0071e3);color:#fff;font:inherit;font-size:22px;font-weight:700;line-height:1;cursor:pointer}'+
+ '.v470t::before{content:"+"}.v470o>.v470t::before{content:"\\2212"}.v470t:focus-visible{outline:3px solid var(--rio,#0071e3);outline-offset:2px}'+
+ 'html.dark .v470t{background:#0a84ff!important;color:#fff!important}</style>');
 })();
 </script>
 <script>
@@ -8088,7 +8112,7 @@ const galC=(p,c)=>{const v=vGal(p,c),l=v?v.map(x=>x.i||x.g[0]):cgl(p,c);return (
 const vId=(p,c)=>{let h=0;for(const ch of String(p.id)+'|'+c)h=(h*31+ch.charCodeAt(0))>>>0;return String(1000000+h%9000000)};
 const vOf=(p,ph,co)=>{const l=p.cimgs||[],o=co?l.find(x=>x.c===co):l.find(x=>(x.i||(x.g&&x.g[0]))===ph||(x.g||[]).includes(ph));if(!o)return null;const s=o.s!=null?o.s:(p.stock!==''&&p.stock!=null?p.stock:null);return{c:o.c,id:vId(p,o.c),s}};
 /* v124: sticker Variable (naranja), Verificado (verde) y corazón sobre la foto de la tarjeta */
-const cardOv=(s,p,v)=>{const f=isFav('prod',s.id+'__'+p.id);return `${v&&(v.c.length>1||v.z.length>1)?'<span class="cvar">Variable</span>':''}${s.verified?'<span class="cver"><i aria-hidden="true">✓</i>Verificado</span>':''}<button class="chrt" data-act="fav" data-k="prod" data-id="${s.id}__${p.id}" aria-pressed="${f}" aria-label="${f?'Quitar de favoritos':'Guardar en favoritos'}">${f?'♥':'♡'}</button>`};
+const cardOv=(s,p,v)=>{const f=isFav('prod',s.id+'__'+p.id);return `${v&&(v.c.length>1||v.z.length>1)?'<span class="cvar">Variable</span>':''}${''/* v469: «Verificado» es de la tienda (sale en su encabezado y su tarjeta), ya no en cada producto */}<button class="chrt" data-act="fav" data-k="prod" data-id="${s.id}__${p.id}" aria-pressed="${f}" aria-label="${f?'Quitar de favoritos':'Guardar en favoritos'}">${f?'♥':'♡'}</button>`};
 const cimRow=c=>{const l=cG[c]||[],n=l.length;return `<div class="cimr" data-row="${esc(c)}" style="border:1px solid #c9d3ea;border-radius:10px;padding:8px"><div style="display:flex;align-items:center;gap:8px;width:100%"><span class="cimd" style="--k:${cHex(c)}"></span><b>${esc(c)}</b><span class="muted">${n}/6 fotos · la primera es la principal</span></div><label style="display:flex;align-items:center;gap:6px;width:100%;font-size:14px;padding-top:6px">Unidades de este color <input type="number" min="0" step="1" inputmode="numeric" class="cims" value="${cS[c]==null?'':esc(String(cS[c]))}" style="width:90px" aria-label="Unidades disponibles del color ${esc(c)}"></label><label style="display:flex;align-items:center;gap:6px;width:100%;font-size:14px;padding-top:6px">SKU de este color <input type="text" maxlength="40" autocapitalize="characters" autocomplete="off" class="cimk" value="${esc(vK[c]||'')}" placeholder="Opcional" style="flex:1;min-width:0" aria-label="SKU del color ${esc(c)}"></label><div class="row" style="padding:8px 0;width:100%">${n?l.map((m,i)=>`<div style="position:relative;width:64px;height:64px;flex:none"><img src="${m}" alt="Foto ${i+1} de ${esc(c)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px${i===0?';outline:3px solid #f5a623':''}"><button class="x" style="width:22px;height:22px;top:-6px;right:-6px;font-size:12px;padding:0" data-act="crm" data-c="${esc(c)}" data-i="${i}" aria-label="Quitar foto ${i+1}">✕</button><button class="x" style="width:24px;height:24px;top:-8px;left:-6px;right:auto;font-size:14px;padding:0" data-act="cmain" data-c="${esc(c)}" data-i="${i}" aria-label="Hacer principal la foto ${i+1}"${i===0?' disabled':''}>${i===0?'★':'☆'}</button><button class="x" style="width:24px;height:24px;top:auto;bottom:-8px;left:-6px;right:auto;font-size:16px;padding:0" data-act="cmv" data-c="${esc(c)}" data-i="${i}" data-d="-1" aria-label="Mover foto ${i+1} a la izquierda"${i===0?' disabled':''}>‹</button><button class="x" style="width:24px;height:24px;top:auto;bottom:-8px;right:-6px;font-size:16px;padding:0" data-act="cmv" data-c="${esc(c)}" data-i="${i}" data-d="1" aria-label="Mover foto ${i+1} a la derecha"${i===n-1?' disabled':''}>›</button></div>`).join(''):'<span class="muted">Sin fotos</span>'}</div>${n<6?`<input type="file" accept="image/*" multiple class="cimf" aria-label="Agregar fotos del color ${esc(c)}">`:''}</div>`};
 const cimSync=x=>{const w=$('#'+x+'-cw'),i=$('#'+x+'-color');if(!w||!i)return;const c0=csv(i.value),cs=c0,gw=$('#'+x+'-gw');if(gw)gw.hidden=c0.length>0;[...w.children].forEach(r=>{if(!cs.includes(r.dataset.row))r.remove()});cs.forEach(c=>{if(![...w.children].some(r=>r.dataset.row===c))w.insertAdjacentHTML('beforeend',cimRow(c))})};
 const cimRead=async x=>{const o=[],i=$('#'+x+'-color');csv(i?i.value:'').forEach(c=>{const g=(cG[c]||[]).slice(0,6);if(g.length&&!o.some(y=>y.c===c))o.push({c,i:g[0],g,...((v=>v===''?{}:{s:Math.max(0,Math.floor(Number(v))||0)})(String(cS[c]==null?'':cS[c]).trim()))})});return o};
@@ -8435,7 +8459,7 @@ arr:{tab:'Inmuebles',one:'Arriendo',pub:'Publicar arriendo',desc:'Apartamentos, 
  {k:'minc',l:'Contrato mínimo',t:'sel',o:['A convenir','6 meses','12 meses']},
  {k:'svc',l:'Servicios públicos con los que cuenta la vivienda',t:'multi',o:['Agua','Energía','Gas natural','Internet']},/* v459: qué servicios TIENE la vivienda (aparte de quién los paga) */
  {k:'inc',l:'Servicios que ya están pagos en el valor del arriendo (el inquilino no los paga aparte)',t:'multi',o:['Agua','Energía','Gas natural','Internet','TV por cable']},/* v459: antes «Servicios incluidos en el canon»; se cambia el nombre para no confundirlo con el anterior. v460: las opciones usan las mismas palabras que el campo anterior; lo guardado como «Luz» y «Gas» se lee como «Energía» y «Gas natural» (v460-servicios-nombres.js) */
- {k:'docs',l:'Documentación requerida',t:'text',max:120,ph:'Ej: Fiador, certificado laboral, depósito'},
+ {k:'docs',l:'Documentación requerida',t:'area',max:400,ph:'Ej: Fiador con finca raíz, certificado laboral, depósito'},/* v468: caja de varias líneas (antes una línea de 120 letras) */
  {k:'desc',l:'Descripción',t:'area',max:600,ph:'Estado del inmueble, cercanías, reglas de la casa…'}]},
 casa:{tab:'Inmuebles',one:'Venta de casa',pub:'Vender mi propiedad',desc:'Casas, apartamentos, lotes y fincas en venta.',c:'#6B4F2A',slug:'casas',empty:'Aún no hay propiedades en venta. Publica la primera.',F:[
  {k:'title',l:'Título del anuncio',t:'text',r:1,max:70,ph:'Ej: Casa de 3 pisos con patio, cerca al parque'},
@@ -8501,7 +8525,7 @@ function adsView(t){const T=ADT[t],{all}=adLst(t);
 return `${tabs()}<div class="hubbar"><button class="btn ghost" data-act="hubHome">← Inicio</button></div>${catSearch('Buscar en '+T.tab)}${topBannerHTML(t==='casa'?'arr':t)}<div class="shead"><div><h2>${T.tab}</h2><p class="muted">${T.desc}</p></div><button class="btn pink" data-act="pubAsk" data-v="${t}">${PUBASK[t]||T.pub}</button></div>${t==='arr'||t==='casa'?`<div class="chips left" role="group" aria-label="Arrendar o vender"><button class="chip" data-act="tab" data-v="arr" aria-pressed="${t==='arr'}">Arrendar</button><button class="chip" data-act="tab" data-v="casa" aria-pressed="${t==='casa'}">Vender</button></div>`:''}${adTools(t,all)}${bedQ(t)}<div class="grid" id="adgrid">${adListHTML(t)}</div>`}
 function adView(){const a=S.ads.find(x=>x.id===curAd);if(!a||!(vis(a)||adm)){view='home';return homeView()}
 const T=ADT[a.type],mine=S.myAds.includes(a.id),im=pimgs(a),sold=a.type==='arr'?'Arrendado':'Vendido';
-const rows=T.F.filter(sp=>!CORE.includes(sp.k)&&!sp.hide/* v396 */&&(!sp.v||sp.v.includes(a.f.vtype))&&has(a.f[sp.k])).map(sp=>`<div><small>${esc(sp.k==='areaL'?areaLName(a.f.ptype):sp.l)}</small><b>${esc(fmtV(sp,a.f[sp.k]))}</b></div>`).join('');
+const rows=T.F.filter(sp=>!CORE.includes(sp.k)&&!sp.hide/* v396 */&&(!sp.v||sp.v.includes(a.f.vtype))&&has(a.f[sp.k])).map(sp=>`<div><small>${esc(sp.k==='areaL'?areaLName(a.f.ptype):sp.l)}</small><b${sp.t==='area'?' style="white-space:pre-line"':''/* v468 */}>${esc(fmtV(sp,a.f[sp.k]))}</b></div>`).join('');
 return `<button class="back" data-act="tab" data-v="${a.type}">← Volver a ${esc(T.tab)}</button>
 <article class="adview" style="--c:${T.c}"><div class="gal">${im.length?`<button class="zoom" data-act="zoomAd" data-i="0" aria-label="Ampliar fotos de ${esc(a.title)}"><img src="${im[0]}" alt="${esc(a.title)}">${im.length>1?`<span class="cnt">${im.length} fotos</span>`:''}<span class="zi" aria-hidden="true">Ampliar</span></button>${im.length>1?`<div class="thumbs2">${im.map((m,i)=>`<button data-act="zoomAd" data-i="${i}" aria-label="Ver foto ${i+1}"><img src="${m}" alt=""></button>`).join('')}</div>`:''}`:'<div class="adpic" style="border-radius:12px"><span class="nop">Sin foto</span></div>'}</div>
 <div><span class="tag" style="background:${T.c}">${esc(a.f.ptype||a.f.vtype||T.one)}</span> ${badge(a)} ${a.closed?`<span class="tag" style="background:#5B6475">${sold}</span>`:''}</div>

@@ -1267,6 +1267,7 @@ const PRUEBAS = {
     check('«Lo más reciente» sigue mostrando las publicaciones', a.tienda, JSON.stringify(a));
     await p.evaluate(() => { view = 'serv'; render() }); await p.waitForTimeout(200); await p.evaluate(() => { view = 'home'; render() }); await p.waitForTimeout(300);
     check('Al volver al inicio sigue igual (sin las pestañas de categorías)', await p.evaluate(() => document.querySelectorAll('#app section.hsw .hswt button').length === 2));
+    check('v467: «Ver el muro» tiene el mismo ícono del Muro de la barra de abajo', await p.evaluate(() => { const a = document.querySelector('.v455m svg'), b = document.querySelector('#bnav [data-v="com"] svg'); return !!a && !!b && a.querySelectorAll('rect').length === 2 && a.innerHTML.replace(/\s/g, '') === b.innerHTML.replace(/\s/g, '') }));
     await p.click('.v455m'); await p.waitForTimeout(600);
     check('«Ver el muro» abre el Muro en «Todo»', await p.evaluate(() => view === 'com' && !!document.querySelector('.mu') && /Todo/.test((document.querySelector('.mutabs [aria-selected="true"],.mutabs [aria-pressed="true"],.mutabs .on') || {}).textContent || '')), await p.evaluate(() => view + ' ' + ((document.querySelector('.mutabs [aria-selected="true"],.mutabs [aria-pressed="true"],.mutabs .on') || {}).textContent || '')));
     sinErrores(p, 'Inicio solo con lo más reciente'); await p.cerrar();
@@ -1433,6 +1434,45 @@ const PRUEBAS = {
     await q.evaluate(() => { closeModal(1); curAd = 'a1'; view = 'ad'; render() }); await q.waitForTimeout(500);
     check('Un visitante no ve el botón del administrador', await q.evaluate(() => !document.querySelector('[data-admedad]')));
     sinErrores(q, 'Anuncio para visitantes'); await q.cerrar();
+  },
+  async documentacionArriendo() { // v468 «Documentación requerida» del arriendo en una caja de varias líneas, con más espacio
+    const docs = 'Fiador con finca raíz\nCertificado laboral\nDepósito de un mes';
+    const seed = { 'ads/a1': { id: 'a1', type: 'arr', title: 'Casa de 2 habitaciones', price: 450000, zone: 'Centro', desc: '', imgs: [], owner: 'Marta', wa: '3001234567', ownerKey: 'kA', ts: Date.now(), f: { ptype: 'Casa', docs } } };
+    const p = await abrir({ seed }); await conCuenta(p);
+    await p.evaluate(() => { closeModal(1); adForm('arr', S.ads.find(a => a.id === 'a1')) }); await p.waitForTimeout(500);
+    const c = await p.evaluate(() => { const x = document.getElementById('af-docs'); return { tag: x.tagName, max: x.maxLength, rows: x.rows, val: x.value } });
+    check('«Documentación requerida» es una caja de varias líneas de hasta 400 letras', c.tag === 'TEXTAREA' && c.max === 400 && c.rows >= 3 && c.val === docs, JSON.stringify(c));
+    await p.evaluate(() => { closeModal(1); curAd = 'a1'; view = 'ad'; render() }); await p.waitForTimeout(400);
+    const v = await p.evaluate(() => { const s = [...document.querySelectorAll('.adview .spec > div')].find(d => /Documentación requerida/.test(d.textContent)); const b = s && s.querySelector('b'); return b ? { t: b.innerText, ws: getComputedStyle(b).whiteSpace } : null });
+    check('En el anuncio se ve con sus renglones', !!v && v.ws === 'pre-line' && v.t.split('\n').length === 3, JSON.stringify(v));
+    sinErrores(p, 'Documentación del arriendo'); await p.cerrar();
+  },
+  async verificadoTienda() { // v469 «Verificado» sale en la tienda, no en cada producto
+    const seed = { 'stores/s1': { id: 's1', name: 'Heladería Gelatier', desc: 'Helados', cat: 'Otros', wa: '3001234567', ownerKey: 'k1', verified: true, pexp: Date.now() + 30 * 864e5, _o: 1, products: [] },
+      'products/s1__p1': { id: 'p1', sid: 's1', name: 'Ensalada de frutas', price: 12000, imgs: [], ownerKey: 'k1', _o: 1 }, 'products/s1__p2': { id: 'p2', sid: 's1', name: 'Malteada', price: 9000, imgs: [], ownerKey: 'k1', _o: 2 } };
+    const p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); view = 'store'; cur = 's1'; render() }); await p.waitForTimeout(500);
+    const r = await p.evaluate(() => ({ tienda: !!document.querySelector('#app .vfb') && /Vecino verificado/.test(document.querySelector('#app').innerText), prods: document.querySelectorAll('#app .prod').length, enProd: document.querySelectorAll('#app .prod .cver').length }));
+    check('La tienda verificada muestra «Verificado» y sus productos no', r.tienda && r.prods === 2 && r.enProd === 0, JSON.stringify(r));
+    sinErrores(p, 'Verificado de la tienda'); await p.cerrar();
+  },
+  async publicacionesPlegables() { // v470 en Publicaciones, «+» muestra los botones de cada tienda o anuncio y «−» los oculta
+    const seed = { 'stores/s1': { id: 's1', name: 'Panadería', cat: 'Otros', wa: '3112223344', ownerKey: 'kA', products: [], _o: 1 }, 'stores/s2': { id: 's2', name: 'Droguería', cat: 'Otros', wa: '3112223345', ownerKey: 'kB', products: [], _o: 2 },
+      'ads/a1': { id: 'a1', type: 'arr', title: 'Casa de 2 habitaciones', price: 450000, zone: 'Centro', desc: '', imgs: [], owner: 'Marta', wa: '3001234567', ownerKey: 'kC', ts: Date.now(), _o: 3, f: { ptype: 'Casa' } } };
+    const p = await abrir({ admin: true, seed });
+    await p.evaluate(() => { closeModal(1); at = 'ver'; view = 'admin'; render() }); await p.waitForTimeout(500);
+    const fila = id => `#app .ci.adm:has([data-id="${id}"])`;
+    const ver = id => p.evaluate(s => { const r = document.querySelector(s), t = r.querySelector('.v470t'); return { t: getComputedStyle(t, '::before').content, abierto: t.getAttribute('aria-expanded'), botones: !!r.querySelector('.row').offsetParent } }, fila(id));
+    const a = await ver('s1');
+    check('Cada publicación muestra solo su nombre y «+»; los botones están ocultos', a.t === '"+"' && a.abierto === 'false' && !a.botones && await p.evaluate(() => document.querySelectorAll('#app .ci.adm .v470t').length === 3), JSON.stringify(a));
+    await p.click(fila('s1') + ' .v470t'); await p.waitForTimeout(200);
+    const b = await ver('s1'), c = await ver('s2');
+    check('«+» muestra los botones de esa tienda (no los de las demás) y pasa a «−»', b.t === '"−"' && b.abierto === 'true' && b.botones && !c.botones, JSON.stringify([b, c]));
+    await p.click(fila('s1') + ' [data-act="admFeat"]'); await p.waitForTimeout(600);
+    check('Sigue abierta después de tocar «Destacar»', (await ver('s1')).botones && await p.evaluate(() => !!S.stores.find(s => s.id === 's1').feat));
+    await p.click(fila('s1') + ' .v470t'); await p.waitForTimeout(200);
+    check('«−» los vuelve a ocultar', !(await ver('s1')).botones);
+    sinErrores(p, 'Publicaciones plegables'); await p.cerrar();
   },
   async muroEnFila() { // v454 en el Muro, negocios, servicios, vehículos, inmuebles y noticias en fila; los clasificados no cambian
     const now = Date.now(), LG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
