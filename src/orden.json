@@ -1854,6 +1854,15 @@
  },
  {
   "t": "js",
+  "tag": "<script id=\"v470-publicaciones-plegables\">",
+  "f": "codigo/v470-publicaciones-plegables.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
   "tag": "<script>",
   "fs": [
    "codigo/principal/01-cats.js",
