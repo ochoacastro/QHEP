@@ -55,7 +55,7 @@ document.addEventListener('click',function(e){if(!BUSY)return;var b=e.target.clo
 /* agregar una subcategoría al grupo */
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-stadd]');if(!b)return;e.preventDefault();
  if(typeof adm==='undefined'||!adm)return toast('Solo el administrador puede hacer esto.');
- var g=b.dataset.stadd,inp=b.parentNode.querySelector('input'),nn=(inp?inp.value:'').trim().replace(/\s+/g,' '),er=document.getElementById('err'),fail=function(t){if(er)er.textContent=t;if(inp)inp.focus()};
+ var g=b.dataset.stadd,inp=b.parentNode.querySelector('input'),nn=(inp?inp.value:'').trim().replace(/\s+/g,' '),er=document.getElementById('err'),fail=function(t){if(er)er.textContent=t;/* v475: el aviso sale debajo del campo del grupo (antes solo al final de la lista, fuera de la pantalla) */var z=b.parentNode.nextElementSibling;if(!z||!z.classList.contains('sterr')){z=document.createElement('p');z.className='sterr';z.setAttribute('role','alert');b.parentNode.insertAdjacentElement('afterend',z)}z.textContent=t;if(inp)inp.focus()};
  if(!nn)return fail('Escribe el nombre de la subcategoría.');
  if(/[<>"`]/.test(nn))return fail('El nombre no puede llevar los signos < > " `.');
  if(CATS.some(function(c){return c[0].toLowerCase()===nn.toLowerCase()}))return fail('Ya existe una categoría con ese nombre.');
@@ -67,6 +67,8 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  var m=Object.assign({},mapa());Object.keys(m).forEach(function(x){if(!CATS.some(function(c){return c[0]===x}))delete m[x]});m[nn]=g;guardaMapa(m);
  BUSY={n:nn,g:g,row:r.slice(),ok:'Subcategoría «'+nn+'» guardada en '+g};
  OPEN[g]=true;saveCats();render(true);toast('Guardando «'+nn+'» en '+g+'…');esperar()},true);
+/* v475: «Ir» o Enter en el teclado del celular también agrega la subcategoría (antes no hacía nada) */
+document.addEventListener('keydown',function(e){if(e.key!=='Enter')return;var i=e.target.closest&&e.target.closest('.stca .stadd input');if(!i)return;e.preventDefault();var b=i.parentNode.querySelector('[data-stadd]');if(b)b.click()},true);
 /* cambiar el nombre: la subcategoría se queda en su grupo */
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="catSave"]');if(!b||!document.querySelector('.stca'))return;
  var i=+b.dataset.i,c=CATS[i];if(!c)return;var old=c[0],g=catGroupOf(old);
@@ -91,5 +93,7 @@ document.head.insertAdjacentHTML('beforeend','<style id="v464-css">'+
  /* v471: aviso y botones en pausa mientras se guarda */
  '.stca .stbm{margin:8px 0 12px;padding:10px 12px;border-radius:var(--r-s,14px);background:#eef4ff;color:#1d3a6b;font-weight:600}html.dark .stca .stbm{background:#1d2a44!important;color:#cfe0ff!important}'+
  '.stca.stbusy [data-stadd],.stca.stbusy [data-act="catSave"],.stca.stbusy [data-act="catDel"]{opacity:.5;pointer-events:none}'+
+ /* v475: aviso de error debajo del campo «Nueva subcategoría» */
+ '.stca .sterr{margin:6px 0 0 22px;color:#c0392b;font-weight:600}html.dark .stca .sterr{color:#ff6b5e!important}'+
  'html.dark .stca .stg{background:#1e2026!important;border-color:#3b404b!important;color:#fff!important}html.dark .stca .stg summary i{background:#0a84ff!important}html.dark .stca .stg .cgr::before,html.dark .stca .stg .catrow::before{background:#3b4a66!important}</style>');
 })();
