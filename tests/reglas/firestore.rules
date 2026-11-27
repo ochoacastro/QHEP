@@ -2,6 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // v52 (sobre v51): inventario de ferreteria (mipradera.com.co/ferreteria): colecciones nuevas fer/<uid>/... (privado)
+    // y ferPub/<uid> (catalogo publico). Escribir pide el rol Comerciante vigente (funciones ferMerc y ferRol). Lo demas es igual a v51.
     // v51 (sobre v50): los pedidos aceptan el medio de pago 'siste' (Sistecrédito). Lo demas es igual a v50.
     // v50 (sobre v49): tiendas con «Conoce el lugar» (gal: fotos, vid: video de YouTube): gratis hasta 3 fotos sin video;
     // con el rol de la tienda hasta 10 fotos y 1 video (funciones galOk y galOkNew).
@@ -952,6 +954,58 @@ service cloud.firestore {
         && request.resource.data.t is number;
       // v11: la pagina nunca borra (usa set t:0), asi que solo el admin puede borrar
       allow delete: if isAdmin();
+    }
+
+    // ---------- v52: Inventario de ferreteria (mipradera.com.co/ferreteria, archivo ferreteria.html) ----------
+    // Cada cuenta tiene su inventario aparte: fer/<su uid>/productos/<id>, fer/<su uid>/dias/<aaaa-mm-dd> y
+    // fer/<su uid>/sys/config|acceso|lock. Solo la persona y el administrador lo leen.
+    // Escribir pide el rol Comerciante vigente (acc.merc o acc.merc1 de plans/<llave>). La llave sale del correo o del
+    // celular de la sesion, igual que keyMine(), asi nadie usa la ficha de otro. Con el rol vencido la persona sigue
+    // leyendo su inventario, pero no lo cambia.
+    function ferMerc(k) {
+      let p = /databases/$(database)/documents/plans/$(k);
+      let now = request.time.toMillis();
+      return exists(p)
+          && (get(p).data.get('acc', {}).get('merc', 0) > now
+              || get(p).data.get('acc', {}).get('merc1', 0) > now);
+    }
+
+    function ferRol() {
+      let em = writerEmail();
+      let ph = request.auth.token.get('phone_number', '');
+      return isAdmin()
+          || (real()
+              && ( (em != '' && ferMerc(hexOf('mail:' + em)))
+                   || (em.matches('^[0-9]{10}@cel[.]qhep[.]app$') && ferMerc(hexOf('wa:' + em.replace('@cel[.]qhep[.]app$', ''))))
+                   || (ph is string && ph.matches('^[+]57[0-9]{10}$') && ferMerc(hexOf('wa:' + ph.replace('^[+]57', '')))) ));
+    }
+
+    match /fer/{uid}/{col}/{id} {
+      allow read: if isAdmin() || (real() && request.auth.uid == uid);
+      allow create, update: if col in ['productos', 'dias', 'sys']
+        && request.resource.data.keys().size() <= 40
+        && (isAdmin() || (real() && request.auth.uid == uid && ferRol()));
+      allow delete: if col in ['productos', 'dias', 'sys']
+        && (isAdmin() || (real() && request.auth.uid == uid && ferRol()));
+    }
+
+    // Catalogo publico de cada ferreteria (mipradera.com.co/ferreteria?t=<uid>): lo ve cualquiera, con o sin cuenta.
+    // Lo publica la persona con el rol Comerciante vigente (o el administrador); solo con los campos del catalogo.
+    match /ferPub/{uid} {
+      allow read: if true;
+      allow create, update: if (isAdmin() || (real() && request.auth.uid == uid && ferRol()))
+        && request.resource.data.keys().hasOnly(['nombre', 'tema', 'whatsapp', 'direccion', 'ciudad', 'horario',
+                                                 'domicilio', 'bienvenida', 'url', 'ejemplo', 'productos', 'publicado'])
+        && request.resource.data.get('nombre', '') is string && request.resource.data.get('nombre', '').size() <= 80
+        && request.resource.data.get('productos', []) is list
+        && request.resource.data.get('productos', []).size() <= 3000;
+      allow delete: if isAdmin() || (real() && request.auth.uid == uid);
+    }
+
+    // Para la limpieza de imagenes huerfanas de R2: el administrador puede leer los productos de todas las
+    // ferreterias de una vez (consulta collectionGroup('productos')). Nadie mas.
+    match /{path=**}/productos/{id} {
+      allow read: if isAdmin();
     }
   }
 }
