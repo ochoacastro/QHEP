@@ -8,10 +8,10 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 ## 1. Estado actual
 
-- **Reglas de Firestore:** la versión del repositorio es **v52** (`tests/reglas/firestore.rules`, 27 de noviembre de 2026: inventario de ferretería). **Falta publicarla en Firebase**; la publicada es la v51 (14 de noviembre de 2026).
+- **Reglas de Firestore:** la versión del repositorio es **v52** (`tests/reglas/firestore.rules`, 27 de noviembre de 2026: inventario de ferretería) y la dueña ya la publicó en Firebase (27 de noviembre de 2026).
 - **Inventario de ferretería (v472, 27 de noviembre de 2026):** página aparte, `ferreteria.html` (se abre en `mipradera.com.co/ferreteria`). No toca `index.html`. Pruebas de reglas: 293 casos, todos bien (26 nuevos en `v52.test.mjs`).
 - **Pruebas:** 535 pruebas de la página en la última pasada completa (`tests/pagina/pruebas.cjs`, 22 de noviembre de 2026, con todo hasta la v470; la v471 agregó revisiones que pasan) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR:** el 22 de noviembre de 2026 se fusionaron el **#175** (skill hallmark y v462–v466), el **#176** (v467–v470) y el **#177** (v471). Todo hasta la v471 está en `main`. La rama de trabajo solo tiene, además, las notas de los dos videos nuevos en este parte (sección 5), sin PR. La v461 (estilo «Vitrina») se probó y se descartó (sección 5).
+- **PR:** el 27 de noviembre de 2026 se fusionó el **#178** (v472, inventario de ferretería, y reglas v52). El 22 de noviembre de 2026 se fusionaron el **#175** (skill hallmark y v462–v466), el **#176** (v467–v470) y el **#177** (v471). Todo hasta la v472 está en `main`, también las notas de los dos videos nuevos (sección 5). La v461 (estilo «Vitrina») se probó y se descartó (sección 5).
 - **Red del entorno de la nube:** el 21 de noviembre de 2026, con permiso de la dueña, se agregaron `co.addi.com` y `framerusercontent.com` para estudiar el diseño de esa página (v457). Ya no hacen falta; se pueden quitar en la configuración del entorno.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
@@ -162,11 +162,10 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 9. **Guardar los videos nuevos** («Todos venden, nadie compra» e «Info al inbox», sección 5): solo se entregaron por el chat; los proyectos quedaron en la carpeta temporal de la sesión y se borran al cerrarla.
 10. **Tarea programada «Revisar PR #175»:** ya no hace falta porque ese PR se fusionó. Se puede borrar (o pedirle a Claude que la borre).
 11. **Inventario de ferretería (v472):**
-    - publicar las reglas **v52** en Firebase (Firestore → Reglas), copiando `tests/reglas/firestore.rules`. Sin ellas, la página abre pero no deja guardar nada;
     - probar en el teléfono: entrar en `mipradera.com.co/ferreteria` con una cuenta con el rol Comerciante, crear el patrón, crear un producto con foto, hacer una salida, publicar la tienda y abrir el enlace del catálogo desde WhatsApp sin sesión;
     - **instalar `worker_v13_INSTALAR.js` en Cloudflare** (se entregó por el chat el 27 de noviembre de 2026; reemplaza a la v12, que ya tiene el UID nuevo). Sin él, las fotos de la ferretería van a `u/` y **la limpieza semanal de los domingos las borra** a los 7 días (sección 5, «Inventario de ferretería»).
 
-Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien. El 15 de noviembre de 2026 probó en su teléfono el letrero de «Abierto» fuera del horario (v421) y creó una tienda recorriendo los 6 pasos (v417, v420); las dos cosas funcionaron.
+Ya hecho (27 de noviembre de 2026): las reglas v52 (inventario de ferretería) están publicadas en Firebase y el PR #178 está fusionado. Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien. El 15 de noviembre de 2026 probó en su teléfono el letrero de «Abierto» fuera del horario (v421) y creó una tienda recorriendo los 6 pasos (v417, v420); las dos cosas funcionaron.
 
 ---
 
