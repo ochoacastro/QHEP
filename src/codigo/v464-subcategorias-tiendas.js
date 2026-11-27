@@ -18,10 +18,12 @@ function mapa(){var m={};try{var b=S&&S.site&&S.site.catGrp;if(b&&typeof b==='ob
 var g0=window.catGroupOf;
 if(typeof g0==='function')window.catGroupOf=function(n){var g=mapa()[n];if(typeof g==='string'&&grps().indexOf(g)>=0)return g;return g0(n)};
 function row(i){var c=CATS[i];
- return '<div class="catrow"><input type="color" id="ct-c-'+i+'" value="'+E(c[2])+'" aria-label="Color de '+E(c[0])+'"><input type="text" id="ct-n-'+i+'" maxlength="20" value="'+E(c[0])+'" aria-label="Nombre de la subcategoría '+E(c[0])+'"><span class="cico sm" style="--c:'+E(c[2])+'">'+catIcon(c)+'</span><label class="btn ghost cfile">🖼️ Imagen<input type="file" accept="image/*" id="ct-f-'+i+'" hidden></label><button class="btn" id="ct-s-'+i+'" data-act="catSave" data-i="'+i+'" hidden>Guardar</button><button class="btn ghost" data-act="catDel" data-i="'+i+'">Eliminar</button></div>'}
+ return '<div class="catrow"><input type="color" id="ct-c-'+i+'" value="'+E(c[2])+'" aria-label="Color de '+E(c[0])+'"><input type="text" id="ct-n-'+i+'" maxlength="20" value="'+E(c[0])+'" aria-label="Nombre de la subcategoría '+E(c[0])+'"><span class="cico sm" style="--c:'+E(c[2])+'">'+catIcon(c)+'</span><label class="btn ghost cfile">🖼️ Imagen<input type="file" accept="image/*" id="ct-f-'+i+'" hidden></label><button class="btn" id="ct-s-'+i+'" data-act="catSave" data-i="'+i+'" hidden>Guardar</button><button class="btn ghost" data-act="catDel" data-i="'+i+'">Eliminar</button>'+
+  /* v476: pasar la subcategoría a otro grupo */
+  (c[0]==='Otros'?'':'<label class="stmv"><span>Mover a</span><select data-stmove="'+i+'" aria-label="Mover '+E(c[0])+' a otro grupo">'+(function(){var g=catGroupOf(c[0]),L=grps();if(L.indexOf(g)<0)L.push(g);return L.map(function(x){return '<option value="'+E(x)+'"'+(x===g?' selected':'')+'>'+E(x)+'</option>'}).join('')})()+'</select></label>')+'</div>'}
 window.stcAdmin=function(){var G=grps().slice(),by={};G.forEach(function(g){by[g]=[]});
  CATS.forEach(function(c,i){var g=catGroupOf(c[0]);if(!by[g]){by[g]=[];G.push(g)}by[g].push(i)});
- return '<div class="cg stca'+(BUSY?' stbusy':'')+'"><h3>Categorías de tiendas</h3><p class="muted">Cada grupo (Comidas, Belleza, Salud…) tiene sus subcategorías. Toca un grupo para cambiar el nombre, el color o la imagen de una subcategoría, eliminarla o agregar una nueva. Si eliminas una, sus tiendas pasan a «Otros».</p>'+
+ return '<div class="cg stca'+(BUSY?' stbusy':'')+'"><h3>Categorías de tiendas</h3><p class="muted">Cada grupo (Comidas, Belleza, Salud…) tiene sus subcategorías. Toca un grupo para cambiar el nombre, el color o la imagen de una subcategoría, pasarla a otro grupo con «Mover a», eliminarla o agregar una nueva. Si eliminas una, sus tiendas pasan a «Otros».</p>'+
   (BUSY?'<p class="stbm" role="status">Guardando «'+E(BUSY.n)+'»… Espera a que termine antes de hacer otro cambio.</p>':'')/* v471 */+
   G.map(function(g){var L=by[g];return '<details class="cgd stg"'+(OPEN[g]?' open':'')+' data-stg="'+E(g)+'"><summary><span>'+E(g)+'</span><small>'+L.length+(L.length===1?' subcategoría':' subcategorías')+'</small><i aria-hidden="true"></i></summary><div class="cgr">'+
    (L.length?L.map(row).join(''):'<p class="muted">Este grupo todavía no tiene subcategorías.</p>')+
@@ -74,6 +76,14 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
  var i=+b.dataset.i,c=CATS[i];if(!c)return;var old=c[0],g=catGroupOf(old);
  setTimeout(function(){var n=CATS[i]&&CATS[i][0];if(!n||n===old)return;var m=Object.assign({},mapa());delete m[old];m[n]=g;guardaMapa(m);
   BUSY={n:n,g:g,old:old,ok:'«'+n+'» guardada en '+g}/* v471 */;save();render(true);esperar()},60)},true);
+/* v476: mover una subcategoría a otro grupo. Sus tiendas se van con ella (el grupo sale del nombre de la categoría) */
+document.addEventListener('change',function(e){var s=e.target.closest&&e.target.closest('.stca [data-stmove]');if(!s)return;
+ var c=CATS[+s.dataset.stmove];if(!c)return;var n=c[0],de=catGroupOf(n),a=s.value;
+ if(BUSY){s.value=de;return toast('Espera un momento: se está guardando «'+BUSY.n+'».')}
+ if(typeof adm==='undefined'||!adm){s.value=de;return toast('Solo el administrador puede hacer esto.')}
+ if(!a||a===de||grps().indexOf(a)<0)return;
+ var m=Object.assign({},mapa());m[n]=a;guardaMapa(m);
+ BUSY={n:n,g:a,ok:'«'+n+'» pasó a '+a};OPEN[a]=true;save();render(true);toast('Moviendo «'+n+'» a '+a+'…');esperar()},true);
 document.head.insertAdjacentHTML('beforeend','<style id="v464-css">'+
  /* mismo diseño que los grupos del formulario de la tienda (v283, que solo aplica dentro de #f-cats), con las esquinas de la v457 */
  '.stca .stg{width:100%;margin:0 0 8px;border:1px solid #d3d9e3;background:#fff;border-radius:var(--r-m,18px);overflow:hidden}'+
@@ -95,5 +105,8 @@ document.head.insertAdjacentHTML('beforeend','<style id="v464-css">'+
  '.stca.stbusy [data-stadd],.stca.stbusy [data-act="catSave"],.stca.stbusy [data-act="catDel"]{opacity:.5;pointer-events:none}'+
  /* v475: aviso de error debajo del campo «Nueva subcategoría» */
  '.stca .sterr{margin:6px 0 0 22px;color:#c0392b;font-weight:600}html.dark .stca .sterr{color:#ff6b5e!important}'+
+ /* v476: «Mover a» otro grupo */
+ '.stca .stg .catrow{box-sizing:border-box;max-width:100%}.stca .stmv{display:flex;align-items:center;gap:8px;flex:1 1 100%;min-width:0;max-width:100%;margin-top:6px;font-size:14px;font-weight:600}.stca .stmv span{white-space:nowrap;flex:none}.stca .stmv select{flex:1 1 0;width:0;min-width:0;padding:8px 12px;border-radius:999px}'+
+ '.stca.stbusy [data-stmove]{opacity:.5;pointer-events:none}'+
  'html.dark .stca .stg{background:#1e2026!important;border-color:#3b404b!important;color:#fff!important}html.dark .stca .stg summary i{background:#0a84ff!important}html.dark .stca .stg .cgr::before,html.dark .stca .stg .catrow::before{background:#3b4a66!important}</style>');
 })();
