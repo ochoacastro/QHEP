@@ -1755,7 +1755,8 @@ boot();
    Este cargador le entrega lo mismo, pero guardado en Firestore:
      fer/<uid>/productos/<id>, fer/<uid>/dias/<aaaa-mm-dd>, fer/<uid>/sys/config|acceso|lock  → inventario privado
      ferPub/<uid>                                                                         → catálogo público
-   Fotos: R2 de Cloudflare, con el mismo worker de Mi Pradera. Exportar: descarga un CSV.
+   Fotos: R2 de Cloudflare, con el mismo worker de Mi Pradera (desde el worker v13 van a la carpeta f/<uid>/, que la
+   limpieza semanal y la de «Imágenes huérfanas» no tocan). Exportar: descarga un CSV.
    Para usarlo hace falta el rol Comerciante vigente (acc.merc o acc.merc1 de plans/<llave>); las reglas v52 lo revisan.
    Sin rol, quien ya tiene inventario lo ve en solo lectura.
    Catálogo para clientes: mipradera.com.co/ferreteria?t=<uid del dueño>. */
@@ -1884,7 +1885,7 @@ boot();
     const fotos = {
       upload: async (b, o = {}) => {
         const tk = await me.getIdToken();
-        let r; try { r = await fetch(R2_WORKER, { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': (o.type || b.type) === 'image/webp' ? 'image/webp' : 'image/jpeg' }, body: b }); }
+        let r; try { r = await fetch(R2_WORKER + '/?carpeta=fer', { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': (o.type || b.type) === 'image/webp' ? 'image/webp' : 'image/jpeg' }, body: b }); }
         catch (e) { throw { code: 'store_unavailable' }; }
         if (r.status === 413) throw { code: 'too_large' };
         if (!r.ok) throw { code: 'store_unavailable' };
