@@ -1397,6 +1397,7 @@ const PRUEBAS = {
     check('El grupo muestra «+» cerrado y «−» abierto', cerrado === '"+"' && abierto === '"−"', cerrado + ' / ' + abierto);
     await p.fill('.stca details.stg[data-stg="Comidas"] .stadd input', 'Restaurantes'); await p.click('.stca [data-stadd="Comidas"]'); await p.waitForTimeout(300);
     check('No deja crear una subcategoría repetida', await p.evaluate(() => /Ya existe/.test(document.getElementById('err').textContent)));
+    check('v475: el aviso sale justo debajo del campo de ese grupo (no solo al final de la lista)', await p.evaluate(() => { const z = document.querySelector('.stca details.stg[data-stg="Comidas"] .stadd + .sterr'); return !!z && /Ya existe/.test(z.textContent) && z.offsetHeight > 0 }));
     await p.fill('.stca details.stg[data-stg="Comidas"] .stadd input', 'Heladerías'); await p.click('.stca [data-stadd="Comidas"]'); await p.waitForTimeout(50);
     // v471: mientras se guarda sale «Guardando…» y no deja hacer otro cambio; se quita cuando el servidor confirma
     const guardando = await p.evaluate(() => { const m = document.querySelector('.stca .stbm'); return !!m && /Guardando «Heladerías»/.test(m.textContent) && document.querySelector('.stca').classList.contains('stbusy') });
@@ -1417,6 +1418,10 @@ const PRUEBAS = {
     check('«Eliminar» pregunta antes y avisa a dónde pasan sus tiendas', await p.evaluate(() => /¿Eliminar "Heladerías y postres"\?[\s\S]*pasarán a "Otros"/.test((document.getElementById('cfm-t') || {}).textContent || '')));
     await p.click('#cfm-ok'); await p.waitForTimeout(500);
     check('Eliminada: ya no está y su tienda pasa a «Otros»', await p.evaluate(() => !CATS.some(c => c[0] === 'Heladerías y postres') && S.stores.find(s => s.id === 's1').cat === 'Otros'));
+    await p.evaluate(() => { const d = document.querySelector('.stca details.stg[data-stg="Belleza"]'); d.open = true }); await p.waitForTimeout(200);
+    await p.fill('.stca details.stg[data-stg="Belleza"] .stadd input', 'Spa'); await p.press('.stca details.stg[data-stg="Belleza"] .stadd input', 'Enter');
+    await p.waitForFunction(() => !document.querySelector('.stca .stbm'), null, { timeout: 8000 });
+    check('v475: «Ir»/Enter del teclado también agrega la subcategoría', await p.evaluate(() => CATS.some(c => c[0] === 'Spa') && catGroupOf('Spa') === 'Belleza'));
     sinErrores(p, 'Subcategorías de tiendas'); await p.cerrar();
   },
   async adminEditaAnuncios() { // v465 el administrador edita los anuncios de los usuarios (arriendo, venta, vehículo) sin quitárselos al dueño
