@@ -1863,6 +1863,15 @@
  },
  {
   "t": "js",
+  "tag": "<script id=\"v473-enlace-ferreteria\">",
+  "f": "codigo/v473-enlace-ferreteria.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
   "tag": "<script>",
   "fs": [
    "codigo/principal/01-cats.js",

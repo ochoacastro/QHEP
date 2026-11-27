@@ -7491,6 +7491,23 @@ document.head.insertAdjacentHTML('beforeend','<style id="v470-css">'+
  'html.dark .v470t{background:#0a84ff!important;color:#fff!important}</style>');
 })();
 </script>
+<script id="v473-enlace-ferreteria">/* v473: INVENTARIO DE FERRETERÍA dentro de «Mis tiendas». En la tabla de Mis tiendas (v284), cada tienda de la categoría
+   «Ferreterías» (o el nombre viejo «Ferretería», o una subcategoría con esa palabra) tiene el botón «Inventario», que abre
+   mipradera.com.co/ferreteria (página aparte, v472, con la misma sesión). Las tiendas que no son ferretería no lo tienen.
+   La página de ferretería revisa además el rol Comerciante y que la tienda sea ferretería.
+   No cambia shopTableHTML: la envuelve y agrega el botón al lado de «Editar». Si algo falla, borra este bloque. */
+(function(){
+var orig=null;
+var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var esFerr=function(s){return !!s&&/ferreter/i.test(s.cat||'')};
+function tabla(ms){var h=orig.apply(this,arguments);if(typeof h!=='string'||!Array.isArray(ms))return h;
+ ms.forEach(function(s){if(!esFerr(s))return;var ed='data-act="open" data-id="'+E(s.id)+'">Editar</button>',i=h.indexOf(ed);if(i<0)return;i+=ed.length;
+  h=h.slice(0,i)+'<a class="btn v473-inv" href="/ferreteria#inventario" data-v473="'+E(s.id)+'">Inventario</a>'+h.slice(i)});
+ return h}
+function inst(){if(orig)return true;if(typeof window.shopTableHTML!=='function')return false;orig=window.shopTableHTML;window.shopTableHTML0=orig;window.shopTableHTML=tabla;return true}
+if(!inst()){document.addEventListener('DOMContentLoaded',inst);var k=0,iv=setInterval(function(){if(inst()||++k>200)clearInterval(iv)},50)}
+})();
+</script>
 <script>
 const CATS=[['Farmacia','','#1E6FBF'],['Electrodomésticos','','#2B3A55'],['Restaurantes','','#B23A2E'],['Ropa','','#4A4A6A'],['Celulares','','#C0392B'],['Computación','','#1F6F8B'],['Hogar','','#2E7D5B'],['Alquiler de artículos','🎪','#0E7490'],['Ferretería','🔧','#B45309'],['Muebles y decoración','🛋️','#9A3412'],['Moda y accesorios','👗','#BE185D'],['Accesorios vehículos','🚗','#1E4FBF'],['Deporte y fitness','🏋️','#15803D'],['Tecnología','💻','#1F6F8B'],['Oficina y papelería','📎','#6D28D9'],['Videojuegos','🎮','#4338CA'],['Juegos y juguetes','🧸','#C2410C'],['Abarrotes','🛒','#2E7D5B'],['Bebés','🍼','#DB2777'],['Mascotas','🐶','#A0551A'],['Instrumentos musicales','🎸','#7C2D12'],['Joyas y relojes','💍','#A16207'],['Cacharrerías','🧰','#475569'],['Belleza y salud','💄','#BE123C'],['Licores','🍷','#8A4B1A'],['Calzado','👟','#4D7C0F'],['Libros y revistas','📚','#6D28D9'],['Floristería y regalos','💐','#BE185D'],['Panadería y pastelería','🥐','#B45309'],['Jardinería y agro','🌱','#15803D'],['Fiestas y eventos','🎉','#9F1239']];
 const OFICIOS=['Niñera','Cuidador de ancianos','Aseadora','Carpintero','Plomero o fontanero','Electricista','Pintor','Jardinero','Mecánico','Servicios especializados','Otro'];const DEFJOBS=OFICIOS.filter(o=>o!=='Otro');let newCatImg='';
