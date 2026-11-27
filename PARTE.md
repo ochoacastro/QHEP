@@ -8,7 +8,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 
 ## 1. Estado actual
 
-- **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
+- **Reglas de Firestore:** la versión del repositorio es **v52** (`tests/reglas/firestore.rules`, 27 de noviembre de 2026: inventario de ferretería). **Falta publicarla en Firebase**; la publicada es la v51 (14 de noviembre de 2026).
+- **Inventario de ferretería (v472, 27 de noviembre de 2026):** página aparte, `ferreteria.html` (se abre en `mipradera.com.co/ferreteria`). No toca `index.html`. Pruebas de reglas: 293 casos, todos bien (26 nuevos en `v52.test.mjs`).
 - **Pruebas:** 535 pruebas de la página en la última pasada completa (`tests/pagina/pruebas.cjs`, 22 de noviembre de 2026, con todo hasta la v470; la v471 agregó revisiones que pasan) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
 - **PR:** el 22 de noviembre de 2026 se fusionaron el **#175** (skill hallmark y v462–v466), el **#176** (v467–v470) y el **#177** (v471). Todo hasta la v471 está en `main`. La rama de trabajo solo tiene, además, las notas de los dos videos nuevos en este parte (sección 5), sin PR. La v461 (estilo «Vitrina») se probó y se descartó (sección 5).
 - **Red del entorno de la nube:** el 21 de noviembre de 2026, con permiso de la dueña, se agregaron `co.addi.com` y `framerusercontent.com` para estudiar el diseño de esa página (v457). Ya no hacen falta; se pueden quitar en la configuración del entorno.
@@ -98,6 +99,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v469 | **«Verificado» solo en la tienda:** las tarjetas de producto de una tienda verificada ya no llevan el sello «Verificado» sobre la foto (v124, `cardOv` en `07-cardov.js`); la tienda sigue mostrando «Vecino verificado» en su ficha y su tarjeta. Pedido por la dueña | #176 |
 | v470 | **Publicaciones plegables:** en Administrador → Publicaciones, cada tienda, anuncio y clasificado muestra solo su nombre con «+»; al tocarlo aparecen sus botones (Destacar, Verificar, Bloquear, Editar, Corregir dirección, Eliminar) y el signo pasa a «−», que los oculta. Se recuerda cuál quedó abierta al volver a dibujar el panel. Archivo `v470-publicaciones-plegables.js`. Pedido por la dueña con una captura | #176 |
 | v471 | **Arreglo: las subcategorías nuevas no se guardaban.** La v464 metía la nueva en medio de la lista y había que reescribir el orden de unas 30 categorías; mientras eso se guardaba, cada aviso de Firebase rehacía la lista y la ficha del sitio con la copia del servidor, y se perdía lo agregado en ese rato (una segunda subcategoría desaparecía y el grupo de la primera pasaba a «Otros» por un momento). Ahora la nueva va antes de «Otros», el panel muestra «Guardando…» y no deja otro cambio hasta que el servidor confirma la subcategoría y su grupo. Reproducido y comprobado con Firebase 10.12.2 real contra el emulador. Reportado por la dueña | #177 |
+| v472 | **Inventario de ferretería en Mi Pradera:** la página de inventario que se hizo en Claude (`inventario_ferreteria_v9.html`) queda como página aparte, `ferreteria.html` (`mipradera.com.co/ferreteria`), y guarda en el Firebase de Mi Pradera en vez de la base de Claude. Se entra con la misma cuenta de Mi Pradera (si ya entró en la página principal, entra sola) y hace falta el rol **Comerciante** vigente. Cada cuenta tiene su inventario aparte. El catálogo para clientes se publica en `mipradera.com.co/ferreteria?t=<uid>`. Las fotos van a R2 con el worker de siempre. Reglas **v52**. Pedido por la dueña | — |
 
 ---
 
@@ -159,6 +161,10 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 8. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
 9. **Guardar los videos nuevos** («Todos venden, nadie compra» e «Info al inbox», sección 5): solo se entregaron por el chat; los proyectos quedaron en la carpeta temporal de la sesión y se borran al cerrarla.
 10. **Tarea programada «Revisar PR #175»:** ya no hace falta porque ese PR se fusionó. Se puede borrar (o pedirle a Claude que la borre).
+11. **Inventario de ferretería (v472):**
+    - publicar las reglas **v52** en Firebase (Firestore → Reglas), copiando `tests/reglas/firestore.rules`. Sin ellas, la página abre pero no deja guardar nada;
+    - probar en el teléfono: entrar en `mipradera.com.co/ferreteria` con una cuenta con el rol Comerciante, crear el patrón, crear un producto con foto, hacer una salida, publicar la tienda y abrir el enlace del catálogo desde WhatsApp sin sesión;
+    - **antes de usar «Imágenes huérfanas → Eliminar» en el panel**, decidir lo de las fotos de la ferretería (sección 5, «Inventario de ferretería»): la limpieza del panel no las conoce y podría borrarlas.
 
 Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien. El 15 de noviembre de 2026 probó en su teléfono el letrero de «Abierto» fuera del horario (v421) y creó una tienda recorriendo los 6 pasos (v417, v420); las dos cosas funcionaron.
 
@@ -182,6 +188,19 @@ Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase
 ---
 
 ## 5. Decisiones abiertas e ideas que no se hicieron
+
+**Inventario de ferretería (v472, 27 de noviembre de 2026):**
+- La dueña eligió: solo cuentas con el rol **Comerciante** vigente (`acc.merc` o `acc.merc1`), mantener el catálogo para clientes y guardar las fotos en R2 con el worker.
+- Archivo `ferreteria.html` en la raíz, fuera de `src/` y de `tools/armar.mjs`: es una página aparte. No va en una carpeta (`ferreteria/`) porque el service worker (`sw.js`) guarda como «copia del inicio» cualquier dirección que termine en `/`, y la página nueva la pisaría.
+- El programa de la página es el de Claude casi sin cambios (7 líneas: líneas 608, 633, 673, 749, 1396, 1399 y 1693 de `ferreteria.html`). Va como `<script type="text/plain" id="ferMain">`; al final, el cargador `qh-ferreteria` conecta Firebase (mismo proyecto, misma sesión, App Check igual que la v379/v385), revisa la sesión y el rol, carga el catálogo publicado y le entrega al programa `window.claude.use(...)` con: la base de datos (Firestore, en `fer/<uid>/…`), el usuario, las fotos (R2), las descargas (CSV) y «Publicar tienda» (guarda `ferPub/<uid>` y recarga).
+- Datos: `fer/<uid>/productos/<id>`, `fer/<uid>/dias/<aaaa-mm-dd>` (los movimientos de cada día en un documento), `fer/<uid>/sys/config`, `sys/acceso` (patrón, con PBKDF2) y `sys/lock` (turno para registrar movimientos, con una transacción). Catálogo público: `ferPub/<uid>`.
+- Rol vencido: la persona ve su inventario en solo lectura, con el aviso de la fecha en que venció. Sin rol y sin inventario: «necesitas el rol Comerciante» y «Ver planes y precios».
+- El inventario va por el **uid** de la cuenta: si la cuenta se borra y se vuelve a crear, el inventario queda en el uid viejo (el administrador lo puede leer y copiar).
+- Entrar: correo o celular y clave, o Google (ventana emergente). Crear cuenta y «Olvidé mi clave» llevan a la página principal. «Cerrar sesión» cierra también la sesión de la página principal (es la misma).
+- **Fotos en R2, pendiente de decidir:** «Imágenes huérfanas» del panel (v202, `r2sweep` en `14-servform.js`) borra de R2 lo que no aparece en las colecciones que revisa `r2live()` (`02-news.js`), y esa lista no incluye `fer` ni `ferPub`. Si el worker le lista al administrador las fotos de todos, ese botón borraría las fotos de las ferreterías que tengan más de un día. Arreglo propuesto: un archivo pequeño en la página principal que sume a `r2live()` los productos de `collectionGroup('productos')` y `ferPub` (las reglas v52 ya dejan leerlos al administrador). No se hizo porque la dueña pidió no tocar la página principal. Mientras tanto, no usar «Eliminar» en «Imágenes huérfanas».
+- Borrar una foto en el inventario no la borra de R2 (en R2 solo borra el administrador); queda para la limpieza de huérfanas.
+- Prueba de punta a punta (no está en el repositorio ni en la CI): Firebase real de npm contra los emuladores de Firestore (reglas v52) y Authentication, con Playwright: entrar, patrón, producto con foto, salida, publicar, catálogo sin sesión y pedido por WhatsApp, cuenta sin rol y rol vencido. 23 de 23 bien, sin errores de JavaScript.
+- No hay enlace a la ferretería desde la página principal (la dueña pidió no tocarla). Se llega con `mipradera.com.co/ferreteria`.
 
 **Revisión de lógica del 15 de noviembre de 2026 (v429):**
 - Cómo se hizo: con la skill `systematic-debugging`. Un recorrido automático abrió cada pantalla y tocó cada botón distinto una vez, anotando los errores de JavaScript: inicio y panel, con y sin cuenta, y las 12 pestañas del administrador (unos 2.000 toques). Además, dos recorridos de principio a fin en el panel: crear tienda, categorías, editar, producto nuevo y editado, carrito, pedido, calificación y los formularios de publicar.
