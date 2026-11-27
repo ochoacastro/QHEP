@@ -9,7 +9,7 @@ var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){ret
 var esFerr=function(s){return !!s&&/ferreter/i.test(s.cat||'')};
 function tabla(ms){var h=orig.apply(this,arguments);if(typeof h!=='string'||!Array.isArray(ms))return h;
  ms.forEach(function(s){if(!esFerr(s))return;var ed='data-act="open" data-id="'+E(s.id)+'">Editar</button>',i=h.indexOf(ed);if(i<0)return;i+=ed.length;
-  h=h.slice(0,i)+'<a class="btn v473-inv" href="/ferreteria#inventario" data-v473="'+E(s.id)+'">Inventario</a>'+h.slice(i)});
+  h=h.slice(0,i)+'<a class="btn v473-inv" href="/ferreteria?s='+encodeURIComponent(s.id)+'#inventario" data-v473="'+E(s.id)+'">Inventario</a>'+h.slice(i)});/* v474: ?s= dice a qué tienda publica el inventario */
  return h}
 function inst(){if(orig)return true;if(typeof window.shopTableHTML!=='function')return false;orig=window.shopTableHTML;window.shopTableHTML0=orig;window.shopTableHTML=tabla;return true}
 if(!inst()){document.addEventListener('DOMContentLoaded',inst);var k=0,iv=setInterval(function(){if(inst()||++k>200)clearInterval(iv)},50)}

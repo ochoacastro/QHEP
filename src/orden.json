@@ -1871,6 +1871,24 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v474-ferreteria-tienda-css\">",
+  "f": "estilos/v474-ferreteria-tienda.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v474-ferreteria-tienda\">",
+  "f": "codigo/v474-ferreteria-tienda.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script>",
   "fs": [

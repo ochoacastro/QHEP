@@ -1516,12 +1516,36 @@ const PRUEBAS = {
       return { n: tr.querySelector('td > b').textContent, inv: !!a, href: a && a.getAttribute('href'), tras: a ? b[b.indexOf('Inventario') - 1] : '' } }));
     const z = r.find(x => /Ferretería Z/.test(x.n)), v = r.find(x => /Ferretería Vieja/.test(x.n)), rz = r.find(x => /Restaurante Z/.test(x.n));
     check('Mis tiendas: la ferretería tiene «Inventario», al lado de «Editar»', !!z && z.inv && z.tras === 'Editar', JSON.stringify(r));
-    check('El botón abre mipradera.com.co/ferreteria', !!z && z.href === '/ferreteria#inventario');
+    check('El botón abre el inventario de esa tienda (mipradera.com.co/ferreteria?s=…)', !!z && z.href === '/ferreteria?s=fz#inventario', JSON.stringify(z));
     check('Una tienda con el nombre viejo «Ferretería» también lo tiene', !!v && v.inv);
     check('Una tienda que no es ferretería no tiene «Inventario»', !!rz && !rz.inv);
     check('Los demás botones de Mis tiendas siguen (Ver, Compartir, Editar, Eliminar)', await p.evaluate(() => { const tr = document.querySelector('#ov table.mst tbody tr'); return ['Ver', 'Compartir', 'Editar', 'Eliminar'].every(t => [...tr.querySelectorAll('.msta > *')].some(x => x.textContent.trim() === t)) }));
     if (process.env.FOTO_V473) { await p.evaluate(() => document.querySelector('.v473-inv').scrollIntoView({ block: 'center' })); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V473 }) }
     sinErrores(p, 'Inventario en Mis tiendas'); await p.cerrar();
+  },
+  async ferreteriaTienda() { // v474: la tienda de una ferretería en Mi Pradera lleva los colores de ferretería; los productos los manda el inventario
+    const now = Date.now();
+    const seed = { 'stores/fz': { id: 'fz', name: 'Ferretería Z', cat: 'Ferreterías', wa: '3001234567', ownerUid: 'uA', ownerKey: 'kA', pexp: now + 30 * 864e5, ferTema: 'azul', products: [], _o: 1 },
+      'products/fz__p1': { id: 'p1', sid: 'fz', name: 'Martillo', price: 18000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 1 },
+      'products/fz__p2': { id: 'p2', sid: 'fz', name: 'Cinta aislante', price: 3000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, out: true, _o: 2 },
+      'stores/rz': { id: 'rz', name: 'Restaurante Z', cat: 'Restaurantes', wa: '3001234567', ownerUid: 'uB', ownerKey: 'kB', pexp: now + 30 * 864e5, products: [], _o: 2 },
+      'products/rz__q1': { id: 'q1', sid: 'rz', name: 'Almuerzo', price: 15000, imgs: [], ownerKey: 'kB', _o: 1 } };
+    const p = await abrir({ seed, ruta: '?tienda=ferreteria-z-fz' }); await p.waitForTimeout(500);
+    const vis = await p.evaluate(() => { const m = document.querySelector('.qhfer-m'), pl = document.querySelector('.pgrid .prod .plus'); return { view, cur, t: m && m.dataset.t, mia: !!(m && m.dataset.mia), fondo: pl && getComputedStyle(pl).backgroundColor, tablero: getComputedStyle(document.querySelector('.sname')).backgroundColor, aviso: !!document.querySelector('.qhfer-av'), agotado: /Agotado/.test(document.querySelector('.pgrid').textContent) } });
+    check('Visitante: la ferretería se ve con su color (azul) en el letrero y «Agregar al carrito»', vis.view === 'store' && vis.t === 'azul' && vis.tablero === 'rgb(37, 99, 176)' && vis.fondo === 'rgb(255, 176, 0)', JSON.stringify(vis));
+    check('Visitante: no ve el aviso del inventario', !vis.aviso && !vis.mia);
+    check('Un producto agotado en el inventario sale «Agotado»', vis.agotado);
+    await p.evaluate(() => { cur = 'rz'; render() }); await p.waitForTimeout(300);
+    check('Una tienda que no es ferretería no cambia de colores', await p.evaluate(() => view === 'store' && !document.querySelector('.qhfer-m') && getComputedStyle(document.querySelector('.sname')).backgroundColor !== 'rgb(37, 99, 176)'));
+    sinErrores(p, 'Ferretería: visitante'); await p.cerrar();
+    const q = await abrir({ user: { uid: 'uA', isAnonymous: false, email: 'ana@x.co', emailVerified: true }, seed, ruta: '?tienda=ferreteria-z-fz' }); await conCuenta(q);
+    await q.evaluate(() => { S.mine = ['fz']; render() }); await q.waitForTimeout(400);
+    const due = await q.evaluate(() => { const v = s => { const e = document.querySelector(s); return !!e && getComputedStyle(e).display !== 'none' }, a = document.querySelector('.qhfer-av a');
+      return { mia: !!document.querySelector('.qhfer-m[data-mia]'), aviso: v('.qhfer-av'), href: a && a.getAttribute('href'), add: v('[data-act="addProd"]'), lista: v('[data-lpv="open"]'), cats: v('[data-act="mcats"]'), editar: v('.prod [data-act="editProd"]'), quitar: v('.prod [data-act="delProd"]'), habia: !!document.querySelector('[data-act="addProd"]') } });
+    check('Dueño: sale el aviso con «Abrir inventario» de esa tienda', due.mia && due.aviso && due.href === '/ferreteria?s=fz#inventario', JSON.stringify(due));
+    check('Dueño: se esconden «+ Producto», «Lista de productos», «Categorías» y editar o quitar productos', due.habia && !due.add && !due.lista && !due.cats && !due.editar && !due.quitar, JSON.stringify(due));
+    if (process.env.FOTO_V474) { await q.evaluate(() => document.querySelector('.qhfer-av').scrollIntoView({ block: 'center' })); await q.waitForTimeout(300); await q.screenshot({ path: process.env.FOTO_V474 }) }
+    sinErrores(q, 'Ferretería: dueño'); await q.cerrar();
   },
 };
 

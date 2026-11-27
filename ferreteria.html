@@ -397,6 +397,9 @@ a{color:inherit}
 .qhl input{font:inherit;font-size:16px;padding:11px 12px;border:2px solid var(--ink);border-radius:6px;background:var(--bg);color:var(--ink)}
 .qhl .err{color:var(--out);font-weight:600;min-height:1.3em;margin:0}
 .qhl .lnk{font-size:15px;color:inherit}
+/* v474: aviso de productos que pasaron de la tienda de Mi Pradera al inventario */
+.qhimp{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;max-width:1200px;margin:16px auto 0;padding:14px 16px;border:2px solid var(--ink);border-radius:8px;background:var(--soft)}
+.qhimp p{margin:0;flex:1 1 260px;font-weight:600}
 </style>
 </head>
 <body>
@@ -1367,7 +1370,7 @@ function renderPub() {
   const pend = pendientes(), t = st.cfg.tienda || {};
   const d = PUB?.publicado ? new Date(PUB.publicado).toLocaleString('es-CO', { day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' }) : '';
   const head = PUB?.publicado ? `Tienda publicada el ${d}, con ${(PUB.productos || []).length} productos` : 'Tu tienda aún no se ha publicado';
-  const body = (pend.length ? `${pend.length} ${pend.length === 1 ? 'cambio' : 'cambios'} que tus clientes aún no ven: ${pend.slice(0, 4).join(', ')}${pend.length > 4 ? ` y ${pend.length - 4} más` : ''}.` : 'Tus clientes ya ven la información al día.') + (t.whatsapp ? '' : ' Falta el WhatsApp: sin él tus clientes no pueden enviar pedidos.');
+  const body = (pend.length ? `${pend.length} ${pend.length === 1 ? 'cambio' : 'cambios'} que tus clientes aún no ven: ${pend.slice(0, 4).join(', ')}${pend.length > 4 ? ` y ${pend.length - 4} más` : ''}.` : 'Tus clientes ya ven la información al día.') + (t.whatsapp || window.qhFer?.tienda ? '' : ' Falta el WhatsApp: sin él tus clientes no pueden enviar pedidos.');
   const P = $('#pubSt'); P.className = 'pubst' + (pend.length ? ' pend' : '');
   P.innerHTML = `<div><h3>${esc(head)}</h3><p>${esc(body)}</p></div><div class="acts3">${st.canPublish ? '<button class="btn wa" type="button" data-act="publicar">Publicar tienda</button>' : '<span class="hint">Solo el dueño puede publicar la tienda.</span>'}<a class="btn" href="#productos">Ver tienda</a><button class="btn" type="button" data-act="copyurl">Copiar enlace</button></div>`;
   if (!tDirty) { $('#tWa').value = fmtWa(t.whatsapp); $('#tDir').value = t.direccion || ''; $('#tCiu').value = t.ciudad || ''; $('#tHor').value = t.horario || ''; $('#tDom').checked = !!t.domicilio; $('#tBien').value = t.bienvenida || ''; }
@@ -1760,7 +1763,13 @@ boot();
    Para usarlo hace falta el rol Comerciante vigente (acc.merc o acc.merc1 de plans/<llave>); las reglas v52 lo revisan.
    Además (v473) la cuenta debe tener una tienda de la categoría «Ferreterías» (o «Ferretería»); esto lo revisa solo la página.
    Sin rol, quien ya tiene inventario lo ve en solo lectura.
-   Catálogo para clientes: mipradera.com.co/ferreteria?t=<uid del dueño>. */
+   v474 (una sola tienda): la vitrina para clientes es la tienda de la ferretería en Mi Pradera. Esta página es solo el
+   inventario: sin ?t= siempre entra a «Acceso del equipo» (patrón), y «Ver tienda» o «Volver a la tienda» llevan a la tienda
+   de Mi Pradera. Al abrir, los productos que la tienda tiene puestos a mano pasan una vez al inventario (con el mismo id y la
+   marca fer:1 en Mi Pradera, así conservan sus calificaciones). «Publicar tienda» escribe en Mi Pradera products/<tienda>__<id>
+   (nombre, precio, foto, agotado), borra los marcados fer:1 que ya no se muestran y guarda el color en stores/<id>.ferTema.
+   La tienda es la de ?s=<id> (botón «Inventario» de Mis tiendas), la guardada en sys/config.sid o la única ferretería.
+   Enlaces viejos mipradera.com.co/ferreteria?t=<uid> llevan a esa tienda de Mi Pradera. */
 (async () => {
   const CFG = { apiKey: 'AIzaSyAeKBOFG5nBIfL1tJoLW4JiKmzySiEoNAg', authDomain: 'qhep-b812f.firebaseapp.com', projectId: 'qhep-b812f', storageBucket: 'qhep-b812f.firebasestorage.app', messagingSenderId: '799855828473', appId: '1:799855828473:web:ce1060358a18820dbbb128' };
   const ADMIN_UID = 'KUowZZ25CePVc9IXGmhCLVbbSIB3';
@@ -1796,7 +1805,15 @@ boot();
   const t = tQ || (me ? me.uid : '');
   const propio = !!me && t === me.uid;
   if (t) Q.url = location.origin + PAG + '?t=' + encodeURIComponent(t);
-  if (!t && !location.hash) history.replaceState(null, '', '#inventario');
+  /* v474: sin ?t= esta página es solo el inventario: siempre entra a «Acceso del equipo» (el patrón), nunca a la vitrina */
+  const ADMH = /^#(inventario|movimientos|publicar)$/;
+  if (!tQ && !ADMH.test(location.hash)) history.replaceState(null, '', location.pathname + location.search + '#inventario');
+  const slug = x => String(x || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).replace(/-+$/, '');
+  const mpUrl = s => location.origin + '/?tienda=' + (slug(s.name) ? slug(s.name) + '-' : '') + encodeURIComponent(s.id);
+  /* v474: el catálogo de una ferretería ahora es su tienda de Mi Pradera: los enlaces viejos ?t=<uid> llevan allá */
+  if (tQ && !ADMH.test(location.hash)) {
+    try { const r = await fs.collection('stores').where('ownerUid', '==', tQ).get(); const s = r.docs.map(d => ({ ...d.data(), id: d.id })).find(x => /ferreter/i.test(x.cat || '')); if (s) { location.replace(mpUrl(s)); return; } } catch (e) {}
+  }
 
   /* Catálogo publicado (lo ven todos, con o sin cuenta) */
   if (t) {
@@ -1812,7 +1829,8 @@ boot();
     const ph = /^\+57(\d{10})$/.exec(u.phoneNumber || ''); if (ph) out.push(await hex('wa:' + ph[1]));
     return [...new Set(out)];
   }
-  let rol = false, hay = false, verif = true, vencio = 0, nombre = '', ferr = false;
+  let rol = false, hay = false, verif = true, vencio = 0, nombre = '', ferr = false, cfg = null, tienda = null;
+  const tiendas = [];
   if (propio) {
     verif = !me.providerData.some(p => p.providerId === 'password') || me.emailVerified;
     try { const o = JSON.parse(me.displayName || '{}'); nombre = o.n || ''; } catch (e) { nombre = me.displayName || ''; }
@@ -1825,14 +1843,19 @@ boot();
         if (fin > Date.now()) rol = true; else vencio = Math.max(vencio, fin);
       } catch (e) {}
     }
-    try { hay = (await fs.doc('fer/' + t + '/sys/config').get()).exists; } catch (e) {}
+    try { const c = await fs.doc('fer/' + t + '/sys/config').get(); hay = c.exists; cfg = c.exists ? c.data() : null; } catch (e) {}
     /* Solo para negocios de ferretería: una tienda propia en Mi Pradera de la categoría «Ferreterías» (o el nombre viejo «Ferretería») */
     ferr = me.uid === ADMIN_UID;
     if (!ferr) {
       const bus = [fs.collection('stores').where('ownerUid', '==', me.uid).get()];
       if (ks.length) bus.push(fs.collection('stores').where('ownerKey', 'in', ks.slice(0, 10)).get());
-      for (const r of await Promise.allSettled(bus)) if (r.status === 'fulfilled') r.value.forEach(d => { if (/ferreter/i.test(d.data().cat || '')) ferr = true; });
+      for (const r of await Promise.allSettled(bus)) if (r.status === 'fulfilled') r.value.forEach(d => { if (/ferreter/i.test(d.data().cat || '') && !tiendas.some(x => x.id === d.id)) tiendas.push({ ...d.data(), id: d.id }); });
+      if (tiendas.length) ferr = true;
     }
+    /* v474: la tienda de Mi Pradera que se une con este inventario */
+    const sQ = (qs.get('s') || '').replace(/[^A-Za-z0-9_-]/g, '');
+    tienda = tiendas.find(x => x.id === sQ) || tiendas.find(x => x.id === (cfg && cfg.sid)) || tiendas[0] || null;
+    if (tienda) { Q.url = mpUrl(tienda); Q.tienda = tienda.id; }
   }
 
   /* Mensajes de «Acceso del equipo» */
@@ -1911,15 +1934,54 @@ boot();
       /* Borrar de R2 solo lo hace el administrador (limpieza de imágenes huérfanas del panel) */
       delete: async () => {}
     };
+    /* v474: una sola tienda. Los productos de la tienda de Mi Pradera son products/<tienda>__<id>, con el mismo id del inventario */
+    const enLotes = async (tareas, n = 8) => { for (let i = 0; i < tareas.length; i += n) await Promise.all(tareas.slice(i, i + n).map(f => f())); };
+    const deLaTienda = async () => (await fs.collection('products').where('sid', '==', tienda.id).get()).docs;
+    /* Los productos puestos a mano en Mi Pradera pasan una vez al inventario (existencias en 0) y quedan marcados fer:1 */
+    async function importar() {
+      const now = new Date().toISOString(); let n = 0;
+      await enLotes((await deLaTienda()).filter(d => !d.data().fer).map(d => async () => {
+        const p = d.data(), id = String(p.id || d.id.split('__').pop()).replace(/[^A-Za-z0-9_-]/g, ''); if (!id) return;
+        const foto = (p.imgs || []).find(u => /^https:\/\//.test(u)) || '', r = fs.doc(raiz + 'productos/' + id);
+        if (!(await r.get()).exists) { await r.set({ nombre: String(p.name || 'Producto').slice(0, 120), categoria: String(p.c1 || '').slice(0, 60), codigo: '', unidad: 'und', ubicacion: '', proveedor: '', costo: 0, precio: +p.price || 0, minimo: 0, stock: 0, foto, oculto: false, deMiPradera: true, creado: now, actualizado: now }); n++; }
+        await fs.doc('products/' + d.id).update({ fer: 1, ferF: foto, ownerUid: me.uid });
+      }));
+      return n;
+    }
+    /* «Publicar tienda»: lo visible del inventario queda en la tienda de Mi Pradera (nombre, precio, foto, agotado) */
+    async function aMiPradera(pub) {
+      const sid = tienda.id, now = Date.now(), ex = new Map((await deLaTienda()).map(d => [d.id, d.data()])), tareas = [];
+      (pub.productos || []).forEach((p, i) => {
+        const id = sid + '__' + p.id, e = ex.get(id), foto = /^https:\/\//.test(p.foto || '') ? p.foto : '';
+        const resto = e ? (e.imgs || []).filter(x => x !== foto && x !== e.ferF) : [];
+        const d = { name: String(p.nombre || '').slice(0, 150), price: +p.precio || 0, imgs: (foto ? [foto, ...resto] : resto).slice(0, 6), out: p.disp === 'out', fer: 1, ferF: foto, ownerUid: me.uid };
+        tareas.push(() => e ? fs.doc('products/' + id).update(d) : fs.doc('products/' + id).set({ id: p.id, sid, d: '', ...d, ownerKey: tienda.ownerKey || '', _o: now + i }));
+        ex.delete(id);
+      });
+      for (const [id, e] of ex) if (e.fer) tareas.push(() => fs.doc('products/' + id).delete());
+      await enLotes(tareas);
+      const cambio = { ferTema: pub.tema || 'amarillo' }; if (tienda.ownerUid !== me.uid) cambio.ownerUid = me.uid;
+      await fs.doc('stores/' + sid).update(cambio);
+      await fs.doc(raiz + 'sys/config').set({ sid }, { merge: true });
+    }
     const pagina = {
       publish: async pub => {
         await P(fs.doc('ferPub/' + me.uid).set({ ...pub, url: Q.url }));
+        if (tienda) await P(aMiPradera(pub));
         setTimeout(() => location.reload(), 80);
         return { version: 'mipradera' };
       }
     };
     usar = name => name === 'db' ? Promise.resolve(db) : name === 'user' ? Promise.resolve(usuario) : name === 'downloads' ? Promise.resolve(descargas)
       : name === 'assets' && puede ? Promise.resolve(fotos) : name === 'artifact' && puede ? Promise.resolve(pagina) : Promise.reject({ code: 'not_granted' });
+    if (puede && tienda) { try { Q.importados = await importar(); } catch (e) { try { console.warn('v474: no se pudieron pasar los productos de la tienda', e && e.code); } catch (x) {} } }
+  }
+
+  /* v474: la vitrina es la tienda de Mi Pradera. Sin ?t=, ir a una parte de la vitrina (#productos…) lleva allá */
+  if (!tQ) addEventListener('hashchange', () => { if (!ADMH.test(location.hash)) location.replace(tienda ? Q.url : '/'); });
+  if (tienda) {
+    const f = $('#tForm');
+    if (f) { f.hidden = true; f.insertAdjacentHTML('beforebegin', `<div class="tcard"><h3>Datos de la tienda</h3><p>Tu tienda en Mi Pradera es <b>${esc(tienda.name || '')}</b>. El WhatsApp, la dirección, el horario y los domicilios se cambian allá: Mi cuenta → Mis tiendas → Editar.</p><p class="hint">«Publicar tienda» pone en esa tienda los productos marcados aquí, con su precio, su foto y si están agotados, y los colores de la ferretería.</p><div class="brow"><a class="btn" href="${esc(Q.url)}">Ver mi tienda</a><a class="btn" href="/?panel">Ir a Mi cuenta</a></div></div>`); }
   }
 
   /* Entrar y salir (la sesión es la misma de mipradera.com.co) */
@@ -1947,6 +2009,12 @@ boot();
   });
 
   correr();
+  if (Q.importados) {
+    const a = document.createElement('div'); a.className = 'qhimp'; a.setAttribute('role', 'status');
+    a.innerHTML = `<p>Se ${Q.importados === 1 ? 'pasó 1 producto' : 'pasaron ' + Q.importados + ' productos'} de tu tienda de Mi Pradera al inventario. Ponles las existencias (Entrada → Inventario inicial) antes de publicar: sin existencias salen como agotados.</p><button class="btn" type="button">Entendido</button>`;
+    a.querySelector('button').onclick = () => a.remove();
+    const ad = $('#admin'); if (ad) ad.insertBefore(a, ad.children[1] || null);
+  }
 })();
 </script>
 </body>

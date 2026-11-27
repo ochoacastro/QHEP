@@ -7502,10 +7502,69 @@ var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){ret
 var esFerr=function(s){return !!s&&/ferreter/i.test(s.cat||'')};
 function tabla(ms){var h=orig.apply(this,arguments);if(typeof h!=='string'||!Array.isArray(ms))return h;
  ms.forEach(function(s){if(!esFerr(s))return;var ed='data-act="open" data-id="'+E(s.id)+'">Editar</button>',i=h.indexOf(ed);if(i<0)return;i+=ed.length;
-  h=h.slice(0,i)+'<a class="btn v473-inv" href="/ferreteria#inventario" data-v473="'+E(s.id)+'">Inventario</a>'+h.slice(i)});
+  h=h.slice(0,i)+'<a class="btn v473-inv" href="/ferreteria?s='+encodeURIComponent(s.id)+'#inventario" data-v473="'+E(s.id)+'">Inventario</a>'+h.slice(i)});/* v474: ?s= dice a qué tienda publica el inventario */
  return h}
 function inst(){if(orig)return true;if(typeof window.shopTableHTML!=='function')return false;orig=window.shopTableHTML;window.shopTableHTML0=orig;window.shopTableHTML=tabla;return true}
 if(!inst()){document.addEventListener('DOMContentLoaded',inst);var k=0,iv=setInterval(function(){if(inst()||++k>200)clearInterval(iv)},50)}
+})();
+</script>
+<style id="v474-ferreteria-tienda-css">/* v474: colores de ferretería en la tienda de Mi Pradera de una ferretería. Solo aplica si la vista de la tienda trae la marca
+   <i class="qhfer-m" data-t="tema"> (la pone v474-ferreteria-tienda.js). Los colores van en variables con nombres neutros
+   (--fza…--fzq) para que el modo oscuro automático (v219) no los cambie; su versión oscura está abajo, a mano. */
+body:has(.qhfer-m){--fza:#ffc20e;--fzh:#d9a300;--fze:#000000;--fzb:#000000;--fzc:#ffc20e;--fzp:#ffc20e;--fzq:#000000}
+body:has(.qhfer-m[data-t="naranja"]){--fza:#ef7d22;--fzh:#c2600f;--fze:#9c4708;--fzb:#1d2025;--fzc:#ffffff;--fzp:#ef7d22;--fzq:#000000}
+body:has(.qhfer-m[data-t="azul"]){--fza:#2563b0;--fzh:#1a4a87;--fze:#123a6d;--fzb:#123a6d;--fzc:#ffffff;--fzp:#ffb000;--fzq:#000000}
+body:has(.qhfer-m[data-t="rojo"]){--fza:#c8312c;--fzh:#962220;--fze:#74181a;--fzb:#74181a;--fzc:#ffffff;--fzp:#ffc24d;--fzq:#000000}
+body:has(.qhfer-m[data-t="acero"]){--fza:#6e7c88;--fzh:#525e69;--fze:#3c4650;--fzb:#3c4650;--fzc:#ffffff;--fzp:#ffcf1f;--fzq:#000000}
+body:has(.qhfer-m[data-t="madera"]){--fza:#c78b53;--fzh:#99632f;--fze:#6b4420;--fzb:#5a3b22;--fzc:#ffffff;--fzp:#e2a86c;--fzq:#000000}
+html.dark body:has(.qhfer-m){--fza:#f2b600;--fzh:#c79400;--fze:#000000;--fzb:#f2b600;--fzc:#000000;--fzp:#f2b600;--fzq:#000000}
+html.dark body:has(.qhfer-m[data-t="naranja"]){--fza:#7a3a12;--fzh:#4f2208;--fze:#3a1805;--fzb:#e07b2e;--fzc:#000000;--fzp:#e07b2e;--fzq:#000000}
+html.dark body:has(.qhfer-m[data-t="azul"]){--fza:#153a6b;--fzh:#0c2445;--fze:#091b33;--fzb:#e6a000;--fzc:#000000;--fzp:#e6a000;--fzq:#000000}
+html.dark body:has(.qhfer-m[data-t="rojo"]){--fza:#5e1715;--fzh:#3b0d0c;--fze:#2b0808;--fzb:#e6a63a;--fzc:#000000;--fzp:#e6a63a;--fzq:#000000}
+html.dark body:has(.qhfer-m[data-t="acero"]){--fza:#2e363e;--fzh:#1b2127;--fze:#121619;--fzb:#e6b800;--fzc:#000000;--fzp:#e6b800;--fzq:#000000}
+html.dark body:has(.qhfer-m[data-t="madera"]){--fza:#5a3b22;--fzh:#382413;--fze:#2a1a0d;--fzb:#e2a86c;--fzc:#000000;--fzp:#e2a86c;--fzq:#000000}
+
+/* nombre de la tienda: letrero blanco atornillado sobre el tablero perforado, como la ferretería */
+body:has(.qhfer-m) .sname{background-color:var(--fza);background-image:radial-gradient(circle,var(--fzh) 0 2.6px,transparent 3.2px);background-size:22px 22px;background-position:11px 11px;border-bottom:6px solid var(--fze);border-radius:18px;padding:18px 16px}
+body:has(.qhfer-m) .sname h2{background:#ffffff;color:#000000;padding:8px 16px;border-radius:8px;box-shadow:0 3px 0 rgba(0,0,0,.28)}
+body:has(.qhfer-m) .stsw{border-bottom:4px solid var(--fza)}
+body:has(.qhfer-m) .banner.sinfo-b{border-top-color:var(--fza)!important}
+body:has(.qhfer-m) .banner.sinfo-b .acts .btn:not(.ghost){background:var(--fzb);border-color:var(--fzb);color:var(--fzc)}
+body:has(.qhfer-m) .banner.sinfo-b .acts .btn.ghost{border-color:var(--fzb);color:var(--fzb)}
+html.dark body:has(.qhfer-m) .banner.sinfo-b .acts .btn.ghost{border-color:var(--fzb);color:var(--fzb)}
+body:has(.qhfer-m) .ptitle{display:inline-block;border-bottom:5px solid var(--fza);padding-bottom:4px}
+/* «Agregar al carrito»: como las etiquetas de precio colgadas en la ferretería */
+body:has(.qhfer-m) .pgrid .prod .plus{background:var(--fzp)!important;color:var(--fzq)!important;border:2px solid var(--fze)!important}
+body:has(.qhfer-m) .pgrid .prod{border-color:var(--fze)}
+
+/* dueño: los productos los manda el inventario */
+body:has(.qhfer-m[data-mia]) [data-act="addProd"],body:has(.qhfer-m[data-mia]) [data-lpv="open"],body:has(.qhfer-m[data-mia]) [data-act="mcats"],
+body:has(.qhfer-m[data-mia]) .prod [data-act="editProd"],body:has(.qhfer-m[data-mia]) .prod [data-act="delProd"]{display:none!important}
+.qhfer-av{box-sizing:border-box;width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:16px 0;padding:14px 16px;border:2px solid var(--fze,#000000);border-left:10px solid var(--fza,#ffc20e);border-radius:14px}
+.qhfer-av p{margin:0;flex:1 1 240px}
+.qhfer-av .btn{background:var(--fzb,#000000);border-color:var(--fzb,#000000);color:var(--fzc,#ffffff)}
+</style>
+<script id="v474-ferreteria-tienda">/* v474: UNA SOLA TIENDA PARA LAS FERRETERÍAS. La tienda de una ferretería en Mi Pradera es su vitrina: muestra los productos que
+   se publican desde el inventario (mipradera.com.co/ferreteria, v472-v473), con los colores de ferretería que el dueño eligió
+   (stores/<id>.ferTema: amarillo, naranja, azul, rojo, acero o madera; sin elegir, amarillo y negro).
+   - A la vista de la tienda (storeView) se le antepone una marca oculta <i class="qhfer-m" data-t="tema">; los estilos
+     (v474-ferreteria-tienda.css) solo aplican si esa marca está en la página (body:has(.qhfer-m)). Las demás tiendas no cambian.
+   - Para el dueño: se esconden «+ Producto», «Lista de productos», «Categorías» y editar o quitar productos, y sale un aviso con
+     «Abrir inventario», porque los productos los manda el inventario (si los cambiara aquí, «Publicar tienda» los volvería a poner).
+   No cambia storeView ni storeViewExt (v411): envuelve storeViewExt. Si algo falla, borra este bloque y su <style>. */
+(function(){
+var TEMAS=['amarillo','naranja','azul','rojo','acero','madera'],prev=null;
+var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function marca(h){try{if(typeof h!=='string'||view!=='store')return h;var s=S.stores.find(function(x){return x.id===cur});if(!s||!/ferreter/i.test(s.cat||''))return h;
+ var t=TEMAS.indexOf(s.ferTema)>=0?s.ferTema:'amarillo',mia=S.mine.includes(s.id),m='<i class="qhfer-m" hidden data-t="'+t+'"'+(mia?' data-mia="1"':'')+'></i>';
+ if(mia){var av='<div class="qhfer-av" role="note"><p><b>Los productos de esta ferretería se manejan en el Inventario.</b> Allí cambias precios, fotos, existencias y qué se muestra; luego tocas «Publicar tienda».</p><a class="btn" href="/ferreteria?s='+encodeURIComponent(s.id)+'#inventario">Abrir inventario</a></div>',
+  i=h.indexOf('<div class="icard">');h=i>=0?h.slice(0,i)+av+h.slice(i):av+h}
+ return m+h}catch(e){return h}}
+function nueva(){var h=prev?prev.apply(this,arguments):storeView0.apply(this,arguments);return marca(h)}
+/* se instala después de la v411 (que pone su storeViewExt al cargar la página); si otra la cambia después, se vuelve a envolver */
+function inst(){if(typeof storeView0!=='function')return false;if(window.storeViewExt===nueva)return true;if(!window.__ltrW&&document.readyState==='loading')return false;
+ prev=typeof window.storeViewExt==='function'?window.storeViewExt:null;window.storeViewExt=nueva;try{if(view==='store')render()}catch(e){}return true}
+document.addEventListener('DOMContentLoaded',inst);var k=0,iv=setInterval(function(){inst();if(++k>100)clearInterval(iv)},100);
 })();
 </script>
 <script>
