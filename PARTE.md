@@ -13,7 +13,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 - **Pruebas:** 535 pruebas de la página en la última pasada completa (`tests/pagina/pruebas.cjs`, 22 de noviembre de 2026, con todo hasta la v470; la v471 agregó revisiones que pasan) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
 - **PR:** el 27 de noviembre de 2026 se fusionó el **#178** (v472, inventario de ferretería, y reglas v52). El 22 de noviembre de 2026 se fusionaron el **#175** (skill hallmark y v462–v466), el **#176** (v467–v470) y el **#177** (v471). Todo hasta la v472 está en `main`, también las notas de los dos videos nuevos (sección 5). La v461 (estilo «Vitrina») se probó y se descartó (sección 5).
 - **Red del entorno de la nube:** el 21 de noviembre de 2026, con permiso de la dueña, se agregaron `co.addi.com` y `framerusercontent.com` para estudiar el diseño de esa página (v457). Ya no hacen falta; se pueden quitar en la configuración del entorno.
-- **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
+- **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v13_INSTALAR.js`, línea 57; instalado el 27 de noviembre de 2026). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
@@ -147,7 +147,7 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - una tienda verificada: «Vecino verificado» en la tienda y sus productos sin el sello (v469);
    - en el panel, Publicaciones: cada publicación con «+»; al tocarlo salen sus botones y con «−» se ocultan (v470);
    - en el panel, Categorías → «Categorías de tiendas»: agregar dos subcategorías, una después de otra, esperando a que desaparezca «Guardando…»; recargar y revisar que las dos sigan en su grupo (v471). Volver a crear las que se perdieron antes del arreglo.
-1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
+1. **Worker de Cloudflare:** hecho. El 27 de noviembre de 2026 la dueña instaló `worker_v13_INSTALAR.js`, que incluye todo lo de la v12 (UID nuevo del administrador en la línea 57, avisos de pagos de roles). Falta comprobar que llegue un aviso de Telegram con el próximo pago de rol.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 3. **Pendientes de antes:**
    - registrar la llave de App Check en Firebase y, cuando las métricas estén bien, tocar «Aplicar»;
@@ -163,9 +163,9 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 10. **Tarea programada «Revisar PR #175»:** ya no hace falta porque ese PR se fusionó. Se puede borrar (o pedirle a Claude que la borre).
 11. **Inventario de ferretería (v472):**
     - probar en el teléfono: entrar en `mipradera.com.co/ferreteria` con una cuenta con el rol Comerciante, crear el patrón, crear un producto con foto, hacer una salida, publicar la tienda y abrir el enlace del catálogo desde WhatsApp sin sesión;
-    - **instalar `worker_v13_INSTALAR.js` en Cloudflare** (se entregó por el chat el 27 de noviembre de 2026; reemplaza a la v12, que ya tiene el UID nuevo). Sin él, las fotos de la ferretería van a `u/` y **la limpieza semanal de los domingos las borra** a los 7 días (sección 5, «Inventario de ferretería»).
+    - al subir la primera foto, revisar en Cloudflare → R2 → `imagenes-qhep` que quedó en la carpeta `f/` (worker v13).
 
-Ya hecho (27 de noviembre de 2026): las reglas v52 (inventario de ferretería) están publicadas en Firebase y el PR #178 está fusionado. Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien. El 15 de noviembre de 2026 probó en su teléfono el letrero de «Abierto» fuera del horario (v421) y creó una tienda recorriendo los 6 pasos (v417, v420); las dos cosas funcionaron.
+Ya hecho (27 de noviembre de 2026): las reglas v52 (inventario de ferretería) están publicadas en Firebase, el PR #178 está fusionado y el worker v13 está instalado en Cloudflare. Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien. El 15 de noviembre de 2026 probó en su teléfono el letrero de «Abierto» fuera del horario (v421) y creó una tienda recorriendo los 6 pasos (v417, v420); las dos cosas funcionaron.
 
 ---
 
