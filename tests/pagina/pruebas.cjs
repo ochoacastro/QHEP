@@ -1422,6 +1422,15 @@ const PRUEBAS = {
     await p.fill('.stca details.stg[data-stg="Belleza"] .stadd input', 'Spa'); await p.press('.stca details.stg[data-stg="Belleza"] .stadd input', 'Enter');
     await p.waitForFunction(() => !document.querySelector('.stca .stbm'), null, { timeout: 8000 });
     check('v475: «Ir»/Enter del teclado también agrega la subcategoría', await p.evaluate(() => CATS.some(c => c[0] === 'Spa') && catGroupOf('Spa') === 'Belleza'));
+    // v476: «Mover a» pasa una subcategoría a otro grupo (también una de fábrica)
+    const mover = (n, g) => p.evaluate(([n, g]) => { const i = CATS.findIndex(c => c[0] === n), s = document.querySelector('.stca [data-stmove="' + i + '"]'); s.value = g; s.dispatchEvent(new Event('change', { bubbles: true })) }, [n, g]);
+    await mover('Spa', 'Salud'); await p.waitForFunction(() => !document.querySelector('.stca .stbm'), null, { timeout: 8000 });
+    const mv = await p.evaluate(async () => { const d = document.querySelector('.stca details.stg[data-stg="Salud"]'), site = (await firebase.firestore().collection('meta').doc('site').get()).data() || {};
+      return { grupo: catGroupOf('Spa'), mapa: (site.catGrp || {}).Spa, enSalud: !!d && d.open && [...d.querySelectorAll('input[id^="ct-n-"]')].some(i => i.value === 'Spa'), enBelleza: [...document.querySelectorAll('.stca details.stg[data-stg="Belleza"] input[id^="ct-n-"]')].some(i => i.value === 'Spa') } });
+    check('v476: «Mover a» pasa la subcategoría a otro grupo y queda guardado', mv.grupo === 'Salud' && mv.mapa === 'Salud' && mv.enSalud && !mv.enBelleza, JSON.stringify(mv));
+    await mover('Restaurantes', 'Hogar y construcción'); await p.waitForFunction(() => !document.querySelector('.stca .stbm'), null, { timeout: 8000 });
+    check('v476: también mueve una de fábrica y sus tiendas la siguen', await p.evaluate(() => { S.stores.find(s => s.id === 's1').cat = 'Restaurantes'; return catGroupOf('Restaurantes') === 'Hogar y construcción' && S.site.catGrp.Restaurantes === 'Hogar y construcción' }));
+    check('v476: «Otros» no tiene «Mover a»', await p.evaluate(() => { const i = CATS.findIndex(c => c[0] === 'Otros'); return i >= 0 && !document.querySelector('.stca [data-stmove="' + i + '"]') }));
     sinErrores(p, 'Subcategorías de tiendas'); await p.cerrar();
   },
   async adminEditaAnuncios() { // v465 el administrador edita los anuncios de los usuarios (arriendo, venta, vehículo) sin quitárselos al dueño
