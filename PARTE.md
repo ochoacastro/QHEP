@@ -1,6 +1,6 @@
 # Parte de trabajo — Mi Pradera
 
-Actualizado: 22 de noviembre de 2026 · Rama de trabajo: `claude/page-review-improve-hshx7j`
+Actualizado: 27 de noviembre de 2026 · Rama de trabajo: `claude/page-review-improve-hshx7j`
 
 Este archivo resume en qué va la página, lo que falta y cómo seguir trabajando. Sirve para retomar el trabajo en otra sesión sin perder el hilo.
 
@@ -9,14 +9,14 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 ## 1. Estado actual
 
 - **Reglas de Firestore:** la versión del repositorio es **v51** (`tests/reglas/firestore.rules`) y la dueña ya la publicó en Firebase (14 de noviembre de 2026).
-- **Pruebas:** 489 pruebas de la página (`tests/pagina/pruebas.cjs`) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
-- **PR:** el último fusionado es el **#175** (skill hallmark y v462–v466), el 22 de noviembre de 2026. Todo hasta la v466 está en `main`. La v467 (ícono de «Ver el muro») va en la rama de trabajo, sin PR todavía. La v461 (estilo «Vitrina») se probó y se descartó (sección 5).
+- **Pruebas:** 535 pruebas de la página en la última pasada completa (`tests/pagina/pruebas.cjs`, 22 de noviembre de 2026, con todo hasta la v470; la v471 agregó revisiones que pasan) y 17 archivos de pruebas de reglas (v24 a v51). Las de reglas no se volvieron a correr porque las reglas no cambiaron.
+- **PR:** el 22 de noviembre de 2026 se fusionaron el **#175** (skill hallmark y v462–v466), el **#176** (v467–v470) y el **#177** (v471). Todo hasta la v471 está en `main`. La rama de trabajo solo tiene, además, las notas de los dos videos nuevos en este parte (sección 5), sin PR. La v461 (estilo «Vitrina») se probó y se descartó (sección 5).
 - **Red del entorno de la nube:** el 21 de noviembre de 2026, con permiso de la dueña, se agregaron `co.addi.com` y `framerusercontent.com` para estudiar el diseño de esa página (v457). Ya no hacen falta; se pueden quitar en la configuración del entorno.
 - **Administrador:** la cuenta se ve en Firebase → Authentication. Su UID es `KUowZZ25CePVc9IXGmhCLVbbSIB3`. Ese UID está en la página, en las reglas y en el worker de Cloudflare (`worker_v12_INSTALAR.js`, línea 50). Ese archivo no está en el repositorio: lo guarda la dueña.
 
 ---
 
-## 2. Lo que se hizo en esta etapa (v392 a v467)
+## 2. Lo que se hizo en esta etapa (v392 a v471)
 
 | Versión | Qué cambió | PR |
 |---|---|---|
@@ -93,17 +93,17 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 | v464 | **Subcategorías de tiendas en el panel:** Administrador → Categorías → «Categorías de tiendas» va por grupos (Comidas, Belleza, Salud…), escalonado: cada grupo se abre y muestra debajo, con sangría, sus subcategorías (nombre, color, imagen, «Eliminar») y «+ Agregar» para crear una nueva dentro de ese grupo. Antes la lista era plana y lo nuevo caía siempre en «Otros». Pedido por la dueña | #175 |
 | v465 | **El administrador edita los anuncios de los usuarios:** en Publicaciones, cada arriendo, venta y vehículo tiene «Editar», que abre el mismo formulario del dueño (fotos, precio, habitaciones, servicios, dirección…); dentro del anuncio sale «Editar anuncio (administrador)». Cada tienda tiene «Editar», que abre la edición completa de la v441. El anuncio sigue siendo del dueño, con su nombre, WhatsApp y fecha. Pedido por la dueña | #175 |
 | v466 | **Ícono del Muro:** el botón «Muro» de la barra de abajo cambia el megáfono (que era de Clasificados) por una lista con cuadros a la izquierda y líneas a la derecha, como se ven las publicaciones del Muro (v454). Es «layout-list» de Lucide, la misma familia de íconos de línea. Cambio en `v442-muro.js` (`MURO_IC` y `nombre()`). Pedido por la dueña | #175 |
-| v467 | **Ícono de «Ver el muro»:** el botón «Ver el muro», al lado de «Lo más reciente» en el inicio (v455), todavía tenía el megáfono; ahora usa el mismo ícono de lista de la barra de abajo (v466). Cambio en `v455-inicio-solo-reciente.js` (línea 7). Los megáfonos que quedan son de Clasificados y de «Publica un anuncio», no del Muro. Pedido por la dueña | — |
-| v468 | **Más espacio para «Documentación requerida»** (arriendo): pasa de una línea de 120 letras a una caja de varias líneas de hasta 400 letras, como la descripción; en el anuncio se ve con sus renglones. Cambio en `12-s.js` (línea 33, `t:'area'`; línea 99, `white-space:pre-line` para los campos de varias líneas). Pedido por la dueña con una captura | — |
-| v469 | **«Verificado» solo en la tienda:** las tarjetas de producto de una tienda verificada ya no llevan el sello «Verificado» sobre la foto (v124, `cardOv` en `07-cardov.js`); la tienda sigue mostrando «Vecino verificado» en su ficha y su tarjeta. Pedido por la dueña | — |
-| v470 | **Publicaciones plegables:** en Administrador → Publicaciones, cada tienda, anuncio y clasificado muestra solo su nombre con «+»; al tocarlo aparecen sus botones (Destacar, Verificar, Bloquear, Editar, Corregir dirección, Eliminar) y el signo pasa a «−», que los oculta. Se recuerda cuál quedó abierta al volver a dibujar el panel. Archivo `v470-publicaciones-plegables.js`. Pedido por la dueña con una captura | — |
-| v471 | **Arreglo: las subcategorías nuevas no se guardaban.** La v464 metía la nueva en medio de la lista y había que reescribir el orden de unas 30 categorías; mientras eso se guardaba, cada aviso de Firebase rehacía la lista y la ficha del sitio con la copia del servidor, y se perdía lo agregado en ese rato (una segunda subcategoría desaparecía y el grupo de la primera pasaba a «Otros» por un momento). Ahora la nueva va antes de «Otros», el panel muestra «Guardando…» y no deja otro cambio hasta que el servidor confirma la subcategoría y su grupo. Reproducido y comprobado con Firebase 10.12.2 real contra el emulador. Reportado por la dueña | — |
+| v467 | **Ícono de «Ver el muro»:** el botón «Ver el muro», al lado de «Lo más reciente» en el inicio (v455), todavía tenía el megáfono; ahora usa el mismo ícono de lista de la barra de abajo (v466). Cambio en `v455-inicio-solo-reciente.js` (línea 7). Los megáfonos que quedan son de Clasificados y de «Publica un anuncio», no del Muro. Pedido por la dueña | #176 |
+| v468 | **Más espacio para «Documentación requerida»** (arriendo): pasa de una línea de 120 letras a una caja de varias líneas de hasta 400 letras, como la descripción; en el anuncio se ve con sus renglones. Cambio en `12-s.js` (línea 33, `t:'area'`; línea 99, `white-space:pre-line` para los campos de varias líneas). Pedido por la dueña con una captura | #176 |
+| v469 | **«Verificado» solo en la tienda:** las tarjetas de producto de una tienda verificada ya no llevan el sello «Verificado» sobre la foto (v124, `cardOv` en `07-cardov.js`); la tienda sigue mostrando «Vecino verificado» en su ficha y su tarjeta. Pedido por la dueña | #176 |
+| v470 | **Publicaciones plegables:** en Administrador → Publicaciones, cada tienda, anuncio y clasificado muestra solo su nombre con «+»; al tocarlo aparecen sus botones (Destacar, Verificar, Bloquear, Editar, Corregir dirección, Eliminar) y el signo pasa a «−», que los oculta. Se recuerda cuál quedó abierta al volver a dibujar el panel. Archivo `v470-publicaciones-plegables.js`. Pedido por la dueña con una captura | #176 |
+| v471 | **Arreglo: las subcategorías nuevas no se guardaban.** La v464 metía la nueva en medio de la lista y había que reescribir el orden de unas 30 categorías; mientras eso se guardaba, cada aviso de Firebase rehacía la lista y la ficha del sitio con la copia del servidor, y se perdía lo agregado en ese rato (una segunda subcategoría desaparecía y el grupo de la primera pasaba a «Otros» por un momento). Ahora la nueva va antes de «Otros», el panel muestra «Guardando…» y no deja otro cambio hasta que el servidor confirma la subcategoría y su grupo. Reproducido y comprobado con Firebase 10.12.2 real contra el emulador. Reportado por la dueña | #177 |
 
 ---
 
 ## 3. Lo que tiene que hacer la dueña (fuera del código)
 
-0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (todo hasta el PR #174 ya está fusionado):
+0. **Probar en un teléfono real** lo que las pruebas no pueden comprobar (todo hasta el PR #177 ya está fusionado):
    - hacer un pedido sin cuenta y ver que WhatsApp se abre con el mensaje (v416);
    - hacer un pedido con cuenta: debe salir «Tus datos para el pedido» con el nombre y el teléfono puestos, sin mapa (v424);
    - sin cuenta, tocar «Publicar» en la barra de abajo: debe salir «Registrarme» con el aviso, no el formulario (v425, v429);
@@ -139,7 +139,12 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
    - crear una tienda y publicar un arriendo: en la dirección no sale el mapa ni la pregunta, sí la referencia; en el panel, Usuarios → «Negocios por ubicar» e «Inmuebles por ubicar» muestran la referencia y se les pone el código plus (v462);
    - en el panel, Publicaciones → «Corregir dirección» en una tienda y en un arriendo: cambiar la dirección y la referencia, guardar y revisar desde la cuenta del dueño que el cambio está (v463);
    - en el panel, Categorías → «Categorías de tiendas»: abrir un grupo, agregar una subcategoría, cambiarle el nombre y eliminarla; al crear una tienda, la nueva sale dentro de su grupo (v464);
-   - en el panel, Publicaciones → «Editar» en un arriendo: cambiar algo, guardar y revisar desde la cuenta del dueño que el cambio está y que él puede seguir editando (v465).
+   - en el panel, Publicaciones → «Editar» en un arriendo: cambiar algo, guardar y revisar desde la cuenta del dueño que el cambio está y que él puede seguir editando (v465);
+   - el botón «Muro» de abajo y «Ver el muro» del inicio con el ícono de lista (v466, v467);
+   - publicar un arriendo con varios renglones en «Documentación requerida» y verlos en el anuncio (v468);
+   - una tienda verificada: «Vecino verificado» en la tienda y sus productos sin el sello (v469);
+   - en el panel, Publicaciones: cada publicación con «+»; al tocarlo salen sus botones y con «−» se ocultan (v470);
+   - en el panel, Categorías → «Categorías de tiendas»: agregar dos subcategorías, una después de otra, esperando a que desaparezca «Guardando…»; recargar y revisar que las dos sigan en su grupo (v471). Volver a crear las que se perdieron antes del arreglo.
 1. **Instalar `worker_v12_INSTALAR.js` en Cloudflare**, si aún no está: el archivo ya trae el UID nuevo del administrador en la línea 50 (revisado el 14 de noviembre de 2026), pero falta confirmar que esa versión sea la que está publicada en Cloudflare. Sin esto no llegan los avisos de pagos de roles.
 2. **Volver a poner la llave Bre-B y el número de Nequi** en el panel, pestaña Pagos. Estaban guardados con el UID anterior.
 3. **Pendientes de antes:**
@@ -152,6 +157,8 @@ Este archivo resume en qué va la página, lo que falta y cómo seguir trabajand
 6. **Cierre de sesión con el panel de administrador:** mientras no se arregle (sección 5), usar el panel en otro navegador o en una pestaña de incógnito, no en el mismo donde se usa la cuenta de vecina.
 7. **Decidir sobre Taste Skill y cuatro skills que no aplican** (sección 6): siguen instaladas mientras la dueña no diga otra cosa.
 8. **Seguridad (recomendado, ver la sección 7):** activar la verificación en dos pasos en la cuenta de administrador de Firebase/Google, en GitHub y en Cloudflare.
+9. **Guardar los videos nuevos** («Todos venden, nadie compra» e «Info al inbox», sección 5): solo se entregaron por el chat; los proyectos quedaron en la carpeta temporal de la sesión y se borran al cerrarla.
+10. **Tarea programada «Revisar PR #175»:** ya no hace falta porque ese PR se fusionó. Se puede borrar (o pedirle a Claude que la borre).
 
 Ya hecho (14 de noviembre de 2026): las reglas v51 están publicadas en Firebase; los roles de `contacto@mipradera.com.co` se recuperaron con el botón de la v406; la dueña miró en la página real el mapa de un inmueble (v409) y se ve bien. El 15 de noviembre de 2026 probó en su teléfono el letrero de «Abierto» fuera del horario (v421) y creó una tienda recorriendo los 6 pasos (v417, v420); las dos cosas funcionaron.
 
