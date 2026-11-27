@@ -1758,6 +1758,7 @@ boot();
    Fotos: R2 de Cloudflare, con el mismo worker de Mi Pradera (desde el worker v13 van a la carpeta f/<uid>/, que la
    limpieza semanal y la de «Imágenes huérfanas» no tocan). Exportar: descarga un CSV.
    Para usarlo hace falta el rol Comerciante vigente (acc.merc o acc.merc1 de plans/<llave>); las reglas v52 lo revisan.
+   Además (v473) la cuenta debe tener una tienda de la categoría «Ferreterías» (o «Ferretería»); esto lo revisa solo la página.
    Sin rol, quien ya tiene inventario lo ve en solo lectura.
    Catálogo para clientes: mipradera.com.co/ferreteria?t=<uid del dueño>. */
 (async () => {
@@ -1811,12 +1812,13 @@ boot();
     const ph = /^\+57(\d{10})$/.exec(u.phoneNumber || ''); if (ph) out.push(await hex('wa:' + ph[1]));
     return [...new Set(out)];
   }
-  let rol = false, hay = false, verif = true, vencio = 0, nombre = '';
+  let rol = false, hay = false, verif = true, vencio = 0, nombre = '', ferr = false;
   if (propio) {
     verif = !me.providerData.some(p => p.providerId === 'password') || me.emailVerified;
     try { const o = JSON.parse(me.displayName || '{}'); nombre = o.n || ''; } catch (e) { nombre = me.displayName || ''; }
     if (me.uid === ADMIN_UID) rol = true;
-    for (const k of await llaves(me)) {
+    const ks = await llaves(me);
+    for (const k of ks) {
       try {
         const s = await fs.doc('plans/' + k).get(); if (!s.exists) continue;
         const a = s.data().acc || {}, fin = Math.max(+a.merc || 0, +a.merc1 || 0);
@@ -1824,12 +1826,19 @@ boot();
       } catch (e) {}
     }
     try { hay = (await fs.doc('fer/' + t + '/sys/config').get()).exists; } catch (e) {}
+    /* Solo para negocios de ferretería: una tienda propia en Mi Pradera de la categoría «Ferreterías» (o el nombre viejo «Ferretería») */
+    ferr = me.uid === ADMIN_UID;
+    if (!ferr) {
+      const bus = [fs.collection('stores').where('ownerUid', '==', me.uid).get()];
+      if (ks.length) bus.push(fs.collection('stores').where('ownerKey', 'in', ks.slice(0, 10)).get());
+      for (const r of await Promise.allSettled(bus)) if (r.status === 'fulfilled') r.value.forEach(d => { if (/ferreter/i.test(d.data().cat || '')) ferr = true; });
+    }
   }
 
   /* Mensajes de «Acceso del equipo» */
   const salir = '<button class="btn" type="button" id="qhOut">Cerrar sesión</button>';
   if (!me) {
-    Q.msg = 'Entra con tu cuenta de Mi Pradera para administrar el inventario de tu ferretería. Necesitas el rol Comerciante vigente.';
+    Q.msg = 'Entra con tu cuenta de Mi Pradera para administrar el inventario de tu ferretería. Es para negocios de la categoría Ferreterías con el rol Comerciante vigente.';
     caja(`<form class="qhl" id="qhLogin" novalidate>
       <label class="f"><span>Correo o celular</span><input id="qhU" autocomplete="username" inputmode="email" required></label>
       <label class="f"><span>Clave</span><input id="qhP" type="password" autocomplete="current-password" required></label>
@@ -1846,12 +1855,18 @@ boot();
   } else if (!rol && !hay) {
     Q.msg = 'Para usar el inventario de ferretería necesitas el rol Comerciante vigente en Mi Pradera' + (vencio ? ' (el tuyo venció el ' + new Date(vencio).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) + ').' : '.');
     caja(`<div class="brow" style="margin-bottom:12px"><a class="btn in" href="/#/roles">Ver planes y precios</a>${salir}</div>`);
+  } else if (!ferr && !hay) {
+    Q.msg = 'El inventario es para los negocios de ferretería. Para usarlo, tu tienda en Mi Pradera debe estar en la categoría «Ferreterías».';
+    caja(`<div class="brow" style="margin-bottom:12px"><a class="btn in" href="/?panel">Ir a Mi cuenta</a>${salir}</div>`);
   } else if (!rol) {
     Q.ro = 'Tu rol Comerciante ' + (vencio ? 'venció el ' + new Date(vencio).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) : 'no está activo') + ': puedes ver tu inventario, pero no hacer cambios. Renuévalo en Mi Pradera, en Planes y precios.';
+  } else if (!ferr) {
+    Q.ro = 'Tu tienda ya no está en la categoría «Ferreterías»: puedes ver tu inventario, pero no hacer cambios.';
   }
+  const puede = rol && ferr;
 
   /* Lo que el programa pide con window.claude.use(...) */
-  if (propio && verif && (rol || hay)) {
+  if (propio && verif && (puede || hay)) {
     const COD = { 'permission-denied': 'invalid_argument', 'not-found': 'invalid_argument', 'invalid-argument': 'invalid_argument', 'failed-precondition': 'invalid_argument', 'resource-exhausted': 'resource_exhausted', 'unavailable': 'unavailable', 'deadline-exceeded': 'unavailable', 'aborted': 'unavailable' };
     const mal = e => ({ code: COD[e?.code] || e?.code || 'unknown', message: e?.message || '' });
     const P = p => p.catch(e => { throw mal(e); });
@@ -1873,7 +1888,7 @@ boot();
     };
     const db = { doc: ref, collection: p => consulta(fs.collection(raiz + p)) };
     const usuario = {
-      can: async () => rol, canEdit: async () => true, id: async () => me.uid,
+      can: async () => puede, canEdit: async () => true, id: async () => me.uid,
       profiles: async ids => Object.fromEntries(ids.map(id => [id, { name: id === me.uid ? nombre : '' }]))
     };
     const descargas = {
@@ -1904,7 +1919,7 @@ boot();
       }
     };
     usar = name => name === 'db' ? Promise.resolve(db) : name === 'user' ? Promise.resolve(usuario) : name === 'downloads' ? Promise.resolve(descargas)
-      : name === 'assets' && rol ? Promise.resolve(fotos) : name === 'artifact' && rol ? Promise.resolve(pagina) : Promise.reject({ code: 'not_granted' });
+      : name === 'assets' && puede ? Promise.resolve(fotos) : name === 'artifact' && puede ? Promise.resolve(pagina) : Promise.reject({ code: 'not_granted' });
   }
 
   /* Entrar y salir (la sesión es la misma de mipradera.com.co) */

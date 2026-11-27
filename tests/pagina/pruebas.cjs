@@ -1503,6 +1503,26 @@ const PRUEBAS = {
     check('Muro: «Ver tienda» abre la tienda', await p.evaluate(() => view === 'store' && cur === 's1'));
     sinErrores(p, 'Muro en fila'); await p.cerrar();
   },
+  async enlaceFerreteria() { // v473: botón «Inventario» en Mis tiendas, solo en las tiendas de ferretería
+    const p = await abrir({ user: { uid: 'uA', isAnonymous: false, email: 'ana@x.co', emailVerified: true }, ruta: '?panel' }); await conCuenta(p);
+    await p.evaluate(() => { S.plan = { k: 'kA', uid: 'uA', plan: 'free', acc: { merc: Date.now() + 30 * 864e5 } };
+      S.stores = S.stores.concat([{ id: 'fz', name: 'Ferretería Z', cat: 'Ferreterías', ownerUid: 'uA', ownerKey: 'kA', products: [] },
+        { id: 'fv', name: 'Ferretería Vieja', cat: 'Ferretería', ownerUid: 'uA', ownerKey: 'kA', products: [] },
+        { id: 'rz', name: 'Restaurante Z', cat: 'Restaurantes', ownerUid: 'uA', ownerKey: 'kA', products: [] }]);
+      S.mine = ['fz', 'fv', 'rz']; closeModal(1); render() }); await p.waitForTimeout(600);
+    check('En Mi cuenta ya no hay una fila aparte de inventario', await p.evaluate(() => !/Inventario de ferretería/.test(document.body.textContent)));
+    await p.evaluate(() => pnlModal('tiendas')); await p.waitForTimeout(500);
+    const r = await p.evaluate(() => [...document.querySelectorAll('#ov table.mst tbody tr')].map(tr => { const a = tr.querySelector('.v473-inv'), b = [...tr.querySelectorAll('.msta > *')].map(x => x.textContent.trim());
+      return { n: tr.querySelector('td > b').textContent, inv: !!a, href: a && a.getAttribute('href'), tras: a ? b[b.indexOf('Inventario') - 1] : '' } }));
+    const z = r.find(x => /Ferretería Z/.test(x.n)), v = r.find(x => /Ferretería Vieja/.test(x.n)), rz = r.find(x => /Restaurante Z/.test(x.n));
+    check('Mis tiendas: la ferretería tiene «Inventario», al lado de «Editar»', !!z && z.inv && z.tras === 'Editar', JSON.stringify(r));
+    check('El botón abre mipradera.com.co/ferreteria', !!z && z.href === '/ferreteria#inventario');
+    check('Una tienda con el nombre viejo «Ferretería» también lo tiene', !!v && v.inv);
+    check('Una tienda que no es ferretería no tiene «Inventario»', !!rz && !rz.inv);
+    check('Los demás botones de Mis tiendas siguen (Ver, Compartir, Editar, Eliminar)', await p.evaluate(() => { const tr = document.querySelector('#ov table.mst tbody tr'); return ['Ver', 'Compartir', 'Editar', 'Eliminar'].every(t => [...tr.querySelectorAll('.msta > *')].some(x => x.textContent.trim() === t)) }));
+    if (process.env.FOTO_V473) { await p.evaluate(() => document.querySelector('.v473-inv').scrollIntoView({ block: 'center' })); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V473 }) }
+    sinErrores(p, 'Inventario en Mis tiendas'); await p.cerrar();
+  },
 };
 
 (async () => {
