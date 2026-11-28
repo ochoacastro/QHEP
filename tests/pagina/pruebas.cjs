@@ -1428,8 +1428,12 @@ const PRUEBAS = {
     const mv = await p.evaluate(async () => { const d = document.querySelector('.stca details.stg[data-stg="Salud"]'), site = (await firebase.firestore().collection('meta').doc('site').get()).data() || {};
       return { grupo: catGroupOf('Spa'), mapa: (site.catGrp || {}).Spa, enSalud: !!d && d.open && [...d.querySelectorAll('input[id^="ct-n-"]')].some(i => i.value === 'Spa'), enBelleza: [...document.querySelectorAll('.stca details.stg[data-stg="Belleza"] input[id^="ct-n-"]')].some(i => i.value === 'Spa') } });
     check('v476: «Mover a» pasa la subcategoría a otro grupo y queda guardado', mv.grupo === 'Salud' && mv.mapa === 'Salud' && mv.enSalud && !mv.enBelleza, JSON.stringify(mv));
-    await mover('Restaurantes', 'Hogar y construcción'); await p.waitForFunction(() => !document.querySelector('.stca .stbm'), null, { timeout: 8000 });
-    check('v476: también mueve una de fábrica y sus tiendas la siguen', await p.evaluate(() => { S.stores.find(s => s.id === 's1').cat = 'Restaurantes'; return catGroupOf('Restaurantes') === 'Hogar y construcción' && S.site.catGrp.Restaurantes === 'Hogar y construcción' }));
+    // v481: «Hogar y construcción» ahora se llama «Construcción» y «Hogar y decoración» es un grupo aparte
+    const gr = await p.evaluate(() => [...document.querySelectorAll('.stca details.stg')].map(d => d.dataset.stg));
+    check('v481: el panel tiene los grupos «Hogar y decoración» y «Construcción», y ya no «Hogar y construcción»', gr.includes('Hogar y decoración') && gr.includes('Construcción') && !gr.includes('Hogar y construcción'), JSON.stringify(gr));
+    check('v481: Ferreterías y Cacharrerías están en Construcción; la subcategoría Hogar y decoración, en su grupo', await p.evaluate(() => catGroupOf('Ferreterías') === 'Construcción' && catGroupOf('Cacharrerías y misceláneas') === 'Construcción' && catGroupOf('Hogar y decoración') === 'Hogar y decoración'));
+    await mover('Restaurantes', 'Construcción'); await p.waitForFunction(() => !document.querySelector('.stca .stbm'), null, { timeout: 8000 });
+    check('v476: también mueve una de fábrica y sus tiendas la siguen', await p.evaluate(() => { S.stores.find(s => s.id === 's1').cat = 'Restaurantes'; return catGroupOf('Restaurantes') === 'Construcción' && S.site.catGrp.Restaurantes === 'Construcción' }));
     check('v476: «Otros» no tiene «Mover a»', await p.evaluate(() => { const i = CATS.findIndex(c => c[0] === 'Otros'); return i >= 0 && !document.querySelector('.stca [data-stmove="' + i + '"]') }));
     sinErrores(p, 'Subcategorías de tiendas'); await p.cerrar();
   },
@@ -1535,10 +1539,10 @@ const PRUEBAS = {
     check('Mis tiendas: la ferretería tiene «Inventario», al lado de «Editar»', !!z && z.inv && z.tras === 'Editar', JSON.stringify(r));
     check('El botón abre el inventario de esa tienda (mipradera.com.co/ferreteria?s=…)', !!z && z.href === '/ferreteria?s=fz#inventario', JSON.stringify(z));
     check('Una tienda con el nombre viejo «Ferretería» también lo tiene', !!v && v.inv);
-    check('Una tienda que no es de Hogar y construcción no tiene «Inventario»', !!rz && !rz.inv);
+    check('Una tienda que no es de Construcción ni de Hogar y decoración no tiene «Inventario»', !!rz && !rz.inv);
     const hz = r.find(x => /Hogar Z/.test(x.n)), dz = r.find(x => /Droguería Z/.test(x.n));
-    check('v477: todo el grupo Hogar y construcción tiene «Inventario» (Hogar y decoración)', !!hz && hz.inv, JSON.stringify(hz));
-    check('v477: también una subcategoría que el administrador movió a ese grupo', !!dz && dz.inv, JSON.stringify(dz));
+    check('v481: el grupo Hogar y decoración también tiene «Inventario»', !!hz && hz.inv, JSON.stringify(hz));
+    check('v477/v481: una subcategoría que el administrador movió al grupo viejo «Hogar y construcción» sigue con «Inventario» (pasa a Construcción)', !!dz && dz.inv && await p.evaluate(() => catGroupOf('Droguerías') === 'Construcción'), JSON.stringify(dz));
     check('Los demás botones de Mis tiendas siguen (Ver, Compartir, Editar, Eliminar)', await p.evaluate(() => { const tr = document.querySelector('#ov table.mst tbody tr'); return ['Ver', 'Compartir', 'Editar', 'Eliminar'].every(t => [...tr.querySelectorAll('.msta > *')].some(x => x.textContent.trim() === t)) }));
     if (process.env.FOTO_V473) { await p.evaluate(() => document.querySelector('.v473-inv').scrollIntoView({ block: 'center' })); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V473 }) }
     sinErrores(p, 'Inventario en Mis tiendas'); await p.cerrar();
@@ -1558,7 +1562,7 @@ const PRUEBAS = {
     check('Visitante: no ve el aviso del inventario', !vis.aviso && !vis.mia);
     check('Un producto agotado en el inventario sale «Agotado»', vis.agotado);
     await p.evaluate(() => { cur = 'cz'; render() }); await p.waitForTimeout(300);
-    check('v477: una tienda de Cacharrerías (Hogar y construcción) también lleva los colores', await p.evaluate(() => view === 'store' && !!document.querySelector('.qhfer-m')));
+    check('v477: una tienda de Cacharrerías (Construcción) también lleva los colores', await p.evaluate(() => view === 'store' && !!document.querySelector('.qhfer-m')));
     await p.evaluate(() => { cur = 'rz'; render() }); await p.waitForTimeout(300);
     check('Una tienda que no es ferretería no cambia de colores', await p.evaluate(() => view === 'store' && !document.querySelector('.qhfer-m') && getComputedStyle(document.querySelector('.sname')).backgroundColor !== 'rgb(37, 99, 176)'));
     sinErrores(p, 'Ferretería: visitante'); await p.cerrar();
@@ -1587,6 +1591,7 @@ const PRUEBAS = {
     const v = await p.evaluate(() => { const pl = document.querySelector('.pgrid .prod .plus'), off = document.querySelector('.pgrid .prod .qhmue-off');
       return { view, mue: !!document.querySelector('.qhmue-m'), fer: !!document.querySelector('.qhfer-m'), boton: pl && getComputedStyle(pl).backgroundColor, letra: getComputedStyle(document.querySelector('.pgrid .prod h3')).fontFamily, off: off && off.textContent, offs: document.querySelectorAll('.qhmue-off').length } });
     check('Mueblería: lleva su diseño y no el de ferretería', v.view === 'store' && v.mue && !v.fer, JSON.stringify(v));
+    check('v481: «Mueblerías» guardada en el grupo viejo «Hogar y construcción» queda en «Hogar y decoración»', await p.evaluate(() => catGroupOf('Mueblerías') === 'Hogar y decoración'));
     check('Mueblería: «Agregar al carrito» azul marino y letra Roboto', v.boton === 'rgb(16, 63, 141)' && /RobotoMP/.test(v.letra), JSON.stringify(v));
     check('Mueblería: el producto con precio anterior lleva la etiqueta «-41%» (solo ese)', v.off === '-41%' && v.offs === 1, JSON.stringify(v));
     // v479: menú de categorías de mueblería
@@ -1607,7 +1612,7 @@ const PRUEBAS = {
     const md = await p.evaluate(() => { const c = [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none' && x.querySelector('.qmu-med')); return { n: c.length, tit: c[0] && c[0].querySelector('h3').textContent.trim(), precio: c[0] && c[0].querySelector('.price').textContent.replace(/\s/g, ''), opts: c[0] ? [...c[0].querySelectorAll('.qmu-med option')].map(o => o.textContent) : [] } });
     check('v480: las 3 medidas del colchón salen en UNA tarjeta, con el nombre sin medida y la primera medida', md.n === 1 && md.tit === 'Colchón Orthopack' && md.precio === '$983.000', JSON.stringify(md));
     check('v480: el selector lista las medidas en orden y marca la agotada', md.opts.join('/') === '100 x 190 | Sencillo/140 x 190 | Doble/200 x 200 | King (agotado)', JSON.stringify(md.opts));
-    await p.evaluate(() => { const s = document.querySelector('.qmu-med select'); s.value = 'm2'; s.dispatchEvent(new Event('change', { bubbles: true })) }); await p.waitForTimeout(300);
+    await p.evaluate(() => { const s = document.querySelector('.qmu-med select'); s.value = 'Doble 140 x 190'; s.dispatchEvent(new Event('change', { bubbles: true })) }); await p.waitForTimeout(300);
     const md2 = await p.evaluate(() => { const c = [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none' && x.querySelector('.qmu-med'))[0]; c.querySelector('.plus').click(); return { precio: c.querySelector('.price').textContent.replace(/\s/g, ''), carrito: Object.keys(S.cart) } });
     check('v480: al elegir 140 x 190 cambia el precio y el carrito lleva esa medida', md2.precio === '$1.311.000' && md2.carrito.some(k => k.startsWith('mz|m2')), JSON.stringify(md2));
     check('v480: el filtro cuenta el colchón una sola vez', await p.evaluate(() => { document.querySelector('[data-qmu-cat="Colchones"]').click(); return true }) && await (async () => { await p.waitForTimeout(200); await p.click('[data-qmu-todo="Colchones"]'); await p.waitForTimeout(300); return p.evaluate(() => document.querySelector('.qmu-fx span').textContent === 'Colchones: 2 productos') })());
@@ -1619,11 +1624,40 @@ const PRUEBAS = {
     await q.evaluate(() => { S.mine = ['mz']; render() }); await q.waitForTimeout(500);
     const d = await q.evaluate(() => { const vis = s => { const e = document.querySelector(s); return !!e && getComputedStyle(e).display !== 'none' };
       return { aviso: vis('.qhfer-av'), mia: !!document.querySelector('.qhmue-m[data-mia]'), add: vis('[data-act="addProd"]'), habia: !!document.querySelector('[data-act="addProd"]'), href: (document.querySelector('.qhfer-av a') || {}).getAttribute && document.querySelector('.qhfer-av a').getAttribute('href') } });
-    check('Mueblería: el dueño ve «Abrir inventario» y no los botones de productos', d.aviso && d.mia && d.habia && !d.add && d.href === '/ferreteria?s=mz#inventario', JSON.stringify(d));
+    check('Mueblería: el dueño ve «Abrir inventario» y no los botones de productos', d.aviso && d.mia && d.habia && !d.add && d.href === '/muebleria?s=mz#inventario', JSON.stringify(d));
     await q.evaluate(() => pnlModal('tiendas')); await q.waitForTimeout(400);
-    check('Mueblería: en Mis tiendas tiene «Inventario»', await q.evaluate(() => !!document.querySelector('#ov .v473-inv[data-v473="mz"]')));
+    check('Mueblería: en Mis tiendas tiene «Inventario» y lleva al inventario de mueblería (v482)', await q.evaluate(() => { const a = document.querySelector('#ov .v473-inv[data-v473="mz"]'); return !!a && a.getAttribute('href') === '/muebleria?s=mz#inventario' }));
     if (process.env.FOTO_V478) { await q.evaluate(() => { closeModal(1); render() }); await q.waitForTimeout(400); await q.screenshot({ path: process.env.FOTO_V478 }) }
     sinErrores(q, 'Mueblería: dueño'); await q.cerrar();
+  },
+  async muebleriaColores() { // v482: el inventario de mueblería publica cada medida y color; la tarjeta tiene selector de medida y de color, y «Por encargo»
+    const now = Date.now(), P = (id, m, c, price, extra) => ({ id, sid: 'mz', name: 'Sofá Milán' + (m ? ' (' + m + ')' : '') + ' · ' + c, price, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 1, ferCat: 'Sofás', ferM: m, ferC: c, ferN: 'Sofá Milán', ferG: 'sm1', ...extra });
+    const seed = { 'meta/site': { catGrp: { 'Mueblerías': 'Hogar y decoración' } }, 'cats/mueblerias': { id: 'mueblerias', a: ['Mueblerías', '', '#9A3412'], _o: 3.5 },
+      'stores/mz': { id: 'mz', name: 'Muebles Z', cat: 'Mueblerías', wa: '3001234567', ownerUid: 'uA', ownerKey: 'kA', pexp: now + 30 * 864e5, products: [], _o: 1 },
+      'products/mz__sm1-2-puestos-gris': P('sm1-2-puestos-gris', '2 puestos', 'Gris', 990000),
+      'products/mz__sm1-2-puestos-beige': P('sm1-2-puestos-beige', '2 puestos', 'Beige', 990000, { out: true }),
+      'products/mz__sm1-3-puestos-gris': P('sm1-3-puestos-gris', '3 puestos', 'Gris', 1290000),
+      'products/mz__sm1-3-puestos-beige': P('sm1-3-puestos-beige', '3 puestos', 'Beige', 1350000),
+      'products/mz__c1': { id: 'c1', sid: 'mz', name: 'Comedor Roble', price: 2100000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 2, ferCat: 'Comedores de 4 puestos', ferN: 'Comedor Roble', ferE: 20 } };
+    const p = await abrir({ seed, ruta: '?tienda=muebles-z-mz' }); await p.waitForTimeout(700);
+    const tarj = () => p.evaluate(() => { const c = [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none' && x.querySelector('.qmu-sel'))[0];
+      return c ? { n: [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none').length, tit: c.querySelector('h3').textContent.trim(), precio: c.querySelector('.price').textContent.replace(/\s/g, ''),
+        med: [...c.querySelectorAll('select[data-qmu-d="m"] option')].map(o => o.textContent), col: [...c.querySelectorAll('select[data-qmu-d="c"] option')].map(o => o.textContent), cm: (c.querySelector('select[data-qmu-d="m"]') || {}).value, cc: (c.querySelector('select[data-qmu-d="c"]') || {}).value } : null });
+    const t1 = await tarj();
+    check('v482: las 4 combinaciones del sofá salen en UNA tarjeta, con el nombre sin medida ni color', !!t1 && t1.n === 2 && t1.tit === 'Sofá Milán' && t1.precio === '$990.000', JSON.stringify(t1));
+    check('v482: selector de medida («3 puestos» sin voltear) y de color, con la combinación agotada marcada', !!t1 && t1.med.join('/') === '2 puestos/3 puestos' && t1.col.join('/') === 'Gris/Beige (agotado)' && t1.cm === '2 puestos' && t1.cc === 'Gris', JSON.stringify(t1));
+    const pon = (d, v) => p.evaluate(([d, v]) => { const s = document.querySelector('select[data-qmu-d="' + d + '"]'); s.value = v; s.dispatchEvent(new Event('change', { bubbles: true })) }, [d, v]);
+    await pon('m', '3 puestos'); await p.waitForTimeout(300); const t2 = await tarj();
+    check('v482: al elegir 3 puestos conserva el color (Gris) y cambia el precio', !!t2 && t2.cm === '3 puestos' && t2.cc === 'Gris' && t2.precio === '$1.290.000' && t2.col.join('/') === 'Gris/Beige', JSON.stringify(t2));
+    await pon('c', 'Beige'); await p.waitForTimeout(300); const t3 = await tarj();
+    check('v482: al elegir Beige muestra el precio de 3 puestos Beige', !!t3 && t3.cm === '3 puestos' && t3.cc === 'Beige' && t3.precio === '$1.350.000', JSON.stringify(t3));
+    const car = await p.evaluate(() => { const c = [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none' && x.querySelector('.qmu-sel'))[0]; c.querySelector('.plus').click(); return Object.keys(S.cart) });
+    check('v482: el carrito lleva la combinación elegida', car.some(k => k.startsWith('mz|sm1-3-puestos-beige')), JSON.stringify(car));
+    const en = await p.evaluate(() => [...document.querySelectorAll('.qmu-enc')].map(x => x.textContent));
+    check('v482: el comedor por encargo dice «Por encargo · entrega en 20 días»', en.length === 1 && en[0] === 'Por encargo · entrega en 20 días', JSON.stringify(en));
+    check('v481: «Mueblerías» en el grupo «Hogar y decoración» sigue siendo mueblería', await p.evaluate(() => !!document.querySelector('.qhmue-m') && window.qhMuebleCat('Mueblerías')));
+    if (process.env.FOTO_V482) { await p.evaluate(() => document.querySelector('.qmu-sel').closest('.prod').scrollIntoView({ block: 'center' })); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V482 }) }
+    sinErrores(p, 'Mueblería: medida y color'); await p.cerrar();
   },
 };
 

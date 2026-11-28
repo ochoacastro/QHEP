@@ -11,7 +11,8 @@ var CAT_GRP=[
  ['Salud',[['Droguerías','💊','#1E6FBF']]],
  ['Moda',[['Ropa y calzado','👕','#4A4A6A'],['Joyas, relojes y accesorios','💍','#A16207']]],
  ['Tecnología',[['Celulares y computadores','📱','#C0392B'],['Electrodomésticos','🔌','#2B3A55']]],
- ['Hogar y construcción',[['Hogar y decoración','🛋️','#9A3412'],['Ferreterías','🔧','#B45309'],['Cacharrerías y misceláneas','🛍️','#475569']]],
+ ['Hogar y decoración',[['Hogar y decoración','🛋️','#9A3412']]],/* v481: antes subcategoría de «Hogar y construcción»; aquí van las Mueblerías */
+ ['Construcción',[['Ferreterías','🔧','#B45309'],['Cacharrerías y misceláneas','🛍️','#475569']]],/* v481: antes «Hogar y construcción» */
  ['Papelería y libros',[['Papelerías y librerías','📚','#6D28D9']]],
  ['Mascotas y agro',[['Mascotas y veterinarias','🐶','#A0551A'],['Acuarios y peces','🐟','#0369A1'],['Agro y jardinería','🌱','#15803D']]],/* v283: Acuarios y peces */
  ['Niños',[['Bebés y niños','🍼','#DB2777'],['Juguetes y videojuegos','🧸','#C2410C']]],

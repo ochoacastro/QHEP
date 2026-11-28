@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' data: blob: https://*.googleapis.com https://*.google.com https://*.gstatic.com https://*.workers.dev; frame-src https://www.google.com https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="description" content="Inventario de mueblería en Mi Pradera: muebles con sus medidas y colores, pedidos por encargo y la tienda.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/icon-192.png">
+<title>Inventario mueblería</title>
+<style>
+/* v482: INVENTARIO DE MUEBLERÍA (mipradera.com.co/muebleria). Página aparte del inventario de ferretería (ferreteria.html).
+   Idea: la sala de exhibición de una mueblería. Cada mueble es una ficha con su tabla de existencias por medida y color
+   (la medida escrita como en la tienda, «140 x 190 | Doble»); los pedidos por encargo llevan abono, saldo, fecha de entrega
+   y estado. Colores de la tienda de mueblería (v478): azul marino, blanco y gris azulado; rojo para agotado y saldo. Letra Roboto. */
+@font-face{font-family:RobotoMP;src:url(/fuentes/roboto-latin.woff2) format('woff2');font-weight:100 900;font-display:swap}
+:root{--a:#103f8d;--a2:#0b2f6b;--ink:#121a2f;--mute:#5a6377;--mist:#f4f5f9;--line:#e4e7f0;--paper:#fff;--red:#c8102e;--ok:#1f7a4d;--warn:#9a5b00;--sel:#e8eefb;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--a:#7fa2ec;--a2:#a9c0f3;--ink:#eef1f7;--mute:#a1aabb;--mist:#161c2a;--line:#283147;--paper:#0e1320;--red:#ff6b7d;--ok:#5cc58d;--warn:#f0b35a;--sel:#1c2a4a;color-scheme:dark}}
+:root[data-theme="dark"]{--a:#7fa2ec;--a2:#a9c0f3;--ink:#eef1f7;--mute:#a1aabb;--mist:#161c2a;--line:#283147;--paper:#0e1320;--red:#ff6b7d;--ok:#5cc58d;--warn:#f0b35a;--sel:#1c2a4a;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--mist);color:var(--ink);font:400 16px/1.45 RobotoMP,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--a)}
+[hidden]{display:none!important}
+.wrap{width:min(1080px,100%);margin-inline:auto;padding-inline:16px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+/* barra superior */
+.top{background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.top .wrap{display:flex;align-items:center;gap:12px;min-height:64px;padding-block:8px}
+.brand{flex:1;min-width:0}
+.brand b{display:block;font-size:19px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand span{display:block;color:var(--mute);font-size:14px}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+/* botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font-weight:500;font-size:15px;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--a)}
+.btn.pri{background:var(--a);border-color:var(--a);color:#fff}
+:root[data-theme="dark"] .btn.pri{color:#0e1320}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.pri{color:#0e1320}}
+.btn.pri:hover{background:var(--a2);border-color:var(--a2)}
+.btn.sm{min-height:38px;padding:7px 12px;font-size:14px}
+.btn.lnk{border-color:transparent;background:none;color:var(--a);padding-inline:8px}
+.btn.dng{color:var(--red)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:active:not(:disabled){transform:scale(.98)}
+.icb{width:44px;height:44px;padding:0;border-radius:10px}
+/* pestañas */
+.tabs{background:var(--paper);border-bottom:1px solid var(--line)}
+.tabs .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tab{position:relative;flex:none;min-height:50px;padding:0 14px;border:0;background:none;color:var(--mute);font-weight:500;font-size:15px;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--a);font-weight:700}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--a)}
+.tab .n{display:inline-block;min-width:22px;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--mist);color:var(--ink);font-size:13px;font-weight:500}
+.tab .n:empty{display:none}
+@media (max-width:440px){.tabs .wrap{gap:0;padding-inline:8px}.tab{padding:0 8px;font-size:14px}.tab .n{margin-left:4px;padding:1px 6px}}
+main{padding-block:18px 110px}
+/* resumen */
+.sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.sum div{background:var(--paper);padding:12px 14px}
+.sum small{display:block;color:var(--mute);font-size:13px}
+.sum b{display:block;font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.sum .r b{color:var(--red)}
+@media (max-width:620px){.sum{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.bar .q{flex:1 1 220px;min-width:0}
+input.in,select.in,textarea.in{width:100%;min-height:46px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper)}
+textarea.in{min-height:84px;resize:vertical}
+input.in:focus,select.in:focus,textarea.in:focus{border-color:var(--a);outline:0;box-shadow:0 0 0 3px var(--sel)}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chip{flex:none;min-height:38px;padding:6px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);font-size:14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+/* fichas */
+.list{display:grid;gap:12px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px}
+.fh{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start}
+.ph{width:96px;aspect-ratio:1;border-radius:12px;background:var(--mist);display:grid;place-items:center;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph svg{width:60%;height:auto;stroke:var(--mute)}
+.fn{margin:0;font-size:18px;font-weight:700;line-height:1.25}
+.fm{margin:2px 0 0;color:var(--mute);font-size:14px}
+.pr{margin:6px 0 0;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.pr s{margin-left:8px;color:var(--mute);font-weight:400;font-size:15px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tg{display:inline-flex;align-items:center;gap:6px;min-height:26px;padding:2px 10px;border-radius:999px;background:var(--mist);font-size:13px}
+.tg.r{background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red)}
+.tg.e{background:var(--sel);color:var(--a)}
+.tg.o{border:1px dashed var(--line);background:none;color:var(--mute)}
+/* la tabla de existencias: medidas en filas, colores en columnas */
+.mx{margin-top:12px;overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.mx table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.mx th,.mx td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap;font-size:14px}
+.mx tr:last-child th,.mx tr:last-child td{border-bottom:0}
+.mx thead th{background:var(--mist);font-weight:500;color:var(--mute)}
+.mx tbody th{text-align:left;font-weight:500}
+.mx td b{font-size:17px}
+.mx td.z b{color:var(--red)}
+.mx td small{display:block;color:var(--mute);font-size:12px}
+.sw{display:inline-block;width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.18);vertical-align:-2px;margin-right:6px}
+.fa{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.empty{background:var(--paper);border:1px dashed var(--line);border-radius:16px;padding:28px 18px;text-align:center}
+.empty b{display:block;font-size:19px;margin-bottom:6px}
+.empty p{margin:0 auto 14px;max-width:46ch;color:var(--mute)}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:15;box-shadow:0 8px 24px rgba(16,63,141,.28)}
+/* pedidos */
+.po{display:grid;gap:10px}
+.poh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;align-items:baseline}
+.poh b{font-size:18px}
+.st{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:500;background:var(--mist)}
+.st::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.st.fabricar{color:var(--warn)}.st.listo{color:var(--a)}.st.camino{color:var(--a)}.st.entregado{color:var(--ok)}.st.cancelado{color:var(--mute)}
+.pl{margin:0;padding:0;list-style:none;font-size:15px}
+.pl li{display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px dashed var(--line)}
+.pl li:last-child{border-bottom:0}
+.money{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-variant-numeric:tabular-nums}
+.money div{background:var(--mist);border-radius:10px;padding:8px 10px}
+.money small{display:block;color:var(--mute);font-size:12px}
+.money b{font-size:16px}
+.money .r b{color:var(--red)}
+.when{color:var(--mute);font-size:14px}
+.when.late{color:var(--red);font-weight:500}
+/* movimientos */
+.day{margin:18px 0 8px;font-size:14px;color:var(--mute);font-weight:500}
+.mv{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 14px;background:var(--paper);border:1px solid var(--line);border-bottom-width:0}
+.mv:first-of-type{border-radius:12px 12px 0 0}
+.mvs .mv:last-child{border-bottom-width:1px;border-radius:0 0 12px 12px}
+.mvs .mv:only-child{border-radius:12px}
+.mv .q2{font-weight:700;font-variant-numeric:tabular-nums}
+.mv .q2.in{color:var(--ok)}.mv .q2.out{color:var(--red)}
+.mv small{display:block;color:var(--mute);font-size:13px}
+/* tienda */
+.pub{display:grid;gap:12px}
+.pub p{margin:0;color:var(--mute)}
+/* acceso y patrón */
+.gate{max-width:440px;margin:40px auto;padding:24px 20px;background:var(--paper);border:1px solid var(--line);border-radius:18px;text-align:center}
+.gate h1{margin:0 0 8px;font-size:24px}
+.gate p{margin:0 0 14px;color:var(--mute)}
+.gate form{display:grid;gap:12px;text-align:left}
+.gate .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.err{min-height:1.3em;margin:0;color:var(--red);font-size:14px}
+.pad{position:relative;width:min(280px,100%);aspect-ratio:1;margin:12px auto 6px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);touch-action:none;user-select:none;-webkit-user-select:none;background:var(--mist);border:1px solid var(--line);border-radius:16px}
+.pad svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.pad svg path{fill:none;stroke:var(--a);stroke-width:6;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+.pad.ok svg path{stroke:var(--ok)}.pad.bad svg path{stroke:var(--red)}
+.pd{position:relative;border:0;background:none;cursor:pointer}
+.pd::before{content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--paper);border:2px solid var(--mute)}
+.pd.on::before{background:var(--a);border-color:var(--a);transform:scale(1.25)}
+.pad.ok .pd.on::before{background:var(--ok);border-color:var(--ok)}.pad.bad .pd.on::before{background:var(--red);border-color:var(--red)}
+.pad[aria-disabled=true]{opacity:.55}
+.lkst{min-height:1.4em;margin:6px 0 10px;font-size:15px}.lkst.bad{color:var(--red)}
+/* ventanas */
+dialog{width:min(640px,100% - 24px);max-height:calc(100dvh - 24px);padding:0;border:0;border-radius:18px;background:var(--paper);color:var(--ink);box-shadow:0 24px 60px rgba(12,20,40,.3)}
+dialog::backdrop{background:rgba(10,16,32,.5)}
+@media (max-width:620px){dialog{width:100%;max-width:100%;margin:auto 0 0;border-radius:18px 18px 0 0;max-height:94dvh}}
+.dh{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:2}
+.dh h2{flex:1;margin:0;font-size:19px}
+.db{padding:16px;display:grid;gap:14px}
+.df{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);position:sticky;bottom:0;background:var(--paper)}
+.f{display:grid;gap:6px}
+.f>span{font-size:14px;font-weight:500}
+.f>span em{font-style:normal;font-weight:400;color:var(--mute)}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:480px){.g2{grid-template-columns:1fr}}
+fieldset{margin:0;padding:0;border:0;display:grid;gap:8px}
+legend{padding:0;margin-bottom:6px;font-size:14px;font-weight:500}
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick label{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 12px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer;font-size:14px}
+.pick label:has(input:checked){border-color:var(--a);background:var(--sel)}
+.pick input{accent-color:var(--a);width:18px;height:18px;margin:0}
+.addrow{display:flex;gap:8px}
+.addrow .in{flex:1;min-width:0}
+.cl{display:flex;flex-wrap:wrap;gap:8px}
+.cl span{display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:4px 6px 4px 12px;border-radius:999px;background:var(--mist);font-size:14px}
+.cl button{width:30px;height:30px;border:0;border-radius:50%;background:none;cursor:pointer;color:var(--mute)}
+.fotos{display:flex;flex-wrap:wrap;gap:8px}
+.fotos .ph{width:80px;position:relative}
+.fotos .ph button{position:absolute;top:4px;right:4px;width:28px;height:28px;border:0;border-radius:50%;background:rgba(10,16,32,.7);color:#fff;cursor:pointer}
+.fotos label.ph{cursor:pointer;border:1.5px dashed var(--line);color:var(--mute);font-size:13px;text-align:center;padding:6px}
+.mxe td{padding:4px}
+.mxe input{width:76px;min-height:40px;text-align:center;border:1.5px solid var(--line);border-radius:8px;background:var(--paper);font-variant-numeric:tabular-nums}
+.sw2{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:46px}
+.sw2 input{width:22px;height:22px;accent-color:var(--a)}
+.lines{display:grid;gap:10px}
+.line{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:12px}
+.line .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tot{display:flex;justify-content:space-between;align-items:baseline;font-size:17px}
+.tot b{font-size:22px;font-variant-numeric:tabular-nums}
+.note{padding:12px 14px;border-radius:12px;background:var(--sel);color:var(--ink);font-size:15px}
+.note.r{background:color-mix(in srgb,var(--red) 10%,transparent)}
+.note button{margin-top:8px}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;max-width:min(520px,calc(100% - 32px));padding:12px 18px;border-radius:12px;background:var(--ink);color:var(--paper);font-size:15px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+body.ro .w{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="brand"><b id="tNom">Mueblería</b><span id="tSub">Inventario</span></div>
+  <a class="btn sm" id="verT" href="/" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-6 9 6v10H3z"/><path d="M9 20v-6h6v6"/></svg><span>Ver tienda</span></a>
+  <button class="btn icb" type="button" id="bloq" aria-label="Bloquear" title="Bloquear" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
+</div></header>
+
+<section id="gate" class="wrap"><div class="gate"><h1 id="gT">Inventario de mueblería</h1><p id="gMsg">Comprobando tu acceso…</p><div id="gBox"></div></div></section>
+
+<section id="lock" class="wrap" hidden><div class="gate">
+  <h1 id="lkT">Dibuja tu patrón</h1><p id="lkMsg"></p>
+  <div class="pad" id="pad" role="group" aria-label="Patrón de acceso: une al menos 4 puntos"><svg id="padSvg" aria-hidden="true"></svg></div>
+  <p class="lkst" id="lkSt" role="status" aria-live="polite"></p>
+  <div class="row"><button class="btn pri" type="button" id="lkGo" hidden>Entrar</button><button class="btn" type="button" id="lkCancel" hidden>Cancelar</button><a class="btn" id="lkBack" href="/">Volver a la tienda</a></div>
+</div></section>
+
+<div id="app" hidden>
+  <nav class="tabs" aria-label="Secciones"><div class="wrap" role="tablist">
+    <button class="tab" role="tab" data-v="muebles" aria-selected="true">Muebles<span class="n" id="nM"></span></button>
+    <button class="tab" role="tab" data-v="pedidos" aria-selected="false">Pedidos<span class="n" id="nP"></span></button>
+    <button class="tab" role="tab" data-v="movimientos" aria-selected="false">Movimientos</button>
+    <button class="tab" role="tab" data-v="tienda" aria-selected="false">Tienda</button>
+  </div></nav>
+  <main class="wrap">
+    <div id="aviso"></div>
+    <section id="v-muebles"></section>
+    <section id="v-pedidos" hidden></section>
+    <section id="v-movimientos" hidden></section>
+    <section id="v-tienda" hidden></section>
+  </main>
+  <button class="btn pri fab w" type="button" id="fab"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span id="fabT">Nuevo mueble</span></button>
+</div>
+
+<dialog id="dF" aria-labelledby="dFT"><form id="fF" novalidate>
+  <div class="dh"><h2 id="dFT">Nuevo mueble</h2><button class="btn icb" type="button" data-close aria-label="Cerrar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="db">
+    <div class="f"><span>Fotos <em>(hasta 6; la primera es la principal)</em></span><div class="fotos" id="fFotos"></div></div>
+    <label class="f"><span>Nombre</span><input class="in" id="fNom" maxlength="90" required placeholder="Ej.: Sofá Milán 3 puestos"></label>
+    <div class="g2">
+      <label class="f"><span>Categoría</span><select class="in" id="fCat"></select></label>
+      <label class="f"><span>Referencia <em>(opcional)</em></span><input class="in" id="fRef" maxlength="30" placeholder="Ej.: SM-301"></label>
+    </div>
+    <div class="g2">
+      <label class="f"><span>Material <em>(opcional)</em></span><input class="in" id="fMat" maxlength="60" placeholder="Ej.: Tela antifluidos, madera de pino"></label>
+      <label class="f"><span>Garantía <em>(meses, opcional)</em></span><input class="in" id="fGar" inputmode="numeric" maxlength="3" placeholder="Ej.: 12"></label>
+    </div>
+    <label class="f"><span>Descripción <em>(opcional)</em></span><textarea class="in" id="fDes" maxlength="600" placeholder="Lo que el cliente debe saber: firmeza, cuidados, armado…"></textarea></label>
+    <fieldset><legend>Medidas</legend><div class="pick" id="fMed"></div>
+      <div class="addrow"><input class="in" id="fMedO" maxlength="30" placeholder="Otra medida, ej.: 3 puestos o 1,80 m" aria-label="Otra medida"><button class="btn" type="button" id="fMedAdd">Agregar</button></div>
+      <div class="cl" id="fMedL"></div></fieldset>
+    <fieldset><legend>Colores o telas</legend>
+      <div class="addrow"><input class="in" id="fColO" maxlength="30" placeholder="Ej.: Gris, Beige, Café" aria-label="Color o tela"><button class="btn" type="button" id="fColAdd">Agregar</button></div>
+      <div class="cl" id="fColL"></div></fieldset>
+    <div class="g2">
+      <label class="f"><span>Precio</span><input class="in" id="fPre" inputmode="numeric" maxlength="14" placeholder="$ 0"></label>
+      <label class="f"><span>Precio antes <em>(para mostrar descuento)</em></span><input class="in" id="fAnt" inputmode="numeric" maxlength="14" placeholder="$ 0"></label>
+    </div>
+    <div class="f" id="fPmW" hidden><span>Precio por medida <em>(vacío = el precio de arriba)</em></span><div class="mx mxe" id="fPm"></div></div>
+    <div class="f" id="fStW"><span>Existencias iniciales <em>(cuántos hay de cada medida y color)</em></span><div class="mx mxe" id="fSt"></div></div>
+    <p class="note" id="fStN" hidden>Las existencias se cambian con «Entrada» y «Salida», así queda el registro de cada movimiento.</p>
+    <label class="sw2"><span>Se fabrica por encargo<br><small class="fm">Se puede pedir aunque no haya en la bodega.</small></span><input type="checkbox" id="fEnc"></label>
+    <label class="f" id="fDiasW" hidden><span>Días de entrega por encargo</span><input class="in" id="fDias" inputmode="numeric" maxlength="3" placeholder="Ej.: 20"></label>
+    <label class="sw2"><span>Mostrar en la tienda</span><input type="checkbox" id="fVis" checked></label>
+    <p class="err" id="fErr" role="alert"></p>
+  </div>
+  <div class="df"><button class="btn dng" type="button" id="fDel" hidden>Eliminar</button><span style="flex:1"></span><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit" id="fOk">Guardar</button></div>
+</form></dialog>
+
+<dialog id="dM" aria-labelledby="dMT"><form id="fM" novalidate>
+  <div class="dh"><h2 id="dMT">Entrada</h2><button class="btn icb" type="button" data-close aria-label="Cerrar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="db">
+    <p class="fm" id="mNom"></p>
+    <div class="g2"><label class="f" id="mMedW"><span>Medida</span><select class="in" id="mMed"></select></label><label class="f" id="mColW"><span>Color o tela</span><select class="in" id="mCol"></select></label></div>
+    <p class="fm" id="mHay"></p>
+    <div class="g2"><label class="f"><span>Cantidad</span><input class="in" id="mCant" inputmode="numeric" maxlength="4" value="1"></label><label class="f"><span>Motivo</span><select class="in" id="mMot"></select></label></div>
+    <label class="f"><span>Nota <em>(opcional)</em></span><input class="in" id="mNota" maxlength="120" placeholder="Ej.: factura 1234, cliente Juan"></label>
+    <p class="err" id="mErr" role="alert"></p>
+  </div>
+  <div class="df"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit" id="mOk">Registrar</button></div>
+</form></dialog>
+
+<dialog id="dP" aria-labelledby="dPT"><form id="fP" novalidate>
+  <div class="dh"><h2 id="dPT">Nuevo pedido</h2><button class="btn icb" type="button" data-close aria-label="Cerrar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="db">
+    <div class="g2"><label class="f"><span>Cliente</span><input class="in" id="pCli" maxlength="60" autocomplete="off" required></label><label class="f"><span>Celular</span><input class="in" id="pCel" inputmode="tel" maxlength="16" placeholder="300 123 4567"></label></div>
+    <label class="f"><span>Dirección de entrega</span><input class="in" id="pDir" maxlength="120" placeholder="Barrio, calle, número, apartamento"></label>
+    <div class="g2"><label class="f"><span>Fecha de entrega</span><input class="in" id="pFec" type="date"></label>
+      <label class="f"><span>Sale de</span><select class="in" id="pOri"><option value="bodega">La bodega (lo que ya hay)</option><option value="encargo">Encargo (se fabrica)</option></select></label></div>
+    <div class="f"><span>Muebles del pedido</span><div class="lines" id="pLines"></div><button class="btn" type="button" id="pAdd">Agregar otro mueble</button></div>
+    <div class="tot"><span>Total</span><b id="pTot">$ 0</b></div>
+    <div class="g2" id="pAboW"><label class="f"><span>Abono inicial</span><input class="in" id="pAbo" inputmode="numeric" maxlength="14" placeholder="$ 0"></label><div class="f"><span>Saldo</span><b id="pSal" style="font-size:20px;padding-top:8px">$ 0</b></div></div>
+    <label class="f"><span>Nota <em>(opcional)</em></span><textarea class="in" id="pNota" maxlength="300" placeholder="Ej.: subir por escaleras, llamar antes"></textarea></label>
+    <p class="err" id="pErr" role="alert"></p>
+  </div>
+  <div class="df"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit" id="pOk">Guardar pedido</button></div>
+</form></dialog>
+
+<dialog id="dA" aria-labelledby="dAT" style="width:min(440px,100% - 24px)"><form id="fA" novalidate>
+  <div class="dh"><h2 id="dAT">Registrar abono</h2><button class="btn icb" type="button" data-close aria-label="Cerrar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="db"><p class="fm" id="aInfo"></p>
+    <label class="f"><span>Valor</span><input class="in" id="aVal" inputmode="numeric" maxlength="14" placeholder="$ 0"></label>
+    <label class="f"><span>Nota <em>(opcional)</em></span><input class="in" id="aNota" maxlength="80" placeholder="Ej.: transferencia, efectivo"></label>
+    <p class="err" id="aErr" role="alert"></p></div>
+  <div class="df"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Registrar abono</button></div>
+</form></dialog>
+
+<dialog id="dC" aria-labelledby="dCT" style="width:min(440px,100% - 24px)">
+  <div class="dh"><h2 id="dCT">Confirmar</h2></div>
+  <div class="db"><p id="cMsg" style="margin:0"></p></div>
+  <div class="df"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="button" id="cOk">Sí</button></div>
+</dialog>
+
+<div id="toast" role="status" hidden></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
+<script>
+/* v482: programa del inventario de mueblería.
+   Datos (los mismos permisos del inventario de ferretería, reglas v52 + v53):
+     fer/<uid>/productos/<id>  ficha de un mueble: { tipo:'mue', nombre, ref, categoria, material, garantia, desc, fotos[], precio, antes,
+                               medidas[], colores[], precios[{m,p}], vars[{m,c,s}] (existencias de cada medida y color), stock (total),
+                               enc (se fabrica por encargo), dias (de entrega), oculto, creado, actualizado }
+     fer/<uid>/dias/<aaaa-mm-dd> movimientos del día: { dia, items[{ t, pid, nombre, m, c, tipo:'entrada'|'salida', cant, motivo, nota, mue:1 }] }
+     fer/<uid>/pedidos/<id>      pedido: { num, cliente, cel, dir, fecha, origen:'bodega'|'encargo', items[{pid,nombre,m,c,cant,precio}], total,
+                               abonos[{t,v,nota}], estado:'fabricar'|'listo'|'camino'|'entregado'|'cancelado', nota, descontado, creado, actualizado }
+     fer/<uid>/sys/config|acceso  nombre, sid (la tienda de Mi Pradera), pedNum; patrón de acceso (el mismo del inventario de ferretería)
+   «Publicar tienda» escribe en Mi Pradera products/<tienda>__<id>-<n>, una por cada medida y color, con ferG (el mueble), ferM (medida),
+   ferC (color), ferN (nombre sin medida), ferCat (subcategoría del menú v479), ferE (días si es por encargo), old (precio antes).
+   La tienda de Mi Pradera (v478-v480) las junta en una tarjeta con los selectores de medida y color. */
+(async () => {
+const CFG = { apiKey: 'AIzaSyAeKBOFG5nBIfL1tJoLW4JiKmzySiEoNAg', authDomain: 'qhep-b812f.firebaseapp.com', projectId: 'qhep-b812f', storageBucket: 'qhep-b812f.firebasestorage.app', messagingSenderId: '799855828473', appId: '1:799855828473:web:ce1060358a18820dbbb128' };
+const ADMIN_UID = 'KUowZZ25CePVc9IXGmhCLVbbSIB3';
+const R2_WORKER = 'https://flat-lab-b020subir-imagenes.ronaldochoacastro.workers.dev';
+const RC_ENT = '6LcaDhguAAAAAEuRH9ah74jx2wRLAY4UY6xvUf18';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const MON = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+const fm = v => MON.format(Math.round(+v || 0));
+const pMoney = s => { const t = String(s ?? '').replace(/[^\d]/g, ''); return t ? +t : 0; };
+const pInt = s => { const t = String(s ?? '').replace(/[^\d]/g, ''); return t ? +t : NaN; };
+const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+const slug = x => norm(x).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).replace(/-+$/, '');
+const nid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const pad2 = n => String(n).padStart(2, '0');
+const dayKey = d => { const x = new Date(d); return `${x.getFullYear()}-${pad2(x.getMonth() + 1)}-${pad2(x.getDate())}`; };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const MEDIDAS = ['Sencillo 100 x 190', 'Semidoble 120 x 190', 'Doble 140 x 190', 'Queen 160 x 190', 'King 200 x 200'];
+const ORD = ['Sencillo', 'Semidoble', 'Doble', 'Queen', 'King'];
+/* «Doble 140 x 190» se escribe como en la tienda: «140 x 190 | Doble»; otras medidas («3 puestos») quedan igual */
+const medTx = m => { const r = /^(Sencillo|Semidoble|Doble|Queen|King) (\d+ x \d+)$/.exec(m || ''); return r ? r[2] + ' | ' + r[1] : String(m || ''); };
+const medOrd = m => { const i = ORD.indexOf(String(m || '').split(' ')[0]); return i < 0 ? 99 : i; };
+const MEDIDA_RE = /\s*\(((?:Sencillo|Semidoble|Doble|Queen|King) \d+ x \d+)\)$/;
+/* las subcategorías del menú de la tienda (window.QH_MUE en v479-muebleria-categorias.js: si cambian allá, cambiarlas aquí) */
+const GRUPOS = [['Colchones', ['Colchones de una cara', 'Colchones de dos caras']], ['Combos de colchón', ['Colchón y base cama', 'Colchón y cama tapizada', 'Colchón y cama de madera', 'Colchón y cama nido', 'Colchón y nocheros']], ['Alcobas', ['Camas y bases', 'Mesas de noche', 'Camarotes', 'Clósets', 'Tocadores']], ['Salas', ['Sofás', 'Sofá camas', 'Sofás en L', 'Combos de salas', 'Modulares', 'Sillas, poltronas y puff', 'Sillas reclinables', 'Mesas de centro']], ['Comedores', ['Comedores de 4 puestos', 'Comedores de 6 puestos', 'Mesas de comedor', 'Sillas de comedor']], ['Ropa de cama', ['Almohadas', 'Protectores', 'Sábanas', 'Duvets', 'Plumones y cobijas', 'Cojines', 'Tapetes']]];
+const MOT = { entrada: ['Compra a proveedor', 'Fabricado en el taller', 'Devolución de cliente', 'Inventario inicial', 'Ajuste de inventario'], salida: ['Venta', 'Daño o exhibición', 'Devolución a proveedor', 'Ajuste de inventario'] };
+const ESTADOS = [['fabricar', 'Por fabricar'], ['listo', 'Listo para entregar'], ['camino', 'En camino'], ['entregado', 'Entregado'], ['cancelado', 'Cancelado']];
+const estTx = e => (ESTADOS.find(x => x[0] === e) || ESTADOS[0])[1];
+/* colores de muestra para los nombres más comunes; los demás salen en gris */
+const HEX = { gris: '#8a8f99', 'gris claro': '#c5c9d0', 'gris oscuro': '#4a4f58', grafito: '#3c4048', negro: '#1d1d1f', blanco: '#f7f7f5', hueso: '#ece6d6', crema: '#efe3c8', beige: '#d9c7a7', arena: '#cdb994', cafe: '#6b4a32', chocolate: '#4a2f22', miel: '#b07a3b', roble: '#a57844', nogal: '#6e4b2e', wengue: '#3d2a20', natural: '#c9a77a', azul: '#2f5aa8', 'azul oscuro': '#1d2f5c', 'azul claro': '#8fb3e0', verde: '#3f7d55', 'verde oliva': '#6b7a3a', rojo: '#b3262e', vino: '#6d1f2c', mostaza: '#c99a2e', terracota: '#b8613d', rosado: '#e3a3b5', naranja: '#e07a2f', amarillo: '#e8c33a', morado: '#6a4a8c', plata: '#b9bec6', dorado: '#c6a24a' };
+const hexDe = c => HEX[norm(c)] || HEX[norm(c).split(' ')[0]] || '#9aa1ad';
+const swatch = c => c ? `<i class="sw" style="background:${hexDe(c)}" aria-hidden="true"></i>` : '';
+const ILL = '<svg viewBox="0 0 64 44" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 30V20a4 4 0 0 1 4-4h40a4 4 0 0 1 4 4v10"/><path d="M4 24a4 4 0 0 1 8 0v8h40v-8a4 4 0 0 1 8 0v12H4z"/><path d="M10 36v4M54 36v4"/></svg>';
+const foto = (p, alt = '') => p.fotos && p.fotos[0] ? `<img src="${esc(p.fotos[0])}" alt="${esc(alt)}" loading="lazy" decoding="async">` : ILL;
+const toast = (t, ms = 2600) => { const e = $('#toast'); e.textContent = t; e.hidden = false; clearTimeout(toast.k); toast.k = setTimeout(() => { e.hidden = true; }, ms); };
+const PAG = location.pathname.replace(/\.html$/, '');
+const qs = new URLSearchParams(location.search);
+const gate = (msg, html = '', titulo) => { $('#gate').hidden = false; $('#lock').hidden = true; $('#app').hidden = true; if (titulo) $('#gT').textContent = titulo; $('#gMsg').textContent = msg; $('#gBox').innerHTML = html; };
+
+/* ---------- Conexión y acceso ---------- */
+let fs, auth;
+try {
+  firebase.initializeApp(CFG);
+  if (/(^|\.)mipradera\.com\.co$/.test(location.hostname) && firebase.appCheck) { try { firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(RC_ENT), true); } catch (e) {} }
+  fs = firebase.firestore(); fs.settings({ ignoreUndefinedProperties: true });
+  auth = firebase.auth(); auth.languageCode = 'es';
+} catch (e) { gate('No se pudo conectar con Mi Pradera. Revisa tu conexión y vuelve a cargar la página.'); return; }
+const FV = firebase.firestore.FieldValue;
+const cu = await new Promise(ok => { const un = auth.onAuthStateChanged(u => { un(); ok(u); }); });
+const me = cu && !cu.isAnonymous ? cu : null;
+const salir = '<button class="btn" type="button" id="qhOut">Cerrar sesión</button>';
+const fallo = e => ({ 'auth/invalid-credential': 'El correo, el celular o la clave no coinciden.', 'auth/wrong-password': 'El correo, el celular o la clave no coinciden.', 'auth/user-not-found': 'El correo, el celular o la clave no coinciden.', 'auth/invalid-email': 'Escribe un correo o un celular de 10 números.', 'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos e intenta de nuevo.', 'auth/network-request-failed': 'Sin conexión. Revisa tu internet e intenta de nuevo.' }[e?.code] || 'No se pudo entrar. Intenta de nuevo.');
+const cuenta = v => { v = String(v || '').trim().toLowerCase(); if (v.includes('@')) return v; let d = v.replace(/\D/g, ''); if (d.length === 12 && d.startsWith('57')) d = d.slice(2); return d.length === 10 ? d + '@cel.qhep.app' : ''; };
+document.addEventListener('submit', async e => {
+  if (e.target.id !== 'qhLogin') return; e.preventDefault();
+  const E = $('#qhErr'), b = e.target.querySelector('[type=submit]'), em = cuenta($('#qhU').value), pw = $('#qhP').value;
+  E.textContent = '';
+  if (!em) { E.textContent = 'Escribe un correo o un celular de 10 números.'; return; }
+  if (!pw) { E.textContent = 'Escribe tu clave.'; return; }
+  b.disabled = true;
+  try { await auth.signInWithEmailAndPassword(em, pw); location.reload(); } catch (x) { E.textContent = fallo(x); b.disabled = false; }
+});
+document.addEventListener('click', async e => {
+  const g = e.target.closest('#qhG,#qhOut'); if (!g) return;
+  if (g.id === 'qhOut') { if (!confirm('Se cerrará tu sesión de Mi Pradera en este navegador. ¿Continuar?')) return; try { await auth.signOut(); } catch (x) {} location.reload(); return; }
+  const E = $('#qhErr'); E.textContent = '';
+  try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); location.reload(); }
+  catch (x) {
+    if (x?.code === 'auth/popup-blocked' || x?.code === 'auth/operation-not-supported-in-this-environment') { try { await auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); return; } catch (y) {} }
+    if (x?.code !== 'auth/popup-closed-by-user' && x?.code !== 'auth/cancelled-popup-request') E.textContent = fallo(x);
+  }
+});
+if (!me) {
+  gate('Entra con tu cuenta de Mi Pradera para manejar el inventario de tu mueblería.', `<form id="qhLogin" novalidate>
+    <label class="f"><span>Correo o celular</span><input class="in" id="qhU" autocomplete="username" inputmode="email" required></label>
+    <label class="f"><span>Clave</span><input class="in" id="qhP" type="password" autocomplete="current-password" required></label>
+    <p class="err" id="qhErr" role="alert"></p>
+    <div class="row"><button class="btn pri" type="submit">Entrar</button><button class="btn" type="button" id="qhG">Entrar con Google</button></div>
+    <a href="/" style="text-align:center">¿No tienes cuenta u olvidaste tu clave? Hazlo en Mi Pradera</a></form>`);
+  return;
+}
+const verif = !me.providerData.some(p => p.providerId === 'password') || me.emailVerified;
+if (!verif) { gate('Tu correo aún no está verificado. Ábrelo con el enlace que Mi Pradera te envió al registrarte y vuelve a entrar.', `<div class="row">${salir}</div>`); return; }
+
+/* rol Comerciante: plans/<llave>, con la llave igual que key() de Mi Pradera (correo o celular) */
+const hex = async s => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join('');
+const ks = [];
+{ const em = String(me.email || '').toLowerCase(); if (em) ks.push(await hex('mail:' + em)); const c = /^(\d{10})@cel\.qhep\.app$/.exec(em); if (c) ks.push(await hex('wa:' + c[1])); const ph = /^\+57(\d{10})$/.exec(me.phoneNumber || ''); if (ph) ks.push(await hex('wa:' + ph[1])); }
+let rol = me.uid === ADMIN_UID, vencio = 0;
+for (const k of [...new Set(ks)]) { try { const s = await fs.doc('plans/' + k).get(); if (!s.exists) continue; const a = s.data().acc || {}, fin = Math.max(+a.merc || 0, +a.merc1 || 0); if (fin > Date.now()) rol = true; else vencio = Math.max(vencio, fin); } catch (e) {} }
+/* ¿la tienda es una mueblería? Igual que window.qhMuebleCat de Mi Pradera (v473 + v481): «mueble» o «colchón» en el nombre de la
+   subcategoría, dentro de los grupos «Hogar y decoración» o «Construcción» (antes «Hogar y construcción»), según meta/site.catGrp */
+const GRP_OK = ['Hogar y decoración', 'Construcción', 'Hogar y construcción'], GRP0 = ['Hogar y decoración', 'Ferreterías', 'Cacharrerías y misceláneas'];
+const VIEJO = { 'Hogar': 'Hogar y decoración', 'Muebles y decoración': 'Hogar y decoración', 'Ferretería': 'Ferreterías', 'Cacharrerías': 'Cacharrerías y misceláneas' };
+let catGrp = {}; try { const m = await fs.doc('meta/site').get(); const g = m.exists && m.data().catGrp; if (g && typeof g === 'object') catGrp = g; } catch (e) {}
+const esHogar = c => { c = VIEJO[c] || String(c || ''); return typeof catGrp[c] === 'string' ? GRP_OK.includes(catGrp[c]) : GRP0.includes(c); };
+const esMue = c => { c = VIEJO[c] || String(c || ''); return /muebl|colch[oó]n/i.test(c) && esHogar(c); };
+const raiz = 'fer/' + me.uid + '/';
+let cfg = {}, hay = false;
+try { const c = await fs.doc(raiz + 'sys/config').get(); hay = c.exists; cfg = c.exists ? c.data() : {}; } catch (e) {}
+const tiendas = [];
+{
+  const bus = [fs.collection('stores').where('ownerUid', '==', me.uid).get()];
+  if (ks.length) bus.push(fs.collection('stores').where('ownerKey', 'in', [...new Set(ks)].slice(0, 10)).get());
+  for (const r of await Promise.allSettled(bus)) if (r.status === 'fulfilled') r.value.forEach(d => { if (!tiendas.some(x => x.id === d.id)) tiendas.push({ ...d.data(), id: d.id }); });
+}
+const sQ = (qs.get('s') || '').replace(/[^A-Za-z0-9_-]/g, '');
+if (me.uid === ADMIN_UID && sQ && !tiendas.some(x => x.id === sQ)) { try { const d = await fs.doc('stores/' + sQ).get(); if (d.exists) tiendas.push({ ...d.data(), id: d.id }); } catch (e) {} }
+const mues = tiendas.filter(x => esMue(x.cat));
+const tienda = mues.find(x => x.id === sQ) || mues.find(x => x.id === cfg.sid) || mues[0] || null;
+const mpUrl = s => location.origin + '/?tienda=' + (slug(s.name) ? slug(s.name) + '-' : '') + encodeURIComponent(s.id);
+if (!tienda && !hay) {
+  const otra = tiendas.find(x => esHogar(x.cat));
+  gate('Este inventario es para las mueblerías: tu tienda en Mi Pradera debe estar en la subcategoría «Mueblerías» (grupo Hogar y decoración).', `<div class="row">${otra ? `<a class="btn pri" href="/ferreteria?s=${encodeURIComponent(otra.id)}#inventario">Abrir el inventario de ferretería</a>` : '<a class="btn pri" href="/?panel">Ir a Mi cuenta</a>'}${salir}</div>`);
+  return;
+}
+if (!rol && !hay) { gate('Para usar el inventario necesitas el rol Comerciante vigente en Mi Pradera' + (vencio ? ' (el tuyo venció el ' + new Date(vencio).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) + ').' : '.'), `<div class="row"><a class="btn pri" href="/#/roles">Ver planes y precios</a>${salir}</div>`); return; }
+const puede = rol && !!tienda;
+const ro = !puede ? (!rol ? 'Tu rol Comerciante no está activo: puedes ver tu inventario, pero no hacer cambios. Renuévalo en Mi Pradera, en Planes y precios.' : 'Tu tienda ya no está en la subcategoría de mueblerías: puedes ver tu inventario, pero no hacer cambios.') : '';
+document.body.classList.toggle('ro', !puede);
+$('#tNom').textContent = (tienda && tienda.name) || cfg.nombre || 'Mi mueblería';
+if (tienda) { const v = $('#verT'); v.href = mpUrl(tienda); v.hidden = false; $('#lkBack').href = mpUrl(tienda); }
+
+/* ---------- Datos ---------- */
+const st = { prods: new Map(), peds: new Map(), dias: new Map(), view: 'muebles', q: '', cat: '', pf: 'activos', got: 0 };
+const ref = p => fs.doc(raiz + p);
+const col = p => fs.collection(raiz + p);
+const mal = e => e?.code === 'permission-denied' ? 'No tienes permiso para hacer cambios en este inventario.' : e?.code === 'unavailable' ? 'Sin conexión. Revisa tu internet e intenta de nuevo.' : (e?.message || 'No se pudo guardar. Intenta de nuevo.');
+const lista = () => [...st.prods.values()].sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es'));
+const varsDe = p => { const ms = p.medidas && p.medidas.length ? p.medidas : [''], cs = p.colores && p.colores.length ? p.colores : ['']; return ms.flatMap(m => cs.map(c => ({ m, c, s: +((p.vars || []).find(v => v.m === m && v.c === c) || {}).s || 0 }))); };
+const total = p => varsDe(p).reduce((a, v) => a + v.s, 0);
+const agot = p => p.enc ? 0 : varsDe(p).filter(v => v.s <= 0).length;
+const precioDe = (p, m) => { const x = (p.precios || []).find(o => o.m === m); return x && +x.p ? +x.p : +p.precio || 0; };
+const saldo = o => Math.max(0, (+o.total || 0) - (o.abonos || []).reduce((a, x) => a + (+x.v || 0), 0));
+const abonado = o => (o.abonos || []).reduce((a, x) => a + (+x.v || 0), 0);
+
+/* ---------- Importar: productos puestos a mano en Mi Pradera y fichas del inventario de ferretería pasan a fichas de mueble ---------- */
+async function importar() {
+  const now = new Date().toISOString(); let n = 0;
+  const viejos = (await col('productos').get()).docs.filter(d => d.data().tipo !== 'mue' && !d.data().migrado);
+  const grupos = new Map();
+  viejos.forEach(d => { const p = d.data(), mm = MEDIDA_RE.exec(p.nombre || ''), base = mm ? p.nombre.slice(0, mm.index) : String(p.nombre || 'Mueble'), k = slug(base) + '|' + slug(p.categoria);
+    if (!grupos.has(k)) grupos.set(k, { base, p, ids: [], meds: [] }); const g = grupos.get(k); g.ids.push(d.id); g.meds.push({ m: mm ? mm[1] : '', s: +p.stock || 0, pr: +p.precio || 0, foto: p.foto }); });
+  for (const [, g] of grupos) {
+    const id = nid('m'), meds = g.meds.filter(x => x.m).map(x => x.m), precio = Math.min(...g.meds.map(x => x.pr).filter(Boolean), Infinity);
+    const f = { tipo: 'mue', nombre: g.base.slice(0, 90), ref: String(g.p.codigo || '').slice(0, 30), categoria: String(g.p.categoria || '').slice(0, 60), material: '', garantia: 0, desc: '', fotos: [...new Set(g.meds.map(x => x.foto).filter(u => /^https:\/\//.test(u || '')))].slice(0, 6), precio: isFinite(precio) ? precio : 0, antes: 0, medidas: meds, colores: [], precios: g.meds.filter(x => x.m && x.pr && x.pr !== precio).map(x => ({ m: x.m, p: x.pr })), vars: g.meds.map(x => ({ m: x.m, c: '', s: x.s })), enc: false, dias: 0, oculto: !!g.p.oculto, creado: now, actualizado: now };
+    f.stock = f.vars.reduce((a, v) => a + v.s, 0);
+    await ref('productos/' + id).set(f);
+    await Promise.all(g.ids.map(x => ref('productos/' + x).update({ migrado: id })));
+    n++;
+  }
+  if (tienda) {
+    const ds = (await fs.collection('products').where('sid', '==', tienda.id).get()).docs.filter(d => !d.data().fer);
+    for (const d of ds) {
+      /* con el mismo id del producto de Mi Pradera: al publicar se actualiza ese mismo producto y conserva sus calificaciones */
+      const p = d.data(), fotos = (p.imgs || []).filter(u => /^https:\/\//.test(u)).slice(0, 6), id = String(p.id || d.id.split('__').pop()).replace(/[^A-Za-z0-9_-]/g, '') || nid('m');
+      if (!(await ref('productos/' + id).get()).exists) await ref('productos/' + id).set({ tipo: 'mue', nombre: String(p.name || 'Mueble').slice(0, 90), ref: '', categoria: String(p.c1 || '').slice(0, 60), material: '', garantia: 0, desc: String(p.d || '').slice(0, 600), fotos, precio: +p.price || 0, antes: +p.old || 0, medidas: [], colores: [], precios: [], vars: [{ m: '', c: '', s: 0 }], stock: 0, enc: false, dias: 0, oculto: false, creado: now, actualizado: now, deMiPradera: d.id });
+      await fs.doc('products/' + d.id).update({ fer: 1, ferF: fotos[0] || '', ownerUid: me.uid });
+      n++;
+    }
+  }
+  return n;
+}
+
+/* ---------- Patrón de acceso: el mismo de sys/acceso del inventario de ferretería (PBKDF2-SHA256 con sal) ---------- */
+const PAT_ITER = 150000, PAT_MIN = 4, PAT_IDLE = 15 * 60e3, SKEY = 'acceso-mue:' + me.uid;
+const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function hashPat(seq, salt, iter) { const key = await crypto.subtle.importKey('raw', new TextEncoder().encode('patron:' + seq), 'PBKDF2', false, ['deriveBits']); return b64(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: iter }, key, 256)); }
+let acc = null; try { const s = await ref('sys/acceso').get(); acc = s.exists ? s.data() : null; } catch (e) {}
+const pat = { seq: [], mode: 'unlock', first: '', drawing: false, kb: false, busy: false, fails: 0, until: 0, px: 0, py: 0 };
+const PAD = $('#pad');
+PAD.insertAdjacentHTML('beforeend', [1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => `<button class="pd" type="button" data-i="${i}" aria-label="Punto ${i}"></button>`).join(''));
+const sesionValida = () => { try { const t = +sessionStorage.getItem(SKEY); return !!t && Date.now() - t < PAT_IDLE; } catch { return false; } };
+const marcar = () => { try { sessionStorage.setItem(SKEY, String(Date.now())); } catch {} };
+let abierto = false;
+function setPad(m, msg) {
+  pat.mode = m; pat.seq = []; pat.kb = false; drawPad(); PAD.classList.remove('ok', 'bad');
+  const T = { unlock: ['Dibuja tu patrón', 'Para entrar al inventario de ' + $('#tNom').textContent + '.'], setup1: ['Crea tu patrón de acceso', `Une al menos ${PAT_MIN} puntos sin levantar el dedo. Se pedirá cada vez que alguien entre al inventario.`], setup2: ['Confirma tu patrón', 'Dibújalo otra vez.'], change1: ['Nuevo patrón', 'Dibuja el patrón nuevo.'], change2: ['Confirma el patrón nuevo', 'Dibújalo otra vez.'] }[m];
+  $('#lkT').textContent = T[0]; $('#lkMsg').textContent = T[1]; lkSt(msg || '');
+  $('#lkCancel').hidden = !m.startsWith('change'); $('#lkBack').hidden = m.startsWith('change'); $('#lkGo').hidden = true;
+}
+const lkSt = (t, bad) => { const e = $('#lkSt'); e.textContent = t; e.classList.toggle('bad', !!bad); };
+const centers = () => { const r = PAD.getBoundingClientRect(); return $$('.pd', PAD).map(b => { const q = b.getBoundingClientRect(); return { i: +b.dataset.i, x: q.left + q.width / 2 - r.left, y: q.top + q.height / 2 - r.top, rad: q.width / 2 }; }); };
+function addDot(i) { if (pat.seq.includes(i)) return; const last = pat.seq[pat.seq.length - 1]; if (last) { const a = last - 1, b = i - 1, ra = Math.floor(a / 3), ca = a % 3, rb = Math.floor(b / 3), cb = b % 3; if ((ra + rb) % 2 === 0 && (ca + cb) % 2 === 0) { const m = (ra + rb) / 2 * 3 + (ca + cb) / 2 + 1; if (!pat.seq.includes(m)) pat.seq.push(m); } } pat.seq.push(i); }
+function drawPad() {
+  const W = PAD.clientWidth, H = PAD.clientHeight, cs = new Map(centers().map(c => [c.i, c])), svg = $('#padSvg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const pts = pat.seq.map(i => cs.get(i)).filter(Boolean); let d = pts.map((c, k) => `${k ? 'L' : 'M'}${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join('');
+  if (pat.drawing && pts.length) d += `L${pat.px.toFixed(1)} ${pat.py.toFixed(1)}`;
+  svg.innerHTML = d ? `<path d="${d}"/>` : ''; $$('.pd', PAD).forEach(b => b.classList.toggle('on', pat.seq.includes(+b.dataset.i)));
+}
+const hitPad = e => { const r = PAD.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; for (const c of centers()) if (Math.hypot(c.x - x, c.y - y) < c.rad * 0.85) addDot(c.i); pat.px = x; pat.py = y; };
+const padOff = () => pat.busy || Date.now() < pat.until || $('#lock').hidden;
+PAD.addEventListener('pointerdown', e => { if (padOff()) return; e.preventDefault(); try { PAD.setPointerCapture(e.pointerId); } catch {} PAD.classList.remove('ok', 'bad'); pat.seq = []; pat.kb = false; $('#lkGo').hidden = true; pat.drawing = true; hitPad(e); drawPad(); });
+PAD.addEventListener('pointermove', e => { if (!pat.drawing) return; hitPad(e); drawPad(); });
+PAD.addEventListener('pointerup', () => { if (!pat.drawing) return; pat.drawing = false; drawPad(); finPat(); });
+PAD.addEventListener('pointercancel', () => { pat.drawing = false; pat.seq = []; drawPad(); });
+PAD.addEventListener('click', e => { const b = e.target.closest('.pd'); if (!b || e.detail !== 0 || padOff()) return; if (!pat.kb) { pat.kb = true; pat.seq = []; PAD.classList.remove('ok', 'bad'); } addDot(+b.dataset.i); drawPad(); $('#lkGo').hidden = false; lkSt(`${pat.seq.length} ${pat.seq.length === 1 ? 'punto' : 'puntos'}. Pulsa Entrar al terminar.`); });
+$('#lkGo').onclick = () => { pat.kb = false; $('#lkGo').hidden = true; finPat(); };
+$('#lkCancel').onclick = () => abrir();
+const fallaPad = msg => { PAD.classList.add('bad'); lkSt(msg, true); setTimeout(() => { if (PAD.classList.contains('bad')) { PAD.classList.remove('bad'); pat.seq = []; drawPad(); } }, 900); };
+async function finPat() {
+  const s = pat.seq.join(''); if (!pat.seq.length) return;
+  if (pat.seq.length < PAT_MIN) { fallaPad(`Une al menos ${PAT_MIN} puntos.`); return; }
+  if (pat.mode === 'unlock') {
+    if (Date.now() < pat.until) return;
+    pat.busy = true; PAD.setAttribute('aria-disabled', 'true'); lkSt('Comprobando…');
+    let ok = false; try { ok = (await hashPat(s, unb64(acc.salt), acc.iter || PAT_ITER)) === acc.hash; } catch { ok = false; }
+    pat.busy = false; PAD.removeAttribute('aria-disabled');
+    if (ok) { PAD.classList.add('ok'); lkSt('Listo'); pat.fails = 0; setTimeout(abrir, 250); return; }
+    if (++pat.fails >= 5) { pat.until = Date.now() + 30e3; pat.fails = 0; fallaPad('Demasiados intentos. Espera 30 segundos.'); } else fallaPad('Patrón incorrecto. Intenta de nuevo.');
+    return;
+  }
+  if (pat.mode === 'setup1' || pat.mode === 'change1') { pat.first = s; PAD.classList.add('ok'); setTimeout(() => setPad(pat.mode === 'setup1' ? 'setup2' : 'change2'), 350); return; }
+  if (s !== pat.first) { const m = pat.mode === 'setup2' ? 'setup1' : 'change1'; fallaPad('No coincide. Empieza de nuevo.'); setTimeout(() => setPad(m, 'No coincide. Empieza de nuevo.'), 950); return; }
+  pat.busy = true; lkSt('Guardando…');
+  try {
+    const salt = crypto.getRandomValues(new Uint8Array(16)), hash = await hashPat(s, salt, PAT_ITER), nuevo = { alg: 'PBKDF2-SHA256', iter: PAT_ITER, salt: b64(salt), hash, actualizado: new Date().toISOString(), por: me.uid };
+    await ref('sys/acceso').set(nuevo); acc = nuevo; pat.busy = false; PAD.classList.add('ok'); lkSt('Patrón guardado');
+    const cambio = pat.mode === 'change2'; setTimeout(() => { abrir(); toast(cambio ? 'Patrón cambiado' : 'Patrón creado. Se pedirá al entrar al inventario.'); }, 300);
+  } catch (err) { pat.busy = false; fallaPad(mal(err)); }
+}
+function pedirPatron(m) { $('#gate').hidden = true; $('#app').hidden = true; $('#lock').hidden = false; $('#bloq').hidden = true; abierto = false; setPad(m); }
+function abrir() { marcar(); abierto = true; $('#gate').hidden = true; $('#lock').hidden = true; $('#app').hidden = false; $('#bloq').hidden = !acc?.hash; render(); }
+$('#bloq').onclick = () => { try { sessionStorage.removeItem(SKEY); } catch {} $$('dialog[open]').forEach(d => d.close()); pedirPatron('unlock'); };
+['pointerdown', 'keydown'].forEach(t => addEventListener(t, () => { if (abierto) marcar(); }, { passive: true }));
+setInterval(() => { if (abierto && acc?.hash && !sesionValida()) { $$('dialog[open]').forEach(d => d.close()); pedirPatron('unlock'); lkSt('Se bloqueó por 15 minutos sin uso.'); } }, 30e3);
+
+/* ---------- Pintar ---------- */
+function render() {
+  if (!abierto) return;
+  $$('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.v === st.view)));
+  ['muebles', 'pedidos', 'movimientos', 'tienda'].forEach(v => { $('#v-' + v).hidden = v !== st.view; });
+  $('#nM').textContent = st.prods.size || '';
+  const act = [...st.peds.values()].filter(o => !['entregado', 'cancelado'].includes(o.estado)).length; $('#nP').textContent = act || '';
+  $('#fab').hidden = !puede || !['muebles', 'pedidos'].includes(st.view);
+  $('#fabT').textContent = st.view === 'pedidos' ? 'Nuevo pedido' : 'Nuevo mueble';
+  $('#aviso').innerHTML = ro ? `<p class="note r">${esc(ro)}</p>` : '';
+  if (st.view === 'muebles') rMuebles(); else if (st.view === 'pedidos') rPedidos(); else if (st.view === 'movimientos') rMov(); else rTienda();
+}
+function matriz(p) {
+  const ms = p.medidas && p.medidas.length ? [...p.medidas].sort((a, b) => medOrd(a) - medOrd(b)) : [''], cs = p.colores && p.colores.length ? p.colores : [''], V = varsDe(p);
+  if (ms.length === 1 && !ms[0] && cs.length === 1 && !cs[0]) return '';
+  const cel = (m, c) => { const s = (V.find(v => v.m === m && v.c === c) || {}).s || 0; return `<td class="${s <= 0 ? 'z' : ''}"><b>${s}</b></td>`; };
+  return `<div class="mx"><table><caption class="sr">Existencias de ${esc(p.nombre)} por medida y color</caption><thead><tr><th scope="col">${ms[0] ? 'Medida' : ''}</th>${cs.map(c => `<th scope="col">${c ? swatch(c) + esc(c) : 'Existencias'}</th>`).join('')}${ms[0] && p.precios && p.precios.length ? '<th scope="col">Precio</th>' : ''}</tr></thead><tbody>${ms.map(m => `<tr><th scope="row">${m ? esc(medTx(m)) : 'Total'}</th>${cs.map(c => cel(m, c)).join('')}${ms[0] && p.precios && p.precios.length ? `<td>${esc(fm(precioDe(p, m)))}</td>` : ''}</tr>`).join('')}</tbody></table></div>`;
+}
+function rMuebles() {
+  const L = lista(), q = norm(st.q), F = L.filter(p => (!st.cat || p.categoria === st.cat) && (!q || norm([p.nombre, p.ref, p.categoria, p.material, ...(p.colores || [])].join(' ')).includes(q)));
+  const uds = L.reduce((a, p) => a + total(p), 0), ag = L.filter(p => agot(p) > 0).length, enc = L.filter(p => p.enc).length;
+  const cats = [...new Set(L.map(p => p.categoria).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+  let h = `<div class="sum"><div><small>Muebles</small><b>${L.length}</b></div><div><small>Unidades en bodega</small><b>${uds}</b></div><div class="${ag ? 'r' : ''}"><small>Con medidas o colores agotados</small><b>${ag}</b></div><div><small>Por encargo</small><b>${enc}</b></div></div>`;
+  if (!L.length) { $('#v-muebles').innerHTML = h + `<div class="empty"><b>Todavía no hay muebles</b><p>Crea la ficha de cada mueble con sus medidas, colores, precio y cuántos hay de cada uno.</p>${puede ? '<button class="btn pri" type="button" data-act="nuevo">Crear el primer mueble</button>' : ''}</div>`; return; }
+  h += `<div class="bar"><input class="in q" type="search" id="qM" placeholder="Buscar por nombre, referencia o color" value="${esc(st.q)}" aria-label="Buscar muebles"></div>`;
+  if (cats.length > 1) h += `<div class="chips" role="group" aria-label="Filtrar por categoría" style="margin-bottom:14px"><button class="chip" type="button" data-cat="" aria-pressed="${!st.cat}">Todas</button>${cats.map(c => `<button class="chip" type="button" data-cat="${esc(c)}" aria-pressed="${st.cat === c}">${esc(c)}</button>`).join('')}</div>`;
+  h += F.length ? `<div class="list">${F.map(p => {
+    const t = total(p), a = agot(p);
+    return `<article class="card" data-id="${esc(p.id)}"><div class="fh"><div class="ph">${foto(p, p.nombre)}</div><div><h3 class="fn">${esc(p.nombre)}</h3><p class="fm">${esc([p.categoria, p.ref && 'Ref. ' + p.ref, p.material].filter(Boolean).join(' · '))}</p>
+      <p class="pr">${esc(fm(p.precio))}${+p.antes > +p.precio ? `<s>${esc(fm(p.antes))}</s>` : ''}</p>
+      <div class="tags"><span class="tg">${t} ${t === 1 ? 'unidad' : 'unidades'}</span>${a ? `<span class="tg r">${a === varsDe(p).length ? 'Agotado' : a + (a === 1 ? ' agotada' : ' agotadas')}</span>` : ''}${p.enc ? `<span class="tg e">Por encargo${+p.dias ? ' · ' + p.dias + ' días' : ''}</span>` : ''}${p.oculto ? '<span class="tg o">No se muestra en la tienda</span>' : ''}${+p.garantia ? `<span class="tg">Garantía ${+p.garantia} ${+p.garantia === 1 ? 'mes' : 'meses'}</span>` : ''}</div></div></div>
+      ${matriz(p)}
+      <div class="fa w"><button class="btn sm" type="button" data-act="ent">Entrada</button><button class="btn sm" type="button" data-act="sal">Salida</button><button class="btn sm lnk" type="button" data-act="edit">Editar ficha</button></div></article>`; }).join('')}</div>` : `<div class="empty"><b>Ningún mueble coincide</b><p>Prueba con otra palabra o quita el filtro.</p></div>`;
+  $('#v-muebles').innerHTML = h;
+}
+const hoy = () => dayKey(Date.now());
+function cuando(o) {
+  if (!o.fecha) return '<span class="when">Sin fecha de entrega</span>';
+  const d = Math.round((new Date(o.fecha + 'T12:00:00') - new Date(hoy() + 'T12:00:00')) / 864e5), f = new Date(o.fecha + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' });
+  const fin = ['entregado', 'cancelado'].includes(o.estado);
+  const t = d === 0 ? 'Entrega hoy' : d === 1 ? 'Entrega mañana' : d < 0 && !fin ? `Atrasado ${-d} ${d === -1 ? 'día' : 'días'} (${f})` : 'Entrega el ' + f;
+  return `<span class="when${d < 0 && !fin ? ' late' : ''}">${esc(t)}</span>`;
+}
+const sig = e => ({ fabricar: 'listo', listo: 'camino', camino: 'entregado' })[e];
+function rPedidos() {
+  const all = [...st.peds.values()], F = { activos: o => !['entregado', 'cancelado'].includes(o.estado), fabricar: o => o.estado === 'fabricar', listo: o => o.estado === 'listo', camino: o => o.estado === 'camino', entregado: o => o.estado === 'entregado', todos: () => true }[st.pf] || (() => true);
+  const L = all.filter(F).sort((a, b) => (a.fecha || '9999') < (b.fecha || '9999') ? -1 : (a.fecha || '9999') > (b.fecha || '9999') ? 1 : (b.num || 0) - (a.num || 0));
+  const debe = all.filter(o => o.estado !== 'cancelado').reduce((a, o) => a + saldo(o), 0), act = all.filter(o => !['entregado', 'cancelado'].includes(o.estado));
+  let h = `<div class="sum"><div><small>Pedidos activos</small><b>${act.length}</b></div><div><small>Por fabricar</small><b>${all.filter(o => o.estado === 'fabricar').length}</b></div><div><small>Entregas atrasadas</small><b>${act.filter(o => o.fecha && o.fecha < hoy()).length}</b></div><div class="${debe ? 'r' : ''}"><small>Saldo por cobrar</small><b>${esc(fm(debe))}</b></div></div>`;
+  h += `<div class="chips" role="group" aria-label="Filtrar pedidos" style="margin-bottom:14px">${[['activos', 'Activos'], ['fabricar', 'Por fabricar'], ['listo', 'Listos'], ['camino', 'En camino'], ['entregado', 'Entregados'], ['todos', 'Todos']].map(([k, t]) => `<button class="chip" type="button" data-pf="${k}" aria-pressed="${st.pf === k}">${t}</button>`).join('')}</div>`;
+  if (!L.length) { $('#v-pedidos').innerHTML = h + `<div class="empty"><b>${all.length ? 'No hay pedidos en esta lista' : 'Todavía no hay pedidos'}</b><p>Registra cada encargo con el cliente, la dirección, la fecha de entrega y el abono. Aquí ves el saldo y el estado.</p>${puede && !all.length ? '<button class="btn pri" type="button" data-act="nped">Registrar el primer pedido</button>' : ''}</div>`; return; }
+  h += `<div class="list">${L.map(o => { const s = saldo(o), n = sig(o.estado);
+    return `<article class="card po" data-pid="${esc(o.id)}"><div class="poh"><b>Pedido ${o.num ? '#' + o.num : ''} · ${esc(o.cliente)}</b><span class="st ${esc(o.estado)}">${esc(estTx(o.estado))}</span></div>
+      <div>${cuando(o)}${o.dir ? `<br><span class="when">${esc(o.dir)}</span>` : ''}${o.cel ? `<br><span class="when">${esc(o.cel)}</span>` : ''}</div>
+      <ul class="pl">${(o.items || []).map(i => `<li><span>${esc(i.cant)} × ${esc(i.nombre)}${i.m ? ' · ' + esc(medTx(i.m)) : ''}${i.c ? ' · ' + esc(i.c) : ''}</span><span>${esc(fm(i.cant * i.precio))}</span></li>`).join('')}</ul>
+      <div class="money"><div><small>Total</small><b>${esc(fm(o.total))}</b></div><div><small>Abonado</small><b>${esc(fm(abonado(o)))}</b></div><div class="${s ? 'r' : ''}"><small>Saldo</small><b>${esc(fm(s))}</b></div></div>
+      ${o.nota ? `<p class="fm" style="margin:0">${esc(o.nota)}</p>` : ''}
+      <div class="fa">${puede && n && o.estado !== 'cancelado' ? `<button class="btn sm pri" type="button" data-act="est" data-e="${n}">Pasar a «${esc(estTx(n))}»</button>` : ''}${puede && s && o.estado !== 'cancelado' ? '<button class="btn sm" type="button" data-act="abo">Registrar abono</button>' : ''}${o.cel ? `<a class="btn sm" target="_blank" rel="noopener" href="${esc(waLink(o))}">WhatsApp</a>` : ''}${puede && !['entregado', 'cancelado'].includes(o.estado) ? '<button class="btn sm lnk" type="button" data-act="eped">Editar</button><button class="btn sm lnk dng" type="button" data-act="cped">Cancelar pedido</button>' : ''}</div></article>`; }).join('')}</div>`;
+  $('#v-pedidos').innerHTML = h;
+}
+function waLink(o) {
+  let d = String(o.cel || '').replace(/\D/g, ''); if (d.length === 10) d = '57' + d;
+  const t = `Hola ${o.cliente}, te escribimos de ${$('#tNom').textContent} por tu pedido${o.num ? ' #' + o.num : ''}: ${(o.items || []).map(i => i.cant + ' × ' + i.nombre + (i.m ? ' ' + medTx(i.m) : '') + (i.c ? ' ' + i.c : '')).join(', ')}. Estado: ${estTx(o.estado)}.${o.fecha ? ' Entrega: ' + new Date(o.fecha + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' }) + '.' : ''} Saldo: ${fm(saldo(o))}.`;
+  return 'https://wa.me/' + d + '?text=' + encodeURIComponent(t);
+}
+function rMov() {
+  const items = [...st.dias.values()].flatMap(d => (d.items || []).filter(i => i.mue).map(i => ({ ...i, dia: d.dia }))).sort((a, b) => a.t < b.t ? 1 : -1);
+  if (!items.length) { $('#v-movimientos').innerHTML = '<div class="empty"><b>Sin movimientos todavía</b><p>Cada entrada (compras, lo que sale del taller) y cada salida (ventas, pedidos entregados) queda aquí con fecha y hora.</p></div>'; return; }
+  const by = new Map(); items.forEach(i => { if (!by.has(i.dia)) by.set(i.dia, []); by.get(i.dia).push(i); });
+  const lab = k => k === hoy() ? 'Hoy' : k === dayKey(Date.now() - 864e5) ? 'Ayer' : new Date(k + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+  $('#v-movimientos').innerHTML = [...by].map(([k, L]) => `<h3 class="day">${esc(lab(k))}</h3><div class="mvs">${L.map(i => `<div class="mv"><span class="q2 ${i.tipo === 'entrada' ? 'in' : 'out'}">${i.tipo === 'entrada' ? '+' : '−'}${esc(i.cant)}</span><span><b>${esc(i.nombre)}</b>${i.m || i.c ? `<small>${esc([i.m && medTx(i.m), i.c].filter(Boolean).join(' · '))}</small>` : ''}<small>${esc(i.motivo)}${i.nota ? ' · ' + esc(i.nota) : ''}</small></span><small>${esc(new Date(i.t).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }))}</small></div>`).join('')}</div>`).join('');
+}
+function aPublicar() { return lista().filter(p => !p.oculto).flatMap(p => varsDe(p).map(v => ({ p, v }))); }
+function rTienda() {
+  const P = aPublicar(), fichas = lista().filter(p => !p.oculto).length, ult = cfg.publicado ? new Date(cfg.publicado).toLocaleString('es-CO', { day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' }) : '';
+  $('#v-tienda').innerHTML = `<div class="card pub"><h2 style="margin:0;font-size:20px">Tu tienda en Mi Pradera</h2>
+    <p>${tienda ? `La tienda es <b>${esc(tienda.name)}</b>. «Publicar tienda» pone allí los ${fichas} muebles que se muestran, cada uno con sus medidas y colores (${P.length} ${P.length === 1 ? 'opción' : 'opciones'}), su precio, su foto y si está agotado o se hace por encargo.` : 'No encontramos tu tienda de mueblería en Mi Pradera.'}</p>
+    <p>El cliente ve una sola tarjeta por mueble y elige la medida y el color. Las combinaciones sin existencias salen como agotadas, salvo los muebles por encargo.</p>
+    ${ult ? `<p>Última publicación: ${esc(ult)}</p>` :'<p>Todavía no has publicado desde este inventario.</p>'}
+    <div class="fa">${puede && tienda ? '<button class="btn pri" type="button" data-act="pub" id="pubB">Publicar tienda</button>' : ''}${tienda ? `<a class="btn" href="${esc(mpUrl(tienda))}">Ver la tienda</a>` : ''}</div>
+    <p class="err" id="pubErr" role="alert"></p></div>
+    ${puede ? `<div class="card pub" style="margin-top:12px"><h2 style="margin:0;font-size:18px">Patrón de acceso</h2><p>${acc?.hash ? 'Se pide al entrar y se bloquea solo tras 15 minutos sin uso. Es el mismo del inventario de ferretería.' : 'Aún no hay patrón: cualquiera con tu sesión abierta puede entrar.'}</p><div class="fa"><button class="btn" type="button" data-act="pat">${acc?.hash ? 'Cambiar patrón' : 'Crear patrón'}</button></div></div>` : ''}`;
+}
+
+/* ---------- Eventos de las listas ---------- */
+document.addEventListener('click', async e => {
+  const tb = e.target.closest('.tab'); if (tb) { st.view = tb.dataset.v; render(); return; }
+  const ch = e.target.closest('[data-cat]'); if (ch && ch.classList.contains('chip')) { st.cat = ch.dataset.cat; render(); return; }
+  const pf = e.target.closest('[data-pf]'); if (pf) { st.pf = pf.dataset.pf; render(); return; }
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, card = b.closest('[data-id]'), pc = b.closest('[data-pid]'), p = card && st.prods.get(card.dataset.id), o = pc && st.peds.get(pc.dataset.pid);
+  if (a === 'nuevo') abrirFicha(null);
+  else if (a === 'edit' && p) abrirFicha(p);
+  else if ((a === 'ent' || a === 'sal') && p) abrirMov(p, a === 'ent' ? 'entrada' : 'salida');
+  else if (a === 'nped') abrirPed(null);
+  else if (a === 'eped' && o) abrirPed(o);
+  else if (a === 'abo' && o) abrirAbo(o);
+  else if (a === 'est' && o) cambiarEstado(o, b.dataset.e);
+  else if (a === 'cped' && o) { if (await confirmar(`¿Cancelar el pedido ${o.num ? '#' + o.num : ''} de ${o.cliente}? Queda en la lista «Todos».`, 'Cancelar pedido')) guardarPed(o.id, { estado: 'cancelado' }).then(() => toast('Pedido cancelado')).catch(x => toast(mal(x))); }
+  else if (a === 'pub') publicar(b);
+  else if (a === 'pat') pedirPatron(acc?.hash ? 'change1' : 'setup1');
+});
+document.addEventListener('input', e => { if (e.target.id === 'qM') { st.q = e.target.value; const pos = e.target.selectionStart; rMuebles(); const n = $('#qM'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch {} } } });
+$('#fab').onclick = () => st.view === 'pedidos' ? abrirPed(null) : abrirFicha(null);
+document.addEventListener('click', e => { const c = e.target.closest('[data-close]'); if (c) c.closest('dialog').close(); });
+function confirmar(msg, ok = 'Sí') { return new Promise(res => { const d = $('#dC'); $('#cMsg').textContent = msg; $('#cOk').textContent = ok; const f = v => () => { d.removeEventListener('close', cerrar); res(v); }; const cerrar = f(false); d.addEventListener('close', cerrar); $('#cOk').onclick = () => { d.removeEventListener('close', cerrar); d.close(); res(true); }; d.showModal(); }); }
+
+/* ---------- Ficha del mueble ---------- */
+let F = null;
+$('#fCat').innerHTML = '<option value="">Elige una categoría</option>' + GRUPOS.map(([g, L]) => `<optgroup label="${esc(g)}">${L.map(s => `<option>${esc(s)}</option>`).join('')}</optgroup>`).join('');
+$('#fMed').innerHTML = MEDIDAS.map(m => `<label><input type="checkbox" value="${esc(m)}">${esc(medTx(m))}</label>`).join('');
+function abrirFicha(p) {
+  if (!puede) return;
+  F = p ? { id: p.id, nuevo: false, fotos: [...(p.fotos || [])], medidas: [...(p.medidas || [])], colores: [...(p.colores || [])], precios: [...(p.precios || [])], vars: varsDe(p) } : { id: nid('m'), nuevo: true, fotos: [], medidas: [], colores: [], precios: [], vars: [] };
+  $('#dFT').textContent = p ? 'Editar mueble' : 'Nuevo mueble';
+  $('#fNom').value = p?.nombre || ''; $('#fRef').value = p?.ref || ''; $('#fMat').value = p?.material || ''; $('#fGar').value = +p?.garantia || ''; $('#fDes').value = p?.desc || '';
+  $('#fCat').value = GRUPOS.some(g => g[1].includes(p?.categoria)) ? p.categoria : '';
+  if (p?.categoria && !$('#fCat').value) { $('#fCat').insertAdjacentHTML('beforeend', `<option>${esc(p.categoria)}</option>`); $('#fCat').value = p.categoria; }
+  $('#fPre').value = +p?.precio ? fm(p.precio) : ''; $('#fAnt').value = +p?.antes ? fm(p.antes) : '';
+  $('#fEnc').checked = !!p?.enc; $('#fDias').value = +p?.dias || ''; $('#fDiasW').hidden = !p?.enc; $('#fVis').checked = !p?.oculto;
+  $('#fDel').hidden = !p; $('#fErr').textContent = ''; $('#fStW').hidden = !!p; $('#fStN').hidden = !p;
+  pintarFicha(); $('#dF').showModal(); if (!p) $('#fNom').focus();
+}
+function pintarFicha() {
+  $$('#fMed input').forEach(i => { i.checked = F.medidas.includes(i.value); });
+  const otras = F.medidas.filter(m => !MEDIDAS.includes(m));
+  $('#fMedL').innerHTML = otras.map(m => `<span>${esc(m)}<button type="button" data-qmed="${esc(m)}" aria-label="Quitar ${esc(m)}">✕</button></span>`).join('');
+  $('#fColL').innerHTML = F.colores.map(c => `<span>${swatch(c)}${esc(c)}<button type="button" data-qcol="${esc(c)}" aria-label="Quitar ${esc(c)}">✕</button></span>`).join('');
+  $('#fFotos').innerHTML = F.fotos.map((u, i) => `<div class="ph"><img src="${esc(u)}" alt="Foto ${i + 1}"><button type="button" data-qfoto="${i}" aria-label="Quitar foto ${i + 1}">✕</button></div>`).join('') + (F.fotos.length < 6 ? `<label class="ph">Agregar foto<input type="file" accept="image/*" id="fFile" hidden multiple></label>` : '');
+  const ms = [...F.medidas].sort((a, b) => medOrd(a) - medOrd(b));
+  $('#fPmW').hidden = ms.length < 2;
+  $('#fPm').innerHTML = ms.length < 2 ? '' : `<table><tbody>${ms.map(m => `<tr><th scope="row">${esc(medTx(m))}</th><td><input inputmode="numeric" data-pm="${esc(m)}" value="${(F.precios.find(x => x.m === m) || {}).p ? esc(fm(F.precios.find(x => x.m === m).p)) : ''}" placeholder="$ igual" aria-label="Precio de ${esc(medTx(m))}" style="width:130px"></td></tr>`).join('')}</tbody></table>`;
+  if (F.nuevo) {
+    const M = ms.length ? ms : [''], C = F.colores.length ? F.colores : [''], val = (m, c) => (F.vars.find(v => v.m === m && v.c === c) || {}).s || '';
+    $('#fSt').innerHTML = `<table><thead><tr><th></th>${C.map(c => `<th scope="col">${c ? swatch(c) + esc(c) : 'Cantidad'}</th>`).join('')}</tr></thead><tbody>${M.map(m => `<tr><th scope="row">${m ? esc(medTx(m)) : 'Existencias'}</th>${C.map(c => `<td><input inputmode="numeric" maxlength="4" data-sm="${esc(m)}" data-sc="${esc(c)}" value="${esc(val(m, c))}" placeholder="0" aria-label="Existencias${m ? ' ' + esc(medTx(m)) : ''}${c ? ' ' + esc(c) : ''}"></td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  }
+}
+const leerSt = () => { $$('#fSt [data-sm]').forEach(i => { const m = i.dataset.sm, c = i.dataset.sc, s = pInt(i.value) || 0, v = F.vars.find(x => x.m === m && x.c === c); if (v) v.s = s; else F.vars.push({ m, c, s }); }); };
+const leerPm = () => { F.precios = $$('#fPm [data-pm]').map(i => ({ m: i.dataset.pm, p: pMoney(i.value) })).filter(x => x.p); };
+$('#fMed').addEventListener('change', e => { leerSt(); leerPm(); const m = e.target.value; F.medidas = e.target.checked ? [...F.medidas, m] : F.medidas.filter(x => x !== m); pintarFicha(); });
+function agregar(campo, input) { const v = input.value.trim().replace(/\s+/g, ' '); if (!v) return; leerSt(); leerPm(); const L = F[campo]; if (!L.some(x => norm(x) === norm(v))) { if (L.length >= (campo === 'colores' ? 10 : 8)) { $('#fErr').textContent = campo === 'colores' ? 'Máximo 10 colores por mueble.' : 'Máximo 8 medidas por mueble.'; return; } L.push(v.charAt(0).toUpperCase() + v.slice(1)); } input.value = ''; pintarFicha(); input.focus(); }
+$('#fMedAdd').onclick = () => agregar('medidas', $('#fMedO'));
+$('#fColAdd').onclick = () => agregar('colores', $('#fColO'));
+['fMedO', 'fColO'].forEach(id => $('#' + id).addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); agregar(id === 'fMedO' ? 'medidas' : 'colores', e.target); } }));
+$('#dF').addEventListener('click', e => {
+  const q = e.target.closest('[data-qmed],[data-qcol],[data-qfoto]'); if (!q) return; leerSt(); leerPm();
+  if (q.dataset.qmed) F.medidas = F.medidas.filter(x => x !== q.dataset.qmed);
+  else if (q.dataset.qcol) F.colores = F.colores.filter(x => x !== q.dataset.qcol);
+  else F.fotos.splice(+q.dataset.qfoto, 1);
+  pintarFicha();
+});
+$('#fEnc').onchange = () => { $('#fDiasW').hidden = !$('#fEnc').checked; };
+['fPre', 'fAnt'].forEach(id => $('#' + id).addEventListener('blur', e => { const v = pMoney(e.target.value); e.target.value = v ? fm(v) : ''; }));
+$('#dF').addEventListener('focusout', e => { if (e.target.dataset && e.target.dataset.pm !== undefined) { const v = pMoney(e.target.value); e.target.value = v ? fm(v) : ''; } });
+/* fotos: se achican a 1400 px y suben al R2 de Mi Pradera (carpeta f/, la misma del inventario de ferretería) */
+async function achicar(file) {
+  try { const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = URL.createObjectURL(file); });
+    const k = Math.min(1, 1400 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(img.src); return await new Promise(r => c.toBlob(b => r(b || file), 'image/jpeg', 0.84)); } catch { return file; }
+}
+async function subir(file) {
+  const b = await achicar(file), tk = await me.getIdToken();
+  let r; try { r = await fetch(R2_WORKER + '/?carpeta=fer', { method: 'POST', headers: { Authorization: 'Bearer ' + tk, 'Content-Type': 'image/jpeg' }, body: b }); } catch { throw new Error('No se pudo subir la foto. Revisa tu conexión.'); }
+  if (r.status === 413) throw new Error('La foto es muy pesada.');
+  const j = r.ok ? await r.json().catch(() => ({})) : {}; if (!j.url) throw new Error('No se pudo subir la foto. Intenta de nuevo.');
+  return j.url;
+}
+$('#dF').addEventListener('change', async e => {
+  if (e.target.id !== 'fFile') return; const files = [...e.target.files].slice(0, 6 - F.fotos.length); if (!files.length) return;
+  leerSt(); leerPm(); $('#fErr').textContent = 'Subiendo foto…'; $('#fOk').disabled = true;
+  try { for (const f of files) F.fotos.push(await subir(f)); $('#fErr').textContent = ''; } catch (x) { $('#fErr').textContent = x.message; }
+  $('#fOk').disabled = false; pintarFicha();
+});
+$('#fF').addEventListener('submit', async e => {
+  e.preventDefault(); leerSt(); leerPm();
+  const E = $('#fErr'), nombre = $('#fNom').value.trim(), precio = pMoney($('#fPre').value), antes = pMoney($('#fAnt').value), enc = $('#fEnc').checked, dias = pInt($('#fDias').value) || 0;
+  E.textContent = '';
+  if (!nombre) { E.textContent = 'Escribe el nombre del mueble.'; $('#fNom').focus(); return; }
+  if (!$('#fCat').value) { E.textContent = 'Elige la categoría: con ella sale en el menú de la tienda.'; $('#fCat').focus(); return; }
+  if (!precio && !F.precios.length) { E.textContent = 'Escribe el precio.'; $('#fPre').focus(); return; }
+  if (enc && !dias) { E.textContent = 'Escribe en cuántos días se entrega por encargo.'; $('#fDias').focus(); return; }
+  const now = new Date().toISOString(), viejo = st.prods.get(F.id);
+  const base = { tipo: 'mue', nombre: nombre.slice(0, 90), ref: $('#fRef').value.trim().slice(0, 30), categoria: $('#fCat').value, material: $('#fMat').value.trim().slice(0, 60), garantia: pInt($('#fGar').value) || 0, desc: $('#fDes').value.trim().slice(0, 600), fotos: F.fotos.slice(0, 6), precio: precio || Math.min(...F.precios.map(x => x.p)), antes: antes > precio ? antes : 0, medidas: F.medidas, colores: F.colores, precios: F.precios.filter(x => F.medidas.includes(x.m)), enc, dias: enc ? dias : 0, oculto: !$('#fVis').checked, actualizado: now };
+  const prev = viejo ? varsDe(viejo) : F.vars;
+  /* las existencias de las combinaciones que siguen se conservan; las nuevas empiezan en 0 */
+  base.vars = varsDe({ ...base, vars: prev });
+  if (viejo) { const quitadas = varsDe(viejo).filter(v => v.s > 0 && !base.vars.some(x => x.m === v.m && x.c === v.c)); if (quitadas.length && !(await confirmar(`Quitaste medidas o colores que tienen existencias (${quitadas.map(v => [v.m && medTx(v.m), v.c].filter(Boolean).join(' · ') + ': ' + v.s).join(', ')}). Esas unidades dejan de contarse. ¿Guardar así?`, 'Guardar'))) return; }
+  base.stock = base.vars.reduce((a, v) => a + v.s, 0);
+  $('#fOk').disabled = true;
+  try {
+    if (viejo) await ref('productos/' + F.id).update(base);
+    else {
+      await ref('productos/' + F.id).set({ ...base, creado: now });
+      const ini = base.vars.filter(v => v.s > 0); if (ini.length) await anotar(ini.map(v => ({ pid: F.id, nombre: base.nombre, m: v.m, c: v.c, tipo: 'entrada', cant: v.s, motivo: 'Inventario inicial', nota: '' })));
+    }
+    $('#dF').close(); toast(viejo ? 'Mueble guardado' : 'Mueble creado');
+  } catch (x) { E.textContent = mal(x); }
+  $('#fOk').disabled = false;
+});
+$('#fDel').onclick = async () => {
+  const p = st.prods.get(F.id); if (!p) return;
+  if (!(await confirmar(`¿Eliminar «${p.nombre}» del inventario? Al publicar, también sale de la tienda. Los movimientos y pedidos se conservan.`, 'Eliminar'))) return;
+  try { await ref('productos/' + F.id).delete(); $('#dF').close(); toast('Mueble eliminado'); } catch (x) { $('#fErr').textContent = mal(x); }
+};
+
+/* ---------- Entradas y salidas: cambian las existencias de una medida y color, y quedan en dias/<fecha> ---------- */
+async function anotar(items) {
+  const t = new Date().toISOString(), k = dayKey(Date.now());
+  await ref('dias/' + k).set({ dia: k, items: FV.arrayUnion(...items.map((i, n) => ({ ...i, t: new Date(Date.parse(t) + n).toISOString(), mue: 1, por: me.uid }))) }, { merge: true });
+}
+/* suma (o resta) a varias combinaciones de un mueble en una transacción; si alguna quedaría negativa, no cambia nada */
+async function mover(pid, cambios) {
+  await fs.runTransaction(async tx => {
+    const r = ref('productos/' + pid), s = await tx.get(r); if (!s.exists) throw new Error('Ese mueble ya no está en el inventario.');
+    const p = s.data(), V = varsDe(p);
+    for (const c of cambios) { const v = V.find(x => x.m === c.m && x.c === c.c); if (!v) throw new Error('Esa medida o color ya no está en la ficha de ' + p.nombre + '.'); if (v.s + c.d < 0) throw new Error(`No alcanza: de ${p.nombre}${c.m ? ' ' + medTx(c.m) : ''}${c.c ? ' ' + c.c : ''} hay ${v.s}.`); v.s += c.d; }
+    tx.update(r, { vars: V, stock: V.reduce((a, v) => a + v.s, 0), actualizado: new Date().toISOString() });
+  });
+}
+let MV = null;
+function abrirMov(p, tipo) {
+  if (!puede) return; MV = { pid: p.id, tipo };
+  $('#dMT').textContent = tipo === 'entrada' ? 'Entrada' : 'Salida'; $('#mNom').textContent = p.nombre;
+  const ms = p.medidas && p.medidas.length ? [...p.medidas].sort((a, b) => medOrd(a) - medOrd(b)) : [''], cs = p.colores && p.colores.length ? p.colores : [''];
+  $('#mMed').innerHTML = ms.map(m => `<option value="${esc(m)}">${esc(medTx(m))}</option>`).join(''); $('#mMedW').hidden = !ms[0];
+  $('#mCol').innerHTML = cs.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join(''); $('#mColW').hidden = !cs[0];
+  $('#mMot').innerHTML = MOT[tipo].map(m => `<option>${esc(m)}</option>`).join('');
+  $('#mCant').value = '1'; $('#mNota').value = ''; $('#mErr').textContent = ''; hayTx(); $('#dM').showModal(); $('#mCant').select();
+}
+function hayTx() { const p = MV && st.prods.get(MV.pid); if (!p) return; const v = varsDe(p).find(x => x.m === $('#mMed').value && x.c === $('#mCol').value); $('#mHay').textContent = 'Hay ' + (v ? v.s : 0) + ' en la bodega.'; }
+['mMed', 'mCol'].forEach(id => $('#' + id).addEventListener('change', hayTx));
+$('#fM').addEventListener('submit', async e => {
+  e.preventDefault(); const p = st.prods.get(MV.pid), n = pInt($('#mCant').value), E = $('#mErr'); E.textContent = '';
+  if (!p) { E.textContent = 'Ese mueble ya no está en el inventario.'; return; }
+  if (!n || n < 1) { E.textContent = 'Escribe una cantidad mayor que 0.'; $('#mCant').focus(); return; }
+  const m = $('#mMed').value, c = $('#mCol').value, d = MV.tipo === 'entrada' ? n : -n;
+  $('#mOk').disabled = true;
+  try { await mover(p.id, [{ m, c, d }]); await anotar([{ pid: p.id, nombre: p.nombre, m, c, tipo: MV.tipo, cant: n, motivo: $('#mMot').value, nota: $('#mNota').value.trim().slice(0, 120) }]); $('#dM').close(); toast(MV.tipo === 'entrada' ? 'Entrada registrada' : 'Salida registrada'); }
+  catch (x) { E.textContent = x instanceof Error ? x.message : mal(x); }
+  $('#mOk').disabled = false;
+});
+
+/* ---------- Pedidos por encargo ---------- */
+let PD = null;
+function lineaHTML(l, i) {
+  const L = lista(), p = st.prods.get(l.pid), ms = p && p.medidas && p.medidas.length ? [...p.medidas].sort((a, b) => medOrd(a) - medOrd(b)) : [], cs = p && p.colores && p.colores.length ? p.colores : [];
+  return `<div class="line" data-l="${i}"><select class="in" data-lf="pid" aria-label="Mueble"><option value="">Elige el mueble</option>${L.map(x => `<option value="${esc(x.id)}"${x.id === l.pid ? ' selected' : ''}>${esc(x.nombre)}</option>`).join('')}${l.pid && !p ? `<option value="${esc(l.pid)}" selected>${esc(l.nombre)}</option>` : ''}</select>
+    ${ms.length || cs.length ? `<div class="g2">${ms.length ? `<select class="in" data-lf="m" aria-label="Medida">${ms.map(m => `<option value="${esc(m)}"${m === l.m ? ' selected' : ''}>${esc(medTx(m))}</option>`).join('')}</select>` : ''}${cs.length ? `<select class="in" data-lf="c" aria-label="Color">${cs.map(c => `<option value="${esc(c)}"${c === l.c ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select>` : ''}</div>` : ''}
+    <div class="g2"><label class="f"><span>Cantidad</span><input class="in" data-lf="cant" inputmode="numeric" maxlength="3" value="${esc(l.cant)}"></label><label class="f"><span>Precio de cada uno</span><input class="in" data-lf="precio" inputmode="numeric" value="${l.precio ? esc(fm(l.precio)) : ''}"></label></div>
+    ${PD.items.length > 1 ? `<div><button class="btn sm lnk dng" type="button" data-lq="${i}">Quitar este mueble</button></div>` : ''}</div>`;
+}
+function pintarPed() { $('#pLines').innerHTML = PD.items.map(lineaHTML).join(''); totPed(); }
+function totPed() { const t = PD.items.reduce((a, l) => a + (+l.cant || 0) * (+l.precio || 0), 0); $('#pTot').textContent = fm(t); $('#pSal').textContent = fm(Math.max(0, t - (PD.id ? 0 : pMoney($('#pAbo').value)) - (PD.abonado || 0))); return t; }
+function abrirPed(o) {
+  if (!puede) return;
+  if (!o && !st.prods.size) { toast('Primero crea la ficha de los muebles en «Muebles».'); return; }
+  PD = o ? { id: o.id, items: (o.items || []).map(i => ({ ...i })), abonado: abonado(o) } : { id: '', items: [{ pid: '', nombre: '', m: '', c: '', cant: 1, precio: 0 }], abonado: 0 };
+  $('#dPT').textContent = o ? `Editar pedido ${o.num ? '#' + o.num : ''}` : 'Nuevo pedido';
+  $('#pCli').value = o?.cliente || ''; $('#pCel').value = o?.cel || ''; $('#pDir').value = o?.dir || ''; $('#pFec').value = o?.fecha || ''; $('#pOri').value = o?.origen || 'bodega'; $('#pNota').value = o?.nota || ''; $('#pAbo').value = '';
+  $('#pAboW').querySelector('label').hidden = !!o; $('#pErr').textContent = ''; pintarPed(); $('#dP').showModal(); if (!o) $('#pCli').focus();
+}
+$('#pLines').addEventListener('change', e => {
+  const f = e.target.dataset.lf, i = +e.target.closest('[data-l]').dataset.l, l = PD.items[i]; if (!f) return;
+  if (f === 'pid') { const p = st.prods.get(e.target.value); l.pid = e.target.value; l.nombre = p ? p.nombre : ''; l.m = p && p.medidas && p.medidas.length ? [...p.medidas].sort((a, b) => medOrd(a) - medOrd(b))[0] : ''; l.c = p && p.colores && p.colores.length ? p.colores[0] : ''; l.precio = p ? precioDe(p, l.m) : 0; pintarPed(); return; }
+  if (f === 'm') { l.m = e.target.value; const p = st.prods.get(l.pid); if (p) l.precio = precioDe(p, l.m); pintarPed(); return; }
+  if (f === 'c') l.c = e.target.value;
+  if (f === 'cant') l.cant = pInt(e.target.value) || 1;
+  if (f === 'precio') { l.precio = pMoney(e.target.value); e.target.value = l.precio ? fm(l.precio) : ''; }
+  totPed();
+});
+$('#pLines').addEventListener('input', e => { const f = e.target.dataset.lf; if (f !== 'cant' && f !== 'precio') return; const l = PD.items[+e.target.closest('[data-l]').dataset.l]; if (f === 'cant') l.cant = pInt(e.target.value) || 0; else l.precio = pMoney(e.target.value); totPed(); });
+$('#pLines').addEventListener('click', e => { const q = e.target.closest('[data-lq]'); if (!q) return; PD.items.splice(+q.dataset.lq, 1); pintarPed(); });
+$('#pAdd').onclick = () => { PD.items.push({ pid: '', nombre: '', m: '', c: '', cant: 1, precio: 0 }); pintarPed(); };
+$('#pAbo').addEventListener('input', totPed);
+$('#pAbo').addEventListener('blur', e => { const v = pMoney(e.target.value); e.target.value = v ? fm(v) : ''; });
+async function guardarPed(id, d) { await ref('pedidos/' + id).update({ ...d, actualizado: new Date().toISOString() }); }
+$('#fP').addEventListener('submit', async e => {
+  e.preventDefault(); const E = $('#pErr'); E.textContent = '';
+  const cliente = $('#pCli').value.trim(), items = PD.items.filter(l => l.pid).map(l => ({ pid: l.pid, nombre: l.nombre, m: l.m || '', c: l.c || '', cant: Math.max(1, +l.cant || 1), precio: +l.precio || 0 }));
+  if (!cliente) { E.textContent = 'Escribe el nombre del cliente.'; $('#pCli').focus(); return; }
+  if (!items.length) { E.textContent = 'Agrega al menos un mueble.'; return; }
+  const totalP = items.reduce((a, l) => a + l.cant * l.precio, 0), abo = pMoney($('#pAbo').value);
+  if (!PD.id && abo > totalP) { E.textContent = 'El abono no puede ser mayor que el total.'; return; }
+  const cel = $('#pCel').value.replace(/[^\d+ ]/g, '').trim().slice(0, 16), now = new Date().toISOString();
+  const d = { cliente: cliente.slice(0, 60), cel, dir: $('#pDir').value.trim().slice(0, 120), fecha: $('#pFec').value || '', origen: $('#pOri').value, items, total: totalP, nota: $('#pNota').value.trim().slice(0, 300) };
+  $('#pOk').disabled = true;
+  try {
+    if (PD.id) await guardarPed(PD.id, d);
+    else {
+      const num = await fs.runTransaction(async tx => { const r = ref('sys/config'), s = await tx.get(r), n = (s.exists && +s.data().pedNum || 0) + 1; tx.set(r, { pedNum: n }, { merge: true }); return n; });
+      await ref('pedidos/' + nid('o')).set({ ...d, num, abonos: abo ? [{ t: now, v: abo, nota: 'Abono inicial' }] : [], estado: d.origen === 'encargo' ? 'fabricar' : 'listo', descontado: false, creado: now, actualizado: now });
+    }
+    $('#dP').close(); toast(PD.id ? 'Pedido guardado' : 'Pedido registrado'); if (!PD.id) { st.view = 'pedidos'; st.pf = 'activos'; render(); }
+  } catch (x) { E.textContent = mal(x); }
+  $('#pOk').disabled = false;
+});
+let AB = null;
+function abrirAbo(o) { AB = o.id; $('#aInfo').textContent = `Pedido ${o.num ? '#' + o.num : ''} de ${o.cliente}. Saldo: ${fm(saldo(o))}.`; $('#aVal').value = ''; $('#aNota').value = ''; $('#aErr').textContent = ''; $('#dA').showModal(); $('#aVal').focus(); }
+$('#aVal').addEventListener('blur', e => { const v = pMoney(e.target.value); e.target.value = v ? fm(v) : ''; });
+$('#fA').addEventListener('submit', async e => {
+  e.preventDefault(); const o = st.peds.get(AB), v = pMoney($('#aVal').value), E = $('#aErr'); E.textContent = '';
+  if (!o) return; if (!v) { E.textContent = 'Escribe el valor del abono.'; return; } if (v > saldo(o)) { E.textContent = 'El abono es mayor que el saldo (' + fm(saldo(o)) + ').'; return; }
+  try { await guardarPed(o.id, { abonos: FV.arrayUnion({ t: new Date().toISOString(), v, nota: $('#aNota').value.trim().slice(0, 80) }) }); $('#dA').close(); toast(saldo(o) - v ? 'Abono registrado' : 'Abono registrado: el pedido quedó pagado'); } catch (x) { E.textContent = mal(x); }
+});
+/* al entregar un pedido que sale de la bodega, se descuentan sus muebles (una salida «Venta» por cada uno) */
+async function cambiarEstado(o, e) {
+  if (e === 'entregado') {
+    const s = saldo(o);
+    if (!(await confirmar(`¿Marcar entregado el pedido ${o.num ? '#' + o.num : ''} de ${o.cliente}?${o.origen === 'bodega' && !o.descontado ? ' Sus muebles se descuentan de la bodega.' : ''}${s ? ' Todavía debe ' + fm(s) + '.' : ''}`, 'Marcar entregado'))) return;
+    if (o.origen === 'bodega' && !o.descontado) {
+      const por = new Map(); (o.items || []).forEach(i => { if (!por.has(i.pid)) por.set(i.pid, []); por.get(i.pid).push({ m: i.m, c: i.c, d: -i.cant }); });
+      for (const pid of por.keys()) if (!st.prods.has(pid)) { toast('Un mueble del pedido ya no está en el inventario. Edita el pedido.'); return; }
+      try { for (const [pid, ch] of por) await mover(pid, ch); } catch (x) { toast((x instanceof Error ? x.message : mal(x)) + ' Registra la entrada antes de entregar.', 5000); return; }
+      try { await anotar(o.items.map(i => ({ pid: i.pid, nombre: i.nombre, m: i.m, c: i.c, tipo: 'salida', cant: i.cant, motivo: 'Venta', nota: 'Pedido ' + (o.num ? '#' + o.num : '') + ' · ' + o.cliente }))); } catch (x) {}
+      try { await guardarPed(o.id, { estado: 'entregado', descontado: true, entregado: new Date().toISOString() }); toast('Pedido entregado'); } catch (x) { toast(mal(x)); }
+      return;
+    }
+    try { await guardarPed(o.id, { estado: 'entregado', entregado: new Date().toISOString() }); toast('Pedido entregado'); } catch (x) { toast(mal(x)); }
+    return;
+  }
+  try { await guardarPed(o.id, { estado: e }); toast('Pedido: ' + estTx(e)); } catch (x) { toast(mal(x)); }
+}
+
+/* ---------- Publicar en la tienda de Mi Pradera ---------- */
+async function publicar(b) {
+  if (!puede || !tienda) return;
+  const E = $('#pubErr'); E.textContent = ''; b.disabled = true; b.textContent = 'Publicando…';
+  try {
+    const sid = tienda.id, now = Date.now(), ex = new Map((await fs.collection('products').where('sid', '==', sid).get()).docs.map(d => [d.id, d.data()])), tareas = [];
+    let i = 0;
+    for (const p of lista().filter(x => !x.oculto)) {
+      const V = varsDe(p).sort((a, b) => medOrd(a.m) - medOrd(b.m)), varias = V.length > 1;
+      V.forEach((v, k) => {
+        const id = varias ? sid + '__' + p.id + '-' + (slug(v.m + '-' + v.c) || k) : sid + '__' + p.id, pr = precioDe(p, v.m), e = ex.get(id);
+        const fotos = (p.fotos || []).filter(u => /^https:\/\//.test(u)).slice(0, 6);
+        const desc = [p.desc, p.material && 'Material: ' + p.material, +p.garantia && 'Garantía: ' + p.garantia + (+p.garantia === 1 ? ' mes' : ' meses'), p.ref && 'Referencia: ' + p.ref].filter(Boolean).join('\n');
+        const d = { name: (p.nombre + (v.m ? ' (' + v.m + ')' : '') + (v.c ? ' · ' + v.c : '')).slice(0, 150), price: pr, imgs: fotos, out: !p.enc && v.s <= 0, d: desc.slice(0, 900), fer: 1, ferF: fotos[0] || '', ferCat: p.categoria || '', ferM: v.m || '', ferC: v.c || '', ferN: p.nombre, ferG: varias ? p.id : '', ferE: p.enc ? (+p.dias || 1) : 0, ownerUid: me.uid };
+        const ant = +p.antes && p.antes > +p.precio ? Math.round(p.antes * pr / (+p.precio || pr)) : 0; d.old = ant > pr ? ant : 0;
+        tareas.push(() => e ? fs.doc('products/' + id).update(d) : fs.doc('products/' + id).set({ id: id.split('__')[1], sid, ...d, ownerKey: tienda.ownerKey || '', _o: now + i }));
+        i++; ex.delete(id);
+      });
+    }
+    for (const [id, e] of ex) if (e.fer) tareas.push(() => fs.doc('products/' + id).delete());
+    for (let k = 0; k < tareas.length; k += 8) await Promise.all(tareas.slice(k, k + 8).map(f => f()));
+    if (tienda.ownerUid !== me.uid) await fs.doc('stores/' + sid).update({ ownerUid: me.uid });
+    const pub = new Date().toISOString(); await ref('sys/config').set({ sid, publicado: pub, nombre: tienda.name || '' }, { merge: true }); cfg.publicado = pub; cfg.sid = sid;
+    toast('Tienda publicada'); rTienda();
+  } catch (x) { E.textContent = mal(x); b.disabled = false; b.textContent = 'Publicar tienda'; }
+}
+
+/* ---------- Arranque ---------- */
+gate('Cargando el inventario…');
+if (puede) { try { const n = await importar(); if (n) st.importados = n; } catch (e) { try { console.warn('v482: no se pudieron pasar los productos', e && e.code); } catch (x) {} } }
+if (puede && tienda && cfg.sid !== tienda.id) { try { await ref('sys/config').set({ sid: tienda.id, nombre: tienda.name || '' }, { merge: true }); cfg.sid = tienda.id; } catch (e) {} }
+const listo = () => { if (++st.got === 3) { if (acc?.hash && !sesionValida()) pedirPatron('unlock'); else if (!acc?.hash && puede) pedirPatron('setup1'); else abrir(); if (st.importados) { $('#aviso').insertAdjacentHTML('afterend', `<p class="note" id="impN">Se ${st.importados === 1 ? 'pasó 1 producto' : 'pasaron ' + st.importados + ' productos'} al inventario de mueblería. Revisa en cada ficha la categoría, las medidas, los colores y las existencias antes de publicar.<br><button class="btn sm" type="button" onclick="this.parentNode.remove()">Entendido</button></p>`); } } else render(); };
+let g1 = false, g2 = false, g3 = false;
+const nope = x => { gate('No se pudo abrir el inventario: ' + mal(x), `<div class="row"><button class="btn pri" type="button" onclick="location.reload()">Reintentar</button>${salir}</div>`); };
+col('productos').where('tipo', '==', 'mue').onSnapshot(s => { st.prods = new Map(s.docs.map(d => [d.id, { ...d.data(), id: d.id }])); if (!g1) { g1 = true; listo(); } else render(); }, nope);
+col('pedidos').onSnapshot(s => { st.peds = new Map(s.docs.map(d => [d.id, { ...d.data(), id: d.id }])); if (!g2) { g2 = true; listo(); } else render(); }, () => { st.peds = new Map(); if (!g2) { g2 = true; listo(); } });
+col('dias').where(firebase.firestore.FieldPath.documentId(), '>=', dayKey(Date.now() - 90 * 864e5)).onSnapshot(/* los últimos 90 días */s => { st.dias = new Map(s.docs.map(d => [d.id, d.data()])); if (!g3) { g3 = true; listo(); } else render(); }, () => { if (!g3) { g3 = true; listo(); } });
+})();
+</script>
+</body>
+</html>

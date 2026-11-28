@@ -34,5 +34,9 @@ html.dark .qmu-s .qmu-ic .f,html.dark .qmu-hi .qmu-ic .f{fill:var(--mud)}
 /* la página cambia cada <select> por su botón y una hoja con las opciones (v221): ese botón toma la forma del selector de medida */
 body.qhmue .qmu-med .qs-btn{min-height:46px;margin:0!important;padding:10px 10px 10px 12px!important;background:var(--muf)!important;border:1.5px solid var(--mud)!important;border-radius:12px!important;color:var(--mub)!important;font-size:15px!important;font-weight:400!important}
 body.qhmue .qmu-med .qs-btn svg{width:18px;height:18px;flex:none}
+/* v482: medida y color juntos, y «Por encargo · entrega en N días» */
+.qmu-sel{display:block;width:100%}
+.qmu-sel .qmu-med+.qmu-med{margin-top:0}
+.qmu-enc{margin:2px 0 4px;color:var(--mua);font-size:13px;font-weight:500;line-height:1.3}
 @media (min-width:700px){.qmu-g{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media (prefers-reduced-motion:reduce){.qmu-fl{transition:none}.qmu-s:active{transform:none}}
