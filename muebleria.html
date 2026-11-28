@@ -689,10 +689,10 @@ function confirmar(msg, ok = 'Sí') { return new Promise(res => { const d = $('#
 let F = null;
 $('#fCat').innerHTML = '<option value="">Elige una categoría</option>' + GRUPOS.map(([g, L]) => `<optgroup label="${esc(g)}">${L.map(s => `<option>${esc(s)}</option>`).join('')}</optgroup>`).join('');
 /* v486: las medidas de colchón solo se ofrecen en colchones, camas y ropa de cama, las de tapete en «Tapetes» y las de unidad o paquete
-   en «Almohadas»; en sofás, salas,
+   en «Almohadas» y «Cojines»; en sofás, salas,
    comedores y lo demás, «Medida única». Siempre se puede escribir otra medida. */
 const CAMA = [...GRUPOS[0][1], ...GRUPOS[1][1], 'Camas y bases', 'Camarotes', 'Protectores', 'Sábanas', 'Duvets', 'Plumones y cobijas'];
-const medHTML = () => { const c = $('#fCat').value, tap = m => /^Tapete /.test(m), alm = m => /^(Unidad|Pack) \| /.test(m), L = MEDIDAS.filter(m => m === 'Medida única' || F.medidas.includes(m) || (c === 'Tapetes' ? tap(m) : c === 'Almohadas' ? alm(m) : (!c || CAMA.includes(c)) && !tap(m) && !alm(m))); return L.map(m => `<label><input type="checkbox" value="${esc(m)}">${esc(medTx(m))}</label>`).join(''); };
+const medHTML = () => { const c = $('#fCat').value, tap = m => /^Tapete /.test(m), alm = m => /^(Unidad|Pack) \| /.test(m), L = MEDIDAS.filter(m => m === 'Medida única' || F.medidas.includes(m) || (c === 'Tapetes' ? tap(m) : (c === 'Almohadas' || c === 'Cojines') ? alm(m) : (!c || CAMA.includes(c)) && !tap(m) && !alm(m))); return L.map(m => `<label><input type="checkbox" value="${esc(m)}">${esc(medTx(m))}</label>`).join(''); };
 function abrirFicha(p) {
   if (!puede) return;
   F = p ? { id: p.id, nuevo: false, fotos: [...(p.fotos || [])], medidas: [...(p.medidas || [])], colores: [...(p.colores || [])], precios: [...(p.precios || [])], vars: varsDe(p) } : { id: nid('m'), nuevo: true, fotos: [], medidas: [], colores: [], precios: [], vars: [] };
