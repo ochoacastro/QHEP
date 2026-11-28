@@ -11,6 +11,7 @@ var TEMAS=['amarillo','naranja','azul','rojo','acero','madera'],prev=null;
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 function marca(h){try{if(typeof h!=='string'||view!=='store')return h;var s=S.stores.find(function(x){return x.id===cur});if(!s||!(window.qhFerCat?window.qhFerCat(s.cat):/ferreter/i.test(s.cat||'')))return h;/* v477: todo «Hogar y construcción» */
  var t=TEMAS.indexOf(s.ferTema)>=0?s.ferTema:'amarillo',mia=S.mine.includes(s.id),m='<i class="qhfer-m" hidden data-t="'+t+'"'+(mia?' data-mia="1"':'')+'></i>';
+ if(window.qhMuebleCat&&window.qhMuebleCat(s.cat))m='<i class="qhmue-m" hidden'+(mia?' data-mia="1"':'')+'></i>';/* v478: las mueblerías llevan su propio diseño (v478-muebleria-tienda.css) */
  if(mia){var av='<div class="qhfer-av" role="note"><p><b>Los productos de esta tienda se manejan en el Inventario.</b> Allí cambias precios, fotos, existencias y qué se muestra; luego tocas «Publicar tienda».</p><a class="btn" href="/ferreteria?s='+encodeURIComponent(s.id)+'#inventario">Abrir inventario</a></div>',
   i=h.indexOf('<div class="icard">');h=i>=0?h.slice(0,i)+av+h.slice(i):av+h}
  return m+h}catch(e){return h}}

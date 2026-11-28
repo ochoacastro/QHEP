@@ -1,0 +1,38 @@
+/* v479: menú de categorías de la mueblería (lo arma v479-muebleria-categorias.js). Usa los colores de la v478 (--mua…--muf).
+   Cada categoría: dibujo en un cuadro niebla, nombre y flecha; abierta, cuadrícula de dos columnas con las subcategorías y «Ver todo». */
+.qmu-w{margin:4px 0 18px;padding:10px 16px 4px;background:var(--muf);border:1px solid var(--mud);border-radius:16px}
+.qmu-c:last-child{border-bottom:0}
+body.qhmue #app .ptitle{scroll-margin-top:140px}
+.qmu-t{margin:0 0 6px;color:var(--mub);font-size:22px;font-weight:700;letter-spacing:-.01em}
+.qmu-c{border-bottom:1px solid var(--mud)}
+.qmu-h{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:8px 2px;background:none;border:0;color:var(--mub);font-size:18px;font-weight:400;text-align:left;cursor:pointer}
+.qmu-hi{flex:none;display:grid;place-items:center;width:64px;height:46px;background:var(--muc);border-radius:12px}
+.qmu-hi .qmu-ic{width:52px;height:36px}
+.qmu-hn{flex:1;min-width:0}
+.qmu-fl{flex:none;width:22px;height:22px;fill:none;stroke:var(--mua);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s cubic-bezier(.23,1,.32,1)}
+.qmu-c.on .qmu-fl{transform:rotate(180deg)}
+.qmu-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:4px 0 10px}
+.qmu-s{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-height:132px;padding:14px;background:var(--muc);border:0;border-radius:16px;color:var(--mub);font-size:15px;font-weight:700;line-height:1.25;text-align:left;cursor:pointer}
+.qmu-s .qmu-ic{width:100%;max-width:110px;height:auto;aspect-ratio:64/44;align-self:center}
+.qmu-todo,.qmu-todos{display:block;width:100%;min-height:48px;margin:0 0 14px;padding:10px 14px;background:var(--muf);border:1.5px solid var(--mud);border-radius:12px;color:var(--mua);font-size:16px;font-weight:700;cursor:pointer}
+.qmu-todos{width:auto;display:inline-block;margin:0;min-height:40px;padding:8px 14px;font-size:14px}
+.qmu-fx{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin:6px 0 12px;color:var(--mue);font-size:15px}
+.qmu-ic{display:block;fill:none;stroke:var(--mub);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.qmu-ic .f{fill:var(--muf)}
+.qmu-ic .s{fill:var(--mud);stroke:none;opacity:.8}
+.qmu-s .qmu-ic .f,.qmu-hi .qmu-ic .f{fill:#ffffff}
+html.dark .qmu-s .qmu-ic .f,html.dark .qmu-hi .qmu-ic .f{fill:var(--mud)}
+.qmu-h:focus-visible,.qmu-s:focus-visible,.qmu-todo:focus-visible,.qmu-todos:focus-visible{outline:3px solid var(--mua);outline-offset:2px}
+.qmu-s:active{transform:scale(.98)}
+#app .pgrid .prod.qmu-no,#app .pgrid .prod.qmu-sz{display:none!important}
+/* v480: selector de medida (lo pone v480-muebleria-medidas.js) */
+.qmu-med{display:block;width:100%;margin:6px 0 8px}
+.qmu-mt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.qmu-med select{display:block;width:100%;min-height:46px;padding:10px 40px 10px 14px;background:var(--muf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a6377' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/20px;border:1.5px solid var(--mud);border-radius:12px!important;color:var(--mub);font-size:15px;font-weight:400!important;text-overflow:clip;-webkit-appearance:none;appearance:none}
+.qmu-med select{padding-left:12px;padding-right:34px;background-position:right 10px center}
+.qmu-med select:focus-visible{outline:3px solid var(--mua);outline-offset:1px;border-color:var(--mua)}
+/* la página cambia cada <select> por su botón y una hoja con las opciones (v221): ese botón toma la forma del selector de medida */
+body.qhmue .qmu-med .qs-btn{min-height:46px;margin:0!important;padding:10px 10px 10px 12px!important;background:var(--muf)!important;border:1.5px solid var(--mud)!important;border-radius:12px!important;color:var(--mub)!important;font-size:15px!important;font-weight:400!important}
+body.qhmue .qmu-med .qs-btn svg{width:18px;height:18px;flex:none}
+@media (min-width:700px){.qmu-g{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){.qmu-fl{transition:none}.qmu-s:active{transform:none}}

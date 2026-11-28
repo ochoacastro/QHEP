@@ -9,6 +9,9 @@ var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){ret
 /* v477: el inventario y la tienda de ferretería son para todo el grupo «Hogar y construcción» (Ferreterías, Hogar y decoración,
    Cacharrerías y misceláneas y las subcategorías que el administrador cree o mueva a ese grupo, v464/v476). La usa también v474. */
 window.qhFerCat=function(c){c=String(c||'');try{if(typeof CAT_MAP!=='undefined'&&CAT_MAP[c])c=CAT_MAP[c];return catGroupOf(c)==='Hogar y construcción'}catch(e){return /ferreter/i.test(c)}};
+/* v478: las mueblerías (subcategoría «Mueblerías» u otra con «mueble» o «colchón» en el nombre, dentro de Hogar y construcción)
+   usan el mismo inventario, pero su tienda lleva el diseño de mueblería (v478) en vez del de ferretería. */
+window.qhMuebleCat=function(c){c=String(c||'');try{if(typeof CAT_MAP!=='undefined'&&CAT_MAP[c])c=CAT_MAP[c]}catch(e){}return /muebl|colch[oó]n/i.test(c)&&window.qhFerCat(c)};
 var esFerr=function(s){return !!s&&window.qhFerCat(s.cat)};
 function tabla(ms){var h=orig.apply(this,arguments);if(typeof h!=='string'||!Array.isArray(ms))return h;
  ms.forEach(function(s){if(!esFerr(s))return;var ed='data-act="open" data-id="'+E(s.id)+'">Editar</button>',i=h.indexOf(ed);if(i<0)return;i+=ed.length;

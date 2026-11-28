@@ -1571,6 +1571,60 @@ const PRUEBAS = {
     if (process.env.FOTO_V474) { await q.evaluate(() => document.querySelector('.qhfer-av').scrollIntoView({ block: 'center' })); await q.waitForTimeout(300); await q.screenshot({ path: process.env.FOTO_V474 }) }
     sinErrores(q, 'Ferretería: dueño'); await q.cerrar();
   },
+  async muebleriaTienda() { // v478: la tienda de una mueblería lleva su propio diseño (azul marino, Roboto, etiqueta de descuento) y el inventario
+    const now = Date.now();
+    const seed = { 'meta/site': { catGrp: { 'Mueblerías': 'Hogar y construcción' } }, 'cats/mueblerias': { id: 'mueblerias', a: ['Mueblerías', '', '#9A3412'], _o: 3.5 },
+      'stores/mz': { id: 'mz', name: 'Muebles Z', cat: 'Mueblerías', wa: '3001234567', ownerUid: 'uA', ownerKey: 'kA', pexp: now + 30 * 864e5, ferTema: 'naranja', products: [], _o: 1 },
+      'products/mz__p1': { id: 'p1', sid: 'mz', name: 'Sofá 3 puestos', price: 1290000, old: 2190000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 1, ferCat: 'Sofás' },
+      'products/mz__p2': { id: 'p2', sid: 'mz', name: 'Colchón 140 x 190', price: 899000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 2, ferCat: 'Colchones de una cara' },
+      'products/mz__p3': { id: 'p3', sid: 'mz', name: 'Sofá cama', price: 990000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 3, ferCat: 'Sofá camas' },
+      'products/mz__m1': { id: 'm1', sid: 'mz', name: 'Colchón Orthopack (Sencillo 100 x 190)', price: 983000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 4, ferCat: 'Colchones de una cara', ferM: 'Sencillo 100 x 190', ferG: 'colchon-orthopack|colchones-de-una-cara' },
+      'products/mz__m2': { id: 'm2', sid: 'mz', name: 'Colchón Orthopack (Doble 140 x 190)', price: 1311000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 5, ferCat: 'Colchones de una cara', ferM: 'Doble 140 x 190', ferG: 'colchon-orthopack|colchones-de-una-cara' },
+      'products/mz__m3': { id: 'm3', sid: 'mz', name: 'Colchón Orthopack (King 200 x 200)', price: 1990000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, out: true, _o: 6, ferCat: 'Colchones de una cara', ferM: 'King 200 x 200', ferG: 'colchon-orthopack|colchones-de-una-cara' },
+      'stores/fz': { id: 'fz', name: 'Ferretería Z', cat: 'Ferreterías', wa: '3001234567', ownerUid: 'uB', ownerKey: 'kB', pexp: now + 30 * 864e5, products: [], _o: 2 },
+      'products/fz__q1': { id: 'q1', sid: 'fz', name: 'Martillo', price: 18000, imgs: [], ownerKey: 'kB', _o: 1 } };
+    const p = await abrir({ seed, ruta: '?tienda=muebles-z-mz' }); await p.waitForTimeout(700);
+    const v = await p.evaluate(() => { const pl = document.querySelector('.pgrid .prod .plus'), off = document.querySelector('.pgrid .prod .qhmue-off');
+      return { view, mue: !!document.querySelector('.qhmue-m'), fer: !!document.querySelector('.qhfer-m'), boton: pl && getComputedStyle(pl).backgroundColor, letra: getComputedStyle(document.querySelector('.pgrid .prod h3')).fontFamily, off: off && off.textContent, offs: document.querySelectorAll('.qhmue-off').length } });
+    check('Mueblería: lleva su diseño y no el de ferretería', v.view === 'store' && v.mue && !v.fer, JSON.stringify(v));
+    check('Mueblería: «Agregar al carrito» azul marino y letra Roboto', v.boton === 'rgb(16, 63, 141)' && /RobotoMP/.test(v.letra), JSON.stringify(v));
+    check('Mueblería: el producto con precio anterior lleva la etiqueta «-41%» (solo ese)', v.off === '-41%' && v.offs === 1, JSON.stringify(v));
+    // v479: menú de categorías de mueblería
+    const m1 = await p.evaluate(() => [...document.querySelectorAll('.qmu-h .qmu-hn')].map(x => x.textContent));
+    check('v479: el menú muestra solo las categorías con productos (Colchones y Salas)', m1.join() === 'Colchones,Salas', JSON.stringify(m1));
+    await p.click('[data-qmu-cat="Salas"]'); await p.waitForTimeout(200);
+    const subs = await p.evaluate(() => [...document.querySelectorAll('.qmu-s span')].map(x => x.textContent));
+    check('v479: al abrir Salas salen sus subcategorías con productos y «Ver todo en Salas»', subs.join() === 'Sofás,Sofá camas' && await p.isVisible('[data-qmu-todo="Salas"]'), JSON.stringify(subs));
+    await p.click('[data-qmu-sub="Sofás"]'); await p.waitForTimeout(300);
+    const f1 = await p.evaluate(() => ({ vis: [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none').map(x => x.querySelector('h3').textContent.trim()), barra: (document.querySelector('.qmu-fx span') || {}).textContent }));
+    check('v479: tocar «Sofás» muestra solo los sofás, con la barra «Sofás: 1 producto»', f1.vis.length === 1 && /Sofá 3 puestos/.test(f1.vis[0]) && f1.barra === 'Sofás: 1 producto', JSON.stringify(f1));
+    await p.click('[data-qmu-todo="Salas"]'); await p.waitForTimeout(300);
+    check('v479: «Ver todo en Salas» muestra los dos productos de Salas', await p.evaluate(() => [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none').length === 2));
+    await p.click('[data-qmu-todos]'); await p.waitForTimeout(300);
+    check('v479: «Ver todos los productos» quita el filtro', await p.evaluate(() => [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none').length === 4 && !document.querySelector('.qmu-fx')));
+    // v480: las medidas del mismo modelo en una tarjeta con el selector
+    const vis = () => p.evaluate(() => [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none'));
+    const md = await p.evaluate(() => { const c = [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none' && x.querySelector('.qmu-med')); return { n: c.length, tit: c[0] && c[0].querySelector('h3').textContent.trim(), precio: c[0] && c[0].querySelector('.price').textContent.replace(/\s/g, ''), opts: c[0] ? [...c[0].querySelectorAll('.qmu-med option')].map(o => o.textContent) : [] } });
+    check('v480: las 3 medidas del colchón salen en UNA tarjeta, con el nombre sin medida y la primera medida', md.n === 1 && md.tit === 'Colchón Orthopack' && md.precio === '$983.000', JSON.stringify(md));
+    check('v480: el selector lista las medidas en orden y marca la agotada', md.opts.join('/') === '100 x 190 | Sencillo/140 x 190 | Doble/200 x 200 | King (agotado)', JSON.stringify(md.opts));
+    await p.evaluate(() => { const s = document.querySelector('.qmu-med select'); s.value = 'm2'; s.dispatchEvent(new Event('change', { bubbles: true })) }); await p.waitForTimeout(300);
+    const md2 = await p.evaluate(() => { const c = [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none' && x.querySelector('.qmu-med'))[0]; c.querySelector('.plus').click(); return { precio: c.querySelector('.price').textContent.replace(/\s/g, ''), carrito: Object.keys(S.cart) } });
+    check('v480: al elegir 140 x 190 cambia el precio y el carrito lleva esa medida', md2.precio === '$1.311.000' && md2.carrito.some(k => k.startsWith('mz|m2')), JSON.stringify(md2));
+    check('v480: el filtro cuenta el colchón una sola vez', await p.evaluate(() => { document.querySelector('[data-qmu-cat="Colchones"]').click(); return true }) && await (async () => { await p.waitForTimeout(200); await p.click('[data-qmu-todo="Colchones"]'); await p.waitForTimeout(300); return p.evaluate(() => document.querySelector('.qmu-fx span').textContent === 'Colchones: 2 productos') })());
+    await p.click('[data-qmu-todos]'); await p.waitForTimeout(200);
+    await p.evaluate(() => { cur = 'fz'; render() }); await p.waitForTimeout(400);
+    check('Una ferretería sigue con su diseño de ferretería y sin etiquetas de mueblería', await p.evaluate(() => !!document.querySelector('.qhfer-m') && !document.querySelector('.qhmue-m') && !document.querySelector('.qhmue-off')));
+    sinErrores(p, 'Mueblería: visitante'); await p.cerrar();
+    const q = await abrir({ user: { uid: 'uA', isAnonymous: false, email: 'ana@x.co', emailVerified: true }, seed, ruta: '?tienda=muebles-z-mz' }); await conCuenta(q);
+    await q.evaluate(() => { S.mine = ['mz']; render() }); await q.waitForTimeout(500);
+    const d = await q.evaluate(() => { const vis = s => { const e = document.querySelector(s); return !!e && getComputedStyle(e).display !== 'none' };
+      return { aviso: vis('.qhfer-av'), mia: !!document.querySelector('.qhmue-m[data-mia]'), add: vis('[data-act="addProd"]'), habia: !!document.querySelector('[data-act="addProd"]'), href: (document.querySelector('.qhfer-av a') || {}).getAttribute && document.querySelector('.qhfer-av a').getAttribute('href') } });
+    check('Mueblería: el dueño ve «Abrir inventario» y no los botones de productos', d.aviso && d.mia && d.habia && !d.add && d.href === '/ferreteria?s=mz#inventario', JSON.stringify(d));
+    await q.evaluate(() => pnlModal('tiendas')); await q.waitForTimeout(400);
+    check('Mueblería: en Mis tiendas tiene «Inventario»', await q.evaluate(() => !!document.querySelector('#ov .v473-inv[data-v473="mz"]')));
+    if (process.env.FOTO_V478) { await q.evaluate(() => { closeModal(1); render() }); await q.waitForTimeout(400); await q.screenshot({ path: process.env.FOTO_V478 }) }
+    sinErrores(q, 'Mueblería: dueño'); await q.cerrar();
+  },
 };
 
 (async () => {

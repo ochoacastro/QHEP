@@ -550,6 +550,7 @@ a{color:inherit}
     <div class="f catw"><label for="pCat" style="font-size:14px;font-weight:600">Categoría</label><select id="pCat"></select><input id="pCatN" placeholder="Nombre de la nueva categoría" aria-label="Nombre de la nueva categoría" autocomplete="off" hidden></div>
     <div class="f"><label for="pCod" style="font-size:14px;font-weight:600">Código</label><div class="codw"><input id="pCod" autocomplete="off" placeholder="Se sugiere al elegir categoría" style="text-transform:uppercase"><button class="btn" type="button" id="pGen">Generar</button></div></div>
     <label class="f"><span>Unidad de medida</span><input id="pUni" list="unis" autocomplete="off" value="und"></label>
+    <label class="f" id="pMedW" hidden><span>Medida <em>(colchones, camas, bases, ropa de cama)</em></span><select id="pMed"><option value="">Sin medida</option><option value="Sencillo 100 x 190">100 x 190 | Sencillo</option><option value="Semidoble 120 x 190">120 x 190 | Semidoble</option><option value="Doble 140 x 190">140 x 190 | Doble</option><option value="Queen 160 x 190">160 x 190 | Queen</option><option value="King 200 x 200">200 x 200 | King</option></select></label>
     <label class="f"><span>Ubicación <em>(pasillo-estante)</em></span><input id="pUbi" autocomplete="off" placeholder="P1-A"></label>
     <label class="f full"><span>Proveedor habitual <em>(opcional)</em></span><input id="pPro" list="provs" autocomplete="off"></label>
     <label class="f"><span>Costo unitario</span><input id="pCos" inputmode="numeric" autocomplete="off" placeholder="0"></label>
@@ -1074,6 +1075,7 @@ function openProd(id) {
   const v = { pNom: p?.nombre, pCat: p?.categoria, pCod: p?.codigo, pUni: p?.unidad ?? 'und', pUbi: p?.ubicacion, pPro: p?.proveedor, pCos: p ? String(p.costo ?? '') : '', pPre: p ? String(p.precio ?? '') : '', pMin: p ? String(p.minimo ?? '') : '', pIni: '' };
   fillCatSel(p?.categoria || '');
   for (const [k, val] of Object.entries(v)) $('#' + k).value = val ?? '';
+  { const m = /\s*\(((?:Sencillo|Semidoble|Doble|Queen|King) \d+ x \d+)\)$/.exec(p?.nombre || ''); $('#pMed').value = m ? m[1] : ''; if (m && !$('#pMedW').hidden) $('#pNom').value = p.nombre.slice(0, m.index); }/* v480: la medida va aparte en el formulario y al final del nombre */
   $('#pIniW').hidden = !!p; $('#pDel').hidden = !p; $('#pErr').textContent = '';
   pf = { orig: p?.foto || '', cur: p?.foto || '', up: [], saved: false };
   $('#pVis').checked = !p?.oculto;
@@ -1142,6 +1144,7 @@ $('#fp').addEventListener('submit', async e => {
   if ($('#pCat').value === '__new' && !catVal()) { E.textContent = 'Escribe el nombre de la nueva categoría.'; $('#pCatN').focus(); return; }
   const d = { nombre: $('#pNom').value.trim(), categoria: catList().find(c => norm(c) === norm(catVal())) || catVal(), codigo: $('#pCod').value.trim().toUpperCase(), unidad: $('#pUni').value.trim() || 'und', ubicacion: $('#pUbi').value.trim(), proveedor: $('#pPro').value.trim(), costo: pMoney($('#pCos').value), precio: pMoney($('#pPre').value), minimo: pQty($('#pMin').value) || 0, foto: pf.cur || '', oculto: !$('#pVis').checked };
   const ini = pQty($('#pIni').value) || 0;
+  if (!$('#pMedW').hidden && d.nombre) { const m = $('#pMed').value; d.nombre = d.nombre.replace(/\s*\(((?:Sencillo|Semidoble|Doble|Queen|King) \d+ x \d+)\)$/, '') + (m ? ' (' + m + ')' : ''); d.medida = m; }/* v480 */
   if (!d.nombre) { E.textContent = 'Escribe el nombre del producto.'; $('#pNom').focus(); return; }
   if (d.codigo && !CODE_RE.test(d.codigo)) { E.textContent = 'El código solo puede tener letras, números, guion, punto o guion bajo, sin espacios ni tildes (máximo 20).'; $('#pCod').focus(); return; }
   if (d.codigo && prodList().some(p => p.id !== editId && String(p.codigo).toUpperCase() === d.codigo)) { E.textContent = `Ya existe otro producto con el código ${d.codigo}.`; return; }
@@ -1818,6 +1821,10 @@ boot();
   const VIEJO = { 'Hogar': 'Hogar y decoración', 'Muebles y decoración': 'Hogar y decoración', 'Ferretería': 'Ferreterías', 'Cacharrerías': 'Cacharrerías y misceláneas' };
   let catGrp = {}; try { const m = await fs.doc('meta/site').get(); const g = m.exists && m.data().catGrp; if (g && typeof g === 'object') catGrp = g; } catch (e) {}
   const esHogar = c => { c = String(c || ''); c = VIEJO[c] || c; return typeof catGrp[c] === 'string' ? catGrp[c] === HOGAR : HOGAR0.includes(c); };
+  /* v480: mueblería. Subcategorías del menú de la tienda (las mismas de window.QH_MUE en v479-muebleria-categorias.js: si cambian
+     allá, cambiarlas aquí) y medidas, que van al final del nombre del producto: «Colchón Orthopack (Doble 140 x 190)». */
+  const MUE_SUBS = ['Colchones de una cara', 'Colchones de dos caras', 'Colchón y base cama', 'Colchón y cama tapizada', 'Colchón y cama de madera', 'Colchón y cama nido', 'Colchón y nocheros', 'Camas y bases', 'Mesas de noche', 'Camarotes', 'Clósets', 'Tocadores', 'Sofás', 'Sofá camas', 'Sofás en L', 'Combos de salas', 'Modulares', 'Sillas, poltronas y puff', 'Sillas reclinables', 'Mesas de centro', 'Comedores de 4 puestos', 'Comedores de 6 puestos', 'Mesas de comedor', 'Sillas de comedor', 'Almohadas', 'Protectores', 'Sábanas', 'Duvets', 'Plumones y cobijas', 'Cojines', 'Tapetes'];
+  const MEDIDA = /\s*\(((?:Sencillo|Semidoble|Doble|Queen|King) \d+ x \d+)\)$/;
   /* v474: el catálogo de una ferretería ahora es su tienda de Mi Pradera: los enlaces viejos ?t=<uid> llevan allá */
   if (tQ && !ADMH.test(location.hash)) {
     try { const r = await fs.collection('stores').where('ownerUid', '==', tQ).get(); const s = r.docs.map(d => ({ ...d.data(), id: d.id })).find(x => esHogar(x.cat)); if (s) { location.replace(mpUrl(s)); return; } } catch (e) {}
@@ -1864,6 +1871,8 @@ boot();
     const sQ = (qs.get('s') || '').replace(/[^A-Za-z0-9_-]/g, '');
     tienda = tiendas.find(x => x.id === sQ) || tiendas.find(x => x.id === (cfg && cfg.sid)) || tiendas[0] || null;
     if (tienda) { Q.url = mpUrl(tienda); Q.tienda = tienda.id; }
+    /* v480: ¿es una mueblería? (igual que window.qhMuebleCat de Mi Pradera, v478) */
+    if (tienda) Q.mue = /muebl|colch[oó]n/i.test(VIEJO[tienda.cat] || tienda.cat || '');
   }
 
   /* Mensajes de «Acceso del equipo» */
@@ -1963,6 +1972,8 @@ boot();
         const id = sid + '__' + p.id, e = ex.get(id), foto = /^https:\/\//.test(p.foto || '') ? p.foto : '';
         const resto = e ? (e.imgs || []).filter(x => x !== foto && x !== e.ferF) : [];
         const d = { name: String(p.nombre || '').slice(0, 150), price: +p.precio || 0, imgs: (foto ? [foto, ...resto] : resto).slice(0, 6), out: p.disp === 'out', fer: 1, ferF: foto, ownerUid: me.uid };
+        /* v480: mueblería: subcategoría (menú de la v479) y medida; las medidas del mismo modelo se juntan en la tienda (ferG) */
+        if (Q.mue) { const mm = MEDIDA.exec(p.nombre || ''); d.ferCat = String(p.categoria || '').slice(0, 60); d.ferM = mm ? mm[1] : ''; d.ferG = mm ? slug(p.nombre.slice(0, mm.index)) + '|' + slug(p.categoria) : ''; }
         tareas.push(() => e ? fs.doc('products/' + id).update(d) : fs.doc('products/' + id).set({ id: p.id, sid, d: '', ...d, ownerKey: tienda.ownerKey || '', _o: now + i }));
         ex.delete(id);
       });
@@ -1983,7 +1994,12 @@ boot();
     usar = name => name === 'db' ? Promise.resolve(db) : name === 'user' ? Promise.resolve(usuario) : name === 'downloads' ? Promise.resolve(descargas)
       : name === 'assets' && puede ? Promise.resolve(fotos) : name === 'artifact' && puede ? Promise.resolve(pagina) : Promise.reject({ code: 'not_granted' });
     if (puede && tienda) { try { Q.importados = await importar(); } catch (e) { try { console.warn('v474: no se pudieron pasar los productos de la tienda', e && e.code); } catch (x) {} } }
+    /* v480: en una mueblería, las subcategorías del menú de la tienda (v479) quedan como categorías del inventario */
+    if (puede && Q.mue) {
+      try { const ya = cfg && Array.isArray(cfg.categorias) ? cfg.categorias : [], faltan = MUE_SUBS.filter(x => !ya.includes(x)); if (faltan.length) await fs.doc(raiz + 'sys/config').set({ categorias: ya.concat(faltan) }, { merge: true }); } catch (e) {}
+    }
   }
+  if (Q.mue) { const w = $('#pMedW'); if (w) w.hidden = false; }
 
   /* v474: la vitrina es la tienda de Mi Pradera. Sin ?t=, ir a una parte de la vitrina (#productos…) lleva allá */
   if (!tQ) addEventListener('hashchange', () => { if (!ADMH.test(location.hash)) location.replace(tienda ? Q.url : '/'); });

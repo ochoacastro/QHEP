@@ -7519,6 +7519,9 @@ var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){ret
 /* v477: el inventario y la tienda de ferretería son para todo el grupo «Hogar y construcción» (Ferreterías, Hogar y decoración,
    Cacharrerías y misceláneas y las subcategorías que el administrador cree o mueva a ese grupo, v464/v476). La usa también v474. */
 window.qhFerCat=function(c){c=String(c||'');try{if(typeof CAT_MAP!=='undefined'&&CAT_MAP[c])c=CAT_MAP[c];return catGroupOf(c)==='Hogar y construcción'}catch(e){return /ferreter/i.test(c)}};
+/* v478: las mueblerías (subcategoría «Mueblerías» u otra con «mueble» o «colchón» en el nombre, dentro de Hogar y construcción)
+   usan el mismo inventario, pero su tienda lleva el diseño de mueblería (v478) en vez del de ferretería. */
+window.qhMuebleCat=function(c){c=String(c||'');try{if(typeof CAT_MAP!=='undefined'&&CAT_MAP[c])c=CAT_MAP[c]}catch(e){}return /muebl|colch[oó]n/i.test(c)&&window.qhFerCat(c)};
 var esFerr=function(s){return !!s&&window.qhFerCat(s.cat)};
 function tabla(ms){var h=orig.apply(this,arguments);if(typeof h!=='string'||!Array.isArray(ms))return h;
  ms.forEach(function(s){if(!esFerr(s))return;var ed='data-act="open" data-id="'+E(s.id)+'">Editar</button>',i=h.indexOf(ed);if(i<0)return;i+=ed.length;
@@ -7577,6 +7580,7 @@ var TEMAS=['amarillo','naranja','azul','rojo','acero','madera'],prev=null;
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 function marca(h){try{if(typeof h!=='string'||view!=='store')return h;var s=S.stores.find(function(x){return x.id===cur});if(!s||!(window.qhFerCat?window.qhFerCat(s.cat):/ferreter/i.test(s.cat||'')))return h;/* v477: todo «Hogar y construcción» */
  var t=TEMAS.indexOf(s.ferTema)>=0?s.ferTema:'amarillo',mia=S.mine.includes(s.id),m='<i class="qhfer-m" hidden data-t="'+t+'"'+(mia?' data-mia="1"':'')+'></i>';
+ if(window.qhMuebleCat&&window.qhMuebleCat(s.cat))m='<i class="qhmue-m" hidden'+(mia?' data-mia="1"':'')+'></i>';/* v478: las mueblerías llevan su propio diseño (v478-muebleria-tienda.css) */
  if(mia){var av='<div class="qhfer-av" role="note"><p><b>Los productos de esta tienda se manejan en el Inventario.</b> Allí cambias precios, fotos, existencias y qué se muestra; luego tocas «Publicar tienda».</p><a class="btn" href="/ferreteria?s='+encodeURIComponent(s.id)+'#inventario">Abrir inventario</a></div>',
   i=h.indexOf('<div class="icard">');h=i>=0?h.slice(0,i)+av+h.slice(i):av+h}
  return m+h}catch(e){return h}}
@@ -7585,6 +7589,237 @@ function nueva(){var h=prev?prev.apply(this,arguments):storeView0.apply(this,arg
 function inst(){if(typeof storeView0!=='function')return false;if(window.storeViewExt===nueva)return true;if(!window.__ltrW&&document.readyState==='loading')return false;
  prev=typeof window.storeViewExt==='function'?window.storeViewExt:null;window.storeViewExt=nueva;try{if(view==='store')render()}catch(e){}return true}
 document.addEventListener('DOMContentLoaded',inst);var k=0,iv=setInterval(function(){inst();if(++k>100)clearInterval(iv)},100);
+})();
+</script>
+<style id="v478-muebleria-tienda-css">/* v478: diseño de mueblería (muebles, colchones, comedores, salas, alcobas) para la tienda de Mi Pradera de una mueblería.
+   Forma tomada de una tienda de colchones y muebles en línea (no su marca): azul marino y blanco, fotos sobre gris niebla,
+   precio grande, botón azul a lo ancho y etiqueta negra de descuento. Letra Roboto (fuentes/roboto-latin.woff2, OFL).
+   Solo aplica con la clase body.qhmue (y body.qhmue-mia para el dueño), que pone v478-muebleria-tienda.js cuando la vista de la
+   tienda trae la marca <i class="qhmue-m"> (v474, con window.qhMuebleCat). No se usa body:has(): con la regla de la letra sobre
+   todos los elementos hacía recalcular los estilos de toda la página en cada cambio (se notaba en el panel de administrador).
+   Colores en variables --mua…--muf para que el modo oscuro automático (v219) no los cambie. */
+@font-face{font-family:'RobotoMP';font-style:normal;font-display:swap;font-weight:100 900;src:url(fuentes/roboto-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+/* --mua azul de los botones · --mub tinta (marino) · --muc niebla · --mud línea · --mue pizarra · --muf blanco de tarjeta */
+body.qhmue{--mua:#103f8d;--mub:#121a2f;--muc:#f4f5f9;--mud:#e4e7f0;--mue:#5a6377;--muf:#ffffff}
+html.dark body.qhmue{--mua:#3a66c4;--mub:#e9ecf5;--muc:#1b2133;--mud:#2b3247;--mue:#a3abc0;--muf:#141a2a}
+
+body.qhmue #app,body.qhmue #app *:not(svg):not(path){font-family:'RobotoMP',Roboto,system-ui,-apple-system,'Segoe UI',sans-serif!important}
+body.qhmue .stsw{border-bottom:1px solid var(--mud)}
+/* nombre de la tienda: franja niebla, sobria, con el nombre en marino */
+body.qhmue .sname{background:var(--muf);border:1px solid var(--mud);border-radius:16px;padding:16px}
+body.qhmue #app input::placeholder{font-family:'RobotoMP',Roboto,system-ui,sans-serif!important}
+body.qhmue .sname h2{color:var(--mub);font-weight:700;letter-spacing:-.01em}
+body.qhmue .icard{background:var(--muf);border:1px solid var(--mud);border-radius:16px;box-shadow:none}
+body.qhmue .banner.sinfo-b{border-top-color:var(--mua)!important;border-radius:16px}
+body.qhmue .banner.sinfo-b .acts .btn:not(.ghost){background:var(--mua);border-color:var(--mua);color:#ffffff;border-radius:10px!important}
+body.qhmue .banner.sinfo-b .acts .btn.ghost{background:var(--muf);border-color:var(--mua);color:var(--mua);border-radius:10px!important}
+html.dark body.qhmue .banner.sinfo-b .acts .btn.ghost{background:var(--muf);border-color:var(--mua);color:var(--mub)}
+body.qhmue .ptitle{color:var(--mub);font-weight:700;font-size:22px;letter-spacing:-.01em}
+
+/* tarjeta de producto: blanca, borde suave, foto sobre niebla, precio grande y botón azul a lo ancho */
+body.qhmue .pgrid .prod{background:var(--muf);border:1px solid var(--mud)!important;border-radius:16px;box-shadow:none}
+body.qhmue .pgrid .prod .pic{background:var(--muc);border-radius:12px}
+body.qhmue .pgrid .prod h3,body.qhmue .pgrid .prod h3 .plink{color:var(--mub);font-weight:400}
+body.qhmue .pgrid .prod .price{color:var(--mub);font-weight:700}
+body.qhmue .pgrid .prod .price .pold{color:var(--mue);font-weight:400;font-size:13px}
+body.qhmue .pgrid .prod .plus{background:var(--mua)!important;color:#ffffff!important;border:0!important;border-radius:10px!important}
+body.qhmue .pgrid .prod .soldout{background:var(--muc);color:var(--mue);border-radius:10px}
+/* descuento: etiqueta negra sobre la foto (la pone v478-muebleria-tienda.js con el precio anterior) */
+body.qhmue .qhmue-off{position:absolute;top:10px;left:10px;z-index:2;background:#000000;color:#ffffff;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;line-height:1.3}
+html.dark body.qhmue .qhmue-off{background:#ffffff;color:#000000}
+
+/* dueño: los productos los manda el inventario (igual que en la ferretería, v474) */
+body.qhmue-mia [data-act="addProd"],body.qhmue-mia [data-lpv="open"],body.qhmue-mia [data-act="mcats"],
+body.qhmue-mia .prod [data-act="editProd"],body.qhmue-mia .prod [data-act="delProd"]{display:none!important}
+body.qhmue .qhfer-av{border:1px solid var(--mud);border-left:6px solid var(--mua);background:var(--muf);color:var(--mub)}
+body.qhmue .qhfer-av .btn{background:var(--mua);border-color:var(--mua);color:#ffffff;border-radius:10px}
+</style>
+<script id="v478-muebleria-tienda">/* v478: DISEÑO DE MUEBLERÍA. En la tienda de una mueblería (marca .qhmue-m, la pone v474 con window.qhMuebleCat de v473), cada
+   producto con precio anterior lleva sobre la foto una etiqueta negra con el descuento («-41%»), calculado con el precio y el
+   precio anterior que ya muestra la tarjeta. Los colores y la letra están en v478-muebleria-tienda.css.
+   Solo mira la página (no guarda nada). Si algo falla, borra este bloque y su <style>. */
+(function(){
+var num=function(t){var d=String(t||'').replace(/[^\d]/g,'');return d?+d:0};
+function poner(){if(!document.querySelector('.qhmue-m'))return;
+ document.querySelectorAll('.pgrid .prod').forEach(function(p){var pic=p.querySelector('.pic'),pr=p.querySelector('.price'),old=pr&&pr.querySelector('.pold');
+  if(!pic||!old||pic.querySelector('.qhmue-off'))return;
+  var o=num(old.textContent),v=num(pr.textContent.replace(old.textContent,'')),off=o>v&&v>0?Math.round((1-v/o)*100):0;if(off<1)return;
+  var b=document.createElement('span');b.className='qhmue-off';b.textContent='-'+off+'%';b.setAttribute('aria-label',off+'% de descuento');pic.appendChild(b)})}
+/* clases del <body> para los estilos (body.qhmue, body.qhmue-mia): se ponen en el mismo instante del cambio, antes de dibujar */
+function clases(){var m=document.querySelector('.qhmue-m'),b=document.body;if(!b)return;b.classList.toggle('qhmue',!!m);b.classList.toggle('qhmue-mia',!!(m&&m.hasAttribute('data-mia')))}
+var pend=false;function luego(){clases();if(pend)return;pend=true;requestAnimationFrame(function(){pend=false;poner()})}
+function inst(){var a=document.getElementById('app');if(!a)return false;new MutationObserver(luego).observe(a,{childList:true,subtree:true});luego();return true}
+if(!inst())document.addEventListener('DOMContentLoaded',inst);
+})();
+</script>
+<style id="v479-muebleria-categorias-css">/* v479: menú de categorías de la mueblería (lo arma v479-muebleria-categorias.js). Usa los colores de la v478 (--mua…--muf).
+   Cada categoría: dibujo en un cuadro niebla, nombre y flecha; abierta, cuadrícula de dos columnas con las subcategorías y «Ver todo». */
+.qmu-w{margin:4px 0 18px;padding:10px 16px 4px;background:var(--muf);border:1px solid var(--mud);border-radius:16px}
+.qmu-c:last-child{border-bottom:0}
+body.qhmue #app .ptitle{scroll-margin-top:140px}
+.qmu-t{margin:0 0 6px;color:var(--mub);font-size:22px;font-weight:700;letter-spacing:-.01em}
+.qmu-c{border-bottom:1px solid var(--mud)}
+.qmu-h{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:8px 2px;background:none;border:0;color:var(--mub);font-size:18px;font-weight:400;text-align:left;cursor:pointer}
+.qmu-hi{flex:none;display:grid;place-items:center;width:64px;height:46px;background:var(--muc);border-radius:12px}
+.qmu-hi .qmu-ic{width:52px;height:36px}
+.qmu-hn{flex:1;min-width:0}
+.qmu-fl{flex:none;width:22px;height:22px;fill:none;stroke:var(--mua);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s cubic-bezier(.23,1,.32,1)}
+.qmu-c.on .qmu-fl{transform:rotate(180deg)}
+.qmu-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:4px 0 10px}
+.qmu-s{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-height:132px;padding:14px;background:var(--muc);border:0;border-radius:16px;color:var(--mub);font-size:15px;font-weight:700;line-height:1.25;text-align:left;cursor:pointer}
+.qmu-s .qmu-ic{width:100%;max-width:110px;height:auto;aspect-ratio:64/44;align-self:center}
+.qmu-todo,.qmu-todos{display:block;width:100%;min-height:48px;margin:0 0 14px;padding:10px 14px;background:var(--muf);border:1.5px solid var(--mud);border-radius:12px;color:var(--mua);font-size:16px;font-weight:700;cursor:pointer}
+.qmu-todos{width:auto;display:inline-block;margin:0;min-height:40px;padding:8px 14px;font-size:14px}
+.qmu-fx{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin:6px 0 12px;color:var(--mue);font-size:15px}
+.qmu-ic{display:block;fill:none;stroke:var(--mub);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.qmu-ic .f{fill:var(--muf)}
+.qmu-ic .s{fill:var(--mud);stroke:none;opacity:.8}
+.qmu-s .qmu-ic .f,.qmu-hi .qmu-ic .f{fill:#ffffff}
+html.dark .qmu-s .qmu-ic .f,html.dark .qmu-hi .qmu-ic .f{fill:var(--mud)}
+.qmu-h:focus-visible,.qmu-s:focus-visible,.qmu-todo:focus-visible,.qmu-todos:focus-visible{outline:3px solid var(--mua);outline-offset:2px}
+.qmu-s:active{transform:scale(.98)}
+#app .pgrid .prod.qmu-no,#app .pgrid .prod.qmu-sz{display:none!important}
+/* v480: selector de medida (lo pone v480-muebleria-medidas.js) */
+.qmu-med{display:block;width:100%;margin:6px 0 8px}
+.qmu-mt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.qmu-med select{display:block;width:100%;min-height:46px;padding:10px 40px 10px 14px;background:var(--muf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a6377' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/20px;border:1.5px solid var(--mud);border-radius:12px!important;color:var(--mub);font-size:15px;font-weight:400!important;text-overflow:clip;-webkit-appearance:none;appearance:none}
+.qmu-med select{padding-left:12px;padding-right:34px;background-position:right 10px center}
+.qmu-med select:focus-visible{outline:3px solid var(--mua);outline-offset:1px;border-color:var(--mua)}
+/* la página cambia cada <select> por su botón y una hoja con las opciones (v221): ese botón toma la forma del selector de medida */
+body.qhmue .qmu-med .qs-btn{min-height:46px;margin:0!important;padding:10px 10px 10px 12px!important;background:var(--muf)!important;border:1.5px solid var(--mud)!important;border-radius:12px!important;color:var(--mub)!important;font-size:15px!important;font-weight:400!important}
+body.qhmue .qmu-med .qs-btn svg{width:18px;height:18px;flex:none}
+@media (min-width:700px){.qmu-g{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){.qmu-fl{transition:none}.qmu-s:active{transform:none}}
+</style>
+<script id="v479-muebleria-categorias">/* v479: MENÚ DE CATEGORÍAS DE LA MUEBLERÍA. En la tienda de una mueblería (marca .qhmue-m, v478), antes de los productos sale un menú
+   plegable: cada categoría (Colchones, Combos de colchón, Alcobas, Salas, Comedores, Ropa de cama) con su dibujo; al tocarla se abre
+   una cuadrícula de dos columnas con sus subcategorías y «Ver todo en …». Tocar una subcategoría o «Ver todo» muestra solo esos
+   productos, con «Ver todos los productos» para volver.
+   - La lista es fija (window.QH_MUE). En el inventario (ferreteria.html, v479) la subcategoría de cada producto es su «Categoría»;
+     «Publicar tienda» la guarda en Mi Pradera como products/<tienda>__<id>.ferCat.
+   - Solo salen las categorías y subcategorías que tienen productos. Los productos sin subcategoría de la lista salen en «Ver todos».
+   - Los dibujos son propios (línea azul marino con relleno gris niebla), hechos para Mi Pradera.
+   Solo mira la página y oculta tarjetas; no guarda nada. Si algo falla, borra este bloque y su <style>. */
+(function(){
+var F=' class="f"',S2=' class="s"';
+/* dibujos: viewBox 64x44, trazo currentColor; .f relleno niebla; .s sombra */
+var D={
+ sombra:'<ellipse'+S2+' cx="32" cy="40" rx="24" ry="2.6"/>',
+ colchon:'<path'+F+' d="M10 22l4-8h36l4 8z"/><rect x="9" y="22" width="46" height="9" rx="2"/><path d="M9 26h46"/><path d="M19 17h1M26 17h1M33 17h1M40 17h1M23 20h1M30 20h1M37 20h1M44 20h1"/>',
+ colchon2:'<path'+F+' d="M12 26l4-7h32l4 7z"/><rect x="11" y="26" width="42" height="8" rx="2"/><path d="M22 18c2-8 18-8 20 0"/><path d="M40 15l2 3 3-2"/>',
+ base:'<path'+F+' d="M10 17l3-6h38l3 6z"/><rect x="9" y="17" width="46" height="7" rx="2"/><rect'+F+' x="8" y="24" width="48" height="8" rx="1.5"/><path d="M12 32v4M52 32v4"/>',
+ tapizada:'<rect'+F+' x="14" y="6" width="36" height="14" rx="2"/><path d="M20 10h1M27 10h1M34 10h1M41 10h1M23 15h1M30 15h1M37 15h1"/><rect x="10" y="20" width="44" height="9" rx="2"/><rect'+F+' x="10" y="29" width="44" height="4" rx="1"/><path d="M13 33v4M51 33v4"/>',
+ madera:'<rect x="14" y="6" width="36" height="14" rx="1.5"/><path d="M21 6v14M28 6v14M36 6v14M43 6v14"/><rect'+F+' x="10" y="20" width="44" height="9" rx="2"/><rect x="10" y="29" width="44" height="4" rx="1"/><path d="M13 33v4M51 33v4"/>',
+ nido:'<path d="M9 10v20M55 10v20"/><rect'+F+' x="11" y="12" width="42" height="7" rx="1.5"/><rect x="13" y="22" width="38" height="7" rx="1.5"/><path d="M9 30h46M12 30v5M52 30v5"/>',
+ nochero:'<rect x="21" y="8" width="22" height="12" rx="1.5"/><rect'+F+' x="18" y="20" width="28" height="9" rx="2"/><path d="M20 29v5M44 29v5"/><rect'+F+' x="4" y="20" width="11" height="12" rx="1"/><path d="M4 26h11M8 23h3M8 29h3M6 32v3M13 32v3"/><rect'+F+' x="49" y="20" width="11" height="12" rx="1"/><path d="M49 26h11M53 23h3M53 29h3M51 32v3M58 32v3"/>',
+ cama:'<rect'+F+' x="14" y="5" width="36" height="17" rx="1.5"/><path d="M14 22h36"/><path d="M12 22h40v12H12z"/><path d="M14 26h36M14 29h36M14 32h36"/><path d="M14 34v3M50 34v3"/>',
+ mesanoche:'<path'+F+' d="M28 4h8l3 7H25z"/><path d="M32 11v6M28 17h8"/><rect x="18" y="17" width="28" height="17" rx="1.5"/><path d="M18 25.5h28M32 21h1M32 30h1M21 34v3M43 34v3"/>',
+ camarote:'<path d="M12 4v33M52 4v33"/><rect'+F+' x="14" y="8" width="36" height="6" rx="1.5"/><path d="M12 15h40"/><rect'+F+' x="14" y="25" width="36" height="6" rx="1.5"/><path d="M12 32h40M44 15v17M48 15v17M44 20h4M44 25h4"/>',
+ closet:'<rect'+F+' x="16" y="4" width="32" height="31" rx="1.5"/><path d="M32 4v31M29 18v4M35 18v4M19 35v3M45 35v3"/>',
+ tocador:'<rect'+F+' x="24" y="3" width="16" height="13" rx="6"/><rect x="14" y="17" width="36" height="17" rx="1.5"/><path d="M32 17v17M14 25.5h18M22 21h2M22 30h2M40 24h2M17 34v3M47 34v3"/>',
+ sofa:'<rect x="12" y="8" width="40" height="13" rx="2"/><path'+F+' d="M14 21h36v6H14z"/><path d="M25 8v13M39 8v13"/><rect x="7" y="14" width="7" height="16" rx="2"/><rect x="50" y="14" width="7" height="16" rx="2"/><path d="M14 27h36v3H14M10 30v4M54 30v4"/>',
+ sofacama:'<rect x="12" y="7" width="40" height="11" rx="2"/><path d="M25 7v11M39 7v11"/><rect x="7" y="12" width="7" height="18" rx="2"/><rect x="50" y="12" width="7" height="18" rx="2"/><path'+F+' d="M10 22l4-4h36l4 4z"/><rect x="10" y="22" width="44" height="6" rx="1.5"/><path d="M20 20h1M30 20h1M40 20h1M14 28v6M50 28v6"/>',
+ sofaL:'<rect x="8" y="8" width="44" height="12" rx="2"/><path d="M22 8v12M37 8v12"/><rect x="4" y="13" width="6" height="16" rx="2"/><path'+F+' d="M10 20h32v6H10z"/><rect'+F+' x="40" y="20" width="18" height="12" rx="1.5"/><rect x="56" y="13" width="5" height="19" rx="2"/><path d="M10 26h30v3H10M7 29v5M44 32v4M57 32v4"/>',
+ combosala:'<rect x="6" y="11" width="30" height="11" rx="2"/><path d="M21 11v11"/><rect x="3" y="15" width="5" height="14" rx="2"/><rect x="34" y="15" width="5" height="14" rx="2"/><path'+F+' d="M8 22h26v5H8z"/><path d="M6 29v4M36 29v4"/><rect x="44" y="12" width="14" height="10" rx="2"/><rect x="41" y="16" width="5" height="13" rx="2"/><rect x="56" y="16" width="5" height="13" rx="2"/><path'+F+' d="M46 22h10v5H46z"/><path d="M43 29v4M59 29v4"/>',
+ modular:'<rect x="6" y="8" width="16" height="12" rx="2"/><rect x="24" y="8" width="16" height="12" rx="2"/><rect x="42" y="8" width="16" height="12" rx="2"/><path'+F+' d="M6 20h16v11H6zM24 20h16v11H24zM42 20h16v11H42z"/><path d="M8 31v4M20 31v4M26 31v4M38 31v4M44 31v4M56 31v4"/>',
+ poltrona:'<rect x="12" y="6" width="22" height="15" rx="2"/><rect x="8" y="13" width="6" height="18" rx="2"/><rect x="32" y="13" width="6" height="18" rx="2"/><path'+F+' d="M14 21h18v7H14z"/><path d="M14 28h18v3H14M10 31v4M36 31v4"/><path'+F+' d="M44 23c0-3 14-3 14 0v9c0 3-14 3-14 0z"/><ellipse cx="51" cy="23" rx="7" ry="2"/>',
+ reclinable:'<path d="M14 6l8 16"/><path'+F+' d="M10 8l5-3 9 17-5 3z"/><rect x="18" y="20" width="22" height="12" rx="2"/><path'+F+' d="M40 22l14-3 2 5-14 4z"/><path d="M22 32v4M36 32v4"/>',
+ mesacentro:'<rect'+F+' x="8" y="17" width="48" height="5" rx="1.5"/><path d="M12 22v12M52 22v12M12 29h40"/><rect x="18" y="13" width="10" height="4" rx="1"/><path d="M42 17c0-3 4-3 4 0M44 14v-4"/>',
+ comedor4:'<rect'+F+' x="16" y="4" width="10" height="11" rx="1"/><rect'+F+' x="38" y="4" width="10" height="11" rx="1"/><rect x="8" y="15" width="48" height="4" rx="1"/><path d="M12 19v16M52 19v16M18 19v14M24 19v14M40 19v14M46 19v14"/>',
+ comedor6:'<rect'+F+' x="10" y="4" width="9" height="11" rx="1"/><rect'+F+' x="27.5" y="4" width="9" height="11" rx="1"/><rect'+F+' x="45" y="4" width="9" height="11" rx="1"/><rect x="5" y="15" width="54" height="4" rx="1"/><path d="M8 19v16M56 19v16M12 19v14M18 19v14M29 19v14M35 19v14M47 19v14M53 19v14"/>',
+ mesacomedor:'<path'+F+' d="M25 11c0-5 14-5 14 0z"/><rect x="8" y="13" width="48" height="5" rx="1.5"/><path d="M12 18v17M52 18v17M12 21h40"/>',
+ sillas:'<rect'+F+' x="14" y="3" width="12" height="16" rx="1.5"/><path d="M12 19h16v3H12zM14 22v14M26 22v14"/><rect'+F+' x="38" y="3" width="12" height="16" rx="1.5"/><path d="M36 19h16v3H36zM38 22v14M50 22v14"/>',
+ almohada:'<path'+F+' d="M22 8c10-2 22-2 32 0 1 6 1 12 0 18-10 2-22 2-32 0-1-6-1-12 0-18z"/><path d="M8 14c11-2 25-2 36 0 1 7 1 13 0 20-11 2-25 2-36 0-1-7-1-13 0-20z"/><path d="M11 17l3 3M41 17l-3 3M11 31l3-3M41 31l-3-3"/>',
+ protector:'<path d="M32 4c-3 4-4 6-4 8a4 4 0 0 0 8 0c0-2-1-4-4-8z"/><path'+F+' d="M12 24l4-6h32l4 6z"/><rect x="11" y="24" width="42" height="8" rx="2"/><path d="M20 21h1M28 21h1M36 21h1M44 21h1"/>',
+ sabanas:'<rect'+F+' x="10" y="20" width="44" height="9" rx="3"/><rect x="12" y="11" width="40" height="9" rx="3"/><path d="M14 15h36M14 24h38"/><rect x="30" y="11" width="6" height="18"/>',
+ duvet:'<rect x="16" y="5" width="32" height="9" rx="1.5"/><rect'+F+' x="20" y="7" width="10" height="5" rx="1"/><rect'+F+' x="34" y="7" width="10" height="5" rx="1"/><path'+F+' d="M12 14h40v8H12z"/><path d="M14 17h36M12 22c0 6 4 9 8 9s4-3 6-3 4 3 6 3 4-3 6-3 4 3 6 3 8-3 8-9"/>',
+ plumon:'<rect'+F+' x="10" y="22" width="40" height="8" rx="2"/><rect x="12" y="13" width="38" height="9" rx="3"/><path d="M22 13v9M32 13v9M42 13v9"/><path d="M46 14c3-6 8-9 12-10-1 4-4 9-10 12z"/><path d="M47 15l7-8"/>',
+ cojin:'<rect'+F+' x="30" y="6" width="22" height="22" rx="4"/><rect x="12" y="11" width="24" height="24" rx="4"/><rect x="16" y="15" width="16" height="16" rx="2"/><circle cx="24" cy="23" r=".6"/>',
+ tapete:'<path'+F+' d="M10 30l8-16h28l8 16z"/><path d="M14 28l6-12h24l6 12z"/><path d="M26 22l6-3 6 3-6 3z"/><path d="M12 30v3M18 30v3M24 30v3M30 30v3M36 30v3M42 30v3M48 30v3M52 30v3"/>'
+};
+/* la lista fija: [categoría, dibujo, [[subcategoría, dibujo], …]] */
+var L=[
+ ['Colchones','colchon',[['Colchones de una cara','colchon'],['Colchones de dos caras','colchon2']]],
+ ['Combos de colchón','base',[['Colchón y base cama','base'],['Colchón y cama tapizada','tapizada'],['Colchón y cama de madera','madera'],['Colchón y cama nido','nido'],['Colchón y nocheros','nochero']]],
+ ['Alcobas','cama',[['Camas y bases','cama'],['Mesas de noche','mesanoche'],['Camarotes','camarote'],['Clósets','closet'],['Tocadores','tocador']]],
+ ['Salas','sofa',[['Sofás','sofa'],['Sofá camas','sofacama'],['Sofás en L','sofaL'],['Combos de salas','combosala'],['Modulares','modular'],['Sillas, poltronas y puff','poltrona'],['Sillas reclinables','reclinable'],['Mesas de centro','mesacentro']]],
+ ['Comedores','comedor4',[['Comedores de 4 puestos','comedor4'],['Comedores de 6 puestos','comedor6'],['Mesas de comedor','mesacomedor'],['Sillas de comedor','sillas']]],
+ ['Ropa de cama','almohada',[['Almohadas','almohada'],['Protectores','protector'],['Sábanas','sabanas'],['Duvets','duvet'],['Plumones y cobijas','plumon'],['Cojines','cojin'],['Tapetes','tapete']]]
+];
+window.QH_MUE=L.map(function(c){return {n:c[0],subs:c[2].map(function(s){return s[0]})}});/* la usa el inventario (ferreteria.html) */
+var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var nrm=function(t){return String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim()};
+var dib=function(k){return '<svg class="qmu-ic" viewBox="0 0 64 44" aria-hidden="true">'+D.sombra+(D[k]||D.cama)+'</svg>'};
+var subDe={};L.forEach(function(c){c[2].forEach(function(s){subDe[nrm(s[0])]={cat:c[0],sub:s[0]}})});
+var est={tienda:null,abierta:null,filtro:null};/* filtro: {t:'sub'|'cat', n:nombre} */
+function tienda(){try{return view==='store'?S.stores.find(function(x){return x.id===cur}):null}catch(e){return null}}
+function deProd(p){return subDe[nrm(p&&p.ferCat)]||null}
+function menu(s){var hay={};(s.products||[]).forEach(function(p){var d=deProd(p);if(!d)return;(hay[d.cat]=hay[d.cat]||{})[d.sub]=(hay[d.cat][d.sub]||0)+1});
+ var cats=L.filter(function(c){return hay[c[0]]});if(!cats.length)return '';
+ return '<section class="qmu" aria-label="Categorías de la tienda"><h3 class="qmu-t">Categorías</h3>'+cats.map(function(c){var ab=est.abierta===c[0],subs=c[2].filter(function(x){return hay[c[0]][x[0]]});
+  return '<div class="qmu-c'+(ab?' on':'')+'"><button type="button" class="qmu-h" data-qmu-cat="'+E(c[0])+'" aria-expanded="'+ab+'"><span class="qmu-hi">'+dib(c[1])+'</span><span class="qmu-hn">'+E(c[0])+'</span><svg class="qmu-fl" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>'+
+   (ab?'<div class="qmu-g">'+subs.map(function(x){return '<button type="button" class="qmu-s" data-qmu-sub="'+E(x[0])+'">'+dib(x[1])+'<span>'+E(x[0])+'</span></button>'}).join('')+'</div><button type="button" class="qmu-todo" data-qmu-todo="'+E(c[0])+'">Ver todo en '+E(c[0])+'</button>':'')+'</div>'}).join('')+'</section>'}
+function barra(n){return '<div class="qmu-fx" role="status"><span>'+E(est.filtro.n)+': '+n+(n===1?' producto':' productos')+'</span><button type="button" class="qmu-todos" data-qmu-todos="1">Ver todos los productos</button></div>'}
+function aplicar(){var m=document.querySelector('.qhmue-m');var s=m?tienda():null;
+ if(!s){est.tienda=null;return}
+ if(est.tienda!==s.id){est.tienda=s.id;est.abierta=null;est.filtro=null}
+ var t=document.querySelector('#app .ptitle');if(!t)return;
+ var byId={};(s.products||[]).forEach(function(p){byId[p.id]=p});
+ if(typeof window.qhMueTallas==='function')try{window.qhMueTallas(byId)}catch(e){}/* v480: medidas del mismo modelo en una tarjeta */
+ var viejo=document.querySelector('.qmu-w');var html=menu(s);
+ if(!html){if(viejo)viejo.remove();return}
+ var w=viejo||document.createElement('div');w.className='qmu-w';if(w.getAttribute('data-h')!==html+JSON.stringify(est.filtro)){w.innerHTML=html;w.setAttribute('data-h',html+JSON.stringify(est.filtro))}
+ if(!viejo)t.parentNode.insertBefore(w,t);
+ /* filtrar tarjetas */
+ var n=0;
+ document.querySelectorAll('#app .pgrid .prod').forEach(function(card){var b=card.querySelector('[data-act="prod"][data-id],[data-act="add"][data-id]'),p=b&&byId[b.getAttribute('data-id')],d=deProd(p);
+  var ok=!est.filtro||(d&&(est.filtro.t==='sub'?d.sub===est.filtro.n:d.cat===est.filtro.n));card.classList.toggle('qmu-no',!ok);if(ok&&est.filtro&&!card.classList.contains('qmu-sz'))n++});/* v480: cada modelo cuenta una vez */
+ /* la barra del filtro solo se toca si cambió (si no, el observador la volvería a poner sin parar) */
+ var fx=document.querySelector('.qmu-fx'),nuevo=est.filtro?barra(n):'';
+ if(fx&&fx.getAttribute('data-h')===nuevo&&fx.previousElementSibling===t)return;
+ if(fx)fx.remove();
+ if(nuevo){t.insertAdjacentHTML('afterend',nuevo);t.nextElementSibling.setAttribute('data-h',nuevo)}}
+var pend=false;function luego(){if(pend)return;pend=true;requestAnimationFrame(function(){pend=false;try{aplicar()}catch(e){}})}
+window.qhMueAplicar=function(){try{aplicar()}catch(e){}};/* v480: al cambiar la medida */
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-qmu-cat],[data-qmu-sub],[data-qmu-todo],[data-qmu-todos]');if(!b)return;e.preventDefault();
+ if(b.hasAttribute('data-qmu-cat')){var c=b.getAttribute('data-qmu-cat');est.abierta=est.abierta===c?null:c}
+ else if(b.hasAttribute('data-qmu-sub'))est.filtro={t:'sub',n:b.getAttribute('data-qmu-sub')};
+ else if(b.hasAttribute('data-qmu-todo'))est.filtro={t:'cat',n:b.getAttribute('data-qmu-todo')};
+ else est.filtro=null;
+ aplicar();if(!b.hasAttribute('data-qmu-cat')){var t=document.querySelector('#app .ptitle');if(t)t.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}});
+function inst(){var a=document.getElementById('app');if(!a)return false;new MutationObserver(luego).observe(a,{childList:true,subtree:true});luego();return true}
+if(!inst())document.addEventListener('DOMContentLoaded',inst);
+})();
+</script>
+<script id="v480-muebleria-medidas">/* v480: SELECTOR DE MEDIDA EN LA MUEBLERÍA. En el inventario cada medida es un producto aparte, con su precio y sus existencias
+   («Colchón Orthopack (Doble 140 x 190)»). «Publicar tienda» manda a Mi Pradera ferM (la medida) y ferG (el modelo) de cada uno.
+   En la tienda de una mueblería, las medidas del mismo modelo se ven como UNA tarjeta con el selector «140 x 190 | Doble»: al
+   cambiarlo se muestra la tarjeta de esa medida (su precio, su descuento, «Agotado» y su «Agregar al carrito»). El carrito y el
+   mensaje de WhatsApp llevan el nombre con la medida, sin cambiar el carrito de Mi Pradera.
+   La llama la v479 (window.qhMueTallas) antes de filtrar. Solo mira la página y oculta tarjetas; no guarda nada. */
+(function(){
+var ORD=['Sencillo','Semidoble','Doble','Queen','King'],sel={};
+var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var rot=function(m){var p=String(m||'').match(/^(\S+) (.+)$/);return p?p[2]+' | '+p[1]:String(m||'')};/* «Doble 140 x 190» → «140 x 190 | Doble» */
+var pos=function(m){var i=ORD.indexOf(String(m||'').split(' ')[0]);return i<0?99:i};
+var base=function(n){return String(n||'').replace(/\s*\((?:Sencillo|Semidoble|Doble|Queen|King) \d+ x \d+\)$/,'')};
+window.qhMueTallas=function(byId){
+ var cards=[].slice.call(document.querySelectorAll('#app .pgrid .prod')),grupos={};
+ cards.forEach(function(card){var b=card.querySelector('[data-act="prod"][data-id],[data-act="add"][data-id]'),p=b&&byId[b.getAttribute('data-id')];
+  card.classList.remove('qmu-sz');if(!p||!p.ferG||!p.ferM)return;(grupos[p.ferG]=grupos[p.ferG]||[]).push({card:card,p:p})});
+ Object.keys(grupos).forEach(function(g){var L=grupos[g];if(L.length<2)return;
+  L.sort(function(a,b){return pos(a.p.ferM)-pos(b.p.ferM)});
+  var elegido=L.filter(function(x){return x.p.id===sel[g]})[0]||L.filter(function(x){return !x.p.out})[0]||L[0];
+  L.forEach(function(x){if(x!==elegido)x.card.classList.add('qmu-sz')});
+  var c=elegido.card,t=c.querySelector('h3 .plink')||c.querySelector('h3');if(t&&t.textContent!==base(elegido.p.name))t.textContent=base(elegido.p.name);
+  var opts=L.map(function(x){return '<option value="'+E(x.p.id)+'"'+(x===elegido?' selected':'')+'>'+E(rot(x.p.ferM))+(x.p.out?' (agotado)':'')+'</option>'}).join('');
+  var w=c.querySelector('.qmu-med'),h='<span class="qmu-mt">Medida</span><select data-qmu-g="'+E(g)+'" aria-label="Medida de '+E(base(elegido.p.name))+'">'+opts+'</select>';
+  if(!w){w=document.createElement('label');w.className='qmu-med';var pr=c.querySelector('.price');if(pr)pr.parentNode.insertBefore(w,pr);else c.appendChild(w)}
+  if(w.getAttribute('data-h')!==h){w.innerHTML=h;w.setAttribute('data-h',h)}});
+ /* tarjetas que ya no están agrupadas (otro producto en ese lugar) pierden el selector */
+ cards.forEach(function(c){var w=c.querySelector('.qmu-med');if(!w)return;if(c.classList.contains('qmu-sz')){w.remove();return}/* la tarjeta oculta no guarda su selector */var s=w.querySelector('select'),g=s&&s.getAttribute('data-qmu-g');if(!g||!grupos[g]||grupos[g].length<2)w.remove()})};
+document.addEventListener('change',function(e){var s=e.target.closest&&e.target.closest('select[data-qmu-g]');if(!s)return;sel[s.getAttribute('data-qmu-g')]=s.value;
+ if(typeof window.qhMueAplicar==='function')window.qhMueAplicar();var c=document.querySelector('select[data-qmu-g="'+s.getAttribute('data-qmu-g').replace(/"/g,'\\"')+'"]');if(c)c.focus()});
 })();
 </script>
 <script>
