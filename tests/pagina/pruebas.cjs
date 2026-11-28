@@ -1642,13 +1642,17 @@ const PRUEBAS = {
       'products/mz__sm1-2-puestos-beige': P('sm1-2-puestos-beige', '2 puestos', 'Beige', 990000, { out: true }),
       'products/mz__sm1-3-puestos-gris': P('sm1-3-puestos-gris', '3 puestos', 'Gris', 1290000),
       'products/mz__sm1-3-puestos-beige': P('sm1-3-puestos-beige', '3 puestos', 'Beige', 1350000),
+      'products/mz__t1-m': { id: 't1-m', sid: 'mz', name: 'Tapete Nube (Tapete Mediano 120 x 170)', price: 390000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 3, ferCat: 'Tapetes', ferM: 'Tapete Mediano 120 x 170', ferN: 'Tapete Nube', ferG: 't1' },
+      'products/mz__t1-p': { id: 't1-p', sid: 'mz', name: 'Tapete Nube (Tapete Pequeño 80 x 150)', price: 190000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 4, ferCat: 'Tapetes', ferM: 'Tapete Pequeño 80 x 150', ferN: 'Tapete Nube', ferG: 't1' },
+      'products/mz__a1-4': { id: 'a1-4', sid: 'mz', name: 'Almohada Visco (Pack | 4 Unidades)', price: 150000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 5, ferCat: 'Almohadas', ferM: 'Pack | 4 Unidades', ferN: 'Almohada Visco', ferG: 'a1' },
+      'products/mz__a1-1': { id: 'a1-1', sid: 'mz', name: 'Almohada Visco (Unidad | 1 Unidad)', price: 45000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 6, ferCat: 'Almohadas', ferM: 'Unidad | 1 Unidad', ferN: 'Almohada Visco', ferG: 'a1' },
       'products/mz__c1': { id: 'c1', sid: 'mz', name: 'Comedor Roble', price: 2100000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 2, ferCat: 'Comedores de 4 puestos', ferN: 'Comedor Roble', ferE: 20 } };
     const p = await abrir({ seed, ruta: '?tienda=muebles-z-mz' }); await p.waitForTimeout(700);
     const tarj = () => p.evaluate(() => { const c = [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none' && x.querySelector('.qmu-sel'))[0];
       return c ? { n: [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none').length, tit: c.querySelector('h3').textContent.trim(), precio: c.querySelector('.price').textContent.replace(/\s/g, ''),
         med: [...c.querySelectorAll('select[data-qmu-d="m"] option')].map(o => o.textContent), col: [...c.querySelectorAll('select[data-qmu-d="c"] option')].map(o => o.textContent), cm: (c.querySelector('select[data-qmu-d="m"]') || {}).value, cc: (c.querySelector('select[data-qmu-d="c"]') || {}).value } : null });
     const t1 = await tarj();
-    check('v482: las 4 combinaciones del sofá salen en UNA tarjeta, con el nombre sin medida ni color', !!t1 && t1.n === 2 && t1.tit === 'Sofá Milán' && t1.precio === '$990.000', JSON.stringify(t1));
+    check('v482: las 4 combinaciones del sofá salen en UNA tarjeta, con el nombre sin medida ni color', !!t1 && t1.n === 4 && t1.tit === 'Sofá Milán' && t1.precio === '$990.000', JSON.stringify(t1));
     check('v482: selector de medida («3 puestos» sin voltear) y de color, con la combinación agotada marcada', !!t1 && t1.med.join('/') === '2 puestos/3 puestos' && t1.col.join('/') === 'Gris/Beige (agotado)' && t1.cm === '2 puestos' && t1.cc === 'Gris', JSON.stringify(t1));
     const pon = (d, v) => p.evaluate(([d, v]) => { const s = document.querySelector('select[data-qmu-d="' + d + '"]'); s.value = v; s.dispatchEvent(new Event('change', { bubbles: true })) }, [d, v]);
     await pon('m', '3 puestos'); await p.waitForTimeout(300); const t2 = await tarj();
@@ -1657,11 +1661,38 @@ const PRUEBAS = {
     check('v482: al elegir Beige muestra el precio de 3 puestos Beige', !!t3 && t3.cm === '3 puestos' && t3.cc === 'Beige' && t3.precio === '$1.350.000', JSON.stringify(t3));
     const car = await p.evaluate(() => { const c = [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none' && x.querySelector('.qmu-sel'))[0]; c.querySelector('.plus').click(); return Object.keys(S.cart) });
     check('v482: el carrito lleva la combinación elegida', car.some(k => k.startsWith('mz|sm1-3-puestos-beige')), JSON.stringify(car));
+    const tp = await p.evaluate(() => { const c = [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none' && /Tapete Nube/.test(x.textContent))[0]; return c ? [...c.querySelectorAll('select[data-qmu-d="m"] option')].map(o => o.textContent) : [] });
+    check('v486: el tapete muestra sus medidas como en la tienda de referencia, de la pequeña a la grande', tp.join('/') === '80 x 150 | Tapete Pequeño/120 x 170 | Tapete Mediano', JSON.stringify(tp));
+    const al = await p.evaluate(() => { const c = [...document.querySelectorAll('.pgrid .prod')].filter(x => getComputedStyle(x).display !== 'none' && /Almohada Visco/.test(x.textContent))[0]; return c ? [...c.querySelectorAll('select[data-qmu-d="m"] option')].map(o => o.textContent) : [] });
+    check('v486: la almohada muestra «Unidad | 1 Unidad» antes que los paquetes', al.join('/') === 'Unidad | 1 Unidad/Pack | 4 Unidades', JSON.stringify(al));
     const en = await p.evaluate(() => [...document.querySelectorAll('.qmu-enc')].map(x => x.textContent));
     check('v482: el comedor por encargo dice «Por encargo · entrega en 20 días»', en.length === 1 && en[0] === 'Por encargo · entrega en 20 días', JSON.stringify(en));
     check('v481: «Mueblerías» en el grupo «Hogar y decoración» sigue siendo mueblería', await p.evaluate(() => !!document.querySelector('.qhmue-m') && window.qhMuebleCat('Mueblerías')));
     if (process.env.FOTO_V482) { await p.evaluate(() => document.querySelector('.qmu-sel').closest('.prod').scrollIntoView({ block: 'center' })); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V482 }) }
     sinErrores(p, 'Mueblería: medida y color'); await p.cerrar();
+  },
+  async anuncioSinFoto() { // v485: los anuncios sin foto muestran un dibujo de muestra según el tipo, con «Imagen de referencia»
+    const ad = (id, type, title, f, x) => Object.assign({ id, type, title, price: 450000, zone: 'Centro', desc: '', imgs: [], f, ts: Date.now(), ownerKey: 'kZ', owner: 'Ana' }, x);
+    const seed = { 'ads/i1': ad('i1', 'arr', 'Casa de 2 habitaciones', { ptype: 'Casa', beds: 2, baths: 1 }), 'ads/i2': ad('i2', 'arr', 'Apartamento central', { ptype: 'Apartamento' }),
+      'ads/i3': ad('i3', 'arr', 'Habitación amoblada', { ptype: 'Habitación' }), 'ads/i4': ad('i4', 'arr', 'Local en esquina', { ptype: 'Local' }),
+      'ads/i5': ad('i5', 'arr', 'Con foto', { ptype: 'Casa' }, { imgs: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='] }),
+      'ads/v1': ad('v1', 'veh', 'Moto 2020', { vtype: 'Moto' }) };
+    const p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); view = 'arr'; render() }); await p.waitForTimeout(600);
+    const L = await p.evaluate(() => [...document.querySelectorAll('[data-act="openAd"]')].map(b => { const n = b.querySelector('.adpic>.nop'), sv = n && n.querySelector('svg'); return { id: b.dataset.id, dib: !!sv, ref: n ? (n.querySelector('small') || {}).textContent : '', img: !!b.querySelector('.adpic>img'), h: sv ? sv.getBoundingClientRect().height : 0 } }));
+    const g = id => L.find(x => x.id === id) || {};
+    check('v485: los arriendos sin foto muestran un dibujo con «Imagen de referencia», no «Sin foto»', ['i1', 'i2', 'i3', 'i4'].every(id => g(id).dib && g(id).ref === 'Imagen de referencia' && g(id).h > 60) && !/Sin foto\b/.test(await p.evaluate(() => document.querySelector('.adpic').innerText)), JSON.stringify(L));
+    check('v485: el anuncio con foto sigue con su foto', g('i5').img && !g('i5').dib);
+    const dif = await p.evaluate(() => { const s = id => document.querySelector('[data-act="openAd"][data-id="' + id + '"] svg').innerHTML; return new Set(['i1', 'i2', 'i3', 'i4'].map(s)).size });
+    check('v485: casa, apartamento, habitación y local tienen dibujos distintos', dif === 4, String(dif));
+    if (process.env.FOTO_V485) { await p.evaluate(() => document.querySelector('[data-act="openAd"]').scrollIntoView({ block: 'start' })); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V485 }) }
+    await p.evaluate(() => { curAd = 'i1'; view = 'ad'; render() }); await p.waitForTimeout(500);
+    const v = await p.evaluate(() => { const n = document.querySelector('.adview .adpic>.nop'); return { dib: !!(n && n.querySelector('svg')), alt: n && n.getAttribute('aria-label') } });
+    check('v485: el anuncio abierto también muestra el dibujo', v.dib && /imagen de referencia/.test(v.alt), JSON.stringify(v));
+    if (process.env.FOTO_V485B) { await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V485B }) }
+    await p.evaluate(() => { view = 'veh'; render() }); await p.waitForTimeout(500);
+    check('v485: un vehículo sin foto también tiene su dibujo', await p.evaluate(() => !!document.querySelector('[data-act="openAd"][data-id="v1"] .adpic>.nop svg')));
+    sinErrores(p, 'Anuncio sin foto'); await p.cerrar();
   },
 };
 

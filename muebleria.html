@@ -367,11 +367,10 @@ const nid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(
 const pad2 = n => String(n).padStart(2, '0');
 const dayKey = d => { const x = new Date(d); return `${x.getFullYear()}-${pad2(x.getMonth() + 1)}-${pad2(x.getDate())}`; };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const MEDIDAS = ['Sencillo 100 x 190', 'Semidoble 120 x 190', 'Doble 140 x 190', 'Queen 160 x 190', 'King 200 x 200'];
-const ORD = ['Sencillo', 'Semidoble', 'Doble', 'Queen', 'King'];
+const MEDIDAS = ['Medida única', 'Sencillo 100 x 190', 'Semidoble 120 x 190', 'Doble 140 x 190', 'Queen 160 x 190', 'King 200 x 200', 'Tapete Pequeño 80 x 150', 'Tapete Mediano 120 x 170', 'Tapete Grande 160 x 230', 'Unidad | 1 Unidad', 'Pack | 2 Unidades', 'Pack | 4 Unidades', 'Pack | 6 Unidades', 'Pack | 8 Unidades'];/* v486: «Medida única», las de tapete y las de almohada (por unidad o en paquete) */
 /* «Doble 140 x 190» se escribe como en la tienda: «140 x 190 | Doble»; otras medidas («3 puestos») quedan igual */
-const medTx = m => { const r = /^(Sencillo|Semidoble|Doble|Queen|King) (\d+ x \d+)$/.exec(m || ''); return r ? r[2] + ' | ' + r[1] : String(m || ''); };
-const medOrd = m => { const i = ORD.indexOf(String(m || '').split(' ')[0]); return i < 0 ? 99 : i; };
+const medTx = m => { const r = /^(.+?) (\d+ x \d+)$/.exec(m || ''); return r ? r[2] + ' | ' + r[1] : String(m || ''); };/* v486: «Tapete Pequeño 80 x 150» → «80 x 150 | Tapete Pequeño» */
+const medOrd = m => { const i = MEDIDAS.indexOf(m); return i < 0 ? 99 : i; };
 const MEDIDA_RE = /\s*\(((?:Sencillo|Semidoble|Doble|Queen|King) \d+ x \d+)\)$/;
 /* las subcategorías del menú de la tienda (window.QH_MUE en v479-muebleria-categorias.js: si cambian allá, cambiarlas aquí) */
 const GRUPOS = [['Colchones', ['Colchones de una cara', 'Colchones de dos caras']], ['Combos de colchón', ['Colchón y base cama', 'Colchón y cama tapizada', 'Colchón y cama de madera', 'Colchón y cama nido', 'Colchón y nocheros']], ['Alcobas', ['Camas y bases', 'Mesas de noche', 'Camarotes', 'Clósets', 'Tocadores']], ['Salas', ['Sofás', 'Sofá camas', 'Sofás en L', 'Combos de salas', 'Modulares', 'Sillas, poltronas y puff', 'Sillas reclinables', 'Mesas de centro']], ['Comedores', ['Comedores de 4 puestos', 'Comedores de 6 puestos', 'Mesas de comedor', 'Sillas de comedor']], ['Ropa de cama', ['Almohadas', 'Protectores', 'Sábanas', 'Duvets', 'Plumones y cobijas', 'Cojines', 'Tapetes']]];
@@ -689,7 +688,11 @@ function confirmar(msg, ok = 'Sí') { return new Promise(res => { const d = $('#
 /* ---------- Ficha del mueble ---------- */
 let F = null;
 $('#fCat').innerHTML = '<option value="">Elige una categoría</option>' + GRUPOS.map(([g, L]) => `<optgroup label="${esc(g)}">${L.map(s => `<option>${esc(s)}</option>`).join('')}</optgroup>`).join('');
-$('#fMed').innerHTML = MEDIDAS.map(m => `<label><input type="checkbox" value="${esc(m)}">${esc(medTx(m))}</label>`).join('');
+/* v486: las medidas de colchón solo se ofrecen en colchones, camas y ropa de cama, las de tapete en «Tapetes» y las de unidad o paquete
+   en «Almohadas» y «Cojines»; en sofás, salas,
+   comedores y lo demás, «Medida única». Siempre se puede escribir otra medida. */
+const CAMA = [...GRUPOS[0][1], ...GRUPOS[1][1], 'Camas y bases', 'Camarotes', 'Protectores', 'Sábanas', 'Duvets', 'Plumones y cobijas'];
+const medHTML = () => { const c = $('#fCat').value, tap = m => /^Tapete /.test(m), alm = m => /^(Unidad|Pack) \| /.test(m), L = MEDIDAS.filter(m => m === 'Medida única' || F.medidas.includes(m) || (c === 'Tapetes' ? tap(m) : (c === 'Almohadas' || c === 'Cojines') ? alm(m) : (!c || CAMA.includes(c)) && !tap(m) && !alm(m))); return L.map(m => `<label><input type="checkbox" value="${esc(m)}">${esc(medTx(m))}</label>`).join(''); };
 function abrirFicha(p) {
   if (!puede) return;
   F = p ? { id: p.id, nuevo: false, fotos: [...(p.fotos || [])], medidas: [...(p.medidas || [])], colores: [...(p.colores || [])], precios: [...(p.precios || [])], vars: varsDe(p) } : { id: nid('m'), nuevo: true, fotos: [], medidas: [], colores: [], precios: [], vars: [] };
@@ -703,6 +706,7 @@ function abrirFicha(p) {
   pintarFicha(); $('#dF').showModal(); if (!p) $('#fNom').focus();
 }
 function pintarFicha() {
+  $('#fMed').innerHTML = medHTML();
   $$('#fMed input').forEach(i => { i.checked = F.medidas.includes(i.value); });
   const otras = F.medidas.filter(m => !MEDIDAS.includes(m));
   $('#fMedL').innerHTML = otras.map(m => `<span>${esc(m)}<button type="button" data-qmed="${esc(m)}" aria-label="Quitar ${esc(m)}">✕</button></span>`).join('');
@@ -718,6 +722,7 @@ function pintarFicha() {
 }
 const leerSt = () => { $$('#fSt [data-sm]').forEach(i => { const m = i.dataset.sm, c = i.dataset.sc, s = pInt(i.value) || 0, v = F.vars.find(x => x.m === m && x.c === c); if (v) v.s = s; else F.vars.push({ m, c, s }); }); };
 const leerPm = () => { F.precios = $$('#fPm [data-pm]').map(i => ({ m: i.dataset.pm, p: pMoney(i.value) })).filter(x => x.p); };
+$('#fCat').addEventListener('change', () => { if (F) { leerSt(); leerPm(); pintarFicha(); } });
 $('#fMed').addEventListener('change', e => { leerSt(); leerPm(); const m = e.target.value; F.medidas = e.target.checked ? [...F.medidas, m] : F.medidas.filter(x => x !== m); pintarFicha(); });
 function agregar(campo, input) { const v = input.value.trim().replace(/\s+/g, ' '); if (!v) return; leerSt(); leerPm(); const L = F[campo]; if (!L.some(x => norm(x) === norm(v))) { if (L.length >= (campo === 'colores' ? 10 : 8)) { $('#fErr').textContent = campo === 'colores' ? 'Máximo 10 colores por mueble.' : 'Máximo 8 medidas por mueble.'; return; } L.push(v.charAt(0).toUpperCase() + v.slice(1)); } input.value = ''; pintarFicha(); input.focus(); }
 $('#fMedAdd').onclick = () => agregar('medidas', $('#fMedO'));
