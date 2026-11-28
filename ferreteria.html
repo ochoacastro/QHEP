@@ -1817,10 +1817,11 @@ boot();
   const mpUrl = s => location.origin + '/?tienda=' + (slug(s.name) ? slug(s.name) + '-' : '') + encodeURIComponent(s.id);
   /* v477: ¿la categoría de la tienda está en el grupo «Hogar y construcción»? Igual que catGroupOf() de Mi Pradera (v215 + v464):
      primero el grupo que eligió el administrador (meta/site.catGrp), si no el de fábrica. Los nombres viejos se pasan al nuevo. */
-  const HOGAR = 'Hogar y construcción', HOGAR0 = ['Hogar y decoración', 'Ferreterías', 'Cacharrerías y misceláneas'];
+  /* v481: «Hogar y construcción» se dividió en «Construcción» y «Hogar y decoración» (donde van las Mueblerías); el nombre viejo sigue valiendo */
+  const HOGAR = ['Construcción', 'Hogar y decoración', 'Hogar y construcción'], HOGAR0 = ['Hogar y decoración', 'Ferreterías', 'Cacharrerías y misceláneas'];
   const VIEJO = { 'Hogar': 'Hogar y decoración', 'Muebles y decoración': 'Hogar y decoración', 'Ferretería': 'Ferreterías', 'Cacharrerías': 'Cacharrerías y misceláneas' };
   let catGrp = {}; try { const m = await fs.doc('meta/site').get(); const g = m.exists && m.data().catGrp; if (g && typeof g === 'object') catGrp = g; } catch (e) {}
-  const esHogar = c => { c = String(c || ''); c = VIEJO[c] || c; return typeof catGrp[c] === 'string' ? catGrp[c] === HOGAR : HOGAR0.includes(c); };
+  const esHogar = c => { c = String(c || ''); c = VIEJO[c] || c; return typeof catGrp[c] === 'string' ? HOGAR.includes(catGrp[c]) : HOGAR0.includes(c); };
   /* v480: mueblería. Subcategorías del menú de la tienda (las mismas de window.QH_MUE en v479-muebleria-categorias.js: si cambian
      allá, cambiarlas aquí) y medidas, que van al final del nombre del producto: «Colchón Orthopack (Doble 140 x 190)». */
   const MUE_SUBS = ['Colchones de una cara', 'Colchones de dos caras', 'Colchón y base cama', 'Colchón y cama tapizada', 'Colchón y cama de madera', 'Colchón y cama nido', 'Colchón y nocheros', 'Camas y bases', 'Mesas de noche', 'Camarotes', 'Clósets', 'Tocadores', 'Sofás', 'Sofá camas', 'Sofás en L', 'Combos de salas', 'Modulares', 'Sillas, poltronas y puff', 'Sillas reclinables', 'Mesas de centro', 'Comedores de 4 puestos', 'Comedores de 6 puestos', 'Mesas de comedor', 'Sillas de comedor', 'Almohadas', 'Protectores', 'Sábanas', 'Duvets', 'Plumones y cobijas', 'Cojines', 'Tapetes'];
@@ -1873,12 +1874,14 @@ boot();
     if (tienda) { Q.url = mpUrl(tienda); Q.tienda = tienda.id; }
     /* v480: ¿es una mueblería? (igual que window.qhMuebleCat de Mi Pradera, v478) */
     if (tienda) Q.mue = /muebl|colch[oó]n/i.test(VIEJO[tienda.cat] || tienda.cat || '');
+    /* v482: las mueblerías tienen su propio inventario (muebleria.html): los enlaces viejos llevan allá */
+    if (Q.mue && !tiendas.some(x => !/muebl|colch[oó]n/i.test(VIEJO[x.cat] || x.cat || ''))) { location.replace('/muebleria' + location.search + '#inventario'); return; }
   }
 
   /* Mensajes de «Acceso del equipo» */
   const salir = '<button class="btn" type="button" id="qhOut">Cerrar sesión</button>';
   if (!me) {
-    Q.msg = 'Entra con tu cuenta de Mi Pradera para administrar el inventario de tu negocio. Es para los negocios de Hogar y construcción (ferreterías, hogar y decoración, cacharrerías…) con el rol Comerciante vigente.';
+    Q.msg = 'Entra con tu cuenta de Mi Pradera para administrar el inventario de tu negocio. Es para los negocios de Construcción y de Hogar y decoración (ferreterías, cacharrerías, mueblerías…) con el rol Comerciante vigente.';
     caja(`<form class="qhl" id="qhLogin" novalidate>
       <label class="f"><span>Correo o celular</span><input id="qhU" autocomplete="username" inputmode="email" required></label>
       <label class="f"><span>Clave</span><input id="qhP" type="password" autocomplete="current-password" required></label>
@@ -1896,12 +1899,12 @@ boot();
     Q.msg = 'Para usar el inventario de ferretería necesitas el rol Comerciante vigente en Mi Pradera' + (vencio ? ' (el tuyo venció el ' + new Date(vencio).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) + ').' : '.');
     caja(`<div class="brow" style="margin-bottom:12px"><a class="btn in" href="/#/roles">Ver planes y precios</a>${salir}</div>`);
   } else if (!ferr && !hay) {
-    Q.msg = 'El inventario es para los negocios de Hogar y construcción. Para usarlo, tu tienda en Mi Pradera debe estar en una categoría de ese grupo (Ferreterías, Hogar y decoración, Cacharrerías y misceláneas…).';
+    Q.msg = 'El inventario es para los negocios de Construcción y de Hogar y decoración. Para usarlo, tu tienda en Mi Pradera debe estar en una subcategoría de esos grupos (Ferreterías, Cacharrerías y misceláneas, Mueblerías…).';
     caja(`<div class="brow" style="margin-bottom:12px"><a class="btn in" href="/?panel">Ir a Mi cuenta</a>${salir}</div>`);
   } else if (!rol) {
     Q.ro = 'Tu rol Comerciante ' + (vencio ? 'venció el ' + new Date(vencio).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) : 'no está activo') + ': puedes ver tu inventario, pero no hacer cambios. Renuévalo en Mi Pradera, en Planes y precios.';
   } else if (!ferr) {
-    Q.ro = 'Tu tienda ya no está en el grupo «Hogar y construcción»: puedes ver tu inventario, pero no hacer cambios.';
+    Q.ro = 'Tu tienda ya no está en los grupos «Construcción» ni «Hogar y decoración»: puedes ver tu inventario, pero no hacer cambios.';
   }
   const puede = rol && ferr;
 

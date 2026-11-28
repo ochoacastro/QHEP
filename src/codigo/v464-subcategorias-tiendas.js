@@ -16,7 +16,7 @@ function mapa(){var m={};try{var b=S&&S.site&&S.site.catGrp;if(b&&typeof b==='ob
  if(BUSY){m=Object.assign({},m);if(BUSY.old&&BUSY.old!==BUSY.n)delete m[BUSY.old];m[BUSY.n]=BUSY.g}return m}
 /* el grupo de una categoría: primero el que eligió el administrador, después el de fábrica */
 var g0=window.catGroupOf;
-if(typeof g0==='function')window.catGroupOf=function(n){var g=mapa()[n];if(typeof g==='string'&&grps().indexOf(g)>=0)return g;return g0(n)};
+if(typeof g0==='function')window.catGroupOf=function(n){var g=mapa()[n];if(g==='Hogar y construcción')g=/muebl|colch[oó]n|^hogar y decoraci/i.test(String(n))?'Hogar y decoración':'Construcción';/* v481: el grupo viejo se dividió en dos */if(typeof g==='string'&&grps().indexOf(g)>=0)return g;return g0(n)};
 function row(i){var c=CATS[i];
  return '<div class="catrow"><input type="color" id="ct-c-'+i+'" value="'+E(c[2])+'" aria-label="Color de '+E(c[0])+'"><input type="text" id="ct-n-'+i+'" maxlength="20" value="'+E(c[0])+'" aria-label="Nombre de la subcategoría '+E(c[0])+'"><span class="cico sm" style="--c:'+E(c[2])+'">'+catIcon(c)+'</span><label class="btn ghost cfile">🖼️ Imagen<input type="file" accept="image/*" id="ct-f-'+i+'" hidden></label><button class="btn" id="ct-s-'+i+'" data-act="catSave" data-i="'+i+'" hidden>Guardar</button><button class="btn ghost" data-act="catDel" data-i="'+i+'">Eliminar</button>'+
   /* v476: pasar la subcategoría a otro grupo */

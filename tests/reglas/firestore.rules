@@ -2,6 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // v53 (sobre v52): inventario de muebleria (mipradera.com.co/muebleria): fer/<uid>/pedidos/<id> (pedidos por encargo:
+    // cliente, abono, saldo, entrega, estado). Mismos permisos que productos/dias/sys. Lo demas es igual a v52.
     // v52 (sobre v51): inventario de ferreteria (mipradera.com.co/ferreteria): colecciones nuevas fer/<uid>/... (privado)
     // y ferPub/<uid> (catalogo publico). Escribir pide el rol Comerciante vigente (funciones ferMerc y ferRol). Lo demas es igual a v51.
     // v51 (sobre v50): los pedidos aceptan el medio de pago 'siste' (Sistecrédito). Lo demas es igual a v50.
@@ -982,10 +984,10 @@ service cloud.firestore {
 
     match /fer/{uid}/{col}/{id} {
       allow read: if isAdmin() || (real() && request.auth.uid == uid);
-      allow create, update: if col in ['productos', 'dias', 'sys']
+      allow create, update: if col in ['productos', 'dias', 'sys', 'pedidos']
         && request.resource.data.keys().size() <= 40
         && (isAdmin() || (real() && request.auth.uid == uid && ferRol()));
-      allow delete: if col in ['productos', 'dias', 'sys']
+      allow delete: if col in ['productos', 'dias', 'sys', 'pedidos']
         && (isAdmin() || (real() && request.auth.uid == uid && ferRol()));
     }
 
