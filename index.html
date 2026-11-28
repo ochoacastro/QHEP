@@ -7516,7 +7516,10 @@ document.head.insertAdjacentHTML('beforeend','<style id="v470-css">'+
 (function(){
 var orig=null;
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
-var esFerr=function(s){return !!s&&/ferreter/i.test(s.cat||'')};
+/* v477: el inventario y la tienda de ferretería son para todo el grupo «Hogar y construcción» (Ferreterías, Hogar y decoración,
+   Cacharrerías y misceláneas y las subcategorías que el administrador cree o mueva a ese grupo, v464/v476). La usa también v474. */
+window.qhFerCat=function(c){c=String(c||'');try{if(typeof CAT_MAP!=='undefined'&&CAT_MAP[c])c=CAT_MAP[c];return catGroupOf(c)==='Hogar y construcción'}catch(e){return /ferreter/i.test(c)}};
+var esFerr=function(s){return !!s&&window.qhFerCat(s.cat)};
 function tabla(ms){var h=orig.apply(this,arguments);if(typeof h!=='string'||!Array.isArray(ms))return h;
  ms.forEach(function(s){if(!esFerr(s))return;var ed='data-act="open" data-id="'+E(s.id)+'">Editar</button>',i=h.indexOf(ed);if(i<0)return;i+=ed.length;
   h=h.slice(0,i)+'<a class="btn v473-inv" href="/ferreteria?s='+encodeURIComponent(s.id)+'#inventario" data-v473="'+E(s.id)+'">Inventario</a>'+h.slice(i)});/* v474: ?s= dice a qué tienda publica el inventario */
@@ -7572,9 +7575,9 @@ body:has(.qhfer-m[data-mia]) .prod [data-act="editProd"],body:has(.qhfer-m[data-
 (function(){
 var TEMAS=['amarillo','naranja','azul','rojo','acero','madera'],prev=null;
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
-function marca(h){try{if(typeof h!=='string'||view!=='store')return h;var s=S.stores.find(function(x){return x.id===cur});if(!s||!/ferreter/i.test(s.cat||''))return h;
+function marca(h){try{if(typeof h!=='string'||view!=='store')return h;var s=S.stores.find(function(x){return x.id===cur});if(!s||!(window.qhFerCat?window.qhFerCat(s.cat):/ferreter/i.test(s.cat||'')))return h;/* v477: todo «Hogar y construcción» */
  var t=TEMAS.indexOf(s.ferTema)>=0?s.ferTema:'amarillo',mia=S.mine.includes(s.id),m='<i class="qhfer-m" hidden data-t="'+t+'"'+(mia?' data-mia="1"':'')+'></i>';
- if(mia){var av='<div class="qhfer-av" role="note"><p><b>Los productos de esta ferretería se manejan en el Inventario.</b> Allí cambias precios, fotos, existencias y qué se muestra; luego tocas «Publicar tienda».</p><a class="btn" href="/ferreteria?s='+encodeURIComponent(s.id)+'#inventario">Abrir inventario</a></div>',
+ if(mia){var av='<div class="qhfer-av" role="note"><p><b>Los productos de esta tienda se manejan en el Inventario.</b> Allí cambias precios, fotos, existencias y qué se muestra; luego tocas «Publicar tienda».</p><a class="btn" href="/ferreteria?s='+encodeURIComponent(s.id)+'#inventario">Abrir inventario</a></div>',
   i=h.indexOf('<div class="icard">');h=i>=0?h.slice(0,i)+av+h.slice(i):av+h}
  return m+h}catch(e){return h}}
 function nueva(){var h=prev?prev.apply(this,arguments):storeView0.apply(this,arguments);return marca(h)}

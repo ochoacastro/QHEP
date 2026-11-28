@@ -1762,6 +1762,8 @@ boot();
    limpieza semanal y la de «Imágenes huérfanas» no tocan). Exportar: descarga un CSV.
    Para usarlo hace falta el rol Comerciante vigente (acc.merc o acc.merc1 de plans/<llave>); las reglas v52 lo revisan.
    Además (v473) la cuenta debe tener una tienda de la categoría «Ferreterías» (o «Ferretería»); esto lo revisa solo la página.
+   v477: no solo «Ferreterías»: cualquier subcategoría del grupo «Hogar y construcción» (las de fábrica y las que el administrador
+   cree o mueva a ese grupo, que se leen de meta/site.catGrp).
    Sin rol, quien ya tiene inventario lo ve en solo lectura.
    v474 (una sola tienda): la vitrina para clientes es la tienda de la ferretería en Mi Pradera. Esta página es solo el
    inventario: sin ?t= siempre entra a «Acceso del equipo» (patrón), y «Ver tienda» o «Volver a la tienda» llevan a la tienda
@@ -1810,9 +1812,15 @@ boot();
   if (!tQ && !ADMH.test(location.hash)) history.replaceState(null, '', location.pathname + location.search + '#inventario');
   const slug = x => String(x || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).replace(/-+$/, '');
   const mpUrl = s => location.origin + '/?tienda=' + (slug(s.name) ? slug(s.name) + '-' : '') + encodeURIComponent(s.id);
+  /* v477: ¿la categoría de la tienda está en el grupo «Hogar y construcción»? Igual que catGroupOf() de Mi Pradera (v215 + v464):
+     primero el grupo que eligió el administrador (meta/site.catGrp), si no el de fábrica. Los nombres viejos se pasan al nuevo. */
+  const HOGAR = 'Hogar y construcción', HOGAR0 = ['Hogar y decoración', 'Ferreterías', 'Cacharrerías y misceláneas'];
+  const VIEJO = { 'Hogar': 'Hogar y decoración', 'Muebles y decoración': 'Hogar y decoración', 'Ferretería': 'Ferreterías', 'Cacharrerías': 'Cacharrerías y misceláneas' };
+  let catGrp = {}; try { const m = await fs.doc('meta/site').get(); const g = m.exists && m.data().catGrp; if (g && typeof g === 'object') catGrp = g; } catch (e) {}
+  const esHogar = c => { c = String(c || ''); c = VIEJO[c] || c; return typeof catGrp[c] === 'string' ? catGrp[c] === HOGAR : HOGAR0.includes(c); };
   /* v474: el catálogo de una ferretería ahora es su tienda de Mi Pradera: los enlaces viejos ?t=<uid> llevan allá */
   if (tQ && !ADMH.test(location.hash)) {
-    try { const r = await fs.collection('stores').where('ownerUid', '==', tQ).get(); const s = r.docs.map(d => ({ ...d.data(), id: d.id })).find(x => /ferreter/i.test(x.cat || '')); if (s) { location.replace(mpUrl(s)); return; } } catch (e) {}
+    try { const r = await fs.collection('stores').where('ownerUid', '==', tQ).get(); const s = r.docs.map(d => ({ ...d.data(), id: d.id })).find(x => esHogar(x.cat)); if (s) { location.replace(mpUrl(s)); return; } } catch (e) {}
   }
 
   /* Catálogo publicado (lo ven todos, con o sin cuenta) */
@@ -1849,7 +1857,7 @@ boot();
     if (!ferr) {
       const bus = [fs.collection('stores').where('ownerUid', '==', me.uid).get()];
       if (ks.length) bus.push(fs.collection('stores').where('ownerKey', 'in', ks.slice(0, 10)).get());
-      for (const r of await Promise.allSettled(bus)) if (r.status === 'fulfilled') r.value.forEach(d => { if (/ferreter/i.test(d.data().cat || '') && !tiendas.some(x => x.id === d.id)) tiendas.push({ ...d.data(), id: d.id }); });
+      for (const r of await Promise.allSettled(bus)) if (r.status === 'fulfilled') r.value.forEach(d => { if (esHogar(d.data().cat) && !tiendas.some(x => x.id === d.id)) tiendas.push({ ...d.data(), id: d.id }); });
       if (tiendas.length) ferr = true;
     }
     /* v474: la tienda de Mi Pradera que se une con este inventario */
@@ -1861,7 +1869,7 @@ boot();
   /* Mensajes de «Acceso del equipo» */
   const salir = '<button class="btn" type="button" id="qhOut">Cerrar sesión</button>';
   if (!me) {
-    Q.msg = 'Entra con tu cuenta de Mi Pradera para administrar el inventario de tu ferretería. Es para negocios de la categoría Ferreterías con el rol Comerciante vigente.';
+    Q.msg = 'Entra con tu cuenta de Mi Pradera para administrar el inventario de tu negocio. Es para los negocios de Hogar y construcción (ferreterías, hogar y decoración, cacharrerías…) con el rol Comerciante vigente.';
     caja(`<form class="qhl" id="qhLogin" novalidate>
       <label class="f"><span>Correo o celular</span><input id="qhU" autocomplete="username" inputmode="email" required></label>
       <label class="f"><span>Clave</span><input id="qhP" type="password" autocomplete="current-password" required></label>
@@ -1879,12 +1887,12 @@ boot();
     Q.msg = 'Para usar el inventario de ferretería necesitas el rol Comerciante vigente en Mi Pradera' + (vencio ? ' (el tuyo venció el ' + new Date(vencio).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) + ').' : '.');
     caja(`<div class="brow" style="margin-bottom:12px"><a class="btn in" href="/#/roles">Ver planes y precios</a>${salir}</div>`);
   } else if (!ferr && !hay) {
-    Q.msg = 'El inventario es para los negocios de ferretería. Para usarlo, tu tienda en Mi Pradera debe estar en la categoría «Ferreterías».';
+    Q.msg = 'El inventario es para los negocios de Hogar y construcción. Para usarlo, tu tienda en Mi Pradera debe estar en una categoría de ese grupo (Ferreterías, Hogar y decoración, Cacharrerías y misceláneas…).';
     caja(`<div class="brow" style="margin-bottom:12px"><a class="btn in" href="/?panel">Ir a Mi cuenta</a>${salir}</div>`);
   } else if (!rol) {
     Q.ro = 'Tu rol Comerciante ' + (vencio ? 'venció el ' + new Date(vencio).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) : 'no está activo') + ': puedes ver tu inventario, pero no hacer cambios. Renuévalo en Mi Pradera, en Planes y precios.';
   } else if (!ferr) {
-    Q.ro = 'Tu tienda ya no está en la categoría «Ferreterías»: puedes ver tu inventario, pero no hacer cambios.';
+    Q.ro = 'Tu tienda ya no está en el grupo «Hogar y construcción»: puedes ver tu inventario, pero no hacer cambios.';
   }
   const puede = rol && ferr;
 

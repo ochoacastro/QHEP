@@ -1522,8 +1522,11 @@ const PRUEBAS = {
     await p.evaluate(() => { S.plan = { k: 'kA', uid: 'uA', plan: 'free', acc: { merc: Date.now() + 30 * 864e5 } };
       S.stores = S.stores.concat([{ id: 'fz', name: 'Ferretería Z', cat: 'Ferreterías', ownerUid: 'uA', ownerKey: 'kA', products: [] },
         { id: 'fv', name: 'Ferretería Vieja', cat: 'Ferretería', ownerUid: 'uA', ownerKey: 'kA', products: [] },
-        { id: 'rz', name: 'Restaurante Z', cat: 'Restaurantes', ownerUid: 'uA', ownerKey: 'kA', products: [] }]);
-      S.mine = ['fz', 'fv', 'rz']; closeModal(1); render() }); await p.waitForTimeout(600);
+        { id: 'rz', name: 'Restaurante Z', cat: 'Restaurantes', ownerUid: 'uA', ownerKey: 'kA', products: [] },
+        { id: 'hz', name: 'Hogar Z', cat: 'Hogar y decoración', ownerUid: 'uA', ownerKey: 'kA', products: [] },
+        { id: 'dz', name: 'Droguería Z', cat: 'Droguerías', ownerUid: 'uA', ownerKey: 'kA', products: [] }]);
+      S.site = Object.assign({}, S.site, { catGrp: { 'Droguerías': 'Hogar y construcción' } });
+      S.mine = ['fz', 'fv', 'rz', 'hz', 'dz']; closeModal(1); render() }); await p.waitForTimeout(600);
     check('En Mi cuenta ya no hay una fila aparte de inventario', await p.evaluate(() => !/Inventario de ferretería/.test(document.body.textContent)));
     await p.evaluate(() => pnlModal('tiendas')); await p.waitForTimeout(500);
     const r = await p.evaluate(() => [...document.querySelectorAll('#ov table.mst tbody tr')].map(tr => { const a = tr.querySelector('.v473-inv'), b = [...tr.querySelectorAll('.msta > *')].map(x => x.textContent.trim());
@@ -1532,7 +1535,10 @@ const PRUEBAS = {
     check('Mis tiendas: la ferretería tiene «Inventario», al lado de «Editar»', !!z && z.inv && z.tras === 'Editar', JSON.stringify(r));
     check('El botón abre el inventario de esa tienda (mipradera.com.co/ferreteria?s=…)', !!z && z.href === '/ferreteria?s=fz#inventario', JSON.stringify(z));
     check('Una tienda con el nombre viejo «Ferretería» también lo tiene', !!v && v.inv);
-    check('Una tienda que no es ferretería no tiene «Inventario»', !!rz && !rz.inv);
+    check('Una tienda que no es de Hogar y construcción no tiene «Inventario»', !!rz && !rz.inv);
+    const hz = r.find(x => /Hogar Z/.test(x.n)), dz = r.find(x => /Droguería Z/.test(x.n));
+    check('v477: todo el grupo Hogar y construcción tiene «Inventario» (Hogar y decoración)', !!hz && hz.inv, JSON.stringify(hz));
+    check('v477: también una subcategoría que el administrador movió a ese grupo', !!dz && dz.inv, JSON.stringify(dz));
     check('Los demás botones de Mis tiendas siguen (Ver, Compartir, Editar, Eliminar)', await p.evaluate(() => { const tr = document.querySelector('#ov table.mst tbody tr'); return ['Ver', 'Compartir', 'Editar', 'Eliminar'].every(t => [...tr.querySelectorAll('.msta > *')].some(x => x.textContent.trim() === t)) }));
     if (process.env.FOTO_V473) { await p.evaluate(() => document.querySelector('.v473-inv').scrollIntoView({ block: 'center' })); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V473 }) }
     sinErrores(p, 'Inventario en Mis tiendas'); await p.cerrar();
@@ -1543,12 +1549,16 @@ const PRUEBAS = {
       'products/fz__p1': { id: 'p1', sid: 'fz', name: 'Martillo', price: 18000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, _o: 1 },
       'products/fz__p2': { id: 'p2', sid: 'fz', name: 'Cinta aislante', price: 3000, imgs: [], ownerKey: 'kA', ownerUid: 'uA', fer: 1, out: true, _o: 2 },
       'stores/rz': { id: 'rz', name: 'Restaurante Z', cat: 'Restaurantes', wa: '3001234567', ownerUid: 'uB', ownerKey: 'kB', pexp: now + 30 * 864e5, products: [], _o: 2 },
-      'products/rz__q1': { id: 'q1', sid: 'rz', name: 'Almuerzo', price: 15000, imgs: [], ownerKey: 'kB', _o: 1 } };
+      'products/rz__q1': { id: 'q1', sid: 'rz', name: 'Almuerzo', price: 15000, imgs: [], ownerKey: 'kB', _o: 1 },
+      'stores/cz': { id: 'cz', name: 'Cacharrería Z', cat: 'Cacharrerías y misceláneas', wa: '3001234567', ownerUid: 'uC', ownerKey: 'kC', pexp: now + 30 * 864e5, products: [], _o: 3 },
+      'products/cz__c1': { id: 'c1', sid: 'cz', name: 'Ollas', price: 20000, imgs: [], ownerKey: 'kC', _o: 1 } };
     const p = await abrir({ seed, ruta: '?tienda=ferreteria-z-fz' }); await p.waitForTimeout(500);
     const vis = await p.evaluate(() => { const m = document.querySelector('.qhfer-m'), pl = document.querySelector('.pgrid .prod .plus'); return { view, cur, t: m && m.dataset.t, mia: !!(m && m.dataset.mia), fondo: pl && getComputedStyle(pl).backgroundColor, tablero: getComputedStyle(document.querySelector('.sname')).backgroundColor, aviso: !!document.querySelector('.qhfer-av'), agotado: /Agotado/.test(document.querySelector('.pgrid').textContent) } });
     check('Visitante: la ferretería se ve con su color (azul) en el letrero y «Agregar al carrito»', vis.view === 'store' && vis.t === 'azul' && vis.tablero === 'rgb(37, 99, 176)' && vis.fondo === 'rgb(255, 176, 0)', JSON.stringify(vis));
     check('Visitante: no ve el aviso del inventario', !vis.aviso && !vis.mia);
     check('Un producto agotado en el inventario sale «Agotado»', vis.agotado);
+    await p.evaluate(() => { cur = 'cz'; render() }); await p.waitForTimeout(300);
+    check('v477: una tienda de Cacharrerías (Hogar y construcción) también lleva los colores', await p.evaluate(() => view === 'store' && !!document.querySelector('.qhfer-m')));
     await p.evaluate(() => { cur = 'rz'; render() }); await p.waitForTimeout(300);
     check('Una tienda que no es ferretería no cambia de colores', await p.evaluate(() => view === 'store' && !document.querySelector('.qhfer-m') && getComputedStyle(document.querySelector('.sname')).backgroundColor !== 'rgb(37, 99, 176)'));
     sinErrores(p, 'Ferretería: visitante'); await p.cerrar();

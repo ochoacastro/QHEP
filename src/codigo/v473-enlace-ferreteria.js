@@ -6,7 +6,10 @@
 (function(){
 var orig=null;
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
-var esFerr=function(s){return !!s&&/ferreter/i.test(s.cat||'')};
+/* v477: el inventario y la tienda de ferretería son para todo el grupo «Hogar y construcción» (Ferreterías, Hogar y decoración,
+   Cacharrerías y misceláneas y las subcategorías que el administrador cree o mueva a ese grupo, v464/v476). La usa también v474. */
+window.qhFerCat=function(c){c=String(c||'');try{if(typeof CAT_MAP!=='undefined'&&CAT_MAP[c])c=CAT_MAP[c];return catGroupOf(c)==='Hogar y construcción'}catch(e){return /ferreter/i.test(c)}};
+var esFerr=function(s){return !!s&&window.qhFerCat(s.cat)};
 function tabla(ms){var h=orig.apply(this,arguments);if(typeof h!=='string'||!Array.isArray(ms))return h;
  ms.forEach(function(s){if(!esFerr(s))return;var ed='data-act="open" data-id="'+E(s.id)+'">Editar</button>',i=h.indexOf(ed);if(i<0)return;i+=ed.length;
   h=h.slice(0,i)+'<a class="btn v473-inv" href="/ferreteria?s='+encodeURIComponent(s.id)+'#inventario" data-v473="'+E(s.id)+'">Inventario</a>'+h.slice(i)});/* v474: ?s= dice a qué tienda publica el inventario */
