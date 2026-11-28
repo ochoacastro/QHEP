@@ -26,6 +26,15 @@ a{color:var(--a)}
 .wrap{width:min(1080px,100%);margin-inline:auto;padding-inline:16px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 :focus-visible{outline:3px solid var(--a);outline-offset:2px}
+/* v484: decoración, como el tablero de herramientas del inventario de ferretería: la vitrina de una sala de exhibición en azul marino
+   (pared, zócalo y piso), con lámpara encendida, cuadro, sofá con su etiqueta de oferta, mesa con planta y tapete, en línea clara */
+.vit{background:linear-gradient(transparent 0 78%,#0b2f6b 78%),repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 2px,transparent 2px 24px),#103f8d;border-bottom:1px solid #0b2f6b;overflow:hidden}
+.vit svg{display:block;width:min(460px,100%);height:auto;margin:0 auto}
+.vit .l{fill:none;stroke:#e8eefb;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.vit .t{fill:rgba(255,255,255,.12)}
+.vit .s{fill:#f6d58e;stroke:#e8eefb;stroke-width:2.4;stroke-linejoin:round}
+.vit .r{fill:#c8102e;stroke:#e8eefb;stroke-width:1.6;stroke-linejoin:round}
+.vit .p{fill:none;stroke:#9fd8b4;stroke-width:2.4;stroke-linecap:round}
 /* barra superior */
 .top{background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
 .top .wrap{display:flex;align-items:center;gap:12px;min-height:64px;padding-block:8px}
@@ -133,7 +142,7 @@ input.in:focus,select.in:focus,textarea.in:focus{border-color:var(--a);outline:0
 .pub{display:grid;gap:12px}
 .pub p{margin:0;color:var(--mute)}
 /* acceso y patrón */
-.gate{max-width:440px;margin:40px auto;padding:24px 20px;background:var(--paper);border:1px solid var(--line);border-radius:18px;text-align:center}
+.gate{max-width:440px;margin:24px auto 40px;padding:24px 20px;background:var(--paper);border:1px solid var(--line);border-radius:18px;text-align:center}
 .gate h1{margin:0 0 8px;font-size:24px}
 .gate p{margin:0 0 14px;color:var(--mute)}
 .gate form{display:grid;gap:12px;text-align:left}
@@ -200,6 +209,21 @@ body.ro .w{display:none!important}
   <a class="btn sm" id="verT" href="/" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-6 9 6v10H3z"/><path d="M9 20v-6h6v6"/></svg><span>Ver tienda</span></a>
   <button class="btn icb" type="button" id="bloq" aria-label="Bloquear" title="Bloquear" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
 </div></header>
+<div class="vit" aria-hidden="true"><svg viewBox="0 0 360 132">
+  <defs><radialGradient id="luz"><stop offset="0" stop-color="#f6d58e" stop-opacity=".55"/><stop offset="1" stop-color="#f6d58e" stop-opacity="0"/></radialGradient></defs>
+  <circle cx="74" cy="40" r="46" fill="url(#luz)"/>
+  <ellipse class="t" cx="190" cy="114" rx="104" ry="7"/>
+  <rect class="l" x="114" y="20" width="46" height="34" rx="2"/><path class="l" d="M118 50l12-14 9 9 6-6 11 11"/><circle class="l" cx="150" cy="29" r="3"/>
+  <path class="s" d="M62 24h24l-5-16H67z"/><path class="l" d="M74 24v78M64 103h20"/>
+  <rect class="l t" x="148" y="60" width="104" height="26" rx="9"/>
+  <rect class="l t" x="140" y="78" width="120" height="18" rx="6"/>
+  <rect class="l t" x="132" y="66" width="18" height="30" rx="7"/><rect class="l t" x="250" y="66" width="18" height="30" rx="7"/>
+  <path class="l" d="M200 62v22M146 96v7M254 96v7"/>
+  <path class="l" d="M262 70l7 6"/><path class="r" d="M266 74l10-3 8 9-10 4z"/><circle cx="271" cy="77" r="1.3" fill="#e8eefb"/>
+  <path class="l" d="M286 82h34M291 82v21M315 82v21"/>
+  <path class="l t" d="M295 82l2-12h12l2 12"/><path class="p" d="M303 70c-1-9-8-13-14-14M303 70c1-10 6-15 13-17M303 70v-14"/>
+  <path class="l" d="M20 104h320" stroke-opacity=".5"/>
+</svg></div>
 
 <section id="gate" class="wrap"><div class="gate"><h1 id="gT">Inventario de mueblería</h1><p id="gMsg">Comprobando tu acceso…</p><div id="gBox"></div></div></section>
 
