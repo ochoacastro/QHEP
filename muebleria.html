@@ -416,13 +416,14 @@ const ks = [];
 { const em = String(me.email || '').toLowerCase(); if (em) ks.push(await hex('mail:' + em)); const c = /^(\d{10})@cel\.qhep\.app$/.exec(em); if (c) ks.push(await hex('wa:' + c[1])); const ph = /^\+57(\d{10})$/.exec(me.phoneNumber || ''); if (ph) ks.push(await hex('wa:' + ph[1])); }
 let rol = me.uid === ADMIN_UID, vencio = 0;
 for (const k of [...new Set(ks)]) { try { const s = await fs.doc('plans/' + k).get(); if (!s.exists) continue; const a = s.data().acc || {}, fin = Math.max(+a.merc || 0, +a.merc1 || 0); if (fin > Date.now()) rol = true; else vencio = Math.max(vencio, fin); } catch (e) {} }
-/* ¿la tienda es una mueblería? Igual que window.qhMuebleCat de Mi Pradera (v473 + v481): «mueble» o «colchón» en el nombre de la
-   subcategoría, dentro de los grupos «Hogar y decoración» o «Construcción» (antes «Hogar y construcción»), según meta/site.catGrp */
+/* ¿la tienda es una mueblería? Igual que window.qhMuebleCat de Mi Pradera (v473 + v481 + v483): su subcategoría está en el grupo
+   «Hogar y decoración», según meta/site.catGrp (lo guardado en el grupo viejo «Hogar y construcción» con «mueble» o «colchón» también) */
 const GRP_OK = ['Hogar y decoración', 'Construcción', 'Hogar y construcción'], GRP0 = ['Hogar y decoración', 'Ferreterías', 'Cacharrerías y misceláneas'];
 const VIEJO = { 'Hogar': 'Hogar y decoración', 'Muebles y decoración': 'Hogar y decoración', 'Ferretería': 'Ferreterías', 'Cacharrerías': 'Cacharrerías y misceláneas' };
 let catGrp = {}; try { const m = await fs.doc('meta/site').get(); const g = m.exists && m.data().catGrp; if (g && typeof g === 'object') catGrp = g; } catch (e) {}
 const esHogar = c => { c = VIEJO[c] || String(c || ''); return typeof catGrp[c] === 'string' ? GRP_OK.includes(catGrp[c]) : GRP0.includes(c); };
-const esMue = c => { c = VIEJO[c] || String(c || ''); return /muebl|colch[oó]n/i.test(c) && esHogar(c); };
+/* v483: es mueblería toda tienda del grupo «Hogar y decoración» (igual que window.qhMuebleCat de Mi Pradera) */
+const esMue = c => { c = VIEJO[c] || String(c || ''); const g = catGrp[c]; return typeof g === 'string' ? (g === 'Hogar y decoración' || (g === 'Hogar y construcción' && /muebl|colch[oó]n|^hogar y decoraci/i.test(c))) : c === 'Hogar y decoración'; };
 const raiz = 'fer/' + me.uid + '/';
 let cfg = {}, hay = false;
 try { const c = await fs.doc(raiz + 'sys/config').get(); hay = c.exists; cfg = c.exists ? c.data() : {}; } catch (e) {}
@@ -439,7 +440,7 @@ const tienda = mues.find(x => x.id === sQ) || mues.find(x => x.id === cfg.sid) |
 const mpUrl = s => location.origin + '/?tienda=' + (slug(s.name) ? slug(s.name) + '-' : '') + encodeURIComponent(s.id);
 if (!tienda && !hay) {
   const otra = tiendas.find(x => esHogar(x.cat));
-  gate('Este inventario es para las mueblerías: tu tienda en Mi Pradera debe estar en la subcategoría «Mueblerías» (grupo Hogar y decoración).', `<div class="row">${otra ? `<a class="btn pri" href="/ferreteria?s=${encodeURIComponent(otra.id)}#inventario">Abrir el inventario de ferretería</a>` : '<a class="btn pri" href="/?panel">Ir a Mi cuenta</a>'}${salir}</div>`);
+  gate('Este inventario es para las mueblerías: tu tienda en Mi Pradera debe estar en una subcategoría del grupo «Hogar y decoración», como «Mueblerías».', `<div class="row">${otra ? `<a class="btn pri" href="/ferreteria?s=${encodeURIComponent(otra.id)}#inventario">Abrir el inventario de ferretería</a>` : '<a class="btn pri" href="/?panel">Ir a Mi cuenta</a>'}${salir}</div>`);
   return;
 }
 if (!rol && !hay) { gate('Para usar el inventario necesitas el rol Comerciante vigente en Mi Pradera' + (vencio ? ' (el tuyo venció el ' + new Date(vencio).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) + ').' : '.'), `<div class="row"><a class="btn pri" href="/#/roles">Ver planes y precios</a>${salir}</div>`); return; }

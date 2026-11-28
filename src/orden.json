@@ -1935,6 +1935,15 @@
  },
  {
   "t": "js",
+  "tag": "<script id=\"v483-categoria-editar-tienda\">",
+  "f": "codigo/v483-categoria-editar-tienda.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
   "tag": "<script>",
   "fs": [
    "codigo/principal/01-cats.js",
