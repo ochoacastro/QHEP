@@ -1889,6 +1889,42 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v478-muebleria-tienda-css\">",
+  "f": "estilos/v478-muebleria-tienda.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v478-muebleria-tienda\">",
+  "f": "codigo/v478-muebleria-tienda.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "css",
+  "tag": "<style id=\"v479-muebleria-categorias-css\">",
+  "f": "estilos/v479-muebleria-categorias.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v479-muebleria-categorias\">",
+  "f": "codigo/v479-muebleria-categorias.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script>",
   "fs": [
