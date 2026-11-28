@@ -1,0 +1,15 @@
+/* v485: imagen de muestra para anuncios sin foto (la arma v485-anuncio-sin-foto.js). Dibujo de línea en el color del tipo de anuncio
+   (--c) sobre un fondo suave del mismo color, con la etiqueta «Imagen de referencia». */
+.adpic.v485p{background:linear-gradient(180deg,color-mix(in srgb,var(--c,#0B6E6E) 7%,#fff),color-mix(in srgb,var(--c,#0B6E6E) 15%,#fff))!important}
+html.dark .adpic.v485p{background:linear-gradient(180deg,color-mix(in srgb,var(--c,#0B6E6E) 18%,#10141d),color-mix(in srgb,var(--c,#0B6E6E) 30%,#10141d))!important}
+.adpic>.nop.v485{position:absolute;inset:0;display:block;opacity:1;font-size:0;color:var(--c,#0B6E6E)}
+html.dark .adpic>.nop.v485{color:color-mix(in srgb,var(--c,#0B6E6E) 45%,#fff)}
+.nop.v485 svg{position:absolute;inset:12px 10px 26px;width:calc(100% - 20px);height:calc(100% - 38px);fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.nop.v485 svg .f{fill:color-mix(in srgb,currentColor 14%,#fff)}
+html.dark .nop.v485 svg .f{fill:color-mix(in srgb,currentColor 18%,#10141d)}
+.nop.v485 svg .s{fill:color-mix(in srgb,#f2b705 45%,transparent);stroke:none}
+.nop.v485 svg .n{fill:#fff;stroke:currentColor;stroke-width:2;opacity:.75}
+html.dark .nop.v485 svg .n{fill:#1b2130}
+.nop.v485 small{position:absolute;left:8px;bottom:6px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.85);color:#3a4250;font-size:11px;font-weight:500;line-height:1.5;letter-spacing:0}
+html.dark .nop.v485 small{background:rgba(16,20,29,.8);color:#c9d0dc}
+.nop.v485 .v485t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}

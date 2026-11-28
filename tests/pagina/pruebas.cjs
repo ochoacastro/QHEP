@@ -1663,6 +1663,29 @@ const PRUEBAS = {
     if (process.env.FOTO_V482) { await p.evaluate(() => document.querySelector('.qmu-sel').closest('.prod').scrollIntoView({ block: 'center' })); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V482 }) }
     sinErrores(p, 'Mueblería: medida y color'); await p.cerrar();
   },
+  async anuncioSinFoto() { // v485: los anuncios sin foto muestran un dibujo de muestra según el tipo, con «Imagen de referencia»
+    const ad = (id, type, title, f, x) => Object.assign({ id, type, title, price: 450000, zone: 'Centro', desc: '', imgs: [], f, ts: Date.now(), ownerKey: 'kZ', owner: 'Ana' }, x);
+    const seed = { 'ads/i1': ad('i1', 'arr', 'Casa de 2 habitaciones', { ptype: 'Casa', beds: 2, baths: 1 }), 'ads/i2': ad('i2', 'arr', 'Apartamento central', { ptype: 'Apartamento' }),
+      'ads/i3': ad('i3', 'arr', 'Habitación amoblada', { ptype: 'Habitación' }), 'ads/i4': ad('i4', 'arr', 'Local en esquina', { ptype: 'Local' }),
+      'ads/i5': ad('i5', 'arr', 'Con foto', { ptype: 'Casa' }, { imgs: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='] }),
+      'ads/v1': ad('v1', 'veh', 'Moto 2020', { vtype: 'Moto' }) };
+    const p = await abrir({ seed });
+    await p.evaluate(() => { closeModal(1); view = 'arr'; render() }); await p.waitForTimeout(600);
+    const L = await p.evaluate(() => [...document.querySelectorAll('[data-act="openAd"]')].map(b => { const n = b.querySelector('.adpic>.nop'), sv = n && n.querySelector('svg'); return { id: b.dataset.id, dib: !!sv, ref: n ? (n.querySelector('small') || {}).textContent : '', img: !!b.querySelector('.adpic>img'), h: sv ? sv.getBoundingClientRect().height : 0 } }));
+    const g = id => L.find(x => x.id === id) || {};
+    check('v485: los arriendos sin foto muestran un dibujo con «Imagen de referencia», no «Sin foto»', ['i1', 'i2', 'i3', 'i4'].every(id => g(id).dib && g(id).ref === 'Imagen de referencia' && g(id).h > 60) && !/Sin foto\b/.test(await p.evaluate(() => document.querySelector('.adpic').innerText)), JSON.stringify(L));
+    check('v485: el anuncio con foto sigue con su foto', g('i5').img && !g('i5').dib);
+    const dif = await p.evaluate(() => { const s = id => document.querySelector('[data-act="openAd"][data-id="' + id + '"] svg').innerHTML; return new Set(['i1', 'i2', 'i3', 'i4'].map(s)).size });
+    check('v485: casa, apartamento, habitación y local tienen dibujos distintos', dif === 4, String(dif));
+    if (process.env.FOTO_V485) { await p.evaluate(() => document.querySelector('[data-act="openAd"]').scrollIntoView({ block: 'start' })); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V485 }) }
+    await p.evaluate(() => { curAd = 'i1'; view = 'ad'; render() }); await p.waitForTimeout(500);
+    const v = await p.evaluate(() => { const n = document.querySelector('.adview .adpic>.nop'); return { dib: !!(n && n.querySelector('svg')), alt: n && n.getAttribute('aria-label') } });
+    check('v485: el anuncio abierto también muestra el dibujo', v.dib && /imagen de referencia/.test(v.alt), JSON.stringify(v));
+    if (process.env.FOTO_V485B) { await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V485B }) }
+    await p.evaluate(() => { view = 'veh'; render() }); await p.waitForTimeout(500);
+    check('v485: un vehículo sin foto también tiene su dibujo', await p.evaluate(() => !!document.querySelector('[data-act="openAd"][data-id="v1"] .adpic>.nop svg')));
+    sinErrores(p, 'Anuncio sin foto'); await p.cerrar();
+  },
 };
 
 (async () => {

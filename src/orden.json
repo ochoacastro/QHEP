@@ -1943,6 +1943,24 @@
   "v": "\n"
  },
  {
+  "t": "css",
+  "tag": "<style id=\"v485-anuncio-sin-foto-css\">",
+  "f": "estilos/v485-anuncio-sin-foto.css"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
+  "t": "js",
+  "tag": "<script id=\"v485-anuncio-sin-foto\">",
+  "f": "codigo/v485-anuncio-sin-foto.js"
+ },
+ {
+  "t": "txt",
+  "v": "\n"
+ },
+ {
   "t": "js",
   "tag": "<script>",
   "fs": [
