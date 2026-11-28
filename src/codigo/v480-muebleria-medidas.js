@@ -7,8 +7,8 @@
 (function(){
 var ORD=['Sencillo','Semidoble','Doble','Queen','King'],sel={};
 var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
-var rot=function(m){var p=String(m||'').match(/^(Sencillo|Semidoble|Doble|Queen|King) (\d+ x \d+)$/);return p?p[2]+' | '+p[1]:String(m||'')};/* «Doble 140 x 190» → «140 x 190 | Doble»; v482: otras medidas («3 puestos») quedan igual */
-var pos=function(m){var i=ORD.indexOf(String(m||'').split(' ')[0]);return i<0?99:i};
+var rot=function(m){var p=String(m||'').match(/^(.+?) (\d+ x \d+)$/);/* v486: también «Tapete Pequeño 80 x 150» */return p?p[2]+' | '+p[1]:String(m||'')};/* «Doble 140 x 190» → «140 x 190 | Doble»; v482: otras medidas («3 puestos») quedan igual */
+var pos=function(m){if(m==='Medida única')return -1;/* v486 */var t=/^Tapete (Pequeño|Mediano|Grande) /.exec(m||'');if(t)return 10+['Pequeño','Mediano','Grande'].indexOf(t[1]);var k=/^(?:Unidad|Pack) \| (\d+) /.exec(m||'');if(k)return 20+(+k[1]);/* almohadas: unidad y paquetes */var i=ORD.indexOf(String(m||'').split(' ')[0]);return i<0?99:i};
 var base=function(n,p){if(p&&p.ferN)return String(p.ferN);/* v482: el inventario de mueblería manda el nombre sin medida ni color */return String(n||'').replace(/\s*\((?:Sencillo|Semidoble|Doble|Queen|King) \d+ x \d+\)$/,'')};
 var uniq=function(L){return L.filter(function(x,i){return x&&L.indexOf(x)===i})};
 window.qhMueTallas=function(byId){
