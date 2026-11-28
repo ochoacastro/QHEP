@@ -24,6 +24,15 @@ body.qhmue #app .ptitle{scroll-margin-top:140px}
 html.dark .qmu-s .qmu-ic .f,html.dark .qmu-hi .qmu-ic .f{fill:var(--mud)}
 .qmu-h:focus-visible,.qmu-s:focus-visible,.qmu-todo:focus-visible,.qmu-todos:focus-visible{outline:3px solid var(--mua);outline-offset:2px}
 .qmu-s:active{transform:scale(.98)}
-#app .pgrid .prod.qmu-no{display:none!important}
+#app .pgrid .prod.qmu-no,#app .pgrid .prod.qmu-sz{display:none!important}
+/* v480: selector de medida (lo pone v480-muebleria-medidas.js) */
+.qmu-med{display:block;width:100%;margin:6px 0 8px}
+.qmu-mt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.qmu-med select{display:block;width:100%;min-height:46px;padding:10px 40px 10px 14px;background:var(--muf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a6377' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/20px;border:1.5px solid var(--mud);border-radius:12px!important;color:var(--mub);font-size:15px;font-weight:400!important;text-overflow:clip;-webkit-appearance:none;appearance:none}
+.qmu-med select{padding-left:12px;padding-right:34px;background-position:right 10px center}
+.qmu-med select:focus-visible{outline:3px solid var(--mua);outline-offset:1px;border-color:var(--mua)}
+/* la página cambia cada <select> por su botón y una hoja con las opciones (v221): ese botón toma la forma del selector de medida */
+body.qhmue .qmu-med .qs-btn{min-height:46px;margin:0!important;padding:10px 10px 10px 12px!important;background:var(--muf)!important;border:1.5px solid var(--mud)!important;border-radius:12px!important;color:var(--mub)!important;font-size:15px!important;font-weight:400!important}
+body.qhmue .qmu-med .qs-btn svg{width:18px;height:18px;flex:none}
 @media (min-width:700px){.qmu-g{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media (prefers-reduced-motion:reduce){.qmu-fl{transition:none}.qmu-s:active{transform:none}}

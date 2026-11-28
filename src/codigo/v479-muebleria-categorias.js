@@ -71,20 +71,23 @@ function aplicar(){var m=document.querySelector('.qhmue-m');var s=m?tienda():nul
  if(!s){est.tienda=null;return}
  if(est.tienda!==s.id){est.tienda=s.id;est.abierta=null;est.filtro=null}
  var t=document.querySelector('#app .ptitle');if(!t)return;
+ var byId={};(s.products||[]).forEach(function(p){byId[p.id]=p});
+ if(typeof window.qhMueTallas==='function')try{window.qhMueTallas(byId)}catch(e){}/* v480: medidas del mismo modelo en una tarjeta */
  var viejo=document.querySelector('.qmu-w');var html=menu(s);
  if(!html){if(viejo)viejo.remove();return}
  var w=viejo||document.createElement('div');w.className='qmu-w';if(w.getAttribute('data-h')!==html+JSON.stringify(est.filtro)){w.innerHTML=html;w.setAttribute('data-h',html+JSON.stringify(est.filtro))}
  if(!viejo)t.parentNode.insertBefore(w,t);
  /* filtrar tarjetas */
- var byId={};(s.products||[]).forEach(function(p){byId[p.id]=p});var n=0;
+ var n=0;
  document.querySelectorAll('#app .pgrid .prod').forEach(function(card){var b=card.querySelector('[data-act="prod"][data-id],[data-act="add"][data-id]'),p=b&&byId[b.getAttribute('data-id')],d=deProd(p);
-  var ok=!est.filtro||(d&&(est.filtro.t==='sub'?d.sub===est.filtro.n:d.cat===est.filtro.n));card.classList.toggle('qmu-no',!ok);if(ok&&est.filtro)n++});
+  var ok=!est.filtro||(d&&(est.filtro.t==='sub'?d.sub===est.filtro.n:d.cat===est.filtro.n));card.classList.toggle('qmu-no',!ok);if(ok&&est.filtro&&!card.classList.contains('qmu-sz'))n++});/* v480: cada modelo cuenta una vez */
  /* la barra del filtro solo se toca si cambió (si no, el observador la volvería a poner sin parar) */
  var fx=document.querySelector('.qmu-fx'),nuevo=est.filtro?barra(n):'';
  if(fx&&fx.getAttribute('data-h')===nuevo&&fx.previousElementSibling===t)return;
  if(fx)fx.remove();
  if(nuevo){t.insertAdjacentHTML('afterend',nuevo);t.nextElementSibling.setAttribute('data-h',nuevo)}}
 var pend=false;function luego(){if(pend)return;pend=true;requestAnimationFrame(function(){pend=false;try{aplicar()}catch(e){}})}
+window.qhMueAplicar=function(){try{aplicar()}catch(e){}};/* v480: al cambiar la medida */
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-qmu-cat],[data-qmu-sub],[data-qmu-todo],[data-qmu-todos]');if(!b)return;e.preventDefault();
  if(b.hasAttribute('data-qmu-cat')){var c=b.getAttribute('data-qmu-cat');est.abierta=est.abierta===c?null:c}
  else if(b.hasAttribute('data-qmu-sub'))est.filtro={t:'sub',n:b.getAttribute('data-qmu-sub')};
