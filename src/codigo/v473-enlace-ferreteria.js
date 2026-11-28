@@ -10,8 +10,9 @@ var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){ret
    Cacharrerías y misceláneas y las subcategorías que el administrador cree o mueva a ese grupo, v464/v476). La usa también v474. */
 window.qhFerCat=function(c){c=String(c||'');try{if(typeof CAT_MAP!=='undefined'&&CAT_MAP[c])c=CAT_MAP[c];var g=catGroupOf(c);return g==='Construcción'||g==='Hogar y decoración'/* v481: «Hogar y construcción» se dividió en estos dos grupos */}catch(e){return /ferreter/i.test(c)}};
 /* v478: las mueblerías (subcategoría «Mueblerías» u otra con «mueble» o «colchón» en el nombre, dentro de Hogar y construcción)
-   usan el mismo inventario, pero su tienda lleva el diseño de mueblería (v478) en vez del de ferretería. */
-window.qhMuebleCat=function(c){c=String(c||'');try{if(typeof CAT_MAP!=='undefined'&&CAT_MAP[c])c=CAT_MAP[c]}catch(e){}return /muebl|colch[oó]n/i.test(c)&&window.qhFerCat(c)};
+   usan el mismo inventario, pero su tienda lleva el diseño de mueblería (v478) en vez del de ferretería.
+   v483: ahora es mueblería toda tienda del grupo «Hogar y decoración» (v481), sea cual sea el nombre de su subcategoría. */
+window.qhMuebleCat=function(c){c=String(c||'');try{if(typeof CAT_MAP!=='undefined'&&CAT_MAP[c])c=CAT_MAP[c];return catGroupOf(c)==='Hogar y decoración'/* v483: todo el grupo «Hogar y decoración» es mueblería */}catch(e){return /muebl|colch[oó]n/i.test(c)}};
 var esFerr=function(s){return !!s&&window.qhFerCat(s.cat)};
 function tabla(ms){var h=orig.apply(this,arguments);if(typeof h!=='string'||!Array.isArray(ms))return h;
  ms.forEach(function(s){if(!esFerr(s))return;var ed='data-act="open" data-id="'+E(s.id)+'">Editar</button>',i=h.indexOf(ed);if(i<0)return;i+=ed.length;

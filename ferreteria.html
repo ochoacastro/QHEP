@@ -1873,9 +1873,11 @@ boot();
     tienda = tiendas.find(x => x.id === sQ) || tiendas.find(x => x.id === (cfg && cfg.sid)) || tiendas[0] || null;
     if (tienda) { Q.url = mpUrl(tienda); Q.tienda = tienda.id; }
     /* v480: ¿es una mueblería? (igual que window.qhMuebleCat de Mi Pradera, v478) */
-    if (tienda) Q.mue = /muebl|colch[oó]n/i.test(VIEJO[tienda.cat] || tienda.cat || '');
+    /* v483: todo el grupo «Hogar y decoración» es mueblería (igual que window.qhMuebleCat de Mi Pradera) */
+    const esDeco = c => { c = VIEJO[c] || String(c || ''); const g = catGrp[c]; return typeof g === 'string' ? (g === 'Hogar y decoración' || (g === 'Hogar y construcción' && /muebl|colch[oó]n|^hogar y decoraci/i.test(c))) : c === 'Hogar y decoración'; };
+    if (tienda) Q.mue = esDeco(tienda.cat);
     /* v482: las mueblerías tienen su propio inventario (muebleria.html): los enlaces viejos llevan allá */
-    if (Q.mue && !tiendas.some(x => !/muebl|colch[oó]n/i.test(VIEJO[x.cat] || x.cat || ''))) { location.replace('/muebleria' + location.search + '#inventario'); return; }
+    if (Q.mue && (sQ === tienda.id || !tiendas.some(x => !esDeco(x.cat)))) { location.replace('/muebleria' + location.search + '#inventario'); return; }
   }
 
   /* Mensajes de «Acceso del equipo» */

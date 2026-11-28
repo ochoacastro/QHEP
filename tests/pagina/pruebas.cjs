@@ -1041,13 +1041,17 @@ const PRUEBAS = {
     await p.evaluate(() => document.querySelector('[data-admedit="s1"]').click()); await p.waitForTimeout(500);
     check('Se abre la tienda con los botones del dueño y la barra de edición', await p.evaluate(() => view === 'store' && cur === 's1' && !!document.querySelector('[data-act="editShop"]') && !!document.querySelector('[data-act="newProd"],[data-act="prodForm"],[data-act="addProd"]') && /Editando como administrador/.test((document.getElementById('aed') || {}).textContent || '')));
     await p.evaluate(() => { document.querySelector('[data-act="editShop"]').click() }); await p.waitForTimeout(400);
-    await p.evaluate(() => { document.getElementById('e-name').value = 'Panadería Ana'; document.querySelector('[data-act="saveEditShop"]').click() }); await p.waitForTimeout(500);
+    if (process.env.FOTO_V483) { await p.evaluate(() => document.getElementById('e-cat').scrollIntoView({ block: 'center' })); await p.waitForTimeout(300); await p.screenshot({ path: process.env.FOTO_V483 }) }
+    check('v483: «Editar tienda» tiene «Categoría», con la de la tienda elegida y las subcategorías por grupo', await p.evaluate(() => { const s = document.getElementById('e-cat'); return !!s && s.value === 'Otros' && !!s.querySelector('optgroup[label="Hogar y decoración"] option[value="Hogar y decoración"]') && !!s.querySelector('optgroup[label="Construcción"] option[value="Ferreterías"]') }));
+    await p.evaluate(() => { document.getElementById('e-name').value = 'Panadería Ana'; document.getElementById('e-cat').value = 'Hogar y decoración'; document.querySelector('[data-act="saveEditShop"]').click() }); await p.waitForTimeout(500);
+    check('v483: al guardar, la tienda pasa a «Hogar y decoración» y toma el diseño de mueblería', await p.evaluate(() => S.stores.find(x => x.id === 's1').cat === 'Hogar y decoración' && view === 'store' && !!document.querySelector('.qhmue-m') && !document.querySelector('.qhfer-m')));
     await p.evaluate(() => prodForm()); await p.waitForTimeout(300);
     await p.evaluate(() => { if (window.qhPasos) qhPasos.ver('#p-name'); document.getElementById('p-name').value = 'Torta'; document.getElementById('p-price').value = '20.000'; document.querySelector('[data-act="saveProd"]').click() }); await p.waitForTimeout(1500);
     const g = await p.evaluate(() => { const s = S.stores.find(x => x.id === 's1'); return { n: s.name, ps: s.products.map(x => x.name + ':' + x.price).join(), err: (document.getElementById('err') || {}).textContent || '' } });
     check('El administrador cambia el nombre y agrega un producto', g.n === 'Panadería Ana' && g.ps === 'Pan:500,Torta:20000', JSON.stringify(g));
     const doc = await p.evaluate(async () => { const d = Object.values((QH.raw ? QH.raw() : {}).products || {}); const db = firebase.firestore(); const s = await db.collection('stores').doc('s1').get(), ps = await db.collection('products').get(); return { s: s.data(), ps: ps.docs.map(x => x.data()) } });
     check('En la base de datos la tienda y el producto nuevo siguen siendo del dueño', doc.s.name === 'Panadería Ana' && doc.s.ownerKey === 'kA' && doc.s.ownerUid === 'uA' && doc.ps.some(x => x.name === 'Torta' && x.ownerKey === 'kA' && x.ownerUid === 'uA'), JSON.stringify(doc).slice(0, 400));
+    check('v483: en la base de datos la tienda quedó con la categoría nueva', doc.s.cat === 'Hogar y decoración', doc.s.cat);
     await p.evaluate(() => document.querySelector('[data-admedit-fin]').click()); await p.waitForTimeout(500);
     check('«Terminar» vuelve al panel y quita la tienda de «mías»', await p.evaluate(() => view === 'admin' && !S.mine.includes('s1') && !document.getElementById('aed')));
     sinErrores(p, 'Admin edita tienda'); await p.cerrar();
